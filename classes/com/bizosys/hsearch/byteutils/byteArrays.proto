@@ -1,0 +1,42 @@
+package com.bizosys.hsearch.byteutils;
+
+message ArrayDouble {
+  
+  repeated double val = 1 [packed=true];
+}
+
+
+message ArrayFloat {
+  
+  repeated float val = 1 [packed=true];
+}
+
+
+message ArrayInt {
+  
+  repeated int32 val = 1 [packed=true];
+}
+
+
+message ArrayLong {
+  
+  repeated int64 val = 1 [packed=true];
+}
+
+
+message ArrayBool {
+  
+  repeated bool val = 1 [packed=true];
+}
+
+
+message ArrayString {
+  
+  repeated string val = 1 ;
+}
+
+
+message ArrayBytes {
+  
+  repeated bytes val = 1 ;
+}
