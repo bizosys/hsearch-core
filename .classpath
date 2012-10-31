@@ -9,5 +9,18 @@
 	<classpathentry kind="lib" path="lib/hbase-0.90.4-cdh3u3.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-core-0.20.2-cdh3u3.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/zookeeper-3.3.4-cdh3u3.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/avro-1.5.4.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/avro-ipc-1.5.4.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/commons-cli-1.2.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/commons-codec-1.4.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/commons-el-1.0.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/commons-net-1.4.1.jar"/>
+	<classpathentry kind="lib" path="/hsearch/lib/slf4j-api-1.6.1.jar"/>
+	<classpathentry kind="lib" path="/hsearch/hbase/lib/guava-r06.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

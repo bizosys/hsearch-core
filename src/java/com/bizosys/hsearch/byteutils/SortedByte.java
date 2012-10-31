@@ -38,5 +38,9 @@ public abstract class SortedByte<T> {
 	public abstract void getGreaterThanEuqalToIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos) throws IOException;
 	public abstract void getLessThanIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos ) throws IOException;
 	public abstract void getLessThanEuqalToIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos) throws IOException;
+
+	public abstract void getRangeIndexes(byte[] inputData, T matchNoStart, T matchNoEnd, Collection<Integer> matchings) throws IOException;
+	public abstract void getRangeIndexesInclusive(byte[] inputData, T matchNoStart, T matchNoEnd, Collection<Integer> matchings) throws IOException;
+	
 	
 }

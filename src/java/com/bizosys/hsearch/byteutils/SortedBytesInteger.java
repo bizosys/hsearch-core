@@ -62,7 +62,9 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 	@Override
 	public int getEqualToIndex(byte[] inputBytes, int offset, Integer matchNo) {
 		
+		if ( null == inputBytes) return -1;
 		int intBT = inputBytes.length / 4;
+		if ( 0 == intBT) return -1;
 		
 		int left = 0;
 		int right = intBT - 1;
@@ -82,7 +84,7 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 				mid = -1;
 				break;
 			}
-			if ( isSame > 0 ) { //Smaller
+			if ( isSame < 0 ) { //Smaller
 				newMid = mid + ( right - mid ) / 2;
 				if ( newMid == mid && (right -1) == mid ) newMid = right;
 				left = mid;
@@ -105,15 +107,17 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 	
 	@Override
 	public void getEqualToIndexes(byte[] intB, Integer matchNo, Collection<Integer> matchings) {
-		if ( null == intB ) return;
+
+		if ( null == intB) return;
+		int intBT = intB.length / 4;
+		if ( 0 == intBT) return;
+		
 		byte[] matchingNoB = Storable.putInt(matchNo);
 		
 		int index = getEqualToIndex(intB, 0, matchNo);
 		//System.out.println("index:" + index);
 		if ( index == -1) return ;
 
-		int intBT = intB.length / 4;
-		
 		//Include all matching indexes from left
 		matchings.add(index);
 		//System.out.println("First Index:" + index);
@@ -150,9 +154,9 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 	}	
 	
 	private void computeGTGTEQIndexes(byte[] intB, int matchingNo, Collection<Integer> matchingPos, boolean isEqualCheck) {
-		if ( intB == null ) return;
-		
+		if ( null == intB) return;
 		int intBT = intB.length / 4;
+		if ( 0 == intBT) return;
 		
 		int left = 0;
 		int right = intBT - 1;
@@ -165,13 +169,13 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
 					new Integer(left).toString() + "/" + new Integer(right).toString());
 			*/
-			boolean includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);  //matchNo > foundno
+			boolean includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);  //matchNo > foundno
 			if ( includesMatching ) {
 				for ( int i=mid; i<intBT; i++) matchingPos.add(i);
 
 				for ( int i=mid-1; i>=left; i--) {
 					isSame = ( compare(intB, i*4, matchingNo));
-					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
+					includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
 					if ( includesMatching ) matchingPos.add(i);
 					else break;
 				}
@@ -201,9 +205,10 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 	}
 	
 	private void computeLTLTEQIndexes(byte[] intB, int matchingNo, Collection<Integer> matchingPos, boolean isEqualCheck) {
-		if ( intB == null ) return;
-		
+
+		if ( null == intB) return;
 		int intBT = intB.length / 4;
+		if ( 0 == intBT) return;
 		
 		int left = 0;
 		int right = intBT - 1;
@@ -216,7 +221,7 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
 					new Integer(left).toString() + "/" + new Integer(right).toString());
 			*/
-			boolean includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0); //matchNo > leftNo
+			boolean includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
 			if (! includesMatching ) {
 				newMid = mid - ( mid - left) / 2;
 				if ( newMid == mid && (left + 1) == mid ) newMid = left;
@@ -228,7 +233,7 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 				
 				for ( int i=mid+1; i<=right ; i++) {
 					isSame = ( compare(intB, i*4, matchingNo));
-					includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
+					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
 					if (includesMatching ) matchingPos.add(i);
 					else break;
 				}
@@ -250,12 +255,82 @@ public final class SortedBytesInteger extends SortedByte<Integer>{
 		
 		//System.out.println(Storable.getInt(offset, inputB) + " supplied vs extracted " + matchNo + " @" + offset);
 		
-		int input = (inputB[offset] << 24 ) +  ( (inputB[++offset] & 0xff ) << 16 ) + 
+		int val = (inputB[offset] << 24 ) +  ( (inputB[++offset] & 0xff ) << 16 ) + 
 				(  ( inputB[++offset] & 0xff ) << 8 ) + ( inputB[++offset] & 0xff );
 		
-		if ( matchNo == input) return 0;
-		if ( matchNo < input) return -1;
-		return 1;
+		if ( val == matchNo) return 0;
+		if (val > matchNo) return 1;
+		return -1;
 		
-	}	
+	}
+
+	@Override
+	public void getRangeIndexes(byte[] inputData, Integer matchNoStart,
+			Integer matchNoEnd, Collection<Integer> matchings)
+			throws IOException {
+		computeRangeIndexes(inputData, matchNoStart, matchNoEnd, matchings, false);
+		
+	}
+
+	@Override
+	public void getRangeIndexesInclusive(byte[] inputData,
+			Integer matchNoStart, Integer matchNoEnd,
+			Collection<Integer> matchings) throws IOException {
+		computeRangeIndexes(inputData, matchNoStart, matchNoEnd, matchings, true);
+		
+	}
+	
+	private void computeRangeIndexes(byte[] intB, int matchingValS, int matchingValE, Collection<Integer> matchingPos, boolean isEqualCheck) {
+	
+		if ( null == intB) return;
+		int intBT = intB.length / 4;
+		if ( 0 == intBT) return;
+		
+		int left = 0;
+		int right = intBT - 1;
+		int mid = ( right - left ) / 2;
+		int newMid = -1;
+		
+		while ( true ) {
+			int isSameS = ( compare(intB, mid*4, matchingValS));
+			/**
+			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
+					new Integer(left).toString() + "/" + new Integer(right).toString());
+			*/
+			boolean includesMatchingS = (isEqualCheck) ? (isSameS >= 0) : (isSameS > 0);
+			if ( includesMatchingS ) {
+				int isSameE = -1;
+				boolean includesMatchingE = false;
+				
+				for ( int i=mid; i<intBT; i++) {
+					isSameE = ( compare(intB, i*4, matchingValE));
+					includesMatchingE = (isEqualCheck) ? (isSameE <= 0) : (isSameE < 0);
+					if ( includesMatchingE ) {
+						matchingPos.add(i);
+					} else break;
+				}
+
+				for ( int i=mid-1; i>=left; i--) {
+					isSameS = ( compare(intB, i*4, matchingValS));
+					isSameE = ( compare(intB, i*4, matchingValE));
+					includesMatchingS = (isEqualCheck) ? (isSameS >= 0) : (isSameS > 0);
+					includesMatchingE = (isEqualCheck) ? (isSameE <= 0) : (isSameE < 0);
+					if ( includesMatchingS && includesMatchingE)  matchingPos.add(i);
+					if ( !(includesMatchingS || includesMatchingE) ) break;
+				}
+			} else {
+				newMid = mid + ( right - mid ) / 2;
+				if ( newMid == mid && (right -1) == mid ) newMid = right;
+				left = mid;
+			}
+			
+			if ( newMid == mid ) {
+				mid = -1;
+				break;
+			}
+			mid = newMid;
+			if ( mid < 0) break;
+		}
+		
+	}		
 }

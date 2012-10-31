@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<!-- the normal classpath 
+<!-- 
 * Copyright 2010 Bizosys Technologies Limited
 *
 * Licensed to the Bizosys Technologies Limited (Bizosys) under one
@@ -85,6 +85,7 @@
 	<!-- Clean.  Delete the build files, and their directories              -->
 	<!-- ================================================================== -->
 	<target name="clean">
+		<delete dir="${build.classes}" />
 		<delete dir="${build.dir}" />
 	</target>
 

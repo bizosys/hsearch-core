@@ -24,7 +24,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testPresetMinimumValue();
+				t.testRangeValuesInclusive();
 				t.tearDown();
 			}
 		}
@@ -193,7 +193,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			Collections.sort(sortedList);
 
 			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstance();
-			sortedBytes = sortedBytes.setMinimumValue( (short) -400);
+			sortedBytes = sortedBytes.setMinimumValueLimit( (short) -400);
 			
 
 			byte[] bytes = sortedBytes.toBytes(sortedList, false);
@@ -208,4 +208,47 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			}
 			
 		}			
+		
+		public void testRangeValuesInclusive() throws Exception {	
+			List<Integer> sortedList = new ArrayList<Integer>();
+			for ( int i=400; i<1000; i++) {
+				sortedList.add(i);
+			}
+			
+			Collections.sort(sortedList);
+
+			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstance().setMinimumValueLimit((short)-100);
+			
+			byte[] bytes = sortedBytes.toBytes(sortedList, false);
+			List<Integer> positions = new ArrayList<Integer>();  
+			sortedBytes.getRangeIndexesInclusive(bytes, 550, 560, positions);
+			
+			assertNotNull(positions);
+			assertEquals(11, positions.size());
+			for (int pos : positions) {
+				//System.out.println(sortedBytes.getValueAt(bytes,pos)); 
+				assertTrue( (sortedBytes.getValueAt(bytes,pos) >= 550 && sortedBytes.getValueAt(bytes,pos) <= 560) );
+			}
+		}		
+		
+		public void testRangeValuesExclusive() throws Exception {	
+			List<Integer> sortedList = new ArrayList<Integer>();
+			for ( int i=400; i<1000; i++) {
+				sortedList.add(i);
+			}
+			
+			Collections.sort(sortedList);
+
+			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstance();
+			
+			byte[] bytes = sortedBytes.toBytes(sortedList, false);
+			List<Integer> positions = new ArrayList<Integer>();  
+			sortedBytes.getRangeIndexes(bytes, 550, 560, positions);
+			
+			assertNotNull(positions);
+			assertEquals(9, positions.size());
+			for (int pos : positions) {
+				assertTrue( (sortedBytes.getValueAt(bytes,pos) > 550 && sortedBytes.getValueAt(bytes,pos) < 560) );
+			}
+		}		
 }

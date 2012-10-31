@@ -24,7 +24,7 @@ public class SortedBytesFloatTest extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testEqual();
+				t.testRangeCheck();
 				t.tearDown();
 			}
 		}
@@ -245,4 +245,29 @@ public class SortedBytesFloatTest extends TestCase {
 				
 			}
 		}		
+		
+		public void testRangeCheck() throws Exception {
+
+			List<Float> sortedList = new ArrayList<Float>();
+			sortedList.add(234.2F);
+			sortedList.add(239.2F);
+			sortedList.add(299.2F);
+			sortedList.add(301.00F);
+			sortedList.add(367.90F);
+			Collections.sort(sortedList);
+
+			byte[] inputData = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			List<Integer> positions = new ArrayList<Integer>();
+			SortedBytesFloat.getInstance().getRangeIndexes(inputData, 201F, 250F, positions);
+
+			for (Integer aPos : positions) {
+				System.out.println(sortedList.get(aPos) );
+			}
+			
+			assertEquals(2, positions.size());
+			for (Integer aPos : positions) {
+				boolean isGood = (sortedList.get(aPos) > 201F && sortedList.get(aPos) < 250F);
+				assertTrue(isGood);
+			}
+		}			
 }

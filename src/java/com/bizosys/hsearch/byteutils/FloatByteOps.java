@@ -112,5 +112,36 @@ public class FloatByteOps {
 			indexes.add(i);
 		}
 		return indexes;
-	}		
+	}
+	
+	public static List<Integer> getRange(byte[] intB, float matchingNoStart, float matchingNoEnd) {
+		return computeRangeIndexes(intB, matchingNoStart, matchingNoEnd, false);
+	}	
+	
+	public static List<Integer> getRangeInclusive(byte[] intB, float matchingNoStart, float matchingNoEnd) {
+		return computeRangeIndexes(intB, matchingNoStart, matchingNoEnd, true);
+	}	
+	
+	private static List<Integer> computeRangeIndexes(byte[] intB, float matchingNoStart, float matchingNoEnd, boolean isEqualCheck) {
+		
+		if ( null == intB ) return null;
+
+		int intBT = intB.length / 4;
+		int pos = 0;
+		List<Integer> indexes = new ArrayList<Integer>();
+		float parsedFloat = -1;
+		for (int i = 0; i < intBT; i++) {
+			pos = i*4;
+			parsedFloat = Storable.getFloat(pos, intB);
+			if ( isEqualCheck ) { //Allow when equal
+				if ( parsedFloat < matchingNoStart) continue; 
+				if ( parsedFloat > matchingNoEnd) continue;
+			} else {
+				if ( parsedFloat <=  matchingNoStart ) continue;
+				if ( parsedFloat >= matchingNoEnd) continue;
+			}
+			indexes.add(i);
+		}
+		return indexes;
+	}	
 }

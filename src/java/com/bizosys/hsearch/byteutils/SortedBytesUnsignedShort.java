@@ -18,7 +18,8 @@ public class SortedBytesUnsignedShort extends SortedByte<Integer>{
 	private SortedBytesUnsignedShort() {
 	}
 	
-	public SortedBytesUnsignedShort setMinimumValue(short minVal) {
+	
+	public SortedBytesUnsignedShort setMinimumValueLimit(short minVal) {
 		SortedBytesUnsignedShort newProcessor = new SortedBytesUnsignedShort();
 		newProcessor.MINIMUM_ALLOWED_LIMIT = minVal;
 		newProcessor.MAXIMUM_ALLOWED_LIMIT = new Integer(Short.MAX_VALUE) - (Short.MIN_VALUE - newProcessor.MINIMUM_ALLOWED_LIMIT);
@@ -159,12 +160,12 @@ public class SortedBytesUnsignedShort extends SortedByte<Integer>{
 					new Integer(left).toString() + "-" + 
 					new Integer(mid).toString() + "-" + new Integer(right).toString());
 			*/
-			boolean includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
+			boolean includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
 			if ( includesMatching ) {
 				for ( int i=mid; i<intBT; i++) matchingPos.add(i);
 				for ( int i=mid-1; i>=left; i--) {
 					isSame = ( compare(intB, i*2, matchingNo));
-					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
+					includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
 					if ( includesMatching ) matchingPos.add(i);
 					else break;
 				}
@@ -215,13 +216,13 @@ public class SortedBytesUnsignedShort extends SortedByte<Integer>{
 					new Integer(left).toString() + "-" + 
 					new Integer(mid).toString() + "-" + new Integer(right).toString());
 			*/
-			boolean includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0); //matchNo > leftNo
+			boolean includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0); //matchNo > leftNo
 			if ( includesMatching ) {
 				for ( int i=mid; i>=left ; i--) matchingPos.add(i);
 				
 				for ( int i=mid+1; i<=right ; i++) {
 					isSame = ( compare(intB, i*2, matchingNo));
-					includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
+					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
 					//System.out.println("y:" + i + "--" + includesMatching + " ," + Storable.getShort(i*2, intB)) ;
 					if (includesMatching ) matchingPos.add(i);
 					else break;
@@ -248,7 +249,7 @@ public class SortedBytesUnsignedShort extends SortedByte<Integer>{
 				aVal.toString() + " is greated than maximum limit : " + MAXIMUM_ALLOWED_LIMIT);
 
 		if (aVal < MINIMUM_ALLOWED_LIMIT) throw new IOException("Suplied Value " + 
-				aVal.toString() + " is less than minimum limit 0.");
+				aVal.toString() + " is less than minimum limit." + MINIMUM_ALLOWED_LIMIT);
 
 		aVal = aVal + Short.MIN_VALUE;
 		aVal = aVal - MINIMUM_ALLOWED_LIMIT;
@@ -258,12 +259,12 @@ public class SortedBytesUnsignedShort extends SortedByte<Integer>{
 	
 	private static int compare(byte[] inputB, int offset,short matchNo) {
 		
-		int leftNo = (inputB[offset] << 8) + (inputB[++offset] & 0xff);
+		int val = (inputB[offset] << 8) + (inputB[++offset] & 0xff);
 		//System.out.println(matchNo + " supplied vs extracted " + leftNo + " @" + offset);
 
-		if ( matchNo == leftNo) return 0;
-		if ( matchNo < leftNo) return -1;
-		return 1;
+		if ( matchNo == val) return 0;
+		if ( val > matchNo) return 1;
+		return -1;
 	}
 		
 	
@@ -292,7 +293,7 @@ public class SortedBytesUnsignedShort extends SortedByte<Integer>{
 				mid = -1;
 				break;
 			}
-			if ( isSame > 0 ) {
+			if ( isSame < 0 ) {
 				newMid = mid + ( right - mid ) / 2;
 				if ( newMid == mid && (right -1) == mid ) newMid = right;
 				left = mid;
@@ -312,6 +313,86 @@ public class SortedBytesUnsignedShort extends SortedByte<Integer>{
 		//Should never reach here
 		return -1;
 	}	
+	
+	
+
+	@Override
+	public void getRangeIndexes(byte[] inputData, Integer matchNoStart,
+			Integer matchNoEnd, Collection<Integer> matchings) throws IOException {
+		
+		computeRangeIndexes(inputData, matchNoStart, matchNoEnd, matchings, false);
+	}
+
+	@Override
+	public void getRangeIndexesInclusive(byte[] inputData,
+			Integer matchNoStart, Integer matchNoEnd, Collection<Integer> matchings) throws IOException {
+		computeRangeIndexes(inputData, matchNoStart, matchNoEnd, matchings, true);
+	}	
+	
+	private void computeRangeIndexes(byte[] intB, int matchingValS, int matchingValE, Collection<Integer> matchingPos, boolean isEqualCheck) throws IOException {
+		if ( intB == null ) return;
+		int intBT = intB.length / 2;
+		if ( 0 == intBT) return;
+		
+		short matchingNoS = getShort(matchingValS);
+		short matchingNoE = getShort(matchingValE);
+		
+		int left = 0;
+		int right = intBT - 1;
+		int mid = ( right - left ) / 2;
+		int newMid = -1;
+		
+		while ( true ) {
+			//System.out.println("matchingNoS:" + matchingNoS + ".." + Storable.getShort(mid*2*2, intB) );
+			int isSameS = ( compare(intB, mid*2, matchingNoS));
+			/**
+			System.out.println("isSame > left-mid-right : " + new Integer(isSameS).toString() + " > " + 
+					new Integer(left).toString() + "-" + 
+					new Integer(mid).toString() + "-" + new Integer(right).toString());
+			*/		
+			boolean includesMatchingS = (isEqualCheck) ? (isSameS >= 0) : (isSameS > 0);
+
+			if ( includesMatchingS ) {
+				int isSameE = -1;
+				boolean includesMatchingE = false;
+				for ( int i=mid; i<intBT; i++) {
+					//System.out.println("matchingNoE:" + matchingNoE + ".." + Storable.getShort(i*2, intB) + ".." + getValueAt(intB, i) ); 
+					isSameE = ( compare(intB, i*2, matchingNoE));
+					includesMatchingE = (isEqualCheck) ? (isSameE <= 0) : (isSameE < 0);
+					if ( includesMatchingE ) {
+						//System.out.println("includesMatchingE:" + includesMatchingE);
+						matchingPos.add(i);
+					}
+					else break;
+				}
+				
+				for ( int i=mid-1; i>=left; i--) {
+					//System.out.println("matchingNoE:" + matchingNoE + ".." + Storable.getShort(i*2, intB) + ".." + getValueAt(intB, i) ); 
+					isSameS = ( compare(intB, i*2, matchingNoS));
+					isSameE = ( compare(intB, i*2, matchingNoE));
+					includesMatchingS = (isEqualCheck) ? (isSameS >= 0) : (isSameS > 0);
+					includesMatchingE = (isEqualCheck) ? (isSameE <= 0) : (isSameE < 0);
+					if ( includesMatchingS && includesMatchingE) matchingPos.add(i);
+					
+					if ( !(includesMatchingS || includesMatchingE) ) break;
+				}
+			} else {
+				newMid = mid + ( right - mid ) / 2;
+				if ( newMid == mid && (right -1) == mid ) newMid = right;
+				left = mid;
+			}
+			
+			if ( newMid == mid ) {
+				mid = -1;
+				break;
+			}
+			mid = newMid;
+			if ( mid < 0) break;
+		}
+		
+		//Should never reach here
+	}
+	
 
 		
 }

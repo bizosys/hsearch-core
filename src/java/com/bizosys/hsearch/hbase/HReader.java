@@ -202,13 +202,14 @@ public class HReader {
 			
 			long timeS = System.currentTimeMillis();
 			
+			ColumnFamName aColFamilyName = new ColumnFamName(family, col);
 			for (Result r: scanner) {
 				if ( null == r) continue;
 				if ( r.isEmpty()) continue;
 				
 				byte[] storedBytes = r.getValue(family, col);
 				if ( null == storedBytes) continue;
-				callback.process(r.getRow(), storedBytes);
+				callback.process(r.getRow(), aColFamilyName, storedBytes);
 			}
 			
 			if ( HbaseLog.l.isDebugEnabled()) {
@@ -225,6 +226,68 @@ public class HReader {
 			if ( null != matched) matched.clear();
 		}
 	}
+	
+	
+	public static void getAllValues(String tableName, List<ColumnFamName> columns, String keyPrefix, IScanCallBack callback ) throws IOException {
+		
+		Filter rowFilter = null;
+		if ( null != keyPrefix) {
+			rowFilter = new RowFilter(CompareFilter.CompareOp.EQUAL,
+					new BinaryPrefixComparator(keyPrefix.getBytes()));
+		}
+		getAllValues(tableName, columns, rowFilter, callback);
+
+	}
+	
+	public static void getAllValues(String tableName, List<ColumnFamName> columns, Filter filter, IScanCallBack callback ) throws IOException {
+		
+		HBaseFacade facade = null;
+		ResultScanner scanner = null;
+		HTableWrapper table = null;
+		List<byte[]> matched = null;
+		try {
+			facade = HBaseFacade.getInstance();
+			table = facade.getTable(tableName);
+			
+			Scan scan = new Scan();
+			scan.setCacheBlocks(true);
+			scan.setCaching(500);
+			scan.setMaxVersions(1);
+			for (ColumnFamName aColFamilyName : columns) {
+				scan = scan.addColumn(aColFamilyName.family, aColFamilyName.name);
+			}
+			
+			if ( null != filter) scan = scan.setFilter(filter);
+			
+			scanner = table.getScanner(scan);
+			
+			long timeS = System.currentTimeMillis();
+			
+			for (Result r: scanner) {
+				if ( null == r) continue;
+				if ( r.isEmpty()) continue;
+				
+				for (ColumnFamName aColFamilyName : columns) {
+					byte[] storedBytes = r.getValue(aColFamilyName.family, aColFamilyName.name);
+					if ( null == storedBytes) continue;
+					callback.process(r.getRow(), aColFamilyName, storedBytes);
+				}
+			}
+			
+			if ( HbaseLog.l.isDebugEnabled()) {
+				long timeE = System.currentTimeMillis();
+				HbaseLog.l.debug("HReader.getAllValues (" + tableName + ") execution time = " + 
+					(timeE - timeS) );
+			}
+			
+		} catch ( IOException ex) {
+			throw ex;
+		} finally {
+			if ( null != scanner) scanner.close();
+			if ( null != table ) facade.putTable(table);
+			if ( null != matched) matched.clear();
+		}
+	}	
 		
 	
 	/**
@@ -260,11 +323,11 @@ public class HReader {
 			}
 			
 			scanner = table.getScanner(scan);
-			
+			ColumnFamName familyName = new  ColumnFamName(kv.family, kv.name);
 			for (Result r: scanner) {
 				if ( null == r) continue;
 				if ( r.isEmpty()) continue;
-				callback.process(r.getRow(), null);
+				callback.process(r.getRow(), familyName, null);
 			}
 		} catch ( IOException ex) {
 			throw new HBaseException(ex);

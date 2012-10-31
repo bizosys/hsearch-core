@@ -22,20 +22,22 @@ package com.bizosys.hsearch.distribution;
 import java.util.Arrays;
 import java.util.Collection;
 
+import com.bizosys.hsearch.util.MathematicalMinimums;
+
 public final class DistributionPartionFloat {
 
 	protected float[] distributes(Collection<Float> inputs, int parts) {
 		
 		float[] output = new float[parts - 1];
-		float[] ranges = new float[]{Float.MIN_VALUE, Float.MAX_VALUE};
+		float[] ranges = new float[]{MathematicalMinimums.FLOAT_MIN_VAL, Float.MAX_VALUE};
 		GravityCenter gc = distribute(inputs, ranges);
 		output[0] = gc.avgValue;
 		//System.out.println(output[0]);
-		ranges = new float[]{Float.MIN_VALUE, gc.avgValue};
+		ranges = new float[]{MathematicalMinimums.FLOAT_MIN_VAL, gc.avgValue};
 		for ( int i=1; i< (parts/2); i++) {
 			GravityCenter mingc = distribute(inputs, ranges);
 			output[i] = mingc.avgValue;
-			ranges = new float[]{Float.MIN_VALUE, mingc.avgValue};
+			ranges = new float[]{MathematicalMinimums.FLOAT_MIN_VAL, mingc.avgValue};
 		}
 
 		ranges = new float[]{gc.avgValue, Float.MAX_VALUE};
@@ -95,7 +97,7 @@ public final class DistributionPartionFloat {
 	
 	private void getAverage(Collection<Float> inputs, GravityCenter wts, float[] ranges) {
 		float min = Float.MAX_VALUE;
-		float max = Float.MIN_VALUE;
+		float max = MathematicalMinimums.FLOAT_MIN_VAL;
 		for (float i : inputs) {
 			if ( i < ranges[0] || i > ranges[1] ) continue;
 			if (i < min) min = i;

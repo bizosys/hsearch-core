@@ -31,5 +31,5 @@ public interface IScanCallBack {
 	 * Process the found row
 	 * @param storedBytes
 	 */
-	void process(byte[] pk, byte[] storedBytes);
+	void process(byte[] pk, ColumnFamName familyWithName, byte[] storedBytes);
 }

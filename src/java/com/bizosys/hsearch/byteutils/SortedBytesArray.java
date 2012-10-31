@@ -144,34 +144,49 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	@Override
 	public void getEqualToIndexes(byte[] inputData, byte[] matchNo,
 			Collection<Integer> matchings) throws IOException {
-		throw new IOException("Not implemented yet");
+		throw new IOException("Not available");
 		
 	}
 
 	@Override
 	public void getGreaterThanIndexes(byte[] inputData, byte[] matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not implemented yet");
+		throw new IOException("Not available");
 	}
 
 	@Override
 	public void getGreaterThanEuqalToIndexes(byte[] inputData,
 			byte[] matchingNo, Collection<Integer> matchingPos)
 			throws IOException {
-		throw new IOException("Not implemented yet");
+		throw new IOException("Not available");
 	}
 
 	@Override
 	public void getLessThanIndexes(byte[] inputData, byte[] matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not implemented yet");
+		throw new IOException("Not available");
 	}
 
 	@Override
 	public void getLessThanEuqalToIndexes(byte[] inputData, byte[] matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not implemented yet");
+		throw new IOException("Not available");
 	}
-	
+
+	@Override
+	public void getRangeIndexes(byte[] inputData, byte[] matchNoStart,
+			byte[] matchNoEnd, Collection<Integer> matchings)
+			throws IOException {
+		throw new IOException("Not available");
+		
+	}
+
+	@Override
+	public void getRangeIndexesInclusive(byte[] inputData, byte[] matchNoStart,
+			byte[] matchNoEnd, Collection<Integer> matchings)
+			throws IOException {
+		throw new IOException("Not available");
+		
+	}
 
 }
