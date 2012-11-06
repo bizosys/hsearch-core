@@ -24,6 +24,8 @@ public abstract class SortedByte<T> {
 	
 	public abstract byte[] toBytes(Collection<T> sortedCollection, boolean clearList) throws IOException;
 
+	public abstract int getSize(byte[] bytes, int offset, int length);
+
 	public abstract void addAll(byte[] bytes, Collection<T> vals) throws IOException;
 	public abstract void addAll(byte[] bytes, int offset, Collection<T> vals) throws IOException;
 	
@@ -35,9 +37,9 @@ public abstract class SortedByte<T> {
 	
 	public abstract void getEqualToIndexes(byte[] inputData, T matchNo, Collection<Integer> matchings) throws IOException;
 	public abstract void getGreaterThanIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos) throws IOException;
-	public abstract void getGreaterThanEuqalToIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos) throws IOException;
+	public abstract void getGreaterThanEqualToIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos) throws IOException;
 	public abstract void getLessThanIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos ) throws IOException;
-	public abstract void getLessThanEuqalToIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos) throws IOException;
+	public abstract void getLessThanEqualToIndexes(byte[] inputData, T matchingNo, Collection<Integer> matchingPos) throws IOException;
 
 	public abstract void getRangeIndexes(byte[] inputData, T matchNoStart, T matchNoEnd, Collection<Integer> matchings) throws IOException;
 	public abstract void getRangeIndexesInclusive(byte[] inputData, T matchNoStart, T matchNoEnd, Collection<Integer> matchings) throws IOException;

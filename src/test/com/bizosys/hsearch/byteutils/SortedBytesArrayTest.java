@@ -2,7 +2,6 @@ package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import junit.framework.TestCase;
@@ -13,7 +12,7 @@ import com.oneline.ferrari.TestAll;
 public class SortedBytesArrayTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+		public static String mode = modes[2];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesArrayTest t = new SortedBytesArrayTest();
@@ -25,7 +24,7 @@ public class SortedBytesArrayTest extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testSanity();
+				t.testIndexOf();
 				t.tearDown();
 			}
 		}
@@ -55,6 +54,18 @@ public class SortedBytesArrayTest extends TestCase {
 				val++;
 			}
 		}
+		
+		public void testIndexOf() throws Exception {	
+			List<byte[]> sortedList = new ArrayList<byte[]>();
+			
+			for ( int i=0; i<1000; i++) {
+				sortedList.add( Storable.putLong(i));
+			}
+			
+			byte[] bytes = SortedBytesArray.getInstance().toBytes(sortedList, false);
+			int index = SortedBytesArray.getInstance().getEqualToIndex(bytes, Storable.putLong(23L));
+			assertEquals(23, index);
+		}		
 
 		public void testValueAtBoundaries() throws Exception {	
 			List<byte[]> sortedList = new ArrayList<byte[]>();

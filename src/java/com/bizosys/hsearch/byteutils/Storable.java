@@ -600,6 +600,21 @@ public class Storable {
 		return longVal;
 	}
 	
+	public static double getDouble(int index, final byte[] inputBytes) {
+		
+		if ( 0 == inputBytes.length) return 0;
+		
+		long longVal = ( ( (long) (inputBytes[index]) )  << 56 )  + 
+		( (inputBytes[++index] & 0xffL ) << 48 ) + 
+		( (inputBytes[++index] & 0xffL ) << 40 ) + 
+		( (inputBytes[++index] & 0xffL ) << 32 ) + 
+		( (inputBytes[++index] & 0xffL ) << 24 ) + 
+		( (inputBytes[++index] & 0xff ) << 16 ) + 
+		( (inputBytes[++index] & 0xff ) << 8 ) + 
+		( inputBytes[++index] & 0xff );
+		return Double.longBitsToDouble(longVal);
+	}	
+	
 	/**
 	 * Forms a byte array from a long data
 	 * @param value	Long data

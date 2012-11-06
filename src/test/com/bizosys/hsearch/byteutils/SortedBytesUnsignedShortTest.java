@@ -128,7 +128,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 
 			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>();  
-			SortedBytesUnsignedShort.getInstance().getLessThanEuqalToIndexes(bytes, 700, positions);
+			SortedBytesUnsignedShort.getInstance().getLessThanEqualToIndexes(bytes, 700, positions);
 			
 			assertNotNull(positions);
 			assertEquals(701, positions.size());
@@ -147,7 +147,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			
 			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>();   
-			SortedBytesUnsignedShort.getInstance().getGreaterThanEuqalToIndexes(bytes, 121, positions);
+			SortedBytesUnsignedShort.getInstance().getGreaterThanEqualToIndexes(bytes, 121, positions);
 			
 			assertNotNull(positions);
 			assertTrue(positions.contains(498) );
@@ -192,13 +192,13 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			
 			Collections.sort(sortedList);
 
-			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstance();
+			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstanceShort();
 			sortedBytes = sortedBytes.setMinimumValueLimit( (short) -400);
 			
 
 			byte[] bytes = sortedBytes.toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>();  
-			sortedBytes.getLessThanEuqalToIndexes(bytes, -398, positions);
+			sortedBytes.getLessThanEqualToIndexes(bytes, -398, positions);
 			
 			assertNotNull(positions);
 			assertEquals(3, positions.size());
@@ -217,7 +217,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			
 			Collections.sort(sortedList);
 
-			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstance().setMinimumValueLimit((short)-100);
+			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstanceShort().setMinimumValueLimit((short)-100);
 			
 			byte[] bytes = sortedBytes.toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>();  
@@ -239,7 +239,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			
 			Collections.sort(sortedList);
 
-			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstance();
+			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstanceShort();
 			
 			byte[] bytes = sortedBytes.toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>();  

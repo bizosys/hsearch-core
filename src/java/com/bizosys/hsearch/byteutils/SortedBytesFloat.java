@@ -3,9 +3,8 @@ package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
 
-public final class SortedBytesFloat extends SortedByte<Float> {
+public final class SortedBytesFloat extends SortedBytesBase<Float> { 
 
 
 	private static SortedBytesFloat singleton = new SortedBytesFloat();
@@ -16,14 +15,23 @@ public final class SortedBytesFloat extends SortedByte<Float> {
 	private SortedBytesFloat() {
 	}	
 
+	private static final int dataSize = 4;
+	
+	@Override
+	public int getSize(byte[] bytes, int offset, int length) {
+		if ( null == bytes) return 0;
+		return length /dataSize;
+	}
+	
+	
 	@Override
 	public Float getValueAt(byte[] bytes, int pos) {
-		return Storable.getFloat(pos*4, bytes);
+		return Storable.getFloat(pos*dataSize, bytes);
 	}	
 	
 	@Override
 	public Float getValueAt(byte[] bytes, int offset, int pos) {
-		return Storable.getFloat(pos*4 + offset, bytes);
+		return Storable.getFloat(pos*dataSize + offset, bytes);
 	}		
 	
 	@Override
@@ -33,9 +41,9 @@ public final class SortedBytesFloat extends SortedByte<Float> {
 	
 	@Override
 	public void addAll(byte[] bytes, int offset, Collection<Float>  vals) throws IOException {
-		int total = (bytes.length - offset) / 4;
+		int total = (bytes.length - offset) / dataSize;
 		for ( int pos=0; pos<total; pos++) {
-			vals.add( Storable.getFloat(pos*4 + offset, bytes) );
+			vals.add( Storable.getFloat(pos*dataSize + offset, bytes) );
 		}
 	}
 
@@ -44,390 +52,74 @@ public final class SortedBytesFloat extends SortedByte<Float> {
 	public byte[] toBytes(Collection<Float> sortedList, boolean clearList) {
 
 		int sortedListAT = sortedList.size();
-		byte[] inputsB = new byte[sortedListAT * 4];
+		byte[] inputsB = new byte[sortedListAT * dataSize];
 		
 		int index = 0;
 		for (Float aVal : sortedList) {
-			System.arraycopy(Storable.putInt(Float.floatToIntBits(aVal)), 0, inputsB, index * 4, 4);
+			System.arraycopy(Storable.putInt(Float.floatToIntBits(aVal)), 0, inputsB, index * dataSize, dataSize);
 			index++;
 		}
 		return inputsB;
 	}
-
-	@Override
-	public int getEqualToIndex(byte[] inputBytes, Float matchingNo) {
-		return getEqualToIndex(inputBytes, 0, matchingNo);
-	}
-	
-
-	@Override
-	public int getEqualToIndex(byte[] inputBytes, int offset, Float matchingNo) {
-		
-		if ( inputBytes == null ) return -1;
-		int intBT = inputBytes.length / 4;
-		if ( 0 == intBT) return -1;
-		
-		int left = 0;
-		int right = intBT - 1;
-		int mid = ( right - left ) / 2;
-		int newMid = -1;
-		
-		while ( true ) {
-			int isSame = ( compare(inputBytes, (mid*4 + offset), matchingNo));
-			/**
-			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
-					new Integer(left).toString() + "/" + new Integer(right).toString());
-			*/
-			
-			if ( isSame == 0 ) return mid;
-			if ( mid == left || mid == right) {
-				mid = -1;
-				break;
-			}
-			if ( isSame < 0 ) {
-				newMid = mid + ( right - mid ) / 2;
-				if ( newMid == mid && (right -1) == mid ) newMid = right;
-				left = mid;
-			}
-			else {
-				newMid = left + ( mid - left ) / 2;
-				right = mid;
-			}
-			
-			if ( newMid == mid ) {
-				mid = -1;
-				break;
-			}
-			mid = newMid;
-		}
-		
-		//Should never reach here
-		return -1;
-	}
 	
 	@Override
 	public void getEqualToIndexes(byte[] intB, Float matchingNo, Collection<Integer> matchings) {
-		if ( intB == null ) return;
-		int intBT = intB.length / 4;
-		if ( 0 == intBT) return;
-		
-		int index = getEqualToIndex(intB, 0, matchingNo);
-		if ( index == -1) return;
-
-		//Include all matching indexes from left
-		matchings.add(index);
-		//System.out.println("found:" + index);
-		for ( int i=index-1; i>=0; i--) {
-			if ( compare(intB,i * 4,matchingNo) != 0 )  break;
-			//System.out.println("left:" + i);
-			matchings.add(i);
-		}
-		
-		//Include all matching indexes from right
-		for ( int i=index+1; i<intBT; i++) {
-			if ( compare(intB,i * 4,matchingNo) != 0 )  break;
-			matchings.add(i);	
-			
-		}
-	}	
-	
-	@Override
-	public void getGreaterThanIndexes(byte[] intB, Float matchingNoB, Collection<Integer> matchingPos) {
-		computeGTGTEQIndexes(intB, matchingNoB, matchingPos, false);
-	}	
-	
-	@Override
-	public void getGreaterThanEuqalToIndexes(byte[] intB, Float matchingNoB, Collection<Integer> matchingPos) {
-		computeGTGTEQIndexes(intB, matchingNoB, matchingPos, true);
-	}	
-	
-	private void computeGTGTEQIndexes(byte[] intB, float matchingNoB, Collection<Integer> matchingPos, boolean isEqualCheck) {
-		if ( intB == null ) return;
-		int intBT = intB.length / 4;
-		if ( 0 == intBT) return;
-		
-		int left = 0;
-		int right = intBT - 1;
-		int mid = ( right - left ) / 2;
-		int newMid = -1;
-		
-		while ( true ) {
-			int isSame = ( compare(intB, mid*4, matchingNoB));
-			
-			/**
-			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
-					new Integer(left).toString() + "/" + new Integer(right).toString());
-			*/
-			
-			boolean includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
-			if ( includesMatching ) {
-				for ( int i=mid; i<intBT; i++) matchingPos.add(i);
-
-				for ( int i=mid-1; i>=left; i--) {
-					isSame = ( compare(intB, i*4, matchingNoB));
-					includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
-					if ( includesMatching ) matchingPos.add(i);
-					else break;
-				}
-			} else {
-				newMid = mid + ( right - mid ) / 2;
-				if ( newMid == mid && (right -1) == mid ) newMid = right;
-				left = mid;
-			}
-			
-			if ( newMid == mid ) {
-				mid = -1;
-				break;
-			}
-			mid = newMid;
-			if ( mid < 0) break;
-		}
-		
-	}
-	
-	public void getGreaterThanEuqalToValues(byte[] intB, float matchingNoB, List<Float> matchingVals) {
-		computeGTGTEQValues(intB, matchingNoB, matchingVals, true);
+		getEqualToIndexes(intB, matchingNo, matchings, dataSize);
 	}		
 
-	public void getGreaterThanValues(byte[] intB, Float matchingNoB, List<Float> matchingVals) {
-		computeGTGTEQValues(intB, matchingNoB, matchingVals, false);
-	}	
-
-	
-	private void computeGTGTEQValues(byte[] intB, float matchingNoB, List<Float> matchingVals, boolean isEqualCheck) {
-		if ( intB == null ) return;
-		int intBT = intB.length / 4;
-		if ( 0 == intBT) return;
-		
-		int left = 0;
-		int right = intBT - 1;
-		int mid = ( right - left ) / 2;
-		int newMid = -1;
-		
-		while ( true ) {
-			int isSame = ( compare(intB, mid*4, matchingNoB));
-			/**
-			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
-					new Integer(left).toString() + "/" + new Integer(right).toString());
-			*/
-			boolean includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
-			if ( includesMatching ) {
-				for ( int i=mid; i<intBT; i++) matchingVals.add(Storable.getFloat(i * 4, intB) );
-
-				for ( int i=mid-1; i>=left; i--) {
-					isSame = ( compare(intB, i*4, matchingNoB));
-					includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
-					if ( includesMatching ) matchingVals.add(Storable.getFloat(i * 4, intB) );
-					else break;
-				}
-			} else {
-				newMid = mid + ( right - mid ) / 2;
-				if ( newMid == mid && (right -1) == mid ) newMid = right;
-				left = mid;
-			}
-			
-			if ( newMid == mid ) {
-				mid = -1;
-				break;
-			}
-			mid = newMid;
-			if ( mid < 0) break;
-		}
-		
-	}	
-	
 	@Override
-	public void getLessThanIndexes(byte[] intB, Float matchingNoB, Collection<Integer> matchingPos) {
-		computeLTLTEQIndexes(intB, matchingNoB, matchingPos, false);
-	}	
-	
-	@Override
-	public void getLessThanEuqalToIndexes(byte[] intB, Float matchingNoB, Collection<Integer> matchingPos) {
-		computeLTLTEQIndexes(intB, matchingNoB, matchingPos, true);
-	}	
-	
-	private void computeLTLTEQIndexes(byte[] intB, float matchingNoB, Collection<Integer> matchingPos, boolean isEqualCheck) {
-		if ( intB == null ) return;
-		int intBT = intB.length / 4;
-		if ( 0 == intBT) return;
-		
-		int left = 0;
-		int right = intBT - 1;
-		int mid = ( right - left ) / 2;
-		int newMid = -1;
-		
-		while ( true ) {
-			int isSame = ( compare(intB, mid*4, matchingNoB));
-			/**
-			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
-					new Integer(left).toString() + "/" + new Integer(right).toString());
-			*/
-			boolean includesMatching = (isEqualCheck) ? (isSame > 0) : (isSame >= 0);
-			if (includesMatching ) {
-				newMid = mid - ( mid - left) / 2;
-				if ( newMid == mid && (left + 1) == mid ) newMid = left;
-				right = mid;
-			}
-			else {
-				for ( int i=left; i<=mid ; i++) {
-					isSame = (compare(intB, i*4, matchingNoB));
-					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
-					//System.out.println("x:" + i + "--" + includesMatching) ;
-					if (includesMatching ) matchingPos.add(i);
-					else break;
-				}
-				
-				for ( int i=mid+1; i<=right ; i++) {
-					isSame = ( compare(intB, i*4, matchingNoB));
-					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
-					//System.out.println("y:" + i + "--" + includesMatching) ;
-					if (includesMatching ) matchingPos.add(i);
-					else break;
-				}
-				
-			}
-			
-			if ( newMid == mid ) {
-				mid = -1;
-				break;
-			}
-			mid = newMid;
-			if ( mid == -1) break;
-		}
-	}		
-	
-	public void getLessThanValues(byte[] intB, float matchingNoB, List<Float> matchingVals) {
-		computeLTLTEQValues(intB, matchingNoB, false, matchingVals);
-	}	
-	
-	public void getLessThanEuqalToValues(byte[] intB, float matchingNoB, List<Float> matchingVals) {
-		computeLTLTEQValues(intB, matchingNoB, true, matchingVals);
-	}		
-	
-	private void computeLTLTEQValues(byte[] intB, float matchingNoB, boolean isEqualCheck, List<Float> matchingVals) {
-		if ( intB == null ) return;
-		int intBT = intB.length / 4;
-		if ( 0 == intBT) return;
-		
-		int left = 0;
-		int right = intBT - 1;
-		int mid = ( right - left ) / 2;
-		int newMid = -1;
-		
-		while ( true ) {
-			int isSame = ( compare(intB, mid*4, matchingNoB));
-			/**
-			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
-					new Integer(left).toString() + "/" + new Integer(right).toString());
-			*/
-			boolean includesMatching = (isEqualCheck) ? (isSame > 0) : (isSame >= 0);
-			if (includesMatching ) {
-				newMid = mid - ( mid - left) / 2;
-				if ( newMid == mid && (left + 1) == mid ) newMid = left;
-				right = mid;
-			}
-			else {
-				for ( int i=left; i<=mid ; i++) {
-					isSame = (compare(intB, i*4, matchingNoB));
-					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
-					//System.out.println("x:" + i + "--" + includesMatching) ;
-					if (includesMatching ) matchingVals.add(Storable.getFloat(i*4, intB));
-					else break;
-				}
-				
-				for ( int i=mid+1; i<=right ; i++) {
-					isSame = ( compare(intB, i*4, matchingNoB));
-					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
-					//System.out.println("y:" + i + "--" + includesMatching) ;
-					if (includesMatching ) matchingVals.add(Storable.getFloat(i*4, intB));
-					else break;
-				}
-				
-			}
-			
-			if ( newMid == mid ) {
-				mid = -1;
-				break;
-			}
-			mid = newMid;
-			if ( mid == -1) break;
-		}
-	}		
-	
-	private int compare(byte[] inputB, int offset, float matchNo) {
+	protected int compare(byte[] inputB, int offset, Float matchNo) {
 		float val = Float.intBitsToFloat( Storable.getInt(offset, inputB) );
 		if (val == matchNo) return 0;
 		if (val > matchNo) return 1;
 		return -1;
 	}
+	
+	@Override
+	public int getEqualToIndex(byte[] inputBytes, Float matchingNo) {
+		return getEqualToIndex(inputBytes, 0, matchingNo);
+	}
+		
+	@Override
+	public int getEqualToIndex(byte[] inputBytes, int offset, Float matchNo) {
+		return super.getEqualToIndex(inputBytes, offset, matchNo, dataSize);
+	}
+	
+	@Override
+	public void getGreaterThanIndexes(byte[] intB, Float matchingNo, Collection<Integer> matchingPos) {
+		computeGTGTEQIndexes(intB, matchingNo, matchingPos, false, dataSize);
+	}
 
+	@Override
+	public void getGreaterThanEqualToIndexes(byte[] intB, Float matchingNo, Collection<Integer> matchingPos) {
+		computeGTGTEQIndexes(intB, matchingNo, matchingPos, true, dataSize);
+	}	
+	
+	@Override
+	public void getLessThanIndexes(byte[] intB, Float matchingNo, Collection<Integer> matchingPos ) {
+		computeLTLTEQIndexes(intB, matchingNo, matchingPos, false, dataSize);
+	}
+	
+	@Override
+	public void getLessThanEqualToIndexes(byte[] intB, Float matchingNo, Collection<Integer> matchingPos) {
+		computeLTLTEQIndexes(intB, matchingNo, matchingPos, true, dataSize);
+	}
+	
 	@Override
 	public void getRangeIndexes(byte[] inputData, Float matchNoStart,
-			Float matchNoEnd, Collection<Integer> matchings) throws IOException {
-		computeRangeIndexes(inputData, matchNoStart, matchNoEnd, matchings, false);
+			Float matchNoEnd, Collection<Integer> matchings)
+			throws IOException {
+		computeRangeIndexes(inputData, matchNoStart, matchNoEnd, matchings, false, dataSize);
 		
 	}
 
 	@Override
-	public void getRangeIndexesInclusive(byte[] inputData, Float matchNoStart,
-			Float matchNoEnd, Collection<Integer> matchings) throws IOException {
-		computeRangeIndexes(inputData, matchNoStart, matchNoEnd, matchings, true);
+	public void getRangeIndexesInclusive(byte[] inputData,
+			Float matchNoStart, Float matchNoEnd,
+			Collection<Integer> matchings) throws IOException {
+		computeRangeIndexes(inputData, matchNoStart, matchNoEnd, matchings, true, dataSize);
 		
 	}
-	
-	
-	private void computeRangeIndexes(byte[] intB, float matchingValS, float matchingValE, Collection<Integer> matchingPos, boolean isEqualCheck) {
-		if ( intB == null ) return;
-		int intBT = intB.length / 4;
-		if ( 0 == intBT) return;
-		
-		int left = 0;
-		int right = intBT - 1;
-		int mid = ( right - left ) / 2;
-		int newMid = -1;
-		
-		while ( true ) {
-			int isSameS = ( compare(intB, mid*4, matchingValS));
-			/**
-			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
-					new Integer(left).toString() + "/" + new Integer(right).toString());
-			*/
-			boolean includesMatchingS = (isEqualCheck) ? (isSameS >= 0) : (isSameS > 0);
-			if ( includesMatchingS ) {
-				int isSameE = -1;
-				boolean includesMatchingE = false;
-				
-				for ( int i=mid; i<intBT; i++) {
-					isSameE = ( compare(intB, i*4, matchingValE));
-					includesMatchingE = (isEqualCheck) ? (isSameE <= 0) : (isSameE < 0);
-					if ( includesMatchingE ) {
-						matchingPos.add(i);
-					} else break;
-				}
-
-				for ( int i=mid-1; i>=left; i--) {
-					isSameS = ( compare(intB, i*4, matchingValS));
-					isSameE = ( compare(intB, i*4, matchingValE));
-					includesMatchingS = (isEqualCheck) ? (isSameS >= 0) : (isSameS > 0);
-					includesMatchingE = (isEqualCheck) ? (isSameE <= 0) : (isSameE < 0);
-					if ( includesMatchingS && includesMatchingE)  matchingPos.add(i);
-					if ( !(includesMatchingS || includesMatchingE) ) break;
-				}
-			} else {
-				newMid = mid + ( right - mid ) / 2;
-				if ( newMid == mid && (right -1) == mid ) newMid = right;
-				left = mid;
-			}
-			
-			if ( newMid == mid ) {
-				mid = -1;
-				break;
-			}
-			mid = newMid;
-			if ( mid < 0) break;
-		}
-		
-	}		
 	
 		
 }

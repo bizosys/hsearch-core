@@ -154,7 +154,7 @@ public class SortedBytesIntegerTest extends TestCase {
 			
 			byte[] bytes = SortedBytesInteger.getInstance().toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesInteger.getInstance().getLessThanEuqalToIndexes(bytes, 700, positions);
+			SortedBytesInteger.getInstance().getLessThanEqualToIndexes(bytes, 700, positions);
 			
 			assertNotNull(positions);
 			assertEquals(701, positions.size());
@@ -172,7 +172,7 @@ public class SortedBytesIntegerTest extends TestCase {
 			
 			byte[] bytes = SortedBytesInteger.getInstance().toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>(); 
-			SortedBytesInteger.getInstance().getGreaterThanEuqalToIndexes(bytes, 121, positions);
+			SortedBytesInteger.getInstance().getGreaterThanEqualToIndexes(bytes, 121, positions);
 			
 			assertNotNull(positions);
 			assertTrue(positions.contains(498) );

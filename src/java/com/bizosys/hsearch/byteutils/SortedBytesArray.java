@@ -14,6 +14,13 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	
 	private SortedBytesArray() {
 	}
+	
+	@Override
+	public int getSize(byte[] bytes, int offset, int length) {
+		if ( null == bytes) return 0;
+		return Storable.getInt(offset, bytes);
+	}
+	
 
 	@Override
 	public byte[] toBytes(Collection<byte[]> sortedCollection, boolean clearList)
@@ -127,25 +134,55 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 			offset = offset + 4;
 			offsets.add(bytesLen);
 		}
+		
+		int bodyLen = Storable.getInt(offset, inputBytes); // Find body bytes
+		offsets.add(bodyLen);		
 		offset = offset + 4;
 
 		int headerOffset = offset;
 		offsets.add( inputBytes.length - headerOffset);
 		
 		Integer thisElemOffset = -1;
+		Integer nextElemOffset = -1;
+		int elemOffset = -1;
+		int elemLen = -1;
+		boolean isSame = false;
+		
 		for ( int i=0; i<collectionSize; i++) {
 			thisElemOffset = offsets.get(i);
-			boolean isSame = ByteUtil.compareBytes(inputBytes, headerOffset + thisElemOffset, matchNo);
-			if ( isSame ) return 0;
+			nextElemOffset = offsets.get(i+1);
+			elemOffset = (headerOffset + thisElemOffset);
+			elemLen = nextElemOffset - thisElemOffset;
+			isSame = ByteUtil.compareBytes(inputBytes, elemOffset, elemLen , matchNo);
+			if ( isSame ) return i;
 		}		
 		return -1;
 	}
 
 	@Override
-	public void getEqualToIndexes(byte[] inputData, byte[] matchNo,
+	public void getEqualToIndexes(byte[] inputData, byte[] matchBytes,
 			Collection<Integer> matchings) throws IOException {
-		throw new IOException("Not available");
 		
+		int collectionSize = Storable.getInt(0, inputData);
+		List<Integer> offsets = new ArrayList<Integer>(collectionSize);
+		int offset = 4;
+		for ( int i=0; i<collectionSize; i++) {
+			int bytesLen = Storable.getInt( offset, inputData);
+			offset = offset + 4;
+			offsets.add(bytesLen);
+		}
+		offset = offset + 4;
+
+		int headerOffset = offset;
+		offsets.add( inputData.length - headerOffset);
+		
+		Integer thisElemOffset = -1;
+		for ( int i=0; i<collectionSize; i++) {
+			thisElemOffset = offsets.get(i);
+			
+			boolean isSame = ByteUtil.compareBytes(inputData, headerOffset + thisElemOffset, matchBytes);
+			if ( isSame ) matchings.add(i);
+		}		
 	}
 
 	@Override
@@ -155,7 +192,7 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	}
 
 	@Override
-	public void getGreaterThanEuqalToIndexes(byte[] inputData,
+	public void getGreaterThanEqualToIndexes(byte[] inputData,
 			byte[] matchingNo, Collection<Integer> matchingPos)
 			throws IOException {
 		throw new IOException("Not available");
@@ -168,7 +205,7 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	}
 
 	@Override
-	public void getLessThanEuqalToIndexes(byte[] inputData, byte[] matchingNo,
+	public void getLessThanEqualToIndexes(byte[] inputData, byte[] matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not available");
 	}

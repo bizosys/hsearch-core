@@ -107,6 +107,22 @@ public class ByteUtil {
 		}
 		return true;
 	}
+	
+	public static boolean compareBytes(byte[] inputBytes, int offset, int length, byte[] compareBytes) throws IOException {
+		int requiredLen = (offset + length);
+		if ( inputBytes.length < requiredLen ) throw new IOException("Corrupted input bytes");
+		
+		int compLen = compareBytes.length;
+		
+		if ( compLen != length) return false;
+		
+		int readPos = offset;
+		for ( int i=0; i<compLen; i++) {
+			if ( inputBytes[readPos] != compareBytes[i]) return false;
+			readPos++;
+		}
+		return true;
+	}
 
 	/**
 	 *	Compare two bytes 

@@ -12,7 +12,7 @@ import com.oneline.ferrari.TestAll;
 public class SortedBytesFloatTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+		public static String mode = modes[0];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesFloatTest t = new SortedBytesFloatTest();
@@ -128,7 +128,7 @@ public class SortedBytesFloatTest extends TestCase {
 			Collections.sort(sortedList);
 			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesFloat.getInstance().getLessThanEuqalToIndexes(bytes, 700.0F, positions);
+			SortedBytesFloat.getInstance().getLessThanEqualToIndexes(bytes, 700.0F, positions);
 			
 			assertNotNull(positions);
 			assertEquals(701, positions.size());
@@ -147,7 +147,7 @@ public class SortedBytesFloatTest extends TestCase {
 			
 			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesFloat.getInstance().getGreaterThanEuqalToIndexes(bytes, 121.0F, positions);
+			SortedBytesFloat.getInstance().getGreaterThanEqualToIndexes(bytes, 121.0F, positions);
 			
 			assertNotNull(positions);
 			assertTrue(positions.contains(498) );
