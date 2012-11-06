@@ -16,7 +16,7 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	public SortedByte<K2> k2Sorter = null;
 	public SortedByte<V> vSorter = null;
 	
-	public Map<K1, Cell2<K2, V>> sortedList;
+	private Map<K1, Cell2<K2, V>> sortedList;
 	
 	public Cell3(SortedByte<K1> k1Sorter, SortedByte<K2> k2Sorter,
 			SortedByte<V> vSorter) {
@@ -35,7 +35,9 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		this.data = data;
 	}
 	
-	public void add(K1 k1, K2 k2, V v) {
+	//Builder
+	
+	public void put(K1 k1, K2 k2, V v) {
 		if ( null == sortedList) {
 			sortedList = new TreeMap<K1, Cell2<K2,V>>();
 		}
@@ -59,21 +61,48 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	}
 	
 
-	@Override
-	protected List<byte[]> getEmbeddedCellBytes() throws IOException {
-		List<byte[]> values = new ArrayList<byte[]>();
-		for (Cell2<K2, V> cell2 : sortedList.values()) {
-			values.add(cell2.toBytes());
+	public byte[] toBytes(Comparator<CellKeyValue<K2, V>> comp) throws IOException {
+		this.sort(comp);
+		return toBytes();
+	}	
+
+	public Map<K1, Cell2<K2, V>> getMap(byte[] data) throws IOException {
+		this.data = data;
+		parseElements();
+		return sortedList;
+	}	
+
+	public Map<K1, Cell2<K2, V>> getMap() throws IOException {
+		if ( null != sortedList) return sortedList;
+		if ( null != this.data) {
+			parseElements();
+			return sortedList;
 		}
+		throw new IOException("Cell is not initialized");
+	}	
+	
+	
+	public Collection<Cell2<K2, V>> values(K1 exactValue) throws IOException {
+		Collection<Cell2<K2, V>> values = new ArrayList<Cell2<K2, V>>();
+		values(exactValue, null, null, values);
 		return values;
+	}	
+	
+	public Collection<Cell2<K2, V>> values(K1 minimumValue, K1 maximumValue) throws IOException {
+		Collection<Cell2<K2, V>> values = new ArrayList<Cell2<K2, V>>();
+		values(null, minimumValue, maximumValue, values);
+		return values;
+	}		
+	
+	public void values(K1 exactValue, Collection<Cell2<K2, V>> foundValues) throws IOException {
+		values(exactValue, null, null, foundValues);
 	}
 	
-	@Override
-	protected byte[] getKeyBytes() throws IOException {
-		return k1Sorter.toBytes(sortedList.keySet(), false);
+	public void values(K1 minimumValue, K1 maximumValue, Collection<Cell2<K2, V>> foundValues) throws IOException {
+		values(null, minimumValue, maximumValue, foundValues);
 	}
 	
-	public void findValues(K1 exactValue, K1 minimumValue, K1 maximumValue, 
+	public void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
 			Collection<Cell2<K2, V>> foundValues) throws IOException {
 
 		List<Integer> foundPositions = new ArrayList<Integer>();
@@ -88,7 +117,13 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		}
 	}
 	
-	public void getAllValues(Collection<Cell2<K2, V>> values) throws IOException {
+	public Collection<Cell2<K2, V>> values() throws IOException {
+		Collection<Cell2<K2, V>> values = new ArrayList<Cell2<K2, V>>();
+		values(values);
+		return values;
+	}	
+	
+	public void values(Collection<Cell2<K2, V>> values) throws IOException {
 		SortedByte<byte[]> sortedBA = SortedBytesArray.getInstance();
 		byte[] allValuesB = sortedBA.getValueAt(data, 1);
 		
@@ -109,9 +144,8 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		List<K1> allKeys = new ArrayList<K1>();
 		List<Cell2<K2,V>> allValues = new ArrayList<Cell2<K2,V>>();
 		
-		getAllKeys(allKeys);
-		
-		getAllValues(allValues);
+		keySet(allKeys);
+		values(allValues);
 
 		int allKeysT = allKeys.size();
 		if ( allKeysT != allValues.size() ) throw new IOException( 
@@ -122,6 +156,19 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		}
 	}
 	
+	@Override
+	protected List<byte[]> getEmbeddedCellBytes() throws IOException {
+		List<byte[]> values = new ArrayList<byte[]>();
+		for (Cell2<K2, V> cell2 : sortedList.values()) {
+			values.add(cell2.toBytes());
+		}
+		return values;
+	}
 	
+	@Override
+	protected byte[] getKeyBytes() throws IOException {
+		return k1Sorter.toBytes(sortedList.keySet(), false);
+	}
+		
 
 }

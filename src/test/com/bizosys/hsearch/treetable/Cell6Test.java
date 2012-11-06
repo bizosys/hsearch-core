@@ -1,22 +1,14 @@
 package com.bizosys.hsearch.treetable;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.StringTokenizer;
 
 import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
-import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesFloat;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
-import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.byteutils.SortedBytesUnsignedShort;
 import com.oneline.ferrari.TestAll;
@@ -65,7 +57,7 @@ public class Cell6Test extends TestCase {
 			String[] lines = inputData.split("\n");
 			for (String aLine : lines) {
 				String[] fld = aLine.split("\\|");
-				searchTable.add( 
+				searchTable.put( 
 					Integer.parseInt(fld[0]), fld[1] , Integer.parseInt(fld[2]), Integer.parseInt(fld[3]), Integer.parseInt(fld[4]) , Float.parseFloat(fld[5]));
 			}
 			searchTable.sort (new CellComparator.FloatComparator<Integer>());
@@ -75,41 +67,36 @@ public class Cell6Test extends TestCase {
 			
 			//Test Parsing
 			Cell6<Integer, String, Integer, Integer, Integer, Float> searchTableDeser = getSearchTable();
-			searchTableDeser.data = data;
-			searchTableDeser.parseElements();
-			
-			assertEquals(1, searchTableDeser.sortedList.size());
+			Map<Integer, Cell5<String, Integer, Integer, Integer, Float>> mapHashCodecs = searchTableDeser.getMap(data);
+			assertEquals(1, mapHashCodecs.size());
 			
 			StringBuilder outputData = new StringBuilder();
-			Iterator<Entry<Integer, Cell5<String, Integer, Integer, Integer, Float>>> hascodecItr = searchTableDeser.sortedList.entrySet().iterator();  
+			Iterator<Entry<Integer, Cell5<String, Integer, Integer, Integer, Float>>> hascodecItr = mapHashCodecs.entrySet().iterator();  
 			while ( hascodecItr.hasNext() ) {
 				Entry<Integer, Cell5<String, Integer, Integer, Integer, Float>> aHash = hascodecItr.next();
 				Integer _hashCode = aHash.getKey();
 				Cell5<String, Integer, Integer, Integer, Float> cell5 = aHash.getValue();
-				cell5.parseElements();
-				
-				Iterator<Entry<String, Cell4<Integer, Integer, Integer, Float>>> itemItr = cell5.sortedList.entrySet().iterator();  
+				Iterator<Entry<String, Cell4<Integer, Integer, Integer, Float>>> itemItr = 
+						cell5.getMap().entrySet().iterator();  
 				while ( itemItr.hasNext()) {
 					Entry<String, Cell4<Integer, Integer, Integer, Float>> aTerm = itemItr.next();
 					String _term = aTerm.getKey();
 					Cell4<Integer, Integer, Integer, Float> cell4 = aTerm.getValue();
-					cell4.parseElements();
-					
-					Iterator<Entry<Integer, Cell3<Integer, Integer, Float>>> docItr = cell4.sortedList.entrySet().iterator();
+					Iterator<Entry<Integer, Cell3<Integer, Integer, Float>>> docItr = cell4.getMap().entrySet().iterator();
 					while ( docItr.hasNext()) {
+
 						Entry<Integer, Cell3<Integer, Integer, Float>> aDoc = docItr.next();
 						Integer _doc = aDoc.getKey();
 						Cell3<Integer, Integer, Float> cell3 = aDoc.getValue();
-						cell3.parseElements();
 						
-						Iterator<Entry<Integer, Cell2<Integer, Float>>> termtypeItr = cell3.sortedList.entrySet().iterator();
+						Iterator<Entry<Integer, Cell2<Integer, Float>>> termtypeItr = cell3.getMap().entrySet().iterator();
 						while ( termtypeItr.hasNext()) {
+						
 							Entry<Integer, Cell2<Integer, Float>> word = termtypeItr.next();
 							Integer _wordtype = word.getKey();
 							Cell2<Integer, Float> cell2 = word.getValue();
-							cell2.parseElements();
 							
-							for (CellKeyValue<Integer, Float> _word : cell2.sortedList) {
+							for (CellKeyValue<Integer, Float> _word : cell2.getMap()) {
 								outputData.append(_hashCode + "|" + _term + "|" + _doc + "|" + _wordtype + "|" + _word.getKey() + "|" + _word.getValue() + "\n");
 							}
 						}

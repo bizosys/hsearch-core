@@ -1,16 +1,13 @@
 package com.bizosys.hsearch.treetable;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
-import com.bizosys.hsearch.byteutils.SortedBytesArray;
-import com.bizosys.hsearch.byteutils.SortedBytesFloat;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
@@ -49,43 +46,37 @@ public class Cell3Test extends TestCase {
 			Cell3<String, Integer, Long> tc = new Cell3<String, Integer, Long>(
 					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
 
-			tc.add("entry100", 0, 1111L);
-			tc.add("entry100", 0, 1111L);
-			tc.add("entry100", 0, 2222L);
-			tc.add("entry100", 0, 3333L);
-			tc.add("entry100", 0, 4444L);
-			tc.add("entry100", 0, 5555L);
-			tc.add("entry100", 1, 4444L);
-			tc.add("entry100", 1, 4444L);
-			tc.add("entry100", 1, 4444L);
+			tc.put("entry100", 0, 1111L);
+			tc.put("entry100", 0, 1111L);
+			tc.put("entry100", 0, 2222L);
+			tc.put("entry100", 0, 3333L);
+			tc.put("entry100", 0, 4444L);
+			tc.put("entry100", 0, 5555L);
+			tc.put("entry100", 1, 4444L);
+			tc.put("entry100", 1, 4444L);
+			tc.put("entry100", 1, 4444L);
 			
-			tc.add("entry101", 2, 9999L);
-
+			tc.put("entry101", 2, 9999L);
 			tc.sort (new CellComparator.LongComparator<Integer>());
 
-			Set<String> uniqueKeys = new HashSet<String>();
-			uniqueKeys.addAll(tc.sortedList.keySet());
+			Set<String> uniqueKeys = tc.getMap().keySet();
 			
 			//Test Parsing
 			Cell3<String, Integer, Long> tcNewParsing = new Cell3<String, Integer, Long>(
 					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
-			tcNewParsing.data = tc.toBytes();
+
+			tcNewParsing.parseElements(tc.toBytes());
+			assertEquals(2, tcNewParsing.getMap().size());
 			
-			tcNewParsing.parseElements();
-			assertEquals(2, tcNewParsing.sortedList.size());
-			
-			for (String key : tcNewParsing.sortedList.keySet()) {
+			for (String key : tcNewParsing.getMap().keySet()) {
 				assertTrue( uniqueKeys.contains(key) );
 			}
 			
 
-			Iterator<Cell2<Integer, Long>> valItr = tcNewParsing.sortedList.values().iterator();
+			Iterator<Cell2<Integer, Long>> valItr = tcNewParsing.getMap().values().iterator();
 			Cell2<Integer, Long> value = valItr.next();
-			value.parseElements();
-			List<Integer> allKeys = new ArrayList<Integer>();
-			List<Long> allVals = new ArrayList<Long>();
-			value.getAllKeys(allKeys);
-			value.getAllValues(allVals);
+			Collection<Integer> allKeys = value.keySet();
+			Collection<Long> allVals = value.values();
 			
 			assertEquals(9 , allKeys.size());
 			assertTrue("[0, 0, 0, 0, 1, 1, 1, 0, 0]".equals(allKeys.toString()) );
@@ -94,10 +85,8 @@ public class Cell3Test extends TestCase {
 
 			value = valItr.next();
 			value.parseElements();
-			allKeys = new ArrayList<Integer>();
-			allVals = new ArrayList<Long>();
-			value.getAllKeys(allKeys);
-			value.getAllValues(allVals);
+			allKeys = value.keySet();
+			allVals = value.values();
 			
 			assertEquals(1 , allKeys.size());
 			assertTrue("[2]".equals(allKeys.toString()) );
@@ -108,12 +97,11 @@ public class Cell3Test extends TestCase {
 					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
 			tcNewFinding.data = tc.toBytes();
 
-			List<Cell2<Integer, Long>> all = new ArrayList<Cell2<Integer, Long>>();
-			tcNewFinding.findValues("entry100", null, null, all);
+			Collection<Cell2<Integer, Long>> all = tcNewFinding.values("entry100");
 			for (Cell2<Integer, Long> cell2 : all) {
 				cell2.parseElements();
 				StringBuilder sb = new StringBuilder();
-				for (CellKeyValue<Integer, Long> kv : cell2.sortedList) {
+				for (CellKeyValue<Integer, Long> kv : cell2.getMap()) {
 					sb.append(kv.key.toString() + "-" + kv.value.toString() + "|");
 				}
 				assertEquals("0-1111|0-1111|0-2222|0-3333|1-4444|1-4444|1-4444|0-4444|0-5555|", sb.toString());

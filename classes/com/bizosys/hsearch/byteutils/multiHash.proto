@@ -1,0 +1,60 @@
+package com.bizosys.hsearch.byteutils;
+
+
+message MultiHashDouble {
+  
+  required bytes key = 1;
+
+  repeated double val = 2;
+}
+
+
+message MultiHashFloat {
+  
+  required bytes key = 1;
+
+  repeated float val = 2;
+}
+
+
+message MultiHashInt {
+  
+  required bytes key = 1;
+
+  repeated int32 val = 2;
+}
+
+
+message MultiHashLong {
+  
+  required bytes key = 1;
+
+  repeated int64 val = 2;
+}
+
+
+
+message MultiHashBool {
+  
+  required bytes key = 1;
+
+  repeated bool val = 2;
+}
+
+
+
+message MultiHashString {
+  
+  required bytes key = 1;
+
+  repeated string val = 2;
+}
+
+
+
+message MultiHashBytes {
+  
+  required bytes key = 1;
+
+  required bytes val = 2;
+}

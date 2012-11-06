@@ -1,7 +1,7 @@
 package com.bizosys.hsearch.treetable;
 
 import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -57,9 +57,9 @@ public class Cell2Test extends TestCase {
 				SortedBytesLong.getInstance(), SortedBytesFloat.getInstance(),data);			
 			
 			tcNewParsing.parseElements();
-			assertEquals(1, tcNewParsing.sortedList.size());
+			assertEquals(1, tcNewParsing.getMap().size());
 			
-			for (CellKeyValue<Long, Float> cell : tcNewParsing.sortedList) {
+			for (CellKeyValue<Long, Float> cell : tcNewParsing.getMap()) {
 				assertEquals(cell.key.longValue(), aLong.longValue());
 				assertEquals(cell.value.floatValue(), aFloat.floatValue());
 			}
@@ -68,10 +68,10 @@ public class Cell2Test extends TestCase {
 			Cell2<Long, Float> tcNewFinding = new Cell2<Long, Float>(
 				SortedBytesLong.getInstance(), SortedBytesFloat.getInstance(),data);			
 			
-			List<Long> all = new ArrayList<Long>();
-			tcNewFinding.findKeys(aFloat, null, null, all);
+			Set<Long> all = tcNewFinding.keySet(aFloat);
+			
 			assertEquals(1, all.size());
-			assertEquals(all.get(0).longValue(), aLong.longValue());
+			assertEquals(all.iterator().next().longValue(), aLong.longValue());
 		
 		}
 
@@ -91,14 +91,13 @@ public class Cell2Test extends TestCase {
 					SortedBytesInteger.getInstance(), SortedBytesArray.getInstance(), data);
 			
 			List<byte[]> foundValues = new ArrayList<byte[]>();
-			tcNewFinding.findValues("new46".getBytes(), null, null, foundValues);
+			tcNewFinding.values("new46".getBytes(), foundValues);
 			assertEquals(foundValues.size(), 1);
 			for (byte[] bs : foundValues) {
 				assertEquals("new46" , new String(bs));
 			}
 
-			List<Integer> foundKeys = new ArrayList<Integer>();
-			tcNewFinding.findKeys("new46".getBytes(), null, null, foundKeys);
+			Collection<Integer> foundKeys = tcNewFinding.keySet("new46".getBytes() );
 			assertEquals(foundValues.size(), 1);
 			for (Integer i : foundKeys) {
 				assertEquals( 46, i.intValue());
@@ -106,7 +105,7 @@ public class Cell2Test extends TestCase {
 
 			tcNewFinding.parseElements();
 			
-			for (CellKeyValue<Integer, byte[]> elem : tcNewFinding.sortedList) {
+			for (CellKeyValue<Integer, byte[]> elem : tcNewFinding.getMap()) {
 				assertTrue(elem.key == aInt.intValue() || elem.key == 46);
 				assertTrue( "new46".equals(new String(elem.value)) || aString.equals(new String(elem.value))  );
 			}
