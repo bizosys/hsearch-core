@@ -6,25 +6,44 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class SortedBytesArray extends SortedByte<byte[]>{
+public final class SortedBytesArray implements ISortedByte<byte[]>{
 
-	public static SortedByte<byte[]> getInstance() {
+	public static ISortedByte<byte[]> getInstance() {
 		return new SortedBytesArray();
 	}
+	
+	byte[] bytes;
+	int inputOffset;
+	int length;
 	
 	private SortedBytesArray() {
 	}
 	
 	@Override
-	public int getSize(byte[] bytes, int offset, int length) {
+	public ISortedByte<byte[]> parse(byte[] bytes) throws IOException {
+		this.bytes = bytes;
+		this.inputOffset = 0;
+		this.length = ( null == bytes) ? 0 : bytes.length;
+		return this;
+	}
+
+	@Override
+	public ISortedByte<byte[]> parse(byte[] bytes, int offset, int length) throws IOException {
+		this.bytes = bytes;
+		this.inputOffset = offset;
+		this.length = length;
+		return this;
+	}
+	
+	@Override
+	public int getSize() {
 		if ( null == bytes) return 0;
-		return Storable.getInt(offset, bytes);
+		return Storable.getInt(inputOffset, bytes);
 	}
 	
 
 	@Override
-	public byte[] toBytes(Collection<byte[]> sortedCollection, boolean clearList)
-			throws IOException {
+	public byte[] toBytes(Collection<byte[]> sortedCollection) throws IOException {
 
 		//Total collection size, element start location, End Location
 		byte[] headerBytes = new byte[4 + sortedCollection.size() * 4 + 4] ;
@@ -59,12 +78,10 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	}
 
 	@Override
-	public void addAll(byte[] inputBytes, Collection<byte[]> vals) throws IOException {
-		addAll(inputBytes, 0, vals);
-	}
-
-	@Override
-	public void addAll(byte[] inputBytes, int offset, Collection<byte[]> vals) throws IOException {
+	public void addAll(Collection<byte[]> vals) throws IOException {
+		
+		byte[] inputBytes = this.bytes;
+		int offset = inputOffset;
 		
 		int collectionSize = Storable.getInt(offset, inputBytes);
 		
@@ -93,12 +110,10 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	}
 
 	@Override
-	public byte[] getValueAt(byte[] inputBytes, int pos) throws IOException {
-		return getValueAt(inputBytes, 0, pos);
-	}
-
-	@Override
-	public byte[] getValueAt(byte[] inputBytes, int offset, int pos) throws IOException {
+	public byte[] getValueAt(int pos) throws IOException {
+		
+		byte[] inputBytes = this.bytes;
+		int offset = inputOffset;
 		
 		int collectionSize = Storable.getInt(offset, inputBytes);
 		if ( pos >= collectionSize) throw new IOException(
@@ -118,12 +133,10 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	}
 
 	@Override
-	public int getEqualToIndex(byte[] inputData, byte[] matchNo) throws IOException {
-		return getEqualToIndex(inputData, 0, matchNo);
-	}
+	public int getEqualToIndex(byte[] matchNo) throws IOException {
+		byte[] inputBytes = this.bytes;
+		int offset = inputOffset;
 
-	@Override
-	public int getEqualToIndex(byte[] inputBytes, int offset, byte[] matchNo) throws IOException {
 		int collectionSize = Storable.getInt(offset, inputBytes);
 		
 		List<Integer> offsets = new ArrayList<Integer>();
@@ -160,12 +173,14 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	}
 
 	@Override
-	public void getEqualToIndexes(byte[] inputData, byte[] matchBytes,
-			Collection<Integer> matchings) throws IOException {
+	public void getEqualToIndexes(byte[] matchBytes, Collection<Integer> matchings) throws IOException {
 		
+		byte[] inputData = this.bytes;
+		int offset = inputOffset;
+
 		int collectionSize = Storable.getInt(0, inputData);
 		List<Integer> offsets = new ArrayList<Integer>(collectionSize);
-		int offset = 4;
+		offset = offset + 4;
 		for ( int i=0; i<collectionSize; i++) {
 			int bytesLen = Storable.getInt( offset, inputData);
 			offset = offset + 4;
@@ -186,44 +201,94 @@ public final class SortedBytesArray extends SortedByte<byte[]>{
 	}
 
 	@Override
-	public void getGreaterThanIndexes(byte[] inputData, byte[] matchingNo,
+	public Collection<byte[]> values() throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public Collection<Integer> getEqualToIndexes(byte[] matchNo) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public void getGreaterThanIndexes(byte[] matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not available");
+		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public void getGreaterThanEqualToIndexes(byte[] inputData,
-			byte[] matchingNo, Collection<Integer> matchingPos)
-			throws IOException {
-		throw new IOException("Not available");
+	public Collection<Integer> getGreaterThanIndexes(byte[] matchingNo) throws IOException {
+		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public void getLessThanIndexes(byte[] inputData, byte[] matchingNo,
+	public void getGreaterThanEqualToIndexes(byte[] matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not available");
+		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public void getLessThanEqualToIndexes(byte[] inputData, byte[] matchingNo,
+	public Collection<Integer> getGreaterThanEqualToIndexes(byte[] matchingNo) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public void getLessThanIndexes(byte[] matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not available");
+		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public void getRangeIndexes(byte[] inputData, byte[] matchNoStart,
-			byte[] matchNoEnd, Collection<Integer> matchings)
-			throws IOException {
-		throw new IOException("Not available");
-		
+	public void getLessThanEqualToIndexes(byte[] matchingNo,
+			Collection<Integer> matchingPos) throws IOException {
+		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public void getRangeIndexesInclusive(byte[] inputData, byte[] matchNoStart,
-			byte[] matchNoEnd, Collection<Integer> matchings)
-			throws IOException {
-		throw new IOException("Not available");
-		
+	public Collection<Integer> getLessThanIndexes(byte[] matchingNo) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public Collection<Integer> getLessThanEqualToIndexes(byte[] matchingNo) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public void getRangeIndexes(byte[] matchNoStart, byte[] matchNoEnd,
+			Collection<Integer> matchings) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public Collection<Integer> getRangeIndexes(byte[] matchNoStart,
+			byte[] matchNoEnd) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public void getRangeIndexesInclusive(byte[] matchNoStart,
+			byte[] matchNoEnd, Collection<Integer> matchings) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public Collection<Integer> getRangeIndexesInclusive(byte[] matchNoStart,
+			byte[] matchNoEnd) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public void getRangeIndexesInclusive(byte[] matchNoStart,
+			boolean startMatch, byte[] matchNoEnd, boolean endMatch,
+			Collection<Integer> matchings) throws IOException {
+		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	public Collection<Integer> getRangeIndexesInclusive(byte[] matchNoStart,
+			boolean startMatch, byte[] matchNoEnd, boolean endMatch) throws IOException {
+		throw new IOException("Not implemented Yet");
 	}
 
 }

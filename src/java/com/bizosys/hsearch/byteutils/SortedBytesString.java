@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class SortedBytesString extends SortedByte<String>{
+public final class SortedBytesString extends SortedBytesBase<String>{
 
-	public static SortedByte<String> getInstance() {
+	public static ISortedByte<String> getInstance() {
 		return new SortedBytesString();
 	}
 	
@@ -16,9 +16,9 @@ public final class SortedBytesString extends SortedByte<String>{
 	}
 	
 	@Override
-	public int getSize(byte[] bytes, int offset, int length) {
-		if ( null == bytes) return 0;
-		return Storable.getInt(offset, bytes);
+	public int getSize() {
+		if ( null == this.inputBytes) return 0;
+		return Storable.getInt(offset, this.inputBytes);
 	}
 	
 	/**
@@ -28,69 +28,63 @@ public final class SortedBytesString extends SortedByte<String>{
 	 * Each element bytes
 	 */
 	@Override
-	public byte[] toBytes(Collection<String> sortedCollection, boolean clearList)
-			throws IOException {
+	public byte[] toBytes(Collection<String> sortedCollection) throws IOException {
 
 		//Total collection size, element start location, End Location
 		byte[] headerBytes = new byte[4 + sortedCollection.size() * 4 + 4] ;
 		System.arraycopy(Storable.putInt(sortedCollection.size()), 0, headerBytes, 0, 4);
-		int offset = 4;  //4 is added for array size
+		int seek = 4;  //4 is added for array size
 		
 		int outputBytesLen = 0;
 		for (String bytes : sortedCollection) {
 
 			//Populate header
-			System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, offset, 4);
-			offset = offset + 4;
+			System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, seek, 4);
+			seek = seek + 4;
 			
 			//Calculate Next Chunk length
 			int bytesLen = ( null == bytes ) ? 0 : bytes.getBytes().length;
 			outputBytesLen = outputBytesLen + bytesLen ;
 			
 		}
-		System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, offset, 4);
+		System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, seek, 4);
 		
 		outputBytesLen = outputBytesLen + headerBytes.length; 
 		byte[] outputBytes = new byte[outputBytesLen];
 		System.arraycopy(headerBytes, 0, outputBytes, 0, headerBytes.length);
-		offset = headerBytes.length;
+		seek = headerBytes.length;
 		
 		for (String bytes : sortedCollection) {
 			int byteSize = ( null == bytes) ? 0 : bytes.getBytes().length;
-			System.arraycopy(bytes.getBytes(), 0, outputBytes, offset, byteSize);
-			offset = offset + byteSize;
+			System.arraycopy(bytes.getBytes(), 0, outputBytes, seek, byteSize);
+			seek = seek + byteSize;
 		}
 		return outputBytes;
 	}
 
 	@Override
-	public void addAll(byte[] inputBytes, Collection<String> vals) throws IOException {
-		addAll(inputBytes, 0, vals);
-	}
-
-	@Override
-	public void addAll(byte[] inputBytes, int offset, Collection<String> vals) throws IOException {
+	public void addAll(Collection<String> vals) throws IOException {
 		
-		int collectionSize = Storable.getInt(offset, inputBytes);
+		int collectionSize = getSize();
 		
-		List<Integer> offsets = new ArrayList<Integer>();
-		offset = offset + 4;
+		List<Integer> seeks = new ArrayList<Integer>();
+		int seek = offset + 4;
 		
 		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( offset, inputBytes);
-			offset = offset + 4;
-			offsets.add(bytesLen);
+			int bytesLen = Storable.getInt( seek, inputBytes);
+			seek = seek + 4;
+			seeks.add(bytesLen);
 		}
-		offset = offset + 4;
+		seek = seek + 4;
 
-		int headerOffset = offset;
-		offsets.add( inputBytes.length - headerOffset);
+		int headerOffset = seek;
+		seeks.add( inputBytes.length - headerOffset);
 		
 		Integer nextElemOffset = -1;
 		Integer thisElemOffset = -1;
 		for ( int i=0; i<collectionSize; i++) {
-			nextElemOffset = offsets.get(i+1);
-			thisElemOffset = offsets.get(i);
+			nextElemOffset = seeks.get(i+1);
+			thisElemOffset = seeks.get(i);
 			byte[] aElem = new byte[ nextElemOffset - thisElemOffset ];
 			System.arraycopy(inputBytes, headerOffset + thisElemOffset, aElem, 0, aElem.length);
 			vals.add( new String(aElem) );
@@ -98,14 +92,9 @@ public final class SortedBytesString extends SortedByte<String>{
 	}
 
 	@Override
-	public String getValueAt(byte[] inputBytes, int pos) throws IOException {
-		return getValueAt(inputBytes, 0, pos);
-	}
-
-	@Override
-	public String getValueAt(byte[] inputBytes, int offset, int pos) throws IOException {
+	public String getValueAt(int pos) throws IOException {
 		
-		int collectionSize = Storable.getInt(offset, inputBytes);
+		int collectionSize = getSize();
 		if ( pos >= collectionSize) throw new IOException(
 			"Maximum position in array is " + collectionSize + " and accessed " + pos );
 		
@@ -124,29 +113,27 @@ public final class SortedBytesString extends SortedByte<String>{
 	}
 
 	@Override
-	public int getEqualToIndex(byte[] inputData, String matchNo) throws IOException {
-		return getEqualToIndex(inputData, 0, matchNo);
-	}
+	public int getEqualToIndex(String matchVal) throws IOException {
 
-	@Override
-	public int getEqualToIndex(byte[] inputBytes, int offset, String matchVal) throws IOException {
-		int collectionSize = Storable.getInt(offset, inputBytes);
+		int collectionSize = getSize();
+		if ( 0 == collectionSize) return -1;
 		
-		List<Integer> offsets = new ArrayList<Integer>();
-		offset = offset + 4;
+		int seek = offset; 
+		List<Integer> seekPositions = new ArrayList<Integer>();
+		seek = seek + 4;
 		
 		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( offset, inputBytes);
-			offset = offset + 4;
-			offsets.add(bytesLen);
+			int bytesLen = Storable.getInt(seek, inputBytes);
+			seek = seek + 4;
+			seekPositions.add(bytesLen);
 		}
 		
-		int bodyLen = Storable.getInt(offset, inputBytes); // Find body bytes
-		offsets.add(bodyLen);		
-		offset = offset + 4;
+		int bodyLen = Storable.getInt(seek, inputBytes); // Find body bytes
+		seekPositions.add(bodyLen);		
+		seek = seek + 4;
 
-		int headerOffset = offset;
-		offsets.add( inputBytes.length - headerOffset);
+		int headerOffset = seek;
+		seekPositions.add( inputBytes.length - headerOffset);
 		
 		Integer thisElemOffset = -1;
 		Integer nextElemOffset = -1;
@@ -156,8 +143,8 @@ public final class SortedBytesString extends SortedByte<String>{
 		
 		byte[] matchValB = matchVal.getBytes();
 		for ( int i=0; i<collectionSize; i++) {
-			thisElemOffset = offsets.get(i);
-			nextElemOffset = offsets.get(i+1);
+			thisElemOffset = seekPositions.get(i);
+			nextElemOffset = seekPositions.get(i+1);
 			elemOffset = (headerOffset + thisElemOffset);
 			elemLen = nextElemOffset - thisElemOffset;
 			isSame = ByteUtil.compareBytes(inputBytes, elemOffset, elemLen , matchValB);
@@ -174,89 +161,51 @@ public final class SortedBytesString extends SortedByte<String>{
 	 */
 	
 	@Override
-	public void getEqualToIndexes(byte[] inputData, String matchVal,
-			Collection<Integer> matchings) throws IOException {
+	public void getEqualToIndexes(String matchVal, Collection<Integer> matchings) throws IOException {
 		
-		if ( null == inputData) return;
+		int collectionSize = getSize();
+		if ( 0 == collectionSize) return;
 		
-		int collectionSize = Storable.getInt(0, inputData); // Find total entities - 4 bytes
+		int headerLen = 4 + (collectionSize * 4);
 		
-		int headerLen = 4 + collectionSize * 4;
-		
-		if (inputData.length < headerLen) throw new IOException(
+		if (inputBytes.length < headerLen) throw new IOException(
 			"Corrupted bytes : collectionSize( " + collectionSize + "), header lengh=" + headerLen + 
-					" , actual length = " + inputData.length);
+					" , actual length = " + inputBytes.length);
 		
-		List<Integer> offsets = new ArrayList<Integer>(collectionSize);
-		int offset = 4;
+		List<Integer> seeks = new ArrayList<Integer>(collectionSize);
+		int seek = 4;
 		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( offset, inputData);
-			offset = offset + 4;
-			offsets.add(bytesLen);
+			int bytesLen = Storable.getInt( seek, inputBytes);
+			seek = seek + 4;
+			seeks.add(bytesLen);
 		}
-		int bodyLen = Storable.getInt(offset, inputData); // Find body bytes
-		offsets.add(bodyLen);
+		int bodyLen = Storable.getInt(seek, inputBytes); // Find body bytes
+		seeks.add(bodyLen);
 		
-		offset = offset + 4;
-		if ( (offset + bodyLen)  < headerLen) throw new IOException(
+		seek = seek + 4;
+		if ( (seek + bodyLen)  < headerLen) throw new IOException(
 				"Corrupted bytes : collectionSize( " + collectionSize + "), body Len=" + (offset + bodyLen) + 
-				" , actual length = " + inputData.length);
+				" , actual length = " + inputBytes.length);
 		
-		int headerOffset = offset;
+		int headerOffset = seek;
 		Integer thisElemOffset = -1;
 		Integer nextElemOffset = -1;
 		byte[] matchBytes = matchVal.getBytes(); 
 		
 		for ( int i=0; i<collectionSize; i++) {
-			thisElemOffset = offsets.get(i);
-			nextElemOffset = offsets.get(i+1);
+			thisElemOffset = seeks.get(i);
+			nextElemOffset = seeks.get(i+1);
 			int elemOffset = (headerOffset + thisElemOffset);
 			int elemLen = nextElemOffset - thisElemOffset;
 			
-			boolean isSame = ByteUtil.compareBytes(inputData, elemOffset, elemLen,  matchBytes);
+			boolean isSame = ByteUtil.compareBytes(inputBytes, elemOffset, elemLen,  matchBytes);
 			if ( isSame ) matchings.add(i);
 		}		
 	}
 
 	@Override
-	public void getGreaterThanIndexes(byte[] inputData, String matchingNo,
-			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not available");
-	}
-
-	@Override
-	public void getGreaterThanEqualToIndexes(byte[] inputData,
-			String matchingNo, Collection<Integer> matchingPos)
-			throws IOException {
-		throw new IOException("Not available");
-	}
-
-	@Override
-	public void getLessThanIndexes(byte[] inputData, String matchingNo,
-			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not available");
-	}
-
-	@Override
-	public void getLessThanEqualToIndexes(byte[] inputData, String matchingNo,
-			Collection<Integer> matchingPos) throws IOException {
-		throw new IOException("Not available");
-	}
-
-	@Override
-	public void getRangeIndexes(byte[] inputData, String matchNoStart,
-			String matchNoEnd, Collection<Integer> matchings)
-			throws IOException {
-		throw new IOException("Not available");
-		
-	}
-
-	@Override
-	public void getRangeIndexesInclusive(byte[] inputData, String matchNoStart,
-			String matchNoEnd, Collection<Integer> matchings)
-			throws IOException {
-		throw new IOException("Not available");
-		
+	protected int compare(byte[] inputB, int offset, String matchNo) {
+		throw new RuntimeException("Not implemened Yet");
 	}
 
 }

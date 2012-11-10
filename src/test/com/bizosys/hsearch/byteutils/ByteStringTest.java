@@ -13,7 +13,7 @@ import com.oneline.ferrari.TestAll;
 public class ByteStringTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[2];  
+		public static String mode = modes[1];  
 		
 		public static void main(String[] args) throws Exception {
 			ByteStringTest t = new ByteStringTest();
@@ -49,12 +49,12 @@ public class ByteStringTest extends TestCase {
 			}
 			mem = Runtime.getRuntime().freeMemory()/1024/1024;
 			System.out.println("copyFrom :" + mem);
-			byte[] outB = SortedBytesArray.getInstance().toBytes(bytesA, false);
+			byte[] outB = SortedBytesArray.getInstance().toBytes(bytesA);
 			
 			mem = Runtime.getRuntime().freeMemory()/1024/1024;
 			System.out.println("toByteArray :" + mem);
 			
-			SortedBytesArray.getInstance().getValueAt(outB, 0);
+			SortedBytesArray.getInstance().parse(outB).getValueAt(0);
 			mem = Runtime.getRuntime().freeMemory()/1024/1024;			
 			System.out.println("getVal :" + mem);
 		}	

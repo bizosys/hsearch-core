@@ -12,7 +12,7 @@ import com.oneline.ferrari.TestAll;
 public class SortedBytesUnsignedShortTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+		public static String mode = modes[2];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesUnsignedShortTest t = new SortedBytesUnsignedShortTest();
@@ -24,7 +24,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testRangeValuesInclusive();
+				t.testLessthan();
 				t.tearDown();
 			}
 		}
@@ -52,14 +52,14 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			}
 			Collections.sort(sortedList);
 			
-			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();   
-			SortedBytesUnsignedShort.getInstance().getEqualToIndexes(bytes, 10, positions);
+			SortedBytesUnsignedShort.getInstance().parse(bytes).getEqualToIndexes(10, positions);
 			
 			assertNotNull(positions);
 			assertEquals(3, positions.size());
 			for (int pos : positions) {
-				assertEquals(10 , SortedBytesUnsignedShort.getInstance().getValueAt(bytes,pos).intValue());
+				assertEquals(10 , SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos).intValue());
 			}
 		}
 		
@@ -71,21 +71,21 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			Collections.sort(sortedList);
 
 			
-			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();   
-			SortedBytesUnsignedShort.getInstance().getLessThanIndexes(bytes, 130, positions);
+			SortedBytesUnsignedShort.getInstance().parse(bytes).getLessThanIndexes(130, positions);
 			
 			assertNotNull(positions);
 			assertTrue(!positions.contains(130) );
 			assertTrue(!positions.contains(999) );
-			assertTrue(positions.contains(129) );
+			assertTrue(positions.contains(128) );
 			assertTrue(positions.contains(0) );
 			assertTrue(!positions.contains(-1) );
 			
 			assertEquals(130, positions.size());
 			
 			for (int pos : positions) {
-				assertTrue( (SortedBytesUnsignedShort.getInstance().getValueAt(bytes,pos) < 130) );
+				assertTrue( (SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos) < 130) );
 			}
 		}		
 		
@@ -106,15 +106,15 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			Collections.sort(sortedList);
 
 			
-			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();   
-			SortedBytesUnsignedShort.getInstance().getLessThanIndexes(bytes, 10, positions);
+			SortedBytesUnsignedShort.getInstance().parse(bytes).getLessThanIndexes(10, positions);
 			
 			assertNotNull(positions);
 			assertEquals(13, positions.size());
 			
 			for (int pos : positions) {
-				assertTrue( (SortedBytesUnsignedShort.getInstance().getValueAt(bytes,pos) < 10) );
+				assertTrue( (SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos) < 10) );
 			}
 		}				
 		
@@ -126,14 +126,14 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			}
 			Collections.sort(sortedList);
 
-			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();  
-			SortedBytesUnsignedShort.getInstance().getLessThanEqualToIndexes(bytes, 700, positions);
+			SortedBytesUnsignedShort.getInstance().parse(bytes).getLessThanEqualToIndexes(700, positions);
 			
 			assertNotNull(positions);
 			assertEquals(701, positions.size());
 			for (int pos : positions) {
-				assertTrue( (SortedBytesUnsignedShort.getInstance().getValueAt(bytes,pos) <= 700) );
+				assertTrue( (SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos) <= 700) );
 			}
 		}			
 		
@@ -145,9 +145,9 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			Collections.sort(sortedList);
 
 			
-			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();   
-			SortedBytesUnsignedShort.getInstance().getGreaterThanEqualToIndexes(bytes, 121, positions);
+			SortedBytesUnsignedShort.getInstance().parse(bytes).getGreaterThanEqualToIndexes(121, positions);
 			
 			assertNotNull(positions);
 			assertTrue(positions.contains(498) );
@@ -158,7 +158,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			assertTrue(!positions.contains(120) );
 			assertEquals(1000-121, positions.size());
 			for (int pos : positions) {
-				assertTrue( (SortedBytesUnsignedShort.getInstance().getValueAt(bytes,pos) >= 121) );
+				assertTrue( (SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos) >= 121) );
 			}
 		}		
 		
@@ -170,9 +170,9 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			
 			Collections.sort(sortedList);
 
-			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>(); 
-			SortedBytesUnsignedShort.getInstance().getGreaterThanIndexes(bytes, 800, positions);
+			SortedBytesUnsignedShort.getInstance().parse(bytes).getGreaterThanIndexes(800, positions);
 			
 			assertNotNull(positions);
 			assertTrue(positions.contains(801) );
@@ -180,7 +180,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			assertTrue(!positions.contains(800));
 			assertEquals(1000-800-1, positions.size());
 			for (int pos : positions) {
-				assertTrue( (SortedBytesUnsignedShort.getInstance().getValueAt(bytes,pos) > 800) );
+				assertTrue( (SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos) > 800) );
 			}
 		}		
 		
@@ -196,15 +196,15 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			sortedBytes = sortedBytes.setMinimumValueLimit( (short) -400);
 			
 
-			byte[] bytes = sortedBytes.toBytes(sortedList, false);
+			byte[] bytes = sortedBytes.toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();  
-			sortedBytes.getLessThanEqualToIndexes(bytes, -398, positions);
+			sortedBytes.parse(bytes).getLessThanEqualToIndexes(-398, positions);
 			
 			assertNotNull(positions);
 			assertEquals(3, positions.size());
 			for (int pos : positions) {
 				//System.out.println(sortedBytes.getValueAt(bytes,pos));
-				assertTrue( (sortedBytes.getValueAt(bytes,pos) <= -398) );
+				assertTrue( (sortedBytes.parse(bytes).getValueAt(pos) <= -398) );
 			}
 			
 		}			
@@ -219,15 +219,15 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 
 			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstanceShort().setMinimumValueLimit((short)-100);
 			
-			byte[] bytes = sortedBytes.toBytes(sortedList, false);
+			byte[] bytes = sortedBytes.toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();  
-			sortedBytes.getRangeIndexesInclusive(bytes, 550, 560, positions);
+			sortedBytes.parse(bytes).getRangeIndexesInclusive(550, 560, positions);
 			
 			assertNotNull(positions);
 			assertEquals(11, positions.size());
 			for (int pos : positions) {
 				//System.out.println(sortedBytes.getValueAt(bytes,pos)); 
-				assertTrue( (sortedBytes.getValueAt(bytes,pos) >= 550 && sortedBytes.getValueAt(bytes,pos) <= 560) );
+				assertTrue( (sortedBytes.parse(bytes).getValueAt(pos) >= 550 && sortedBytes.parse(bytes).getValueAt(pos) <= 560) );
 			}
 		}		
 		
@@ -241,14 +241,14 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 
 			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstanceShort();
 			
-			byte[] bytes = sortedBytes.toBytes(sortedList, false);
+			byte[] bytes = sortedBytes.toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();  
-			sortedBytes.getRangeIndexes(bytes, 550, 560, positions);
+			sortedBytes.parse(bytes).getRangeIndexes(550, 560, positions);
 			
 			assertNotNull(positions);
 			assertEquals(9, positions.size());
 			for (int pos : positions) {
-				assertTrue( (sortedBytes.getValueAt(bytes,pos) > 550 && sortedBytes.getValueAt(bytes,pos) < 560) );
+				assertTrue( (sortedBytes.parse(bytes).getValueAt(pos) > 550 && sortedBytes.parse(bytes).getValueAt(pos) < 560) );
 			}
 		}		
 }

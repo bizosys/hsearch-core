@@ -12,7 +12,7 @@ import com.oneline.ferrari.TestAll;
 public class SortedBytesFloatTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[0];  
+		public static String mode = modes[1];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesFloatTest t = new SortedBytesFloatTest();
@@ -52,14 +52,14 @@ public class SortedBytesFloatTest extends TestCase {
 			}
 			
 			Collections.sort(sortedList);
-			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesFloat.getInstance().getEqualToIndexes(bytes, 10.0F, positions);
+			SortedBytesFloat.getInstance().parse(bytes).getEqualToIndexes(10.0F, positions);
 			
 			assertNotNull(positions);
 			assertEquals(3, positions.size());
 			for (int pos : positions) {
-				assertEquals(SortedBytesFloat.getInstance().getValueAt(bytes,pos), 10.0F );
+				assertEquals(SortedBytesFloat.getInstance().parse(bytes).getValueAt(pos), 10.0F );
 			}
 		}
 		
@@ -71,9 +71,9 @@ public class SortedBytesFloatTest extends TestCase {
 			
 			Collections.sort(sortedList);
 			
-			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesFloat.getInstance().getLessThanIndexes(bytes, 130.0F, positions);
+			SortedBytesFloat.getInstance().parse(bytes).getLessThanIndexes(130.0F, positions);
 			
 			//System.out.println(positions.toString());
 			assertNotNull(positions);
@@ -86,7 +86,7 @@ public class SortedBytesFloatTest extends TestCase {
 			assertEquals(130, positions.size());
 			
 			for (int pos : positions) {
-				assertTrue( (SortedBytesFloat.getInstance().getValueAt(bytes,pos) < 130) );
+				assertTrue( (SortedBytesFloat.getInstance().parse(bytes).getValueAt(pos) < 130) );
 			}
 		}		
 		public void testLessthanMultiValue() throws Exception {	
@@ -106,15 +106,15 @@ public class SortedBytesFloatTest extends TestCase {
 			
 			Collections.sort(sortedList);
 			
-			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesFloat.getInstance().getLessThanIndexes(bytes, 10F, positions);
+			SortedBytesFloat.getInstance().parse(bytes).getLessThanIndexes(10F, positions);
 			
 			assertNotNull(positions);
 			assertEquals(13, positions.size());
 			
 			for (int pos : positions) {
-				assertTrue( (SortedBytesFloat.getInstance().getValueAt(bytes,pos) < 10) );
+				assertTrue( (SortedBytesFloat.getInstance().parse(bytes).getValueAt(pos) < 10) );
 			}
 		}				
 		
@@ -126,14 +126,14 @@ public class SortedBytesFloatTest extends TestCase {
 			}
 			
 			Collections.sort(sortedList);
-			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesFloat.getInstance().getLessThanEqualToIndexes(bytes, 700.0F, positions);
+			SortedBytesFloat.getInstance().parse(bytes).getLessThanEqualToIndexes(700.0F, positions);
 			
 			assertNotNull(positions);
 			assertEquals(701, positions.size());
 			for (int pos : positions) {
-				assertTrue( (SortedBytesFloat.getInstance().getValueAt(bytes,pos) <= 700) );
+				assertTrue( (SortedBytesFloat.getInstance().parse(bytes).getValueAt(pos) <= 700) );
 			}
 		}			
 		
@@ -145,9 +145,9 @@ public class SortedBytesFloatTest extends TestCase {
 			
 			Collections.sort(sortedList);
 			
-			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesFloat.getInstance().getGreaterThanEqualToIndexes(bytes, 121.0F, positions);
+			SortedBytesFloat.getInstance().parse(bytes).getGreaterThanEqualToIndexes(121.0F, positions);
 			
 			assertNotNull(positions);
 			assertTrue(positions.contains(498) );
@@ -158,7 +158,7 @@ public class SortedBytesFloatTest extends TestCase {
 			assertTrue(!positions.contains(120) );
 			assertEquals(1000-121, positions.size());
 			for (int pos : positions) {
-				assertTrue( (SortedBytesFloat.getInstance().getValueAt(bytes,pos) >= 121) );
+				assertTrue( (SortedBytesFloat.getInstance().parse(bytes).getValueAt(pos) >= 121) );
 			}
 		}		
 		
@@ -170,9 +170,9 @@ public class SortedBytesFloatTest extends TestCase {
 			
 			Collections.sort(sortedList);
 			
-			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>() ;
-			SortedBytesFloat.getInstance().getGreaterThanIndexes(bytes, 800.0F, positions);
+			SortedBytesFloat.getInstance().parse(bytes).getGreaterThanIndexes(800.0F, positions);
 			
 			assertNotNull(positions);
 			assertTrue(positions.contains(801) );
@@ -180,7 +180,7 @@ public class SortedBytesFloatTest extends TestCase {
 			assertTrue(!positions.contains(800));
 			assertEquals(1000-800-1, positions.size());
 			for (int pos : positions) {
-				assertTrue( (SortedBytesFloat.getInstance().getValueAt(bytes,pos) > 800) );
+				assertTrue( (SortedBytesFloat.getInstance().parse(bytes).getValueAt(pos) > 800) );
 			}
 		}
 		
@@ -203,10 +203,10 @@ public class SortedBytesFloatTest extends TestCase {
 			
 			Collections.sort(sortedList);
 			
-			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
 			for (Float aInput : sortedList) {
 				List<Integer> positions = new ArrayList<Integer>();
-				SortedBytesFloat.getInstance().getGreaterThanIndexes(bytes, aInput, positions);
+				SortedBytesFloat.getInstance().parse(bytes).getGreaterThanIndexes(aInput, positions);
 				
 				for (Integer bInput : positions) {
 					if ( aInput > bInput) assertTrue(positions.contains(bInput));
@@ -234,10 +234,10 @@ public class SortedBytesFloatTest extends TestCase {
 			System.out.println(sortedList.toString());
 			Collections.sort(sortedList);
 
-			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
 			for (Float aInput : sortedList) {
 				List<Integer> positions = new ArrayList<Integer>();
-				SortedBytesFloat.getInstance().getLessThanIndexes(bytes, aInput, positions);
+				SortedBytesFloat.getInstance().parse(bytes).getLessThanIndexes(aInput, positions);
 				
 				for (Integer bInput : positions) {
 					if ( aInput < bInput) assertTrue(positions.contains(bInput));
@@ -256,9 +256,9 @@ public class SortedBytesFloatTest extends TestCase {
 			sortedList.add(367.90F);
 			Collections.sort(sortedList);
 
-			byte[] inputData = SortedBytesFloat.getInstance().toBytes(sortedList, false);
+			byte[] inputData = SortedBytesFloat.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();
-			SortedBytesFloat.getInstance().getRangeIndexes(inputData, 201F, 250F, positions);
+			SortedBytesFloat.getInstance().parse(inputData).getRangeIndexes(201F, 250F, positions);
 
 			for (Integer aPos : positions) {
 				System.out.println(sortedList.get(aPos) );

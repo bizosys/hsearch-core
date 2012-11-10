@@ -19,6 +19,8 @@
 */
 package com.bizosys.hsearch.hbase;
 
+import java.io.IOException;
+
 /**
  * Function callback mechanism during continuous table scanning process.
  * This helps to avoid big memory aquisition of further processing steps.
@@ -31,5 +33,5 @@ public interface IScanCallBack {
 	 * Process the found row
 	 * @param storedBytes
 	 */
-	void process(byte[] pk, ColumnFamName familyWithName, byte[] storedBytes);
+	void process(byte[] pk, ColumnFamName familyWithName, byte[] storedBytes) throws IOException;
 }

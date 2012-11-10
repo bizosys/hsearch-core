@@ -44,9 +44,9 @@ public class SortedBytesArrayTest extends TestCase {
 				sortedList.add( Storable.putLong(i));
 			}
 			
-			byte[] bytes = SortedBytesArray.getInstance().toBytes(sortedList, false);
+			byte[] bytes = SortedBytesArray.getInstance().toBytes(sortedList);
 			List<byte[]> reclaimed = new ArrayList<byte[]>();
-			SortedBytesArray.getInstance().addAll(bytes, reclaimed);
+			SortedBytesArray.getInstance().addAll(reclaimed);
 			
 			int val = 0;
 			for (byte[] bs : reclaimed) {
@@ -62,8 +62,8 @@ public class SortedBytesArrayTest extends TestCase {
 				sortedList.add( Storable.putLong(i));
 			}
 			
-			byte[] bytes = SortedBytesArray.getInstance().toBytes(sortedList, false);
-			int index = SortedBytesArray.getInstance().getEqualToIndex(bytes, Storable.putLong(23L));
+			byte[] bytes = SortedBytesArray.getInstance().toBytes(sortedList);
+			int index = SortedBytesArray.getInstance().parse(bytes).getEqualToIndex(Storable.putLong(23L));
 			assertEquals(23, index);
 		}		
 
@@ -74,21 +74,22 @@ public class SortedBytesArrayTest extends TestCase {
 				sortedList.add( Storable.putLong(i));
 			}
 			
-			SortedByte<byte[]> instance = SortedBytesArray.getInstance();
-			byte[] bytes = instance.toBytes(sortedList, false);
-
-			assertEquals( 0, Storable.getLong(0, instance.getValueAt(bytes, 0)));
-			assertEquals( 999, Storable.getLong(0, instance.getValueAt(bytes, 999)));
-			assertEquals( 499, Storable.getLong(0, instance.getValueAt(bytes, 499)));
+			ISortedByte<byte[]> instance = SortedBytesArray.getInstance();
+			byte[] bytes = instance.toBytes(sortedList);
+			instance.parse(bytes);
+			
+			assertEquals( 0, Storable.getLong(0, instance.parse(bytes).getValueAt(0)));
+			assertEquals( 999, Storable.getLong(0, instance.parse(bytes).getValueAt(999)));
+			assertEquals( 499, Storable.getLong(0, instance.parse(bytes).getValueAt(499)));
 			
 			try {
-				instance.getValueAt(bytes, 1000);
+				instance.parse(bytes).getValueAt(1000);
 			} catch (IOException ex) {
 				assertEquals("Maximum position in array is 1000 and accessed 1000", ex.getMessage());
 			}
 			
 			try {
-				instance.getValueAt(bytes, -1);
+				instance.parse(bytes).getValueAt(-1);
 			} catch (Exception ex) {
 				assertTrue(ex instanceof NegativeArraySizeException);
 			}			

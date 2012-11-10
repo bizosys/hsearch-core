@@ -9,28 +9,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.bizosys.hsearch.byteutils.SortedByte;
+import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 
 public class Cell2<K1, V> {
 	
-	public SortedByte<K1> k1Sorter = null;
-	public SortedByte<V> vSorter = null;
+	public ISortedByte<K1> k1Sorter = null;
+	public ISortedByte<V> vSorter = null;
 	private List<CellKeyValue<K1, V>> sortedList = null;
 	public byte[] data = null;
 	
-	public Cell2(SortedByte<K1> k1Sorter, SortedByte<V> vSorter) {
+	public Cell2(ISortedByte<K1> k1Sorter, ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.vSorter = vSorter;
 	}
 
-	public Cell2(SortedByte<K1> k1Sorter, SortedByte<V> vSorter, List<CellKeyValue<K1, V>> sortedList) {
+	public Cell2(ISortedByte<K1> k1Sorter, ISortedByte<V> vSorter, List<CellKeyValue<K1, V>> sortedList) {
 		this(k1Sorter, vSorter);
 		this.sortedList = sortedList;
 	}
 
 	
-	public Cell2 (SortedByte<K1> k1Sorter, SortedByte<V> vSorter, byte[] data) {
+	public Cell2 (ISortedByte<K1> k1Sorter, ISortedByte<V> vSorter, byte[] data) {
 		this(k1Sorter, vSorter);
 		this.data = data;
 	}
@@ -63,6 +63,7 @@ public class Cell2<K1, V> {
 	
 	public byte[] toBytes() throws IOException {
 
+		if ( null == sortedList) return null;
 		if ( sortedList.size() == 0 ) return null;
 		Collection<K1> keys = new ArrayList<K1>();
 		Collection<V> values = new ArrayList<V>();
@@ -73,12 +74,43 @@ public class Cell2<K1, V> {
 		}
 
 		List<byte[]> bytesElems = new ArrayList<byte[]>();
-		bytesElems.add(k1Sorter.toBytes(keys, true));
-		bytesElems.add(vSorter.toBytes(values, true));
+		bytesElems.add(k1Sorter.toBytes(keys)); keys.clear();
+		bytesElems.add(vSorter.toBytes(values)); values.clear();
 		
-		byte[] cellB = SortedBytesArray.getInstance().toBytes(bytesElems, false);
+		byte[] cellB = SortedBytesArray.getInstance().toBytes(bytesElems);
+		bytesElems.clear();
 		return cellB;
 	}
+	
+	public byte[] toBytes(V minValue, V maximumValue, boolean leftInclusize, boolean rightInclusize, Comparator<V> vComp) throws IOException {
+		
+		if ( sortedList.size() == 0 ) return null;
+		Collection<K1> keys = new ArrayList<K1>();
+		Collection<V> values = new ArrayList<V>();
+		
+		for (CellKeyValue<K1, V> entry : sortedList) {
+			if ( leftInclusize ) if ( vComp.compare(entry.getValue(), minValue) < 0 ) continue;
+			else if ( vComp.compare(entry.getValue(), minValue) <= 0 ) continue;
+			
+			if ( rightInclusize ) if ( vComp.compare(entry.getValue(), maximumValue) >= 0 ) continue;
+			else if ( vComp.compare(entry.getValue(), maximumValue) > 0 ) continue;
+						
+			keys.add(entry.getKey());
+			values.add(entry.getValue());
+		}
+		
+		if ( keys.size() == 0 ) return null;
+
+		List<byte[]> bytesElems = new ArrayList<byte[]>();
+		bytesElems.add(k1Sorter.toBytes(keys));
+		keys.clear();
+		bytesElems.add(vSorter.toBytes(values));
+		values.clear();
+		
+		byte[] cellB = SortedBytesArray.getInstance().toBytes(bytesElems);
+		bytesElems.clear();
+		return cellB;
+	}		
 	
 	public Collection<Integer> indexOf(V exactValue) throws IOException {
 		List<Integer> foundPositions = new ArrayList<Integer>();
@@ -113,12 +145,14 @@ public class Cell2<K1, V> {
 	}
 	
 	private void keySet( V exactValue, V minimumValue, V maximumValue, Collection<K1> foundKeys) throws IOException {
-		byte[] allKeysB = SortedBytesArray.getInstance().getValueAt(data, 0);
+		byte[] allKeysB = SortedBytesArray.getInstance().parse(data).getValueAt(0);
 		List<Integer> foundPositions = new ArrayList<Integer>();
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
-
+		
+		k1Sorter.parse(allKeysB);
+		//System.out.println("Size :" + k1Sorter.getSize());
 		for (int position : foundPositions) {
-			foundKeys.add( k1Sorter.getValueAt(allKeysB, position) );
+			foundKeys.add( k1Sorter.getValueAt(position) );
 		}
 	}
 	
@@ -146,8 +180,9 @@ public class Cell2<K1, V> {
 		List<Integer> foundPositions = new ArrayList<Integer>();
 		byte[] allValuesB = findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
 
+		vSorter.parse(allValuesB);
 		for (int position : foundPositions) {
-			foundValues.add( vSorter.getValueAt(allValuesB, position) );
+			foundValues.add( vSorter.getValueAt(position) );
 		}
 	}
 
@@ -160,12 +195,13 @@ public class Cell2<K1, V> {
 	
 	public void values( Collection<V> values) throws IOException {
 		
-		byte[] allValuesB = SortedBytesArray.getInstance().getValueAt(data, 1);
-		int length = ( null == allValuesB) ? 0 : allValuesB.length;
-		int size = vSorter.getSize(allValuesB, 0, length);
+		byte[] allValuesB = SortedBytesArray.getInstance().parse(data).getValueAt(1);
+		if ( null == allValuesB) return;
 		
+		vSorter.parse(allValuesB);
+		int size = vSorter.getSize();
 		for ( int i=0; i<size; i++) {
-			values.add(vSorter.getValueAt(allValuesB, i));
+			values.add(vSorter.getValueAt(i));
 		}
 	}
 		
@@ -177,28 +213,29 @@ public class Cell2<K1, V> {
 
 	public void valuesAt(Collection<V> foundValues, Collection<Integer> foundPositions) throws IOException {
 		
-		byte[] allValuesB = SortedBytesArray.getInstance().getValueAt(data, 1);
+		byte[] allValuesB = SortedBytesArray.getInstance().parse(data).getValueAt(1);
 		for (int position : foundPositions) {
-			foundValues.add( vSorter.getValueAt(allValuesB, position) );
+			foundValues.add( vSorter.parse(allValuesB).getValueAt(position));
 		}
 	}
 	
-	public byte[] findMatchingPositions( V exactValue, V minimumValue, V maximumValue, List<Integer> foundPositions) throws IOException {
+	private byte[] findMatchingPositions( V exactValue, V minimumValue, V maximumValue, Collection<Integer> foundPositions) throws IOException {
 			
-		byte[] allValsB = SortedBytesArray.getInstance().getValueAt(data, 1);
+		byte[] allValsB = SortedBytesArray.getInstance().parse(data).getValueAt(1);
 		if ( null == allValsB) return null;
-			
+		vSorter.parse(allValsB);	
+		
 		if ( null != exactValue || null != minimumValue || null != maximumValue ) {
 				
 			if ( null != exactValue ) {
-				vSorter.getEqualToIndexes(allValsB, exactValue, foundPositions);
+				vSorter.getEqualToIndexes(exactValue, foundPositions);
 			} else {
 				if ( null != minimumValue && null != maximumValue ) {
-					vSorter.getRangeIndexesInclusive(allValsB, minimumValue, maximumValue, foundPositions);
+					vSorter.getRangeIndexesInclusive(minimumValue, maximumValue, foundPositions);
 				} else if ( null != minimumValue) {
-					vSorter.getGreaterThanEqualToIndexes(allValsB, minimumValue, foundPositions);
+					vSorter.getGreaterThanEqualToIndexes(minimumValue, foundPositions);
 				} else {
-					vSorter.getLessThanEqualToIndexes(allValsB, maximumValue, foundPositions);
+					vSorter.getLessThanEqualToIndexes(maximumValue, foundPositions);
 				}
 			}
 		}
@@ -213,13 +250,12 @@ public class Cell2<K1, V> {
 	
 	public void keySet( Collection<K1> keys) throws IOException {
 		
-		byte[] allKeysB = SortedBytesArray.getInstance().getValueAt(data, 0);
+		byte[] allKeysB = SortedBytesArray.getInstance().parse(data).getValueAt(0);
+		if ( null == allKeysB ) return;
 		
-		int length = ( null == allKeysB) ? 0 : allKeysB.length;
-		int size = k1Sorter.getSize(allKeysB, 0, length);
-		
+		int size = k1Sorter.parse(allKeysB).getSize();
 		for ( int i=0; i<size; i++) {
-			keys.add(k1Sorter.getValueAt(allKeysB, i));
+			keys.add(k1Sorter.getValueAt(i));
 		}
 	}
 	
@@ -248,5 +284,4 @@ public class Cell2<K1, V> {
 		if ( -1 == elemIndex) return;
 		this.sortedList.remove(elemIndex);
 	}
-
 }

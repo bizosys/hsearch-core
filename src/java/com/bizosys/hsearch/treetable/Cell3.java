@@ -8,29 +8,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.bizosys.hsearch.byteutils.SortedByte;
+import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 
 public class Cell3<K1, K2, V> extends CellBase<K1> {
 
-	public SortedByte<K2> k2Sorter = null;
-	public SortedByte<V> vSorter = null;
+	public ISortedByte<K2> k2Sorter = null;
+	public ISortedByte<V> vSorter = null;
 	
 	private Map<K1, Cell2<K2, V>> sortedList;
 	
-	public Cell3(SortedByte<K1> k1Sorter, SortedByte<K2> k2Sorter,
-			SortedByte<V> vSorter) {
+	public Cell3(ISortedByte<K1> k1Sorter, ISortedByte<K2> k2Sorter,
+			ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.k2Sorter = k2Sorter;
 		this.vSorter = vSorter;
 	}
 
-	public Cell3 (SortedByte<K1> k1Sorter,SortedByte<K2> k2Sorter, SortedByte<V> vSorter, Map<K1, Cell2<K2, V>> sortedList ) {
+	public Cell3 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter, ISortedByte<V> vSorter, Map<K1, Cell2<K2, V>> sortedList ) {
 		this(k1Sorter, k2Sorter, vSorter);
 		this.sortedList = sortedList;
 	}
 
-	public Cell3 (SortedByte<K1> k1Sorter,SortedByte<K2> k2Sorter, SortedByte<V> vSorter, byte[] data ) {
+	public Cell3 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter, ISortedByte<V> vSorter, byte[] data ) {
 		this(k1Sorter, k2Sorter, vSorter);
 		this.data = data;
 	}
@@ -65,6 +65,27 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		this.sort(comp);
 		return toBytes();
 	}	
+	
+	public byte[] toBytes(V minValue, V maximumValue, boolean leftInclusize, boolean rightInclusize, Comparator<V> vComp) throws IOException {
+		
+		List<K1> keysL = new ArrayList<K1>(1);
+		List<byte[]> valuesL = new ArrayList<byte[]>(1);
+
+		for (K1 k : this.getMap().keySet()) {
+			byte[] valueB = this.getMap().get(k).toBytes(minValue, maximumValue, leftInclusize, rightInclusize, vComp);
+			if ( null == valueB) continue;
+			keysL.add(k);
+			valuesL.add(valueB);
+		}
+		
+		if (keysL.size() == 0 ) return null;
+		
+		byte[] cellB = serializeKV(k1Sorter.toBytes(keysL), SortedBytesArray.getInstance().toBytes(valuesL));
+		keysL.clear();
+		valuesL.clear();
+
+		return cellB;
+	}		
 
 	public Map<K1, Cell2<K2, V>> getMap(byte[] data) throws IOException {
 		this.data = data;
@@ -108,12 +129,13 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		List<Integer> foundPositions = new ArrayList<Integer>();
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
 
-		SortedByte<byte[]> sortedBA = SortedBytesArray.getInstance();
-		byte[] valuesB = sortedBA.getValueAt(data, 1);
+		ISortedByte<byte[]> sortedBA = SortedBytesArray.getInstance();
+		byte[] valuesB = sortedBA.parse(data).getValueAt(1);
 
+		sortedBA.parse(valuesB);
 		for (int position : foundPositions) {
 			foundValues.add( new Cell2<K2, V>(
-				k2Sorter, vSorter, sortedBA.getValueAt(valuesB, position)));
+				k2Sorter, vSorter, sortedBA.getValueAt(position)));
 		}
 	}
 	
@@ -124,16 +146,15 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	}	
 	
 	public void values(Collection<Cell2<K2, V>> values) throws IOException {
-		SortedByte<byte[]> sortedBA = SortedBytesArray.getInstance();
-		byte[] allValuesB = sortedBA.getValueAt(data, 1);
+		ISortedByte<byte[]> sortedBA = SortedBytesArray.getInstance();
+		byte[] allValuesB = sortedBA.parse(data).getValueAt(1);
 		
-		int length = ( null == allValuesB) ? 0 : allValuesB.length;
+		if ( null == allValuesB) return;
 		
-		int size = sortedBA.getSize(allValuesB, 0, length);
-		
+		sortedBA.parse(allValuesB);
+		int size = sortedBA.getSize();
 		for ( int i=0; i<size; i++) {
-			values.add( new Cell2<K2, V>( k2Sorter, vSorter, 
-				sortedBA.getValueAt(allValuesB, i)) );
+			values.add( new Cell2<K2, V>( k2Sorter, vSorter, sortedBA.getValueAt(i)) );
 		}
 	}
 	
@@ -167,8 +188,7 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	
 	@Override
 	protected byte[] getKeyBytes() throws IOException {
-		return k1Sorter.toBytes(sortedList.keySet(), false);
+		return k1Sorter.toBytes(sortedList.keySet());
 	}
-		
 
 }
