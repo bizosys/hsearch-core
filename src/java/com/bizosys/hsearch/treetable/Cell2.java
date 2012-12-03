@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
+import com.bizosys.hsearch.hbase.ObjectFactory;
 
 public class Cell2<K1, V> {
 	
@@ -61,10 +62,11 @@ public class Cell2<K1, V> {
 	}
 	
 	
-	public byte[] toBytes() throws IOException {
+	public byte[] toBytesOnSortedData() throws IOException {
 
 		if ( null == sortedList) return null;
 		if ( sortedList.size() == 0 ) return null;
+		
 		Collection<K1> keys = new ArrayList<K1>();
 		Collection<V> values = new ArrayList<V>();
 		
@@ -101,14 +103,17 @@ public class Cell2<K1, V> {
 		
 		if ( keys.size() == 0 ) return null;
 
-		List<byte[]> bytesElems = new ArrayList<byte[]>();
+		
+		List<byte[]> bytesElems = ObjectFactory.getInstance().getByteArrList();
 		bytesElems.add(k1Sorter.toBytes(keys));
 		keys.clear();
 		bytesElems.add(vSorter.toBytes(values));
 		values.clear();
 		
 		byte[] cellB = SortedBytesArray.getInstance().toBytes(bytesElems);
-		bytesElems.clear();
+		
+		ObjectFactory.getInstance().putByteArrList(bytesElems);
+		
 		return cellB;
 	}		
 	
@@ -221,6 +226,7 @@ public class Cell2<K1, V> {
 	
 	private byte[] findMatchingPositions( V exactValue, V minimumValue, V maximumValue, Collection<Integer> foundPositions) throws IOException {
 			
+		
 		byte[] allValsB = SortedBytesArray.getInstance().parse(data).getValueAt(1);
 		if ( null == allValsB) return null;
 		vSorter.parse(allValsB);	

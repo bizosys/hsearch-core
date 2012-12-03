@@ -181,7 +181,7 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	protected List<byte[]> getEmbeddedCellBytes() throws IOException {
 		List<byte[]> values = new ArrayList<byte[]>();
 		for (Cell2<K2, V> cell2 : sortedList.values()) {
-			values.add(cell2.toBytes());
+			values.add(cell2.toBytesOnSortedData());
 		}
 		return values;
 	}

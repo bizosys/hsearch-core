@@ -61,6 +61,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	
 	@Override
 	public int getEqualToIndex(T matchNo) throws IOException {
+		
 		if ( null == inputBytes) return -1;
 		int totalEntities = inputBytes.length / dataSize;
 		
@@ -70,9 +71,26 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		int right = totalEntities - 1;
 		int mid = ( right - left ) / 2;
 		int newMid = -1;
+		int isSame = -1;
+		
+		//Mid does not make sense for elements less than 3
+		switch ( totalEntities) { 
+			case 1:
+				//No need to apply the MID principle
+				isSame = ( compare(inputBytes, offset, matchNo));
+				if ( isSame == 0 ) return 0;
+				else return -1;
+			case 2:
+				isSame = ( compare(inputBytes, offset, matchNo));
+				if ( isSame == 0 ) return 0;
+				isSame = ( compare(inputBytes, offset + dataSize, matchNo));
+				if ( isSame == 0 ) return 0;
+				else return -1;
+			default:
+		}
 		
 		while ( true ) {
-			int isSame = ( compare(inputBytes, mid*dataSize + offset, matchNo));
+			isSame = ( compare(inputBytes, mid*dataSize + offset, matchNo));
 			if ( isSame == 0 ) return mid;
 			if ( mid == left || mid == right) {
 				mid = -1;
@@ -109,6 +127,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	
 	@Override
 	public void getEqualToIndexes(T matchingNo, Collection<Integer> matchings) throws IOException {
+		
 		if ( null == inputBytes ) return;
 		
 		int index = getEqualToIndex(matchingNo);

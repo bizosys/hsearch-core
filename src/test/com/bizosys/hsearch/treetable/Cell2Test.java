@@ -50,7 +50,7 @@ public class Cell2Test extends TestCase {
 
 			tc.add(aLong, aFloat);
 			tc.sort (new CellComparator.FloatComparator<Long>());
-			byte[] data = tc.toBytes();
+			byte[] data = tc.toBytesOnSortedData();
 			
 			//Test Parsing
 			Cell2<Long, Float> tcNewParsing = new Cell2<Long, Float>(
@@ -85,7 +85,7 @@ public class Cell2Test extends TestCase {
 			tc.add(46, "new46".getBytes());
 			
 			tc.sort (new CellComparator.StringComparator<Integer>());
-			byte[] data = tc.toBytes();
+			byte[] data = tc.toBytesOnSortedData();
 			
 			Cell2<Integer, byte[]> tcNewFinding = new Cell2<Integer, byte[]>(
 					SortedBytesInteger.getInstance(), SortedBytesArray.getInstance(), data);

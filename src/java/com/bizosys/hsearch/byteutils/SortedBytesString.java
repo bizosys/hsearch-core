@@ -2,9 +2,10 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import com.bizosys.hsearch.hbase.ObjectFactory;
 
 public final class SortedBytesString extends SortedBytesBase<String>{
 
@@ -67,7 +68,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 		
 		int collectionSize = getSize();
 		
-		List<Integer> seeks = new ArrayList<Integer>();
+		List<Integer> seeks = ObjectFactory.getInstance().getIntegerList();
 		int seek = offset + 4;
 		
 		for ( int i=0; i<collectionSize; i++) {
@@ -89,6 +90,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 			System.arraycopy(inputBytes, headerOffset + thisElemOffset, aElem, 0, aElem.length);
 			vals.add( new String(aElem) );
 		}		
+		ObjectFactory.getInstance().putIntegerList(seeks);
 	}
 
 	@Override
@@ -119,7 +121,8 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 		if ( 0 == collectionSize) return -1;
 		
 		int seek = offset; 
-		List<Integer> seekPositions = new ArrayList<Integer>();
+		List<Integer> seekPositions = ObjectFactory.getInstance().getIntegerList();
+		
 		seek = seek + 4;
 		
 		for ( int i=0; i<collectionSize; i++) {
@@ -148,8 +151,12 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 			elemOffset = (headerOffset + thisElemOffset);
 			elemLen = nextElemOffset - thisElemOffset;
 			isSame = ByteUtil.compareBytes(inputBytes, elemOffset, elemLen , matchValB);
-			if ( isSame ) return i;
-		}		
+			if ( isSame ) {
+				ObjectFactory.getInstance().putIntegerList(seekPositions);
+				return i;
+			}
+		}
+		ObjectFactory.getInstance().putIntegerList(seekPositions);
 		return -1;
 	}
 
@@ -172,7 +179,8 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 			"Corrupted bytes : collectionSize( " + collectionSize + "), header lengh=" + headerLen + 
 					" , actual length = " + inputBytes.length);
 		
-		List<Integer> seeks = new ArrayList<Integer>(collectionSize);
+		List<Integer> seeks = ObjectFactory.getInstance().getIntegerList();
+		
 		int seek = 4;
 		for ( int i=0; i<collectionSize; i++) {
 			int bytesLen = Storable.getInt( seek, inputBytes);
@@ -200,12 +208,13 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 			
 			boolean isSame = ByteUtil.compareBytes(inputBytes, elemOffset, elemLen,  matchBytes);
 			if ( isSame ) matchings.add(i);
-		}		
+		}
+		
+		ObjectFactory.getInstance().putIntegerList(seeks);
 	}
 
 	@Override
 	protected int compare(byte[] inputB, int offset, String matchNo) {
 		throw new RuntimeException("Not implemened Yet");
 	}
-
 }
