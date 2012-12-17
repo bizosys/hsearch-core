@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.bizosys.hsearch.byteutils.ISortedByte;
@@ -60,6 +61,25 @@ public class Cell2<K1, V> {
 		}
 		throw new IOException("Cell is not initialized");
 	}
+	
+	public void populate(Map<K1,V> map) throws IOException {
+		ISortedByte<byte[]> kvB = SortedBytesArray.getInstance().parse(data);
+		
+		byte[] allKeysB = kvB.getValueAt(0);
+		if ( null == allKeysB ) return;
+
+		byte[] allValuesB = kvB.getValueAt(1);
+		if ( null == allValuesB ) return;
+		
+		int sizeK = k1Sorter.parse(allKeysB).getSize();
+		int sizeV = vSorter.parse(allValuesB).getSize();
+		
+		if ( sizeK != sizeV) throw new IOException("Mismatch keys : " + sizeK + " , and values = " + sizeK); 
+		
+		for ( int i=0; i<sizeK; i++) {
+			map.put(k1Sorter.getValueAt(i), vSorter.getValueAt(i));
+		}
+	}	
 	
 	
 	public byte[] toBytesOnSortedData() throws IOException {

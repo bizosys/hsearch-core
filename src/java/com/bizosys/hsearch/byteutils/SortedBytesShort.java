@@ -34,7 +34,7 @@ public final class SortedBytesShort extends SortedBytesBase<Short>{
 	
 	@Override
 	protected int compare(byte[] inputB, int offset, Short matchNo) {
-		int val = (  ( inputB[++offset] & 0xff ) << 8 ) + ( inputB[++offset] & 0xff );
+		int val = (  ( inputB[offset] & 0xff ) << 8 ) + ( inputB[++offset] & 0xff );
 		
 		if ( val == matchNo) return 0;
 		if (val > matchNo) return 1;

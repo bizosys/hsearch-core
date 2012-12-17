@@ -89,4 +89,11 @@ public class CellComparator {
 		}
 	}
 	
+	public static class TextComparator<K> implements Comparator<CellKeyValue<K, String>>  { 
+		@Override
+		public int compare(CellKeyValue<K, String> o1, CellKeyValue<K, String> o2) {
+			return  ( o1.getValue().compareTo(o2.getValue()) );
+		}
+	}	
+	
 }
