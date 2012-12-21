@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
+import com.bizosys.hsearch.hbase.ObjectFactory;
 
 public class Cell6<K1, K2, K3, K4, K5, V> extends CellBase<K1> {
 
@@ -111,6 +112,29 @@ public class Cell6<K1, K2, K3, K4, K5, V> extends CellBase<K1> {
 		}
 		throw new IOException("Cell is not initialized");
 	}		
+	
+	public void getMap(K1 exactValue, K1 minimumValue, K1 maximumValue, Map<K1, Cell5<K2,K3,K4, K5, V>> rows) throws IOException 
+	{
+		List<Integer> foundPositions = ObjectFactory.getInstance().getIntegerList();
+		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
+
+		ISortedByte<byte[]> dataBytesA = SortedBytesArray.getInstance();
+		ISortedByte<byte[]>  dataA = dataBytesA.parse(data);
+		byte[] valuesB = dataA.getValueAt(1);
+		byte[] keysB = dataA.getValueAt(0);
+
+		ISortedByte<byte[]> valuesA = SortedBytesArray.getInstance().parse(valuesB);
+		ISortedByte<K1> keysA = k1Sorter.parse(keysB);
+
+		for (int position : foundPositions) {
+			Cell5<K2, K3, K4, K5, V> cell5 = new Cell5<K2, K3, K4, K5, V>(
+					k2Sorter, k3Sorter, k4Sorter, k5Sorter, vSorter, valuesA.getValueAt(position) );
+			rows.put( keysA.getValueAt(position), cell5);
+		}
+		
+		ObjectFactory.getInstance().putIntegerList(foundPositions);
+	}
+	
 	
 	/**
 	 * Find matching exact value

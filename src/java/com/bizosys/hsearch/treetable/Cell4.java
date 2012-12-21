@@ -10,6 +10,7 @@ import java.util.TreeMap;
 
 import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
+import com.bizosys.hsearch.hbase.ObjectFactory;
 
 public class Cell4<K1, K2, K3, V> extends CellBase<K1> {
 
@@ -86,6 +87,28 @@ public class Cell4<K1, K2, K3, V> extends CellBase<K1> {
 		return cellB;
 	}		
 
+	public void getMap(K1 exactValue, K1 minimumValue, K1 maximumValue, Map<K1, Cell3<K2, K3, V>> rows) throws IOException 
+	{
+		List<Integer> foundPositions = ObjectFactory.getInstance().getIntegerList();
+		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
+
+		ISortedByte<byte[]> dataBytesA = SortedBytesArray.getInstance();
+		ISortedByte<byte[]>  dataA = dataBytesA.parse(data);
+		byte[] valuesB = dataA.getValueAt(1);
+		byte[] keysB = dataA.getValueAt(0);
+
+		ISortedByte<byte[]> valuesA = SortedBytesArray.getInstance().parse(valuesB);
+		ISortedByte<K1> keysA = k1Sorter.parse(keysB);
+
+		for (int position : foundPositions) {
+			Cell3<K2, K3, V> cell3 = new Cell3<K2, K3, V>(
+					k2Sorter, k3Sorter, vSorter, valuesA.getValueAt(position) );
+			rows.put( keysA.getValueAt(position), cell3);
+		}
+		
+		ObjectFactory.getInstance().putIntegerList(foundPositions);
+	}
+	
 	public Map<K1, Cell3<K2, K3, V>> getMap(byte[] data) throws IOException {
 		this.data = data;
 		parseElements();
