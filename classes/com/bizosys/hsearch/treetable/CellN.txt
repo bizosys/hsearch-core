@@ -1,0 +1,192 @@
+package com.bizosys.hsearch.treetable;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
+import com.bizosys.hsearch.byteutils.ISortedByte;
+import com.bizosys.hsearch.byteutils.SortedBytesArray;
+
+public class --CELLN-- extends CellBase<K1> {
+
+	--SORTER_DECL--
+	public ISortedByte<V> vSorter = null;
+	
+	private Map<K1, --CELLN-1--> sortedList;
+
+	public --CLASS-- (--SORTERS--, ISortedByte<V> vSorter) {
+		--SORTER_ASSIGNER--
+		this.vSorter = vSorter;
+	}
+	
+	public --CLASS-- (--SORTERS--, 
+			ISortedByte<V> vSorter, Map<K1, --CELLN-1--> sortedList ) {
+		this(--SORTER_INST--,vSorter);
+		this.sortedList = sortedList;
+	}
+
+	public --CLASS-- (--SORTERS--,
+			ISortedByte<V> vSorter, byte[] data ) {
+		this(--SORTER_INST--,vSorter);
+		this.data = data;
+	}
+	
+	//Builder
+	public void put(--PARAM_N--) {
+		if ( null == sortedList) sortedList = new TreeMap<K1, --CELLN-1-- >();
+		
+		--CELLN-1-- val = null;
+		if ( sortedList.containsKey(k1)) val = sortedList.get(k1);
+		else {
+			val = new --CELLN-1--(--SORTERN-1_INST--, vSorter);
+			sortedList.put(k1, val);
+		}
+		
+		sortedList.put(k1, val);
+		val.put(--VAL_N-1--);
+	}
+	
+	public void sort(Comparator<CellKeyValue<--LAST_ARG--, V>> comp) {
+		if ( null == sortedList) return;
+		for (--CELLN-1-- entry : sortedList.values()) {
+			entry.sort(comp);
+		}
+	}	
+	
+	public byte[] toBytes(Comparator<CellKeyValue<--LAST_ARG--, V>> comp) throws IOException {
+		this.sort(comp);
+		return toBytes();
+	}	
+	
+	public byte[] toBytes(V minValue, V maximumValue, boolean leftInclusize, boolean rightInclusize, Comparator<V> vComp) throws IOException {
+		
+		List<K1> keysL = new ArrayList<K1>(1);
+		List<byte[]> valuesL = new ArrayList<byte[]>(1);
+
+		for (K1 k : this.getMap().keySet()) {
+			byte[] valueB = this.getMap().get(k).toBytes(minValue, maximumValue, leftInclusize, rightInclusize, vComp);
+			if ( null == valueB) continue;
+			keysL.add(k);
+			valuesL.add(valueB);
+		}
+		
+		if (keysL.size() == 0 ) return null;
+		
+		byte[] cellB =  serializeKV(k1Sorter.toBytes(keysL) , SortedBytesArray.getInstance().toBytes(valuesL));
+		return cellB;
+	}		
+
+	public Map<K1, --CELLN-1--> getMap(byte[] data) throws IOException {
+		this.data = data;
+		parseElements();
+		return sortedList;
+	}	
+	
+	public Map<K1, --CELLN-1--> getMap() throws IOException {
+		if ( null != sortedList) return sortedList;
+		if ( null != this.data) {
+			parseElements();
+			return sortedList;
+		}
+		throw new IOException("Cell is not initialized");
+	}		
+	
+	/**
+	 * Find matching exact value
+	 * @param exactValue
+	 * @return
+	 * @throws IOException
+	 */
+	public Collection<--CELLN-1--> values(K1 exactValue) throws IOException {
+		Collection<--CELLN-1--> values = new ArrayList<--CELLN-1-->();
+		values(exactValue, null, null, values);
+		return values;
+	}
+
+	public Collection<--CELLN-1--> values(K1 minimumValue, K1 maximumValue) throws IOException {
+		Collection<--CELLN-1--> values = new ArrayList<--CELLN-1-->();
+		values(null, minimumValue, maximumValue, values);
+		return values;
+	}	
+	
+	public void values(K1 exactValue, Collection<--CELLN-1--> foundValues) throws IOException {
+		values(exactValue, null, null, foundValues);
+	}
+	
+	public void values(K1 minimumValue, K1 maximumValue, Collection<--CELLN-1--> foundValues) throws IOException {
+		values(null, minimumValue, maximumValue, foundValues);
+	}
+	
+	private void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
+			Collection<--CELLN-1--> foundValues) throws IOException {
+
+		List<Integer> foundPositions = new ArrayList<Integer>();
+		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
+
+		ISortedByte<byte[]> sortedBA = SortedBytesArray.getInstance();
+		byte[] valuesB = sortedBA.parse(data).getValueAt(1);
+
+		sortedBA.parse(valuesB);
+		for (int position : foundPositions) {
+			foundValues.add( new --CELLN-1--(
+				--SORTERN-1_INST--, vSorter, sortedBA.getValueAt(position)));
+		}
+	}
+	
+	public Collection<--CELLN-1--> values() throws IOException {
+		Collection<--CELLN-1--> values = new ArrayList<--CELLN-1-->();
+		values(values);
+		return values;
+	}	
+	
+	public void values(Collection<--CELLN-1--> values) throws IOException {
+		ISortedByte<byte[]> sortedBA = SortedBytesArray.getInstance();
+		byte[] allValuesB = sortedBA.parse(data).getValueAt(1);
+		
+		if ( null == allValuesB) return;
+		int size = sortedBA.parse(allValuesB).getSize();
+		
+		sortedBA.parse(allValuesB);
+		for ( int i=0; i<size; i++) {
+			values.add( new --CELLN-1--( --SORTERN-1_INST--, vSorter, sortedBA.getValueAt(i)) );
+		}
+	}
+	
+	public void parseElements() throws IOException {
+		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, --CELLN-1-->();
+		else this.sortedList.clear();
+		
+		List<K1> allKeys = new ArrayList<K1>();
+		List<--CELLN-1--> allValues = new ArrayList<--CELLN-1-->();
+		
+		keySet(allKeys);
+		values(allValues);
+		int allKeysT = allKeys.size();
+		if ( allKeysT != allValues.size() ) throw new IOException( 
+			"Keys and Values tally mismatched : keys(" + allKeysT + ") , values(" + allValues.size() + ")");
+		
+		for ( int i=0; i<allKeysT; i++) {
+			sortedList.put(allKeys.get(i), allValues.get(i));
+		}
+	}
+	
+	@Override
+	protected List<byte[]> getEmbeddedCellBytes() throws IOException {
+		List<byte[]> values = new ArrayList<byte[]>();
+		for (--CELLN-1-- --CellN-1-- : sortedList.values()) {
+			values.add(--CellN-1--.toBytes());
+		}
+		return values;
+	}
+	
+	@Override
+	protected byte[] getKeyBytes() throws IOException {
+		return k1Sorter.toBytes(sortedList.keySet());
+	}
+	
+
+}
