@@ -1,8 +1,12 @@
 package com.bizosys.hsearch.treetable;
 
-import java.util.List;
-
-import com.oneline.util.FileReaderUtil;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 
 public class CellGenerator {
 
@@ -12,7 +16,7 @@ public class CellGenerator {
 	public static void main(String[] args) throws Exception {
 		
 		int cells = 11;
-		String template = FileReaderUtil.toString("com\\bizosys\\hsearch\\treetable\\CellN.txt");
+		String template = fileToString("com\\bizosys\\hsearch\\treetable\\CellN.txt");
 		template = replaceClassNMinus1(template, cells);
 		template = replaceClass(template, cells);
 		template = replaceCellN(template, cells);
@@ -138,5 +142,64 @@ public class CellGenerator {
 		return clazzText.replaceAll("--PARAM_N--", decl);
 	}	
 		
+	
+	public static String fileToString(String fileName) 
+	{
+		
+		File aFile = getFile(fileName);
+		BufferedReader reader = null;
+		InputStream stream = null;
+		StringBuilder sb = new StringBuilder();
+		try {
+			stream = new FileInputStream(aFile); 
+			reader = new BufferedReader ( new InputStreamReader (stream) );
+			String line = null;
+			String newline = "\n";
+			while((line=reader.readLine())!=null) {
+				if (line.length() == 0) continue;
+				sb.append(line).append(newline);	
+			}
+			return sb.toString();
+		} 
+		catch (Exception ex) 
+		{
+			throw new RuntimeException(ex);
+		} 
+		finally 
+		{
+			try {if ( null != reader ) reader.close();
+			} catch (Exception ex) {ex.printStackTrace(System.err);}
+			try {if ( null != stream) stream.close();
+			} catch (Exception ex) {ex.printStackTrace(System.err);}
+		}
+	}	
+	
+	   public static File getFile(String fileName) 
+	    {
+			File aFile = new File(fileName);
+			if (aFile.exists()) return aFile;
+			
+			aFile = new File("/" + fileName);
+			if (aFile.exists()) return aFile;
+
+			aFile = new File("conf/" + fileName);
+			if (aFile.exists()) return aFile;
+			
+			aFile = new File("resources/" + fileName);
+			if (aFile.exists()) return aFile;
+			
+			try {
+				URL resource = CellGenerator.class.getClassLoader().getResource(fileName);
+				if ( resource != null) aFile = new File(resource.toURI());
+			} 
+			catch (URISyntaxException ex) {
+				throw new RuntimeException(ex);
+			}
+
+			if (aFile.exists()) return aFile;
+
+			throw new RuntimeException("FileResourceUtil > File does not exist :" + fileName);
+		}
+	    	
 
 }

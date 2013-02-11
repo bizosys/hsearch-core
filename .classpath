@@ -9,6 +9,5 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-core-0.20.2-cdh3u3.jar"/>
 	<classpathentry kind="lib" path="lib/1line-ferrari.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/1lineserver-common"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
