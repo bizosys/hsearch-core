@@ -76,7 +76,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			SortedBytesUnsignedShort.getInstance().parse(bytes).getLessThanIndexes(130, positions);
 			
 			assertNotNull(positions);
-			assertTrue(!positions.contains(130) );
+			assertTrue(positions.contains(130) );
 			assertTrue(!positions.contains(999) );
 			assertTrue(positions.contains(128) );
 			assertTrue(positions.contains(0) );

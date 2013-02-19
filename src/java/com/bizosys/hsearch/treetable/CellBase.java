@@ -182,6 +182,11 @@ public abstract class CellBase<K1> {
 		bytesElems.clear();
 		return cellB;		
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public abstract void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException;
 
+	@SuppressWarnings("rawtypes")
+	public abstract void valuesUnchecked(Collection foundValues) throws IOException;
 
 }

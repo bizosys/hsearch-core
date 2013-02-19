@@ -20,7 +20,6 @@ public final class SortedBytesChar extends SortedBytesBase<Byte>{
 	
 	@Override
 	public byte[] toBytes(Collection<Byte> sortedList) {
-
 		int sortedListAT = sortedList.size();
 		byte[] inputsB = new byte[sortedListAT];
 		
@@ -35,7 +34,6 @@ public final class SortedBytesChar extends SortedBytesBase<Byte>{
 	@Override
 	protected int compare(byte[] inputB, int offset, Byte matchNo) {
 		byte val = inputB[offset];
-		
 		if ( val == matchNo) return 0;
 		if (val > matchNo) return 1;
 		return -1;

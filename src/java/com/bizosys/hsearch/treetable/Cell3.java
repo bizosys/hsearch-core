@@ -17,7 +17,7 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	public ISortedByte<K2> k2Sorter = null;
 	public ISortedByte<V> vSorter = null;
 	
-	private Map<K1, Cell2<K2, V>> sortedList;
+	public Map<K1, Cell2<K2, V>> sortedList;
 	
 	public Cell3(ISortedByte<K1> k1Sorter, ISortedByte<K2> k2Sorter,
 			ISortedByte<V> vSorter) {
@@ -91,6 +91,7 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	public void getMap(K1 exactValue, K1 minimumValue, K1 maximumValue, Map<K1, Cell2<K2, V>> rows) throws IOException 
 	{
 		List<Integer> foundPositions = ObjectFactory.getInstance().getIntegerList();
+		foundPositions.clear();
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
 
 		ISortedByte<byte[]> dataBytesA = SortedBytesArray.getInstance();
@@ -146,7 +147,7 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		values(null, minimumValue, maximumValue, foundValues);
 	}
 	
-	public void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
+	private void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
 			Collection<Cell2<K2, V>> foundValues) throws IOException {
 
 		List<Integer> foundPositions = new ArrayList<Integer>();
@@ -213,5 +214,18 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	protected byte[] getKeyBytes() throws IOException {
 		return k1Sorter.toBytes(sortedList.keySet());
 	}
-
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
+		this.values(exactValue, minimumValue, maximumValue, foundValues );
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(Collection foundValues) throws IOException {
+		this.values(foundValues );
+	}
+	
+	
 }

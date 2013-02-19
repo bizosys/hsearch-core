@@ -129,7 +129,7 @@ public class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBase<K1> 
 		values(null, minimumValue, maximumValue, foundValues);
 	}
 	
-	private void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
+	public void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
 			Collection<Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> foundValues) throws IOException {
 		List<Integer> foundPositions = new ArrayList<Integer>();
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
@@ -191,6 +191,18 @@ public class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBase<K1> 
 	@Override
 	protected byte[] getKeyBytes() throws IOException {
 		return k1Sorter.toBytes(sortedList.keySet());
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
+		this.values(exactValue, minimumValue, maximumValue, foundValues );
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(Collection foundValues) throws IOException {
+		this.values(foundValues );
 	}
 	
 }

@@ -16,7 +16,7 @@ public class --CELLN-- extends CellBase<K1> {
 	--SORTER_DECL--
 	public ISortedByte<V> vSorter = null;
 	
-	private Map<K1, --CELLN-1--> sortedList;
+	public Map<K1, --CELLN-1--> sortedList;
 
 	public --CLASS-- (--SORTERS--, ISortedByte<V> vSorter) {
 		--SORTER_ASSIGNER--
@@ -188,5 +188,15 @@ public class --CELLN-- extends CellBase<K1> {
 		return k1Sorter.toBytes(sortedList.keySet());
 	}
 	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
+		this.values(exactValue, minimumValue, maximumValue, foundValues );
+	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(Collection foundValues) throws IOException {
+		this.values(foundValues );
+	}
 }

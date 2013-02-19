@@ -18,7 +18,7 @@ public class Cell2<K1, V> {
 	
 	public ISortedByte<K1> k1Sorter = null;
 	public ISortedByte<V> vSorter = null;
-	private List<CellKeyValue<K1, V>> sortedList = null;
+	public List<CellKeyValue<K1, V>> sortedList = null;
 	public byte[] data = null;
 	
 	public Cell2(ISortedByte<K1> k1Sorter, ISortedByte<V> vSorter) {
@@ -61,6 +61,41 @@ public class Cell2<K1, V> {
 		}
 		throw new IOException("Cell is not initialized");
 	}
+	
+	public void getMap(List<CellKeyValue<K1, V>> valueContainer) throws IOException {
+		if ( null != sortedList) {
+			valueContainer.addAll(sortedList);
+			return;
+		}
+		
+		this.sortedList = valueContainer;
+		if ( null != this.data) {
+			parseElements();
+			return;
+		}
+		throw new IOException("Cell is not initialized");
+	}	
+	
+	public void getMap(List<K1> kContainer, List<V> vContainer) throws IOException{
+		keySet(kContainer);
+		values(vContainer);
+	}
+	
+	public void getMap(V exactValue, V minimumValue, V maximumValue, 
+			List<Integer> reusableFoundPosArray, List<K1> kContainer, List<V> vContainer) throws IOException {
+		
+		List<Integer> foundPositions = reusableFoundPosArray;
+		byte[] allValsB = findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
+		byte[] allKeysB = SortedBytesArray.getInstance().parse(data).getValueAt(0);
+		
+		ISortedByte<V> valSorted =  vSorter.parse(allValsB);
+		ISortedByte<K1> keySorted =  k1Sorter.parse(allKeysB);
+		
+		for (int position : foundPositions) {
+			kContainer.add(keySorted.getValueAt(position));
+			vContainer.add(valSorted.getValueAt(position));
+		}
+	}		
 	
 	public void populate(Map<K1,V> map) throws IOException {
 		ISortedByte<byte[]> kvB = SortedBytesArray.getInstance().parse(data);

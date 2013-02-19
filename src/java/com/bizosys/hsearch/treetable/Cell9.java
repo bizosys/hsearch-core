@@ -19,7 +19,8 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 	
 	public ISortedByte<V> vSorter = null;
 	
-	private Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> sortedList;
+	public Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> sortedList;
+	
 	public Cell9 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter, ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.k2Sorter = k2Sorter;
@@ -190,6 +191,19 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 	protected byte[] getKeyBytes() throws IOException {
 		return k1Sorter.toBytes(sortedList.keySet());
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
+		this.values(exactValue, minimumValue, maximumValue, foundValues );
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(Collection foundValues) throws IOException {
+		this.values(foundValues );
+	}
+	
 	
 }
 

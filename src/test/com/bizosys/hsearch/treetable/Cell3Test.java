@@ -34,6 +34,19 @@ public class Cell3Test extends TestCase {
 
 		@Override
 		protected void setUp() throws Exception {
+			Cell3<String, Integer, Long> tcNewFinding = new Cell3<String, Integer, Long>(
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
+			tcNewFinding.put("asas", 12, 5L);
+			tcNewFinding.put("asas", 12, 5L);
+			tcNewFinding.put("asas", 12, 5L);
+			tcNewFinding.put("asas", 12, 5L);
+			tcNewFinding.put("asas", 12, 5L);
+			tcNewFinding.put("asas", 12, 5L);
+			byte[] x = tcNewFinding.toBytes();
+
+			Cell3<String, Integer, Long> tcNewFinding3 = new Cell3<String, Integer, Long>(
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance(), x);
+			
 		}
 		
 		@Override

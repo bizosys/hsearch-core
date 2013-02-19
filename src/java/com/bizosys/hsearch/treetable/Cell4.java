@@ -18,7 +18,7 @@ public class Cell4<K1, K2, K3, V> extends CellBase<K1> {
 	public ISortedByte<K3> k3Sorter = null;
 	public ISortedByte<V> vSorter = null;
 	
-	private Map<K1, Cell3<K2,K3,V>> sortedList;
+	public Map<K1, Cell3<K2,K3,V>> sortedList;
 	
 	public Cell4 (ISortedByte<K1> k1Sorter, ISortedByte<K2> k2Sorter,
 			ISortedByte<K3> k3Sorter, ISortedByte<V> vSorter) {
@@ -211,4 +211,16 @@ public class Cell4<K1, K2, K3, V> extends CellBase<K1> {
 		return k1Sorter.toBytes(sortedList.keySet());
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
+		this.values(exactValue, minimumValue, maximumValue, foundValues );
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Override
+	public void valuesUnchecked(Collection foundValues) throws IOException {
+		this.values(foundValues );
+	}
+	
 }

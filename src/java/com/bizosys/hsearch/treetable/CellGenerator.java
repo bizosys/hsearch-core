@@ -15,7 +15,7 @@ public class CellGenerator {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		int cells = 11;
+		int cells = 12;
 		String template = fileToString("com\\bizosys\\hsearch\\treetable\\CellN.txt");
 		template = replaceClassNMinus1(template, cells);
 		template = replaceClass(template, cells);

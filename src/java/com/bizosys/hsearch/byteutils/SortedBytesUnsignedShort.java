@@ -138,7 +138,6 @@ public class SortedBytesUnsignedShort extends SortedBytesBase<Integer>{
 			boolean isStartInclusive, boolean isEndInclusive, Collection<Integer> matchingPos) throws IOException {
 		
 		int compensatedMatchingValS = getShort(matchingValS);
-		System.out.println( "compensatedMatchingValS : " + compensatedMatchingValS);
 		super.computeRangeIndexes( (int) compensatedMatchingValS, (int) getShort(matchingValE),
 				isStartInclusive, isEndInclusive, matchingPos);
 	}

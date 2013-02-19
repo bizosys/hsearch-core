@@ -84,7 +84,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 				isSame = ( compare(inputBytes, offset, matchNo));
 				if ( isSame == 0 ) return 0;
 				isSame = ( compare(inputBytes, offset + dataSize, matchNo));
-				if ( isSame == 0 ) return 0;
+				if ( isSame == 0 ) return 1;
 				else return -1;
 			default:
 		}
