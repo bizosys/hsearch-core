@@ -4,9 +4,8 @@ import java.util.Collection;
 
 public final class SortedBytesChar extends SortedBytesBase<Byte>{
 
-	private static SortedBytesChar singleton = new SortedBytesChar();
 	public static ISortedByte<Byte> getInstance() {
-		return singleton;
+		return new SortedBytesChar();
 	}
 	
 	private SortedBytesChar() {
