@@ -9,5 +9,13 @@
 	<classpathentry kind="lib" path="lib/log4j-1.2.16.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-core-0.20.2-cdh3u3.jar"/>
 	<classpathentry kind="lib" path="lib/1line-ferrari.jar"/>
+	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.2-sources.jar"/>
+	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/guava-r09-jarjar.jar"/>
+	<classpathentry kind="lib" path="lib/hadoop-gpl-compression-0.1.0.jar"/>
+	<classpathentry kind="lib" path="lib/hsearch-federated.jar"/>
+	<classpathentry kind="lib" path="lib/lucene-core.jar"/>
+	<classpathentry kind="lib" path="lib/src-hsearch-federated.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

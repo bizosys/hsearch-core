@@ -1,5 +1,4 @@
 package com.bizosys.hsearch.treetable;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -7,20 +6,19 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import com.bizosys.hsearch.hbase.ObjectFactory;
 import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
-
 public class Cell7< K1, K2, K3, K4, K5, K6,V> extends CellBase<K1> {
 	public ISortedByte<K2> k2Sorter = null;
-
 	public ISortedByte<K3> k3Sorter = null;
 	public ISortedByte<K4> k4Sorter = null;
 	public ISortedByte<K5> k5Sorter = null;
 	public ISortedByte<K6> k6Sorter = null;
+	
 	public ISortedByte<V> vSorter = null;
 	
 	public Map<K1, Cell6< K2, K3, K4, K5, K6,V>> sortedList;
-	
 	public Cell7 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter, ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.k2Sorter = k2Sorter;
@@ -28,6 +26,7 @@ public class Cell7< K1, K2, K3, K4, K5, K6,V> extends CellBase<K1> {
 		this.k4Sorter = k4Sorter;
 		this.k5Sorter = k5Sorter;
 		this.k6Sorter = k6Sorter;
+		
 		this.vSorter = vSorter;
 	}
 	
@@ -36,7 +35,6 @@ public class Cell7< K1, K2, K3, K4, K5, K6,V> extends CellBase<K1> {
 		this(k1Sorter,k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,vSorter);
 		this.sortedList = sortedList;
 	}
-	
 	public Cell7 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,
 			ISortedByte<V> vSorter, byte[] data ) {
 		this(k1Sorter,k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,vSorter);
@@ -99,7 +97,27 @@ public class Cell7< K1, K2, K3, K4, K5, K6,V> extends CellBase<K1> {
 			return sortedList;
 		}
 		throw new IOException("Cell is not initialized");
-	}		
+	}
+	
+	public void getMap(K1 exactValue, K1 minimumValue, K1 maximumValue, Map<K1, Cell6< K2, K3, K4, K5, K6,V>> rows) throws IOException 
+	{
+		List<Integer> foundPositions = ObjectFactory.getInstance().getIntegerList();
+		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
+		ISortedByte<byte[]> dataBytesA = SortedBytesArray.getInstance();
+		ISortedByte<byte[]>  dataA = dataBytesA.parse(data);
+		byte[] valuesB = dataA.getValueAt(1);
+		byte[] keysB = dataA.getValueAt(0);
+		ISortedByte<byte[]> valuesA = SortedBytesArray.getInstance().parse(valuesB);
+		ISortedByte<K1> keysA = k1Sorter.parse(keysB);
+		for (int position : foundPositions) {
+			Cell6< K2, K3, K4, K5, K6,V> cell5 = new Cell6< K2, K3, K4, K5, K6,V>(
+					k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter, vSorter, valuesA.getValueAt(position) );
+			rows.put( keysA.getValueAt(position), cell5);
+		}
+		
+		ObjectFactory.getInstance().putIntegerList(foundPositions);
+	}
+				
 	
 	/**
 	 * Find matching exact value
@@ -189,18 +207,16 @@ public class Cell7< K1, K2, K3, K4, K5, K6,V> extends CellBase<K1> {
 	protected byte[] getKeyBytes() throws IOException {
 		return k1Sorter.toBytes(sortedList.keySet());
 	}
-
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
 		this.values(exactValue, minimumValue, maximumValue, foundValues );
 	}
-	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void valuesUnchecked(Collection foundValues) throws IOException {
 		this.values(foundValues );
 	}
-	
 }
 

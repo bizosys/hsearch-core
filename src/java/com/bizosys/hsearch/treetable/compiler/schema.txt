@@ -1,0 +1,49 @@
+{
+    "module" : "com.bizosys.hsearch.treetable.compiler.generated",
+    "table": "documents",
+    "columns": [
+        {
+            "name": "unstructured",
+
+            "mergeId": {
+                "name": "mergeId",
+                "datatype": "Integer"
+            },
+            
+            "indexes": [
+                {
+                    "name": "hashcode",
+                    "datatype": "Integer"
+                },
+                {
+                    "name": "term",
+                    "datatype": "String"
+                },
+                {
+                    "name": "doctype",
+                    "datatype": "Short"
+                },
+                {
+                    "name": "wordtype",
+                    "datatype": "Short"
+                }
+            ],
+            
+            "key": {
+                "name": "docid",
+                "datatype": "Integer"
+            },
+            
+            "value": 
+            {
+                "name": "weight",
+                "datatype": "Float"
+            },
+            
+            "partitions": {
+                "parts": "36",
+                "values": "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,0,1,2,3,4,5,6,7,8,9"
+            }
+        }
+    ]
+}

@@ -6,8 +6,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import com.bizosys.hsearch.hbase.ObjectFactory;
 import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
+
 public class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBase<K1> {
 	public ISortedByte<K2> k2Sorter = null;
 	public ISortedByte<K3> k3Sorter = null;
@@ -20,7 +22,7 @@ public class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBase<K1> 
 	
 	public ISortedByte<V> vSorter = null;
 	
-	private Map<K1, Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> sortedList;
+	public Map<K1, Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> sortedList;
 	public Cell10 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,ISortedByte<K9> k9Sorter, ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.k2Sorter = k2Sorter;
@@ -102,7 +104,27 @@ public class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBase<K1> 
 			return sortedList;
 		}
 		throw new IOException("Cell is not initialized");
-	}		
+	}
+	
+	public void getMap(K1 exactValue, K1 minimumValue, K1 maximumValue, Map<K1, Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> rows) throws IOException 
+	{
+		List<Integer> foundPositions = ObjectFactory.getInstance().getIntegerList();
+		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
+		ISortedByte<byte[]> dataBytesA = SortedBytesArray.getInstance();
+		ISortedByte<byte[]>  dataA = dataBytesA.parse(data);
+		byte[] valuesB = dataA.getValueAt(1);
+		byte[] keysB = dataA.getValueAt(0);
+		ISortedByte<byte[]> valuesA = SortedBytesArray.getInstance().parse(valuesB);
+		ISortedByte<K1> keysA = k1Sorter.parse(keysB);
+		for (int position : foundPositions) {
+			Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V> cell5 = new Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>(
+					k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,k7Sorter,k8Sorter,k9Sorter, vSorter, valuesA.getValueAt(position) );
+			rows.put( keysA.getValueAt(position), cell5);
+		}
+		
+		ObjectFactory.getInstance().putIntegerList(foundPositions);
+	}
+				
 	
 	/**
 	 * Find matching exact value
@@ -129,7 +151,7 @@ public class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBase<K1> 
 		values(null, minimumValue, maximumValue, foundValues);
 	}
 	
-	public void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
+	private void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
 			Collection<Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> foundValues) throws IOException {
 		List<Integer> foundPositions = new ArrayList<Integer>();
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
@@ -198,12 +220,10 @@ public class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBase<K1> 
 	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
 		this.values(exactValue, minimumValue, maximumValue, foundValues );
 	}
-
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void valuesUnchecked(Collection foundValues) throws IOException {
 		this.values(foundValues );
 	}
-	
 }
 
