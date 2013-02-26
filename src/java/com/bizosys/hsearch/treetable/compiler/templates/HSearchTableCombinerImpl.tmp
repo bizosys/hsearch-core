@@ -1,0 +1,13 @@
+package --PACKAGE--;
+
+import com.bizosys.hsearch.treetable.client.HSearchTableCombiner;
+import com.bizosys.hsearch.treetable.client.IHSearchTable;
+
+public class HSearchTableCombinerImpl extends HSearchTableCombiner {
+
+	@Override
+	public IHSearchTable buildTable() {
+		return new HSearchTable();
+	}
+
+}

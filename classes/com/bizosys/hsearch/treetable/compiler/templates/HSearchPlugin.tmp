@@ -1,0 +1,75 @@
+package --PACKAGE--;
+
+import java.util.Collection;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
+import com.bizosys.hsearch.treetable.client.L;
+
+public class HSearchPlugin implements IHSearchPlugin {
+	
+	static boolean DEBUG_ENABLED = false;
+	
+	//Take care of Thread Safety
+	Map<String, --KEY_DATATYPE--> ids = new ConcurrentHashMap<String, --KEY_DATATYPE-->();
+	
+	/**
+	 * For each row, this is invoked. This is called if the findIds is called
+	 * @return TRUE/FALSE whether it will be included in the result or not.
+	 */
+	public boolean onRowKey(--KEY_DATATYPE-- id) {
+		if ( DEBUG_ENABLED ) System.out.println( Thread.currentThread().getName() + " > Found Row" +  id);
+		if ( ids.containsKey(id.toString())) return true;
+		ids.put(id.toString(), id);
+		return true;
+	}
+
+	/**
+	 * For each row, this is invoked. This is called if the findColumns is called
+	 * @return TRUE/FALSE whether it will be included in the result or not.
+	 */
+	public boolean onRowCols(--ALL-COLS--) {
+		String cell--CELL-MAX-MINUS-1--Str = cell--CELL-MAX-MINUS-1--.toString();
+		if ( ids.containsKey(cell--CELL-MAX-MINUS-1--Str)) return true;
+		ids.put(cell--CELL-MAX-MINUS-1--Str, cell--CELL-MAX-MINUS-1--);
+		return true;
+	}
+
+	/**
+	 * For each row, this is invoked. This is called if the findKVs is called
+	 * @return TRUE/FALSE whether it will be included in the result or not.
+	 */
+	public boolean onRowKeyValue(--KEY_DATATYPE-- k, --VAL_DATATYPE-- value) {
+		return true;
+	}
+	
+	/**
+	 * For each row, this is invoked. This is called if the findValues is called
+	 * @return TRUE/FALSE whether it will be included in the result or not.
+	 */
+	public boolean onRowValue(--VAL_DATATYPE-- value) {
+		return true;
+	}
+	
+	/**
+	 * Called when all items are processed
+	 */
+	public void onComplete() {
+	}
+	
+	/**
+	 * The intersection happens on the final matching ids.
+	 * Currently integer and long values are supported. If there are any other 
+	 * values like string, it should be converted to integer / long and passed.
+	 * @return
+	 */
+	public Collection<--KEY_DATATYPE--> getAllRowKeysInSequence() throws Exception{
+		return this.ids.values();
+	}
+	
+	public Collection<--KEY_DATATYPE--> getUniqueRowKeys() throws Exception{
+		return this.ids.values();
+	}	
+	
+}
