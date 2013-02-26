@@ -66,7 +66,7 @@
 	<!--                                                                    -->
 	<!-- ================================================================== -->
 	<target name="jar" depends="compile-core,jar-sources">
-		<jar jarfile="${build.dir}/${name}.jar" basedir="${build.classes}">
+		<jar jarfile="${name}.jar" basedir="${build.classes}">
 			<manifest>
 				<attribute name="Version" value="${version}"/>
 				<attribute name="Company" value="${company}"/>
@@ -79,7 +79,7 @@
 	<!-- All source file jar -->
 	<!-- ================================================================== -->
 	<target name="jar-sources">
-		<jar jarfile="${build.dir}/src-${name}.jar" basedir="${src.dir}">
+		<jar jarfile="src-${name}.jar" basedir="${src.dir}">
 			<manifest>
 				<attribute name="Created-By" value="${company}(${build.time})"/>
 				<attribute name="Version" value="${version}"/>

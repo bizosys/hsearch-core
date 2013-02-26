@@ -9,7 +9,6 @@ import java.util.TreeMap;
 import com.bizosys.hsearch.hbase.ObjectFactory;
 import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
-
 public class Cell8< K1, K2, K3, K4, K5, K6, K7,V> extends CellBase<K1> {
 	public ISortedByte<K2> k2Sorter = null;
 	public ISortedByte<K3> k3Sorter = null;
