@@ -44,34 +44,36 @@ public class HSearchCompiler {
 
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
 
-		Column col = newSchema.columns.get(0);
-		List<Field> allFields = new ArrayList<Schema.Field>();
-		allFields.addAll(col.indexes);
-		allFields.add (col.key );
-		allFields.add(col.value);
+		for (Column col : newSchema.columns) {
+			List<Field> allFields = new ArrayList<Schema.Field>();
+			allFields.addAll(col.indexes);
+			allFields.add (col.key );
+			allFields.add(col.value);
+			
+			FileWriterUtil.downloadToFile(generateHSearchTable(newSchema.module, col.key, col.value, col.name, allFields).getBytes(), 
+					new File(args[1] + "/HSearchTable" + col.name + ".java") );
 
-		FileWriterUtil.downloadToFile(generateHSearchTable(newSchema, allFields).getBytes(), 
-				new File(args[1] + "/HSearchTable.java") );
+			FileWriterUtil.downloadToFile(generateHSearchPlugin(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
+					new File(args[1] + "/HSearchPlugin" + col.name + ".java") );
+			
+			FileWriterUtil.downloadToFile(generateHSearchTableCombinerImpl(newSchema.module, col.key, col.value, allFields).getBytes(), 
+					new File(args[1] + "/HSearchTableCombinerImpl.java") );
+			
+			FileWriterUtil.downloadToFile(generateHSearchTableMultiQueryProcessorImpl(newSchema.module, col.key, col.value, allFields).getBytes(), 
+					new File(args[1] + "/HSearchTableMultiQueryProcessorImpl.java") );
+						
+		}
 
-		FileWriterUtil.downloadToFile(generateHSearchPlugin(newSchema, allFields).getBytes(), 
-				new File(args[1] + "/HSearchPlugin.java") );
-		
-		FileWriterUtil.downloadToFile(generateHSearchTableCombinerImpl(newSchema, allFields).getBytes(), 
-				new File(args[1] + "/HSearchTableCombinerImpl.java") );
-		
-		FileWriterUtil.downloadToFile(generateHSearchTableMultiQueryProcessorImpl(newSchema, allFields).getBytes(), 
-				new File(args[1] + "/HSearchTableMultiQueryProcessorImpl.java") );
-		
 
 		
 		//System.out.println(template);
 
 	}
 	
-	public static String generateHSearchTable(Schema newSchema,
-			List<Field> allFields) throws Exception {
+	public static String generateHSearchTable(String module, Field fldKey, Field fldValue,
+			String colName, List<Field> allFields) throws Exception {
 		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTable.tmp");
-		template = template.replace("--PACKAGE--", newSchema.module);
+		template = template.replace("--PACKAGE--", module);
 		
 		
 		//Required Cells
@@ -103,7 +105,7 @@ public class HSearchCompiler {
 		template = template.replace("--CELLMAX-SIGN--",  CELLMAX_SIGN);
 		template = template.replace("--CELL-SORTERS--",  cg.generateSorters(allFields) );
 		
-		template = template.replace("--VAL-COMPARATOR--",  cg.generateComparator(newSchema.columns.get(0).value) );
+		template = template.replace("--VAL-COMPARATOR--",  cg.generateComparator(fldValue) );
 		
 		
 		template = template.replace("--PUT-PARAMS-SIGNS--",  cg.generatePutParamsSigns(allFields));
@@ -111,7 +113,7 @@ public class HSearchCompiler {
 		
 		template = template.replace("--CELL-DATA--TYPES--", cg.generateParamTypes(allFields) );
 		
-		template = template.replace("--VAL-DATATYPE--", newSchema.columns.get(0).value.datatype);
+		template = template.replace("--VAL-DATATYPE--", fldValue.datatype);
 		
 		//template = 	template.replace("--TREE-WALK-ROOT--", cg.createIterator(allFields, 1));
 		String leafItrprefix = "";
@@ -128,8 +130,8 @@ public class HSearchCompiler {
 		template = 	template.replace("--CELL-MAX-MINUS-1--", CELLMAX_MINUS_1.toString());
 		template = 	template.replace("--CELL-MAX-MINUS-1-SIGN--", CELLMAX_MINUS_SUIGN);
 		
-		String keyDataType = newSchema.columns.get(0).key.datatype;
-		String valDataType = newSchema.columns.get(0).value.datatype;
+		String keyDataType = fldKey.datatype;
+		String valDataType = fldValue.datatype;
 		String valParentDataType = allFields.get( allFields.size() - 3).datatype;
 		if ( "Short".equals(keyDataType) ) keyDataType = "Integer";
 		if ( "Short".equals(valDataType) ) valDataType = "Integer";
@@ -160,17 +162,19 @@ public class HSearchCompiler {
 		}
 		template = 	template.replace("--LIST-BROWSE-LEAF-PREFIX--", listItrprefix );
 		template = 	template.replace("--LIST-BROWSE-LEAF-SUFFIX--", listItrSuffix );
+		
+		template = 	template.replace("--COLUMN-NAME--", colName );
+		
 		return template;
 	}
 	
-	public static String generateHSearchPlugin(Schema newSchema,
-			List<Field> allFields) throws Exception {
+	public static String generateHSearchPlugin(String module, String colName, Field key, Field val, List<Field> allFields) throws Exception {
 		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchPlugin.tmp");
 
-		template = template.replace("--PACKAGE--", newSchema.module);
+		template = template.replace("--PACKAGE--", module);
 		
-		String keyDataType = newSchema.columns.get(0).key.datatype;
-		String valDataType = newSchema.columns.get(0).value.datatype;
+		String keyDataType = key.datatype;
+		String valDataType = val.datatype;
 		if ( "Short".equals(keyDataType) ) keyDataType = "Integer";
 		if ( "Short".equals(valDataType) ) valDataType = "Integer";
 		
@@ -179,20 +183,21 @@ public class HSearchCompiler {
 		template = 	template.replace("--CELL-MAX-MINUS-1--", new Integer(allFields.size() - 1).toString());
 		
 		template = 	template.replace("--ALL-COLS--", new CodePartGenerator().generateParamSign(allFields) );
+		template = 	template.replace("--COLUMN-NAME--", colName );
 		return template;
 	}	
 	
-	public static String generateHSearchTableCombinerImpl(Schema newSchema,
+	public static String generateHSearchTableCombinerImpl(String module, Field key, Field val,
 			List<Field> allFields) throws Exception {
 		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTableCombinerImpl.tmp");
-		template = template.replace("--PACKAGE--", newSchema.module);
+		template = template.replace("--PACKAGE--", module);
 		return template;
 	}
 	
-	public static String generateHSearchTableMultiQueryProcessorImpl(Schema newSchema,
+	public static String generateHSearchTableMultiQueryProcessorImpl(String module, Field key, Field val,
 			List<Field> allFields) throws Exception {
 		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTableMultiQueryProcessorImpl.tmp");
-		template = template.replace("--PACKAGE--", newSchema.module);
+		template = template.replace("--PACKAGE--", module);
 		return template;
 	}
 	

@@ -7,7 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
 
-public class HSearchPlugin implements IHSearchPlugin {
+public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	
 	static boolean DEBUG_ENABLED = false;
 	

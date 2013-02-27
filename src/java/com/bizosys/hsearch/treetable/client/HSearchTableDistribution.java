@@ -31,7 +31,7 @@ import com.bizosys.hsearch.treetable.CellBase;
 
 public class HSearchTableDistribution {
 	
-	private static boolean DEBUG_ENABLED = true;
+	private static boolean DEBUG_ENABLED = false;
 	
 	private static HSearchTableDistribution singleton =  new HSearchTableDistribution();
 	

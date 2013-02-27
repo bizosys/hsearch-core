@@ -29,7 +29,7 @@ import com.bizosys.hsearch.federate.FederatedFacade;
 
 public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMultiQueryProcessor {
 
-	boolean DEBUG_ENABLED = true;
+	boolean DEBUG_ENABLED = false;
 	
 	public final static List<com.bizosys.hsearch.federate.FederatedFacade<Long, Integer>.IRowId> noIdsFound = 
 			new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<Long, Integer>.IRowId>(0);
@@ -58,12 +58,8 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 				long startTime = System.currentTimeMillis();
 				long endTime = -1L;
 				try {
-
-					if ( type == "text") {
-						
-					} else {
-						getCombiner().concurrentDeser(aStmtOrValue, stmtParams);
-					}
+					IHSearchTableCombiner combiner = getCombiner(); 
+					combiner.concurrentDeser(aStmtOrValue, stmtParams, type);
 
 					IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 					Collection<Integer> keys = plugin.getUniqueRowKeys();

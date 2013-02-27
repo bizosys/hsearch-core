@@ -20,8 +20,8 @@
 
 package com.bizosys.hsearch.treetable.client;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 
 public class HSearchTableParts {
 	
@@ -31,9 +31,9 @@ public class HSearchTableParts {
 		this(null);
 	}
 	
-	public HSearchTableParts(List<byte[]> allParts) {
+	public HSearchTableParts(final Vector<byte[]> allParts) {
 		this.allParts = allParts;
-		if ( null == this.allParts) this.allParts = new ArrayList<byte[]>();
+		if ( null == this.allParts) this.allParts = new Vector<byte[]>();
 	}
 	
 	public void collect(byte[] dataParts) {

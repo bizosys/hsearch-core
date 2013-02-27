@@ -29,13 +29,13 @@ import com.bizosys.hsearch.treetable.CellComparator;
 import com.bizosys.hsearch.treetable.CellComparator.FloatComparator;
 import com.bizosys.hsearch.treetable.ValueComparator;
 
-public class HSearchTable implements IHSearchTable {
+public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 	
 	private boolean DEBUG_ENABLED = false;
 	
 	--CELLMAX-SIGN-- table = createBlankTable();
 
-	public HSearchTable() {
+	public HSearchTable--COLUMN-NAME--() {
 	}
 	
 	public --CELLMAX-SIGN-- createBlankTable() {

@@ -33,22 +33,39 @@ import com.bizosys.hsearch.treetable.client.L;
 
 public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 
-	static boolean DEBUG_ENABLED = true;
+	static boolean DEBUG_ENABLED = false;
 	
-	public void concurrentDeser(String aStmtOrValue, Map<String, Object> stmtParams) throws Exception {
+	public void concurrentDeser(String aStmtOrValue, Map<String, Object> stmtParams, String tableType) throws Exception {
 		
-		if ( DEBUG_ENABLED ) L.getInstance().logDebug( "> concurrentDeser Enter");
+		if ( DEBUG_ENABLED ){
+			String keys = ( null != stmtParams) ? stmtParams.keySet().toString() : "No Keys";
+			L.getInstance().logDebug( "> concurrentDeser Enter - stmt params keys : " + keys);
+		}
 		
-		HSearchTableParts tableParts = (HSearchTableParts) stmtParams.get(HSearchTableMultiQueryExecutor.TABLE_PARTS);
+		Object tablePartsO = stmtParams.get(HSearchTableMultiQueryExecutor.TABLE_PARTS);
+		HSearchTableParts tableParts = (HSearchTableParts) tablePartsO ;
+		
+		if ( null == tableParts) {
+			System.err.println("Warning : Null table parts for > " + tableType + ":" + aStmtOrValue);
+		}
+		
 		IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
+		if ( null == plugin) {
+			System.err.println("Warning : Null plugin for > " + tableType + ":" + aStmtOrValue);
+		}
+
 		Object outputTypeO = stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
+		if ( null == outputTypeO) {
+			System.err.println("Warning : No output type for > " + tableType + ":" + aStmtOrValue);
+		}
 		Integer outputType = ( null != outputTypeO) ? (Integer) outputTypeO : HSearchTableMultiQueryExecutor.OUTPUT_COLS;
 		
 		HSearchQuery hQuery = new HSearchQuery(aStmtOrValue);		
 		
 		List<TableDeserExecutor> tasks = new ArrayList<TableDeserExecutor>();
+		
 		for ( byte[] tableSer : tableParts.allParts) {
-			IHSearchTable t = buildTable();
+			IHSearchTable t = buildTable(tableType);
 			TableDeserExecutor deserTask = new TableDeserExecutor(t, tableSer, plugin, hQuery, outputType);
 			tasks.add(deserTask);
 		}
@@ -104,5 +121,5 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		}
 	}
 	
-	public abstract IHSearchTable buildTable();
+	public abstract IHSearchTable buildTable(String tableType);
 }
