@@ -84,7 +84,7 @@ public class Cell2Test extends TestCase {
 			tc.add(aInt, aString.getBytes());
 			tc.add(46, "new46".getBytes());
 			
-			tc.sort (new CellComparator.StringComparator<Integer>());
+			tc.sort (new CellComparator.BytesComparator<Integer>());
 			byte[] data = tc.toBytesOnSortedData();
 			
 			Cell2<Integer, byte[]> tcNewFinding = new Cell2<Integer, byte[]>(

@@ -82,14 +82,14 @@ public class CellComparator {
 		}
 	}
 
-	public static class StringComparator<K> implements Comparator<CellKeyValue<K, byte[]>>  { 
+	public static class BytesComparator<K> implements Comparator<CellKeyValue<K, byte[]>>  { 
 		@Override
 		public int compare(CellKeyValue<K, byte[]> o1, CellKeyValue<K, byte[]> o2) {
 			return  ( new String(o1.getValue()).compareTo(new String(o2.getValue())) );
 		}
 	}
 	
-	public static class TextComparator<K> implements Comparator<CellKeyValue<K, String>>  { 
+	public static class StringComparator<K> implements Comparator<CellKeyValue<K, String>>  { 
 		@Override
 		public int compare(CellKeyValue<K, String> o1, CellKeyValue<K, String> o2) {
 			return  ( o1.getValue().compareTo(o2.getValue()) );

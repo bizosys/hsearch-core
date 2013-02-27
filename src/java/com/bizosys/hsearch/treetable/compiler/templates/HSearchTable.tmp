@@ -26,7 +26,14 @@ import com.bizosys.hsearch.treetable.client.IHSearchTable;
 
 import com.bizosys.hsearch.treetable.CellBase;
 import com.bizosys.hsearch.treetable.CellComparator;
+import com.bizosys.hsearch.treetable.CellComparator.BooleanComparator;
+import com.bizosys.hsearch.treetable.CellComparator.ByteComparator;
+import com.bizosys.hsearch.treetable.CellComparator.ShortComparator;
+import com.bizosys.hsearch.treetable.CellComparator.IntegerComparator;
 import com.bizosys.hsearch.treetable.CellComparator.FloatComparator;
+import com.bizosys.hsearch.treetable.CellComparator.LongComparator;
+import com.bizosys.hsearch.treetable.CellComparator.DoubleComparator;
+import com.bizosys.hsearch.treetable.CellComparator.StringComparator;
 import com.bizosys.hsearch.treetable.ValueComparator;
 
 public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
@@ -321,9 +328,9 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 			
 			if ( pos == partitionSeq) break;
 		}
-		table.sort(new CellComparator.FloatComparator<Integer>());
+		table.sort(new CellComparator.--VAL-COMPARATOR--<Integer>());
 			
-		return table.toBytes( boundaryLeft, boundaryRight, false, true, new ValueComparator.FloatComparator());
+		return table.toBytes( boundaryLeft, boundaryRight, false, true, new ValueComparator.--VAL-COMPARATOR--());
 	}
 	
 	public HSearchPlugin--COLUMN-NAME-- castPlugin(IHSearchPlugin pluginI) throws IOException {

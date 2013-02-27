@@ -44,7 +44,7 @@
             "value": 
             {
                 "name": "name",
-                "datatype": "String"
+                "datatype": "Float"
             },
             
             "partitions": {
