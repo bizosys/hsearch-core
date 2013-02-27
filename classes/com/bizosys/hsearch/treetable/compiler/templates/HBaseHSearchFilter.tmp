@@ -1,0 +1,29 @@
+package --PACKAGE--;
+
+import java.io.IOException;
+
+import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
+import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
+import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
+
+public class HBaseHSearchFilter extends HSearchGenericFilter {
+
+	boolean DEBUG_ENABLED = true;
+	
+	@Override
+	public HSearchTableMultiQueryExecutor createExector() {
+		return new HSearchTableMultiQueryExecutor(
+				new HSearchTableMultiQueryProcessorImpl());
+	}
+
+	@Override
+	public IHSearchPlugin createPlugIn(String type) throws IOException {
+		if ( DEBUG_ENABLED ) {
+			System.out.println(Thread.currentThread().getId() + " > HSearchGenericFilterImpl : type > " + type );
+		}
+		
+		--CREATE-PLUGINS--
+				
+		throw new IOException("Unknown Column Type :" + type);
+	}
+}

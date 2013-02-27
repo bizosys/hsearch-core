@@ -1,0 +1,23 @@
+package --PACKAGE--;
+
+import java.util.Map;
+
+import com.bizosys.hsearch.hbase.IScanCallBack;
+import com.bizosys.hsearch.treetable.storage.HBaseCoProcessorsAgreegator;
+import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
+import com.bizosys.hsearch.treetable.storage.HSearchTableReader;
+
+public class HBaseTableReader extends HSearchTableReader {
+
+	@Override
+	public HSearchGenericFilter getFilter(String multiQuery,
+			Map<String, String> multiQueryParts) {
+		return new HBaseHSearchFilter();
+	}
+
+	@Override
+	public IScanCallBack getResultCollector() {
+		return new HBaseCoProcessorsAgreegator();
+	}
+
+}

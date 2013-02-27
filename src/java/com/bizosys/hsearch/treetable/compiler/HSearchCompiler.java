@@ -56,12 +56,24 @@ public class HSearchCompiler {
 			FileWriterUtil.downloadToFile(generateHSearchPlugin(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
 					new File(args[1] + "/HSearchPlugin" + col.name + ".java") );
 			
-			FileWriterUtil.downloadToFile(generateHSearchTableCombinerImpl(newSchema.module, col.key, col.value, allFields).getBytes(), 
+			FileWriterUtil.downloadToFile(generateHSearchTableCombinerImpl(newSchema).getBytes(), 
 					new File(args[1] + "/HSearchTableCombinerImpl.java") );
 			
 			FileWriterUtil.downloadToFile(generateHSearchTableMultiQueryProcessorImpl(newSchema.module, col.key, col.value, allFields).getBytes(), 
 					new File(args[1] + "/HSearchTableMultiQueryProcessorImpl.java") );
 						
+			FileWriterUtil.downloadToFile(generateHBaseCoprocessorAggregator(newSchema.module, col.key, col.value, allFields).getBytes(), 
+					new File(args[1] + "/HBaseCoprocessorAggregator.java") );
+
+			FileWriterUtil.downloadToFile(generateHBaseHSearchFilter(newSchema).getBytes(), 
+					new File(args[1] + "/HBaseHSearchFilter.java") );
+
+			FileWriterUtil.downloadToFile(generateHBaseTableReader(newSchema.module, col.key, col.value, allFields).getBytes(), 
+					new File(args[1] + "/HBaseTableReader.java") );
+
+			FileWriterUtil.downloadToFile(generateHBaseTableSchema(newSchema).getBytes(), 
+					new File(args[1] + "/HBaseTableSchema.java") );
+
 		}
 
 
@@ -187,10 +199,17 @@ public class HSearchCompiler {
 		return template;
 	}	
 	
-	public static String generateHSearchTableCombinerImpl(String module, Field key, Field val,
-			List<Field> allFields) throws Exception {
+	public static String generateHSearchTableCombinerImpl(Schema schema) throws Exception {
 		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTableCombinerImpl.tmp");
-		template = template.replace("--PACKAGE--", module);
+		template = template.replace("--PACKAGE--", schema.module);
+		
+		StringBuilder tables = new StringBuilder(4096);
+		for ( Column column : schema.columns ) {
+			tables.append("\t\tif ( tableType.equals(\"").append(column.name).append("\")) return new HSearchTable");
+			tables.append(column.name).append("();\n");
+		}
+
+		template = template.replace("--CREATE-TABLES--", tables.toString());
 		return template;
 	}
 	
@@ -201,6 +220,62 @@ public class HSearchCompiler {
 		return template;
 	}
 	
+	public static String generateHBaseCoprocessorAggregator(String module, Field key, Field val,
+			List<Field> allFields) throws Exception {
+		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HBaseCoprocessorAggregator.tmp");
+		template = template.replace("--PACKAGE--", module);
+		return template;
+	}
+	
+	public static String generateHBaseTableReader(String module, Field key, Field val,
+			List<Field> allFields) throws Exception {
+		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HBaseTableReader.tmp");
+		template = template.replace("--PACKAGE--", module);
+		return template;
+	}
+	
+	public static String generateHBaseTableSchema(Schema schema) throws Exception {
+		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HBaseTableSchema.tmp");
+		template = template.replace("--PACKAGE--", schema.module);
+		
+		StringBuilder families = new StringBuilder(4096);
+		for ( Column column : schema.columns ) {
+			
+			families.append("List<String> ").append(column.name).append(" = new ArrayList<String>();\n");
+			families.append("\t\tStringTokenizer token = new StringTokenizer(\"").append(column.partitions.values).append("\",\",\");\n");
+			
+			families.append("\t\twhile ( token.hasMoreTokens()) {\n");
+			families.append("\t\t\t").append(column.name).append(".add(token.nextToken()); \n");
+			families.append("\t\t}\n");
+			families.append("\t\tHBaseTableSchemaDefn.getInstance().familyNames.put(\"").append(
+				column.name).append("\", ").append(column.name).append(");\n");	
+		}
+
+		template = template.replace("--CREATE-COL-FAMILIES--", families.toString());
+		return template;
+	}
+	
+	public static String generateHBaseHSearchFilter(Schema schema) throws Exception {
+		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HBaseHSearchFilter.tmp");
+		template = template.replace("--PACKAGE--", schema.module);
+		
+		StringBuilder plugins = new StringBuilder(4096);
+		boolean isFirst = true;
+		for ( Column column : schema.columns ) {
+			
+			if ( isFirst ) isFirst = false;
+			else plugins.append("else ");
+			
+			plugins.append("if ( type == \"").append(column.name).append("\") {\n");
+			plugins.append("\treturn new HSearchPlugin").append(column.name).append("();\n");
+			plugins.append("}\n");
+		}
+		
+		template = template.replace("--CREATE-PLUGINS--", plugins.toString());
+		
+		
+		return template;
+	}
 	
 	
 	

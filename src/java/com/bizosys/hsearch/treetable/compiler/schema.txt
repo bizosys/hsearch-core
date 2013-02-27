@@ -1,9 +1,9 @@
 {
-    "module" : "com.bizosys.hsearch.treetable.compiler.generated",
+    "module" : "com.delme.generated",
     "table": "documents",
     "columns": [
         {
-            "name": "unstructured",
+            "name": "Resumes",
 
             "mergeId": {
                 "name": "mergeId",
@@ -41,8 +41,8 @@
             },
             
             "partitions": {
-                "parts": "36",
-                "values": "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,0,1,2,3,4,5,6,7,8,9"
+                "parts": "8",
+                "values": "a,b,c,d,e,f,g,h"
             }
         }
     ]

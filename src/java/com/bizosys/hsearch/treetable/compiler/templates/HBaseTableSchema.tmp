@@ -1,0 +1,21 @@
+package --PACKAGE--;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.StringTokenizer;
+
+
+import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaCreator;
+import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaDefn;
+
+
+public class HBaseTableSchema {
+
+	public static void main(String[] args) throws Exception {
+		
+		--CREATE-COL-FAMILIES--
+
+		new HBaseTableSchemaCreator().init();
+	}
+	
+}

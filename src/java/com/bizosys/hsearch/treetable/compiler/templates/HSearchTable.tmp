@@ -56,7 +56,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 	
 	public int get(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException, NumberFormatException {
 		
-		HSearchPlugin plugin = castPlugin(pluginI);
+		HSearchPlugin--COLUMN-NAME-- plugin = castPlugin(pluginI);
 		
 		query.parseValuesConcurrent(new String[] {--CELL-DATA--TYPES--});
 		
@@ -148,7 +148,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
 	private int onKeyAndValue(byte[] input, HSearchQuery query, IHSearchPlugin pluginI, int mode) throws IOException {
 
-		HSearchPlugin plugin = castPlugin(pluginI);
+		HSearchPlugin--COLUMN-NAME-- plugin = castPlugin(pluginI);
 		
 		query.parseValuesConcurrent(new String[] {--CELL-DATA--TYPES--});
 		
@@ -202,7 +202,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		return totalRows;
 	}
 
-	public int callbackOnKeys(HSearchQuery query, HSearchPlugin plugin,
+	public int callbackOnKeys(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
 			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyExact,
 			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
 		int keysT = keyL.size();
@@ -230,7 +230,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		return totalRows;
 	}
 	
-	public int callbackOnValues(HSearchQuery query, HSearchPlugin plugin,
+	public int callbackOnValues(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
 			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyValExact,
 			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
 
@@ -260,7 +260,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		return totalRows;
 	}
 
-	public int callbackOnKeyValues(HSearchQuery query, HSearchPlugin plugin,
+	public int callbackOnKeyValues(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
 			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyValExact,
 			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
 
@@ -326,10 +326,10 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		return table.toBytes( boundaryLeft, boundaryRight, false, true, new ValueComparator.FloatComparator());
 	}
 	
-	public HSearchPlugin castPlugin(IHSearchPlugin pluginI) throws IOException {
-		HSearchPlugin plugin = null;
+	public HSearchPlugin--COLUMN-NAME-- castPlugin(IHSearchPlugin pluginI) throws IOException {
+		HSearchPlugin--COLUMN-NAME-- plugin = null;
 		if ( null != pluginI) {
-			if ( pluginI instanceof HSearchPlugin) plugin =  (HSearchPlugin) pluginI;
+			if ( pluginI instanceof HSearchPlugin--COLUMN-NAME--) plugin =  (HSearchPlugin--COLUMN-NAME--) pluginI;
 			if ( null == plugin )  throw new IOException("Invalid plugin Type :" + pluginI);
 		}
 		return plugin;

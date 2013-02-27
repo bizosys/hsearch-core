@@ -19,6 +19,7 @@
 */
 package com.bizosys.hsearch.treetable.client;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -121,5 +122,5 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		}
 	}
 	
-	public abstract IHSearchTable buildTable(String tableType);
+	public abstract IHSearchTable buildTable(String tableType) throws IOException ;
 }
