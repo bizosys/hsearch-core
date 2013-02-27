@@ -40,6 +40,10 @@ public class HSearchCompiler {
 		Gson gson = new Gson();
 
 		String schemaStr = fileToString(args[0]);
+		schemaStr = schemaStr.replace("\"indexes\": \"unstructured\"", 
+				fileToString("com/bizosys/hsearch/treetable/compiler/schema-search.txt" ) );
+		
+			
 		//System.out.println(schemaStr);
 
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
@@ -242,10 +246,10 @@ public class HSearchCompiler {
 		for ( Column column : schema.columns ) {
 			
 			families.append("List<String> ").append(column.name).append(" = new ArrayList<String>();\n");
-			families.append("\t\tStringTokenizer token = new StringTokenizer(\"").append(column.partitions.values).append("\",\",\");\n");
+			families.append("\t\tStringTokenizer token").append(column.name).append(" = new StringTokenizer(\"").append(column.partitions.family).append("\",\",\");\n");
 			
-			families.append("\t\twhile ( token.hasMoreTokens()) {\n");
-			families.append("\t\t\t").append(column.name).append(".add(token.nextToken()); \n");
+			families.append("\t\twhile ( token").append(column.name).append(".hasMoreTokens()) {\n");
+			families.append("\t\t\t").append(column.name).append(".add(token").append(column.name).append(".nextToken()); \n");
 			families.append("\t\t}\n");
 			families.append("\t\tHBaseTableSchemaDefn.getInstance().familyNames.put(\"").append(
 				column.name).append("\", ").append(column.name).append(");\n");	

@@ -1,6 +1,6 @@
 {
     "module" : "com.delme.generated",
-    "table": "documents",
+    "table": "htable",
     "columns": [
         {
             "name": "Resumes",
@@ -10,40 +10,47 @@
                 "datatype": "Integer"
             },
             
-            "indexes": [
+            "indexes": "unstructured"
+        },
+        
+	{
+            "name": "EmpDetail",
+
+            "mergeId": {
+                "name": "mergeId",
+                "datatype": "Integer"
+            },
+            
+	    "indexes": [
                 {
-                    "name": "hashcode",
+                    "name": "age",
                     "datatype": "Integer"
                 },
                 {
-                    "name": "term",
+                    "name": "role",
                     "datatype": "String"
                 },
                 {
-                    "name": "doctype",
-                    "datatype": "Short"
-                },
-                {
-                    "name": "wordtype",
-                    "datatype": "Short"
+                    "name": "location",
+                    "datatype": "String"
                 }
             ],
             
             "key": {
-                "name": "docid",
+                "name": "empid",
                 "datatype": "Integer"
             },
             
             "value": 
             {
-                "name": "weight",
-                "datatype": "Float"
+                "name": "name",
+                "datatype": "String"
             },
             
             "partitions": {
-                "parts": "8",
-                "values": "a,b,c,d,e,f,g,h"
-            }
-        }
+                "family": "a,d,h,k,n,q,t",
+                "ranges": "a:c,d:g,h:j,k:m,n:p,q:s,t:z"
+            }	
+		}        
     ]
 }
