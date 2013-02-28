@@ -174,8 +174,12 @@ public abstract class HSearchGenericFilter implements Filter {
 				if ( null == inputData) continue;
 				
 				String fName = new String(kv.getFamily());
+				
+				int fNameI = fName.indexOf('_');
+				fName = fName.substring(0, fNameI - 1);
+				
 				HSearchTableParts parts =  null;
-				if ( ! colParts.containsKey(fName)) {
+				if ( colParts.containsKey(fName)) {
 					parts = colParts.get(fName);
 				} else {
 					parts = new HSearchTableParts();
