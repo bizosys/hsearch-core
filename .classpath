@@ -12,7 +12,6 @@
 	<classpathentry kind="lib" path="lib/commons-logging-1.1.1.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.2-sources.jar"/>
 	<classpathentry kind="lib" path="lib/gson-2.2.2.jar"/>
-	<classpathentry kind="lib" path="lib/guava-r09-jarjar.jar"/>
 	<classpathentry kind="lib" path="lib/hadoop-gpl-compression-0.1.0.jar"/>
 	<classpathentry kind="lib" path="lib/hsearch-federated.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-core.jar"/>

@@ -71,6 +71,8 @@ public class HBaseTableSchemaCreator {
 			
 			HBaseTableSchemaDefn def = HBaseTableSchemaDefn.getInstance();
 			for (String familyName : def.familyNames.keySet()) {
+				
+				//Partitioned
 				for (String partition : def.familyNames.get(familyName)) {
 					HColumnDescriptor teaser = 
 							new HColumnDescriptor( (familyName + "_" + partition ).getBytes() ,
@@ -81,10 +83,24 @@ public class HBaseTableSchemaCreator {
 								partitionBloomFilter,
 								partitionRepMode);
 
-						colFamilies.add(teaser);
+					colFamilies.add(teaser);
 				}
 				
+				//No Partition
+				if ( def.familyNames.get(familyName).size() == 0 ) {
+					HColumnDescriptor teaser = 
+							new HColumnDescriptor( (familyName).getBytes() ,
+								1, partitionCompression, 
+								false, partitionBlockCache,
+								partitionBlockSize,					
+								HConstants.FOREVER, 
+								partitionBloomFilter,
+								partitionRepMode);
+
+					colFamilies.add(teaser);
+				}
 			}
+			
 			HDML.create(def.tableName, colFamilies);
 			return true;
 			

@@ -29,10 +29,13 @@ import java.util.Set;
 
 import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HReader;
+import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
 import com.bizosys.hsearch.hbase.ParallelHReader;
 
 public abstract class HSearchTableReader {
+	
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	public static ParallelHReader parallelReader = new ParallelHReader(10);
 	
@@ -45,6 +48,7 @@ public abstract class HSearchTableReader {
 		HSearchGenericFilter filter = getFilter(multiQuery, multiQueryParts);
 		
 		Set<String> uniqueFamilies = new HashSet<String>(3);
+		
 		for ( String colNameQuolonId : multiQueryParts.keySet() ) {
 			
 			int colNameAndQIdSplitIndex = colNameQuolonId.indexOf(':');
@@ -59,14 +63,17 @@ public abstract class HSearchTableReader {
 
 		List<ColumnFamName> families = new ArrayList<ColumnFamName>();
 		for (String  family : uniqueFamilies) {
+			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableReader > Adding Family: " + family);
 			families.add(new ColumnFamName(family.getBytes(), HBaseTableSchemaDefn.COL_NAME_BYTES));
 		}
 	
 		IScanCallBack recordsCollector = getResultCollector();
 		String tableName = HBaseTableSchemaDefn.getInstance().tableName;
 		if ( isParallel ) {
+			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableReader > Searching in parallel.");
 			parallelReader.getAllValues(tableName, families, filter, recordsCollector);
 		} else {
+			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableReader > Searching in Sequential.");
 			HReader.getAllValues(tableName,families, filter, recordsCollector);
 		}
 	}	

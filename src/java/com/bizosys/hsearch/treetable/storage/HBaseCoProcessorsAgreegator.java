@@ -24,9 +24,12 @@ import java.util.List;
 import java.util.Vector;
 
 import com.bizosys.hsearch.hbase.ColumnFamName;
+import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
 
 public class HBaseCoProcessorsAgreegator implements IScanCallBack {
+	
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	public class HSearchTablerRow {
 		
@@ -54,6 +57,9 @@ public class HBaseCoProcessorsAgreegator implements IScanCallBack {
 	
 	@Override
 	public void process(byte[] pk, ColumnFamName fn,  byte[] storedBytes) throws IOException {
+		
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug("Scanner Result Output PK bytes length :" + pk.length); 
+			
 		int length = ( null == storedBytes ) ? 0 : storedBytes.length;
 		if ( length == 0 ) return;
 		records.add(new HSearchTablerRow(pk, fn, storedBytes));

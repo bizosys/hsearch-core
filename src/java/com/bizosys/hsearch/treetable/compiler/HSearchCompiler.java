@@ -268,11 +268,11 @@ public class HSearchCompiler {
 		for ( Column column : schema.columns ) {
 			
 			if ( isFirst ) isFirst = false;
-			else plugins.append("else ");
+			else plugins.append("\t\telse ");
 			
-			plugins.append("if ( type == \"").append(column.name).append("\") {\n");
-			plugins.append("\treturn new HSearchPlugin").append(column.name).append("();\n");
-			plugins.append("}\n");
+			plugins.append("if ( type.equals(\"").append(column.name).append("\") ) {\n");
+			plugins.append("\t\t\treturn new HSearchPlugin").append(column.name).append("();\n");
+			plugins.append("\t\t}\n");
 		}
 		
 		template = template.replace("--CREATE-PLUGINS--", plugins.toString());

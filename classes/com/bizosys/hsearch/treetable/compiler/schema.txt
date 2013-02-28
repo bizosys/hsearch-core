@@ -48,8 +48,8 @@
             },
             
             "partitions": {
-                "family": "a,d,h,k,n,q,t",
-                "ranges": "a:c,d:g,h:j,k:m,n:p,q:s,t:z"
+                "family": "",
+                "ranges": ""
             }	
 		}        
     ]

@@ -1,14 +1,24 @@
 package --PACKAGE--;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
+import com.bizosys.hsearch.hbase.HbaseLog;
 
 public class HBaseHSearchFilter extends HSearchGenericFilter {
 
-	boolean DEBUG_ENABLED = true;
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	
+	private HBaseHSearchFilter(){
+		
+	}
+	
+	public HBaseHSearchFilter(String query, Map<String, String> details){
+		super(query, details);
+	}
 	
 	@Override
 	public HSearchTableMultiQueryExecutor createExector() {
@@ -19,7 +29,7 @@ public class HBaseHSearchFilter extends HSearchGenericFilter {
 	@Override
 	public IHSearchPlugin createPlugIn(String type) throws IOException {
 		if ( DEBUG_ENABLED ) {
-			System.out.println(Thread.currentThread().getId() + " > HSearchGenericFilterImpl : type > " + type );
+			HbaseLog.l.debug(Thread.currentThread().getId() + " > HBaseHSearchFilter : type > " + type );
 		}
 		
 		--CREATE-PLUGINS--

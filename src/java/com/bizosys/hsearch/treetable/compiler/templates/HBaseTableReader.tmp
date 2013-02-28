@@ -1,6 +1,7 @@
 package --PACKAGE--;
 
 import java.util.Map;
+import java.util.HashMap;
 
 import com.bizosys.hsearch.hbase.IScanCallBack;
 import com.bizosys.hsearch.treetable.storage.HBaseCoProcessorsAgreegator;
@@ -12,12 +13,29 @@ public class HBaseTableReader extends HSearchTableReader {
 	@Override
 	public HSearchGenericFilter getFilter(String multiQuery,
 			Map<String, String> multiQueryParts) {
-		return new HBaseHSearchFilter();
+
+		return new HBaseHSearchFilter(multiQuery, multiQueryParts);
 	}
 
 	@Override
 	public IScanCallBack getResultCollector() {
 		return new HBaseCoProcessorsAgreegator();
 	}
+
+    public static void main(String[] args) throws Exception {
+        
+    	HBaseTableReader ht = new HBaseTableReader();
+
+        Map<String, String> multiQueryParts = new HashMap<String, String>();
+        multiQueryParts.put("EmpDetail:A", "m|1|[1:7432]|[1:4]|*|[1:758320]|*");
+        multiQueryParts.put("EmpDetail:B", "m|3|[15:7432]|[1:4]|*|[1:758320]|*");
+
+        long start = System.currentTimeMillis();
+
+        ht.read("EmpDetail:A OR EmpDetail:B", multiQueryParts, false, false);
+
+        long end = System.currentTimeMillis();
+        System.out.println(" finished in  " + (end - start) + " millis ");
+    }
 
 }

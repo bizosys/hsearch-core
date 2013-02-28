@@ -31,6 +31,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 
 import com.bizosys.hsearch.federate.QueryPart;
+import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
@@ -41,7 +42,8 @@ import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
  */
 public abstract class HSearchGenericFilter implements Filter {
 
-	boolean DEBUG_ENABLED = true;
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+
 	String multiQuery = null;
 	Map<String, String> queryFilters = null;
 	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>();
@@ -76,7 +78,7 @@ public abstract class HSearchGenericFilter implements Filter {
 		}
 		
 		if ( DEBUG_ENABLED ) {
-			System.out.println("Sending to HBase : " + sb.toString());
+			HbaseLog.l.debug("Sending to HBase : " + sb.toString());
 		}
 		
 		byte[] ser = sb.toString().getBytes();
@@ -106,6 +108,11 @@ public abstract class HSearchGenericFilter implements Filter {
 				this.multiQuery = stk.nextToken();
 				this.queryPayload = new HashMap<String, QueryPart>();
 				isFirst = false;
+
+				if ( DEBUG_ENABLED ) {
+					HbaseLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
+				}
+				
 			} else {
 				String line = stk.nextToken();
 				int splitIndex = line.indexOf('=');
@@ -122,10 +129,19 @@ public abstract class HSearchGenericFilter implements Filter {
 				String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
 				String qId =  colNameQuolonId.substring(colNameAndQIdSplitIndex+1);
 				
+				if ( DEBUG_ENABLED ) {
+					HbaseLog.l.debug("colName:qId = " + colName + "/" + qId);
+				}
+				
 				colIdWithType.put(qId, colName);
 				
 				this.queryPayload.put(
 						colNameQuolonId, new QueryPart(filtersPipeSeparated, HSearchTableMultiQueryExecutor.PLUGIN,createPlugIn(colName) ) );
+
+				if ( DEBUG_ENABLED ) {
+					HbaseLog.l.debug("HBase Region Server: Query Payload" +  line);
+				}
+			
 			}
 		}
 	}
@@ -135,6 +151,11 @@ public abstract class HSearchGenericFilter implements Filter {
 		if ( null == kvL) return;
 		int kvT = kvL.size();
 		if ( 0 == kvT) return;
+		
+		if ( DEBUG_ENABLED ) {
+			HbaseLog.l.debug("Processing @ Region Server : filterRow" );
+		}
+		
 		
 		try {
 			byte[] row = null;
@@ -169,6 +190,9 @@ public abstract class HSearchGenericFilter implements Filter {
 				}
 			}
 			
+			if ( DEBUG_ENABLED ) {
+				HbaseLog.l.debug("queryData HSearchTableParts creation. ");
+			}
 			
 			Map<String, HSearchTableParts> queryData = new HashMap<String, HSearchTableParts>();
 			for (String queryId : colIdWithType.keySet()) { //A
@@ -179,6 +203,10 @@ public abstract class HSearchGenericFilter implements Filter {
 			colParts.clear();
 			colParts = null;
 
+			if ( DEBUG_ENABLED ) {
+				HbaseLog.l.debug("intersector.executeForCols ");
+			}
+			
 			byte[] intersectedIds = intersector.executeForCols(
 					queryData, this.multiQuery, this.queryPayload);
 			
