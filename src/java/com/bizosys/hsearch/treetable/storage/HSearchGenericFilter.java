@@ -176,12 +176,14 @@ public abstract class HSearchGenericFilter implements Filter {
 				String fName = new String(kv.getFamily());
 				
 				int fNameI = fName.indexOf('_');
-				fName = fName.substring(0, fNameI - 1);
+				if ( fNameI > -1 ) fName = fName.substring(0, fNameI - 1);
 				
 				HSearchTableParts parts =  null;
 				if ( colParts.containsKey(fName)) {
+					System.out.println("Adding parts to " + fName );
 					parts = colParts.get(fName);
 				} else {
+					System.out.println("New parts " + fName );
 					parts = new HSearchTableParts();
 					colParts.put(fName, parts);
 				}
@@ -202,7 +204,14 @@ public abstract class HSearchGenericFilter implements Filter {
 			for (String queryId : colIdWithType.keySet()) { //A
 				String queryType = colIdWithType.get(queryId); //structured
 				HSearchTableParts parts = colParts.get(queryType);
-				queryData.put((queryType + ":" + queryId), parts);
+				
+				String queryTypeWithId = queryType + ":" + queryId;
+				System.out.println(queryTypeWithId);
+				if ( DEBUG_ENABLED ) {
+					HbaseLog.l.debug("Query Parts for " + queryTypeWithId);
+				}
+				
+				queryData.put(queryTypeWithId, parts);
 			}
 			colParts.clear();
 			colParts = null;

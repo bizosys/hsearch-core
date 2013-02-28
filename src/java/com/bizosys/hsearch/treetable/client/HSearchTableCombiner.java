@@ -44,20 +44,29 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		}
 		
 		Object tablePartsO = stmtParams.get(HSearchTableMultiQueryExecutor.TABLE_PARTS);
-		HSearchTableParts tableParts = (HSearchTableParts) tablePartsO ;
 		
-		if ( null == tableParts) {
-			System.err.println("Warning : Null table parts for > " + tableType + ":" + aStmtOrValue);
+		if ( null == tablePartsO) {
+			System.err.println("Warning : Null Column data for > " + tableType + " For Query " + aStmtOrValue);
+			for (String key : stmtParams.keySet()) {
+				System.err.println("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
+			}
 		}
+		HSearchTableParts tableParts = (HSearchTableParts) tablePartsO ;
 		
 		IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 		if ( null == plugin) {
 			System.err.println("Warning : Null plugin for > " + tableType + ":" + aStmtOrValue);
+			for (String key : stmtParams.keySet()) {
+				System.err.println("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
+			}
 		}
 
 		Object outputTypeO = stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
 		if ( null == outputTypeO) {
 			System.err.println("Warning : No output type for > " + tableType + ":" + aStmtOrValue);
+			for (String key : stmtParams.keySet()) {
+				System.err.println("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
+			}
 		}
 		Integer outputType = ( null != outputTypeO) ? (Integer) outputTypeO : HSearchTableMultiQueryExecutor.OUTPUT_COLS;
 		
