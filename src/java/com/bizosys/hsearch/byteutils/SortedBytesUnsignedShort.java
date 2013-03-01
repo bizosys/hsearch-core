@@ -2,6 +2,7 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class SortedBytesUnsignedShort extends SortedBytesBase<Integer>{
@@ -131,15 +132,115 @@ public class SortedBytesUnsignedShort extends SortedBytesBase<Integer>{
 			
 		}
 	}	
+
+
+	@Override
+	public final Collection<Integer> getGreaterThanIndexes(Integer matchNo) throws IOException {
+		Collection<Integer> matchingPos = new ArrayList<Integer>();
+		int compensatedMatchingValS = getShort(matchNo);
+		getGreaterThanIndexes(compensatedMatchingValS, matchingPos);
+		return matchingPos;
+	}
+	
+	@Override
+	public final void getGreaterThanIndexes(Integer matchNo, Collection<Integer> matchingPos) throws IOException {
+		int compensatedMatchingValS = getShort(matchNo);
+		this.computeGTGTEQIndexes(compensatedMatchingValS, matchingPos, false);
+	}
+
+	@Override
+	public final Collection<Integer> getGreaterThanEqualToIndexes(Integer matchNo) throws IOException {
+		Collection<Integer> matchingPos = new ArrayList<Integer>();
+		int compensatedMatchingValS = getShort(matchNo);
+		getGreaterThanEqualToIndexes(compensatedMatchingValS, matchingPos);
+		return matchingPos;
+	}
+	
+	@Override
+	public final void getGreaterThanEqualToIndexes(Integer matchNo, Collection<Integer> matchingPos) throws IOException {
+		int compensatedMatchingValS = getShort(matchNo);
+		this.computeGTGTEQIndexes(compensatedMatchingValS, matchingPos, true);
+	}
+	
+	@Override
+	public final Collection<Integer> getLessThanIndexes(Integer matchingNo) throws IOException {
+		int compensatedMatchingValS = getShort(matchingNo);
+		Collection<Integer> matchingPos = new ArrayList<Integer>();
+		computeLTLTEQIndexes(compensatedMatchingValS, matchingPos, false);
+		return matchingPos;
+		
+	}
+	
+	@Override
+	public final void getLessThanIndexes(Integer matchingNo, Collection<Integer> matchingPos ) throws IOException {
+		int compensatedMatchingValS = getShort(matchingNo);
+		computeLTLTEQIndexes(compensatedMatchingValS, matchingPos, false);
+	}
 	
 	
 	@Override
-	protected void computeRangeIndexes(Integer matchingValS, Integer matchingValE, 
-			boolean isStartInclusive, boolean isEndInclusive, Collection<Integer> matchingPos) throws IOException {
+	public final Collection<Integer> getLessThanEqualToIndexes(Integer matchingNo) throws IOException {
+		Collection<Integer> matchingPos = new ArrayList<Integer>();
+		int compensatedMatchingValS = getShort(matchingNo);
+		getLessThanEqualToIndexes(compensatedMatchingValS,matchingPos) ;
+		return matchingPos;
+	}
+
+	@Override
+	public final void getLessThanEqualToIndexes(Integer matchingNo, Collection<Integer> matchingPos) throws IOException {
+		int compensatedMatchingValS = getShort(matchingNo);
+		computeLTLTEQIndexes(compensatedMatchingValS, matchingPos, true);
+	}
+
+
+
+	@Override
+	public final Collection<Integer> getRangeIndexes(Integer matchNoStart, Integer matchNoEnd) throws IOException {
+		Collection<Integer> matchingPos = new ArrayList<Integer>();
+		int compensatedMatchingValS = getShort(matchNoStart);
+		int compensatedMatchingValE = getShort(matchNoEnd);
+		getRangeIndexes(compensatedMatchingValS, compensatedMatchingValE, matchingPos);
+		return matchingPos;
 		
-		int compensatedMatchingValS = getShort(matchingValS);
-		super.computeRangeIndexes( (int) compensatedMatchingValS, (int) getShort(matchingValE),
-				isStartInclusive, isEndInclusive, matchingPos);
+	}
+
+	@Override
+	public final void getRangeIndexes(Integer matchNoStart, Integer matchNoEnd, Collection<Integer> matchings) throws IOException {
+		int compensatedMatchingValS = getShort(matchNoStart);
+		int compensatedMatchingValE = getShort(matchNoEnd);
+		computeRangeIndexes(compensatedMatchingValS, compensatedMatchingValE, false, false, matchings);		
+	}
+	
+	@Override
+	public final Collection<Integer> getRangeIndexesInclusive(Integer matchNoStart, Integer matchNoEnd) throws IOException {
+		int compensatedMatchingValS = getShort(matchNoStart);
+		int compensatedMatchingValE = getShort(matchNoEnd);
+		Collection<Integer> matchingPos = new ArrayList<Integer>();
+		getRangeIndexesInclusive(compensatedMatchingValS, compensatedMatchingValE);
+		return matchingPos;
+	}
+	
+	public final void getRangeIndexesInclusive(Integer matchNoStart, Integer matchNoEnd, Collection<Integer> matchings) throws IOException {
+		int compensatedMatchingValS = getShort(matchNoStart);
+		int compensatedMatchingValE = getShort(matchNoEnd);
+		computeRangeIndexes(compensatedMatchingValS, compensatedMatchingValE, true, true, matchings);		
+	}
+	
+
+	@Override
+	public final Collection<Integer> getRangeIndexesInclusive(Integer matchNoStart, boolean startMatch, Integer matchNoEnd, boolean endMatch) throws IOException {
+		int compensatedMatchingValS = getShort(matchNoStart);
+		int compensatedMatchingValE = getShort(matchNoEnd);
+		Collection<Integer> matchingPos = new ArrayList<Integer>();
+		getRangeIndexesInclusive(compensatedMatchingValS, startMatch, compensatedMatchingValE, endMatch, matchingPos);		
+		return matchingPos;
+	}
+
+	@Override
+	public final void getRangeIndexesInclusive(Integer matchNoStart, boolean startMatch, Integer matchNoEnd, boolean endMatch, Collection<Integer> matchings) throws IOException {
+		int compensatedMatchingValS = getShort(matchNoStart);
+		int compensatedMatchingValE = getShort(matchNoEnd);
+		computeRangeIndexes(compensatedMatchingValS, compensatedMatchingValE, startMatch, endMatch, matchings);		
 	}
 		
 }
