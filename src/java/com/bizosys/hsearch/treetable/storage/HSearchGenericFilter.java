@@ -29,12 +29,14 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.log4j.Level;
 
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
+import com.bizosys.hsearch.treetable.client.L;
 
 /**
  * @author abinash
@@ -48,6 +50,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	Map<String, String> queryFilters = null;
 	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>();
 	Map<String, String> colIdWithType = new HashMap<String, String>();
+	boolean hasMatchingIds = false;
 
 	public HSearchGenericFilter(){
 	}
@@ -94,55 +97,61 @@ public abstract class HSearchGenericFilter implements Filter {
 	 */
 	@Override
 	public void readFields(DataInput in) throws IOException {
-		int length = in.readInt();
-		if ( 0 == length) throw new IOException("Invalid Query");
-		
-		byte[] ser = new byte[length];
-		in.readFully(ser, 0, length);
-
-		StringTokenizer stk = new StringTokenizer(new String(ser), "\n");
-		
-		boolean isFirst = true;
-		while ( stk.hasMoreTokens() ) {
-			if ( isFirst ) {
-				this.multiQuery = stk.nextToken();
-				this.queryPayload = new HashMap<String, QueryPart>();
-				isFirst = false;
-
-				if ( DEBUG_ENABLED ) {
-					HbaseLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
-				}
-				
-			} else {
-				String line = stk.nextToken();
-				int splitIndex = line.indexOf('=');
-				if ( -1 == splitIndex) throw new IOException("Expecting [=] in line " + line);
-				
-				String colNameQuolonId = line.substring(0,splitIndex);
-				String filtersPipeSeparated =  line.substring(splitIndex+1);
-				
-				int colNameAndQIdSplitIndex = colNameQuolonId.indexOf(':');
-				if ( -1 == colNameAndQIdSplitIndex || colNameQuolonId.length() - 1 == colNameAndQIdSplitIndex) {
-					throw new IOException("Sub queries expected as  X:Y eg.\n" + 
-							 "structured:A OR unstructured:B\nstructured:A=f|1|1|1|c|*|*\nunstructured:B=*|*|*|*|*|*");
-				}
-				String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
-				String qId =  colNameQuolonId.substring(colNameAndQIdSplitIndex+1);
-				
-				if ( DEBUG_ENABLED ) {
-					HbaseLog.l.debug("colName:qId = " + colName + "/" + qId);
-				}
-				
-				colIdWithType.put(qId, colName);
-				
-				this.queryPayload.put(
-						colNameQuolonId, new QueryPart(filtersPipeSeparated, HSearchTableMultiQueryExecutor.PLUGIN,createPlugIn(colName) ) );
-
-				if ( DEBUG_ENABLED ) {
-					HbaseLog.l.debug("HBase Region Server: Query Payload" +  line);
-				}
+		try {
+			int length = in.readInt();
+			if ( 0 == length) throw new IOException("Invalid Query");
 			
+			byte[] ser = new byte[length];
+			in.readFully(ser, 0, length);
+
+			StringTokenizer stk = new StringTokenizer(new String(ser), "\n");
+			
+			boolean isFirst = true;
+			while ( stk.hasMoreTokens() ) {
+				if ( isFirst ) {
+					this.multiQuery = stk.nextToken();
+					this.queryPayload = new HashMap<String, QueryPart>();
+					isFirst = false;
+
+					if ( DEBUG_ENABLED ) {
+						HbaseLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
+					}
+					
+				} else {
+					String line = stk.nextToken();
+					int splitIndex = line.indexOf('=');
+					if ( -1 == splitIndex) throw new IOException("Expecting [=] in line " + line);
+					
+					String colNameQuolonId = line.substring(0,splitIndex);
+					String filtersPipeSeparated =  line.substring(splitIndex+1);
+					
+					int colNameAndQIdSplitIndex = colNameQuolonId.indexOf(':');
+					if ( -1 == colNameAndQIdSplitIndex || colNameQuolonId.length() - 1 == colNameAndQIdSplitIndex) {
+						throw new IOException("Sub queries expected as  X:Y eg.\n" + 
+								 "structured:A OR unstructured:B\nstructured:A=f|1|1|1|c|*|*\nunstructured:B=*|*|*|*|*|*");
+					}
+					String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
+					String qId =  colNameQuolonId.substring(colNameAndQIdSplitIndex+1);
+					
+					if ( DEBUG_ENABLED ) {
+						HbaseLog.l.debug("colName:qId = " + colName + "/" + qId);
+					}
+					
+					colIdWithType.put(qId, colName);
+					
+					this.queryPayload.put(
+							colNameQuolonId, new QueryPart(filtersPipeSeparated, HSearchTableMultiQueryExecutor.PLUGIN,createPlugIn(colName) ) );
+
+					if ( DEBUG_ENABLED ) {
+						HbaseLog.l.debug("HBase Region Server: Query Payload" +  line);
+					}
+				
+				}
 			}
+		} catch (Exception ex) {
+			L.getInstance().flush();
+		} finally {
+			L.getInstance().clear();
 		}
 	}
 	
@@ -180,10 +189,8 @@ public abstract class HSearchGenericFilter implements Filter {
 				
 				HSearchTableParts parts =  null;
 				if ( colParts.containsKey(fName)) {
-					System.out.println("Adding parts to " + fName );
 					parts = colParts.get(fName);
 				} else {
-					System.out.println("New parts " + fName );
 					parts = new HSearchTableParts();
 					colParts.put(fName, parts);
 				}
@@ -206,7 +213,7 @@ public abstract class HSearchGenericFilter implements Filter {
 				HSearchTableParts parts = colParts.get(queryType);
 				
 				String queryTypeWithId = queryType + ":" + queryId;
-				System.out.println(queryTypeWithId);
+				HbaseLog.l.debug(queryTypeWithId);
 				if ( DEBUG_ENABLED ) {
 					HbaseLog.l.debug("Query Parts for " + queryTypeWithId);
 				}
@@ -223,8 +230,19 @@ public abstract class HSearchGenericFilter implements Filter {
 			byte[] intersectedIds = intersector.executeForCols(
 					queryData, this.multiQuery, this.queryPayload);
 			
+			if ( DEBUG_ENABLED ) {
+				HbaseLog.l.debug( new String(row) + " has ids of :" + intersectedIds.length);
+			}
+			
+			hasMatchingIds = ( null != intersectedIds && intersectedIds.length > 0 );
+			
+			HbaseLog.l.debug("Generaic filter hasMatchingIds :"+hasMatchingIds);
+			
 			kvL.clear();
-			kvL.add(new KeyValue(row, firstFamily, firstCol, intersectedIds));
+			if ( hasMatchingIds) {
+				kvL.add(new KeyValue(row, firstFamily, firstCol, intersectedIds));
+			}
+			
 		} catch (Exception ex) {
 			ex.printStackTrace(System.err);
 		} 
@@ -232,6 +250,7 @@ public abstract class HSearchGenericFilter implements Filter {
 
 	@Override
 	public void reset() {
+		hasMatchingIds = false;
 	}	
 	
 	@Override

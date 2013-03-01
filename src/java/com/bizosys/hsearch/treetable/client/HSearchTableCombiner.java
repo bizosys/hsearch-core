@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
@@ -34,7 +35,7 @@ import com.bizosys.hsearch.treetable.client.L;
 
 public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 
-	static boolean DEBUG_ENABLED = false;
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	public void concurrentDeser(String aStmtOrValue, Map<String, Object> stmtParams, String tableType) throws Exception {
 		
@@ -59,7 +60,9 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 			for (String key : stmtParams.keySet()) {
 				System.err.println("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
 			}
+			return;
 		}
+		plugin.reset();
 
 		Object outputTypeO = stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
 		if ( null == outputTypeO) {
@@ -80,11 +83,10 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 			tasks.add(deserTask);
 		}
 		if ( tasks.size() > 1 ) {
+			if ( DEBUG_ENABLED ) L.getInstance().logDebug( tasks.size() + " Processing in parallel.");
 			HSearchTableResourcesDefault.getInstance().cpuIntensiveJobExecutor.invokeAll(tasks);
 		} else {
-			int i = 0;
 			for ( TableDeserExecutor deserExec : tasks) {
-				if ( DEBUG_ENABLED ) L.getInstance().logDebug( (i++) + "concurrentDeser Exit");
 				deserExec.call(); 
 			}
 		}

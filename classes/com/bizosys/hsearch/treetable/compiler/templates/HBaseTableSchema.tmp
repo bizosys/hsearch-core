@@ -1,4 +1,4 @@
-package --PACKAGE--;
+package --PACKAGE--.donotmodify;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -45,6 +45,13 @@ public class HSearchCompiler {
 		
 			
 		//System.out.println(schemaStr);
+		
+		File file = new File(args[1] + "/donotmodify");
+		if ( ! file.mkdirs() ) {
+			System.err.println("Not able to create directory : " + file.getAbsolutePath());
+			return;
+		}
+		
 
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
 
@@ -55,28 +62,25 @@ public class HSearchCompiler {
 			allFields.add(col.value);
 			
 			FileWriterUtil.downloadToFile(generateHSearchTable(newSchema.module, col.key, col.value, col.name, allFields).getBytes(), 
-					new File(args[1] + "/HSearchTable" + col.name + ".java") );
+					new File(args[1] + "/donotmodify/HSearchTable" + col.name + ".java") );
 
 			FileWriterUtil.downloadToFile(generateHSearchPlugin(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
 					new File(args[1] + "/HSearchPlugin" + col.name + ".java") );
 			
 			FileWriterUtil.downloadToFile(generateHSearchTableCombinerImpl(newSchema).getBytes(), 
-					new File(args[1] + "/HSearchTableCombinerImpl.java") );
+					new File(args[1] + "/donotmodify/HSearchTableCombinerImpl.java") );
 			
 			FileWriterUtil.downloadToFile(generateHSearchTableMultiQueryProcessorImpl(newSchema.module, col.key, col.value, allFields).getBytes(), 
-					new File(args[1] + "/HSearchTableMultiQueryProcessorImpl.java") );
+					new File(args[1] + "/donotmodify/HSearchTableMultiQueryProcessorImpl.java") );
 						
-			FileWriterUtil.downloadToFile(generateHBaseCoprocessorAggregator(newSchema.module, col.key, col.value, allFields).getBytes(), 
-					new File(args[1] + "/HBaseCoprocessorAggregator.java") );
-
 			FileWriterUtil.downloadToFile(generateHBaseHSearchFilter(newSchema).getBytes(), 
-					new File(args[1] + "/HBaseHSearchFilter.java") );
+					new File(args[1] + "/donotmodify/HBaseHSearchFilter.java") );
 
 			FileWriterUtil.downloadToFile(generateHBaseTableReader(newSchema.module, col.key, col.value, allFields).getBytes(), 
 					new File(args[1] + "/HBaseTableReader.java") );
 
 			FileWriterUtil.downloadToFile(generateHBaseTableSchema(newSchema).getBytes(), 
-					new File(args[1] + "/HBaseTableSchema.java") );
+					new File(args[1] + "/donotmodify/HBaseTableSchema.java") );
 
 		}
 
@@ -220,13 +224,6 @@ public class HSearchCompiler {
 	public static String generateHSearchTableMultiQueryProcessorImpl(String module, Field key, Field val,
 			List<Field> allFields) throws Exception {
 		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTableMultiQueryProcessorImpl.tmp");
-		template = template.replace("--PACKAGE--", module);
-		return template;
-	}
-	
-	public static String generateHBaseCoprocessorAggregator(String module, Field key, Field val,
-			List<Field> allFields) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HBaseCoprocessorAggregator.tmp");
 		template = template.replace("--PACKAGE--", module);
 		return template;
 	}

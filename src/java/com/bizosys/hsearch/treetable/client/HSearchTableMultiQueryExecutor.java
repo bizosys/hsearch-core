@@ -28,6 +28,7 @@ import com.bizosys.hsearch.byteutils.ByteArrays.ArrayInt.Builder;
 import com.bizosys.hsearch.federate.FederatedFacade;
 import com.bizosys.hsearch.federate.FederatedFacade.IRowId;
 import com.bizosys.hsearch.federate.QueryPart;
+import com.bizosys.hsearch.hbase.HbaseLog;
 
 /**
  * Concurrent: 
@@ -39,7 +40,7 @@ import com.bizosys.hsearch.federate.QueryPart;
  */
 public class HSearchTableMultiQueryExecutor {
 
-	static boolean DEBUG_ENABLED = false;
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	public static final String OUTPUT_TYPE = "outputType";
 	public static final String PLUGIN = "plugin";
@@ -85,23 +86,30 @@ public class HSearchTableMultiQueryExecutor {
 			Map<String,QueryPart> multiQueryParts, int resultType) throws Exception {
 		
 		if ( null == tableParts) {
-			System.err.println("Warning : TableParts is not found. Input bytes are not set.");
+			String msg = "Warning : TableParts is not found. Input bytes are not set.";
+			System.err.println(msg); HbaseLog.l.warn(msg);
 			return null;
 		}
 		
 		for (String queryId : multiQueryParts.keySet()) {
 			HSearchTableParts part = tableParts.get(queryId); 
 			
-			if ( null == part) System.err.println("Warning : Null table part bytes for " + queryId + "\n" + 
-					queryId + " is not in the supplied set :" + tableParts.keySet().toString());
+			if ( null == part) {
+				String msg = ("Warning : Null table part bytes for " + queryId + "\n" + 
+						queryId + " is not in the supplied set :" + tableParts.keySet().toString());
+				System.err.println(msg); HbaseLog.l.warn(msg);
+				return null;
+			}
 			
 			multiQueryParts.get(queryId).setParam(HSearchTableMultiQueryExecutor.TABLE_PARTS, part);
 			multiQueryParts.get(queryId).setParam(HSearchTableMultiQueryExecutor.OUTPUT_TYPE, resultType);
 		}
 		
+		System.out.println("HSearchTestMultiQuery : getProcessor ENTER ");
 		FederatedFacade<Long, Integer> ff = processor.getProcessor();
+		System.out.println("HSearchTestMultiQuery : ff.execute ENTER ");
 		List<FederatedFacade<Long, Integer>.IRowId> matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
-		
+
 		if  ( DEBUG_ENABLED ) {
 			StringBuilder sb = new StringBuilder();
 			
@@ -109,7 +117,7 @@ public class HSearchTableMultiQueryExecutor {
 				if ( sb.length() > 0) sb.append(',');
 				sb.append(iRowId.getDocId().toString());
 			}
-			L.getInstance().logDebug(" MultiQuery Output Ids :" + sb.toString());
+			HbaseLog.l.debug("MultiQuery Output Ids: [" + sb.toString() + "]");
 		}
 		
 		return serializeMatchingIds(matchingIds);

@@ -1,4 +1,4 @@
-package --PACKAGE--;
+package --PACKAGE--.donotmodify;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -16,6 +16,8 @@ import com.bizosys.hsearch.byteutils.SortedBytesUnsignedShort;
 import com.bizosys.hsearch.byteutils.SortedBytesChar;
 import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
+
+import --PACKAGE--.*;
 
 --IMPORT-CELLS--
 

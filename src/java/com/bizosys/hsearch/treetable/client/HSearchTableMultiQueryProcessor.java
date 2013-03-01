@@ -26,10 +26,11 @@ import java.util.List;
 import java.util.Map;
 
 import com.bizosys.hsearch.federate.FederatedFacade;
+import com.bizosys.hsearch.hbase.HbaseLog;
 
 public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMultiQueryProcessor {
 
-	boolean DEBUG_ENABLED = false;
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	public final static List<com.bizosys.hsearch.federate.FederatedFacade<Long, Integer>.IRowId> noIdsFound = 
 			new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<Long, Integer>.IRowId>(0);
@@ -40,6 +41,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 	
 	public HSearchTableMultiQueryProcessor() {
 		processor = build();
+		processor.DEBUG_MODE = DEBUG_ENABLED;
 	}
 	
 	public FederatedFacade<Long, Integer> getProcessor() { 
@@ -55,6 +57,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 			public List<FederatedFacade<Long, Integer>.IRowId> populate(
 					String type, String multiQueryPartId, String aStmtOrValue, Map<String, Object> stmtParams) throws IOException {
 
+				if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "HSearchTableMultiQuery.populate ENTER.");
 				long startTime = System.currentTimeMillis();
 				long endTime = -1L;
 				try {

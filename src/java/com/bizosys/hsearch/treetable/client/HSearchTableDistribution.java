@@ -27,11 +27,12 @@ import java.util.StringTokenizer;
 
 import com.bizosys.hsearch.byteutils.ByteArrays;
 import com.bizosys.hsearch.byteutils.SortedBytesDouble;
+import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.CellBase;
 
 public class HSearchTableDistribution {
 	
-	private static boolean DEBUG_ENABLED = false;
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	private static HSearchTableDistribution singleton =  new HSearchTableDistribution();
 	

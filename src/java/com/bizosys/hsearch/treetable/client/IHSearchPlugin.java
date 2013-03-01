@@ -24,4 +24,5 @@ import java.util.Collection;
 public interface IHSearchPlugin {
 	Collection<Integer> getUniqueRowKeys() throws Exception;
 	void onComplete();
+	void reset();
 }

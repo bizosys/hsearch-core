@@ -54,6 +54,7 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	
 	/**
 	 * Called when all items are processed
+	 * Do not clear the ids here as the getUniqueRowKeys() are called after the onComplete.
 	 */
 	public void onComplete() {
 	}
@@ -70,6 +71,11 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	
 	public Collection<--KEY_DATATYPE--> getUniqueRowKeys() throws Exception{
 		return this.ids.values();
-	}	
+	}
+	
+	public void reset() {
+		this.ids.clear();
+	}
+		
 	
 }

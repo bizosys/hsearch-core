@@ -26,12 +26,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.bizosys.hsearch.hbase.HbaseLog;
+
 /**
  * 	@author abinash
  */
 public class HSearchQuery {
 
-	static boolean DEBUG_ENABLED = true;
+	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	private static final char RANGE_SEPARATOR = ':';
 	private static final char FIELD_SEPARATOR = '|';
