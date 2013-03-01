@@ -29,22 +29,22 @@ public final class DistributionPartionFloat {
 	protected float[] distributes(Collection<Float> inputs, int parts) {
 		
 		float[] output = new float[parts - 1];
-		float[] ranges = new float[]{MathematicalMinimums.FLOAT_MIN_VAL, Float.MAX_VALUE};
+		float[] ranges = new float[]{Integer.MIN_VALUE, Integer.MAX_VALUE};
 		GravityCenter gc = distribute(inputs, ranges);
 		output[0] = gc.avgValue;
 		//System.out.println(output[0]);
-		ranges = new float[]{MathematicalMinimums.FLOAT_MIN_VAL, gc.avgValue};
+		ranges = new float[]{Integer.MIN_VALUE, gc.avgValue};
 		for ( int i=1; i< (parts/2); i++) {
 			GravityCenter mingc = distribute(inputs, ranges);
 			output[i] = mingc.avgValue;
-			ranges = new float[]{MathematicalMinimums.FLOAT_MIN_VAL, mingc.avgValue};
+			ranges = new float[]{Integer.MIN_VALUE, mingc.avgValue};
 		}
 
-		ranges = new float[]{gc.avgValue, Float.MAX_VALUE};
+		ranges = new float[]{gc.avgValue, Integer.MAX_VALUE};
 		for ( int i=parts/2; i< parts - 1; i++) {
 			GravityCenter maxgc = distribute(inputs, ranges);
 			output[i] = maxgc.avgValue;
-			ranges = new float[]{maxgc.avgValue, Float.MAX_VALUE};
+			ranges = new float[]{maxgc.avgValue, Integer.MAX_VALUE};
 		}
 		
 		Arrays.sort(output);
@@ -96,8 +96,8 @@ public final class DistributionPartionFloat {
 	
 	
 	private void getAverage(Collection<Float> inputs, GravityCenter wts, float[] ranges) {
-		float min = Float.MAX_VALUE;
-		float max = MathematicalMinimums.FLOAT_MIN_VAL;
+		float min = Integer.MAX_VALUE;
+		float max = Integer.MIN_VALUE;
 		for (float i : inputs) {
 			if ( i < ranges[0] || i > ranges[1] ) continue;
 			if (i < min) min = i;

@@ -27,22 +27,22 @@ public final class DistributionPartionDouble {
 	protected double[] distributes(Collection<Double> inputs, int parts) {
 		
 		double[] output = new double[parts - 1];
-		double[] ranges = new double[]{Double.MIN_VALUE, Double.MAX_VALUE};
+		double[] ranges = new double[]{Long.MIN_VALUE, Long.MAX_VALUE};
 		GravityCenter gc = distribute(inputs, ranges);
 		output[0] = gc.avgValue;
 		System.out.println(output[0]);
-		ranges = new double[]{Double.MIN_VALUE, gc.avgValue};
+		ranges = new double[]{Long.MIN_VALUE, gc.avgValue};
 		for ( int i=1; i< (parts/2); i++) {
 			GravityCenter mingc = distribute(inputs, ranges);
 			output[i] = mingc.avgValue;
-			ranges = new double[]{Double.MIN_VALUE, mingc.avgValue};
+			ranges = new double[]{Long.MIN_VALUE, mingc.avgValue};
 		}
 
-		ranges = new double[]{gc.avgValue, Double.MAX_VALUE};
+		ranges = new double[]{gc.avgValue, Long.MAX_VALUE};
 		for ( int i=parts/2; i< parts - 1; i++) {
 			GravityCenter maxgc = distribute(inputs, ranges);
 			output[i] = maxgc.avgValue;
-			ranges = new double[]{maxgc.avgValue, Double.MAX_VALUE};
+			ranges = new double[]{maxgc.avgValue, Long.MAX_VALUE};
 		}
 		
 		Arrays.sort(output);
@@ -92,8 +92,8 @@ public final class DistributionPartionDouble {
 	
 	
 	private void getAverage(Collection<Double> inputs, GravityCenter wts, double[] ranges) {
-		double min = Double.MAX_VALUE;
-		double max = Double.MIN_VALUE;
+		double min = Long.MAX_VALUE;
+		double max = Long.MIN_VALUE;
 		for (double i : inputs) {
 			if ( i < ranges[0] || i > ranges[1] ) continue;
 			if (i < min) min = i;
