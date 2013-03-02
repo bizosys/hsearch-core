@@ -46,7 +46,7 @@ public class HTableWrapper {
 	/**
 	 * The table interface
 	 */
-	HTableInterface table = null;
+	public HTableInterface table = null;
 	
 	/**
 	 * Name of HBase table

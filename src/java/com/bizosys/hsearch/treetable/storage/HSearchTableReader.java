@@ -27,17 +27,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.hadoop.hbase.util.Bytes;
+
 import com.bizosys.hsearch.hbase.ColumnFamName;
+import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HReader;
+import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
-import com.bizosys.hsearch.hbase.ParallelHReader;
 
 public abstract class HSearchTableReader {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
-	public static ParallelHReader parallelReader = new ParallelHReader(10);
+	//public static ParallelHReader parallelReader = new ParallelHReader(10);
 	
 	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts); 
 	public abstract IScanCallBack getResultCollector();
@@ -69,9 +72,27 @@ public abstract class HSearchTableReader {
 	
 		IScanCallBack recordsCollector = getResultCollector();
 		String tableName = HBaseTableSchemaDefn.getInstance().tableName;
+		
 		if ( isParallel ) {
 			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableReader > Searching in parallel.");
-			parallelReader.getAllValues(tableName, families, filter, recordsCollector);
+			/**
+			 * OLD Version
+			 * parallelReader.getAllValues(tableName, families, filter, recordsCollector);
+			 */
+			HTableWrapper table = HBaseFacade.getInstance().getTable(tableName);
+			
+	        try {
+	        	Map<byte[], long[]> results = new HSearchGenericCoProcessorFactory(families, filter).execCoprocessor(table);
+	            long total = 0;
+	            for (Map.Entry<byte[], long[]> entry : results.entrySet()) {
+	                total += results.size();
+	                System.out.println("Region: " + Bytes.toString(entry.getKey()) + ", Count: " + entry.getValue());
+	            }
+	            System.out.println("Total Count: " + total);
+	        } catch (Throwable throwable) {
+	            throwable.printStackTrace();
+	        }
+			
 		} else {
 			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableReader > Searching in Sequential.");
 			HReader.getAllValues(tableName,families, filter, recordsCollector);

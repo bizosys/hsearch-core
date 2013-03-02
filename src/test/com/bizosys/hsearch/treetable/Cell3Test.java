@@ -15,7 +15,7 @@ import com.oneline.ferrari.TestAll;
 public class Cell3Test extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[2];  
+		public static String mode = modes[0];  
 		
 		public static void main(String[] args) throws Exception {
 			Cell3Test t = new Cell3Test();

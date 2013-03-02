@@ -29,7 +29,6 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
-import org.apache.log4j.Level;
 
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.hbase.HbaseLog;
@@ -45,25 +44,35 @@ import com.bizosys.hsearch.treetable.client.L;
 public abstract class HSearchGenericFilter implements Filter {
 
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	
+	public static int OUTPUT_IDS = 0;
+	public static int OUTPUT_VALS = 1;
+	public static int OUTPUT_IDVALS = 2;
+	public static int OUTPUT_COLS = 3;
 
 	String multiQuery = null;
 	Map<String, String> queryFilters = null;
 	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>();
 	Map<String, String> colIdWithType = new HashMap<String, String>();
 	boolean hasMatchingIds = false;
+	
+	
+	int outputType = OUTPUT_IDS;
 
 	public HSearchGenericFilter(){
 	}
 	
-	public HSearchGenericFilter(String query, Map<String, String> details){
+	public HSearchGenericFilter(int outputType, String query, Map<String, String> details){
 		this.multiQuery = query;
 		this.queryFilters = details;
+		this.outputType = outputType;
 	}
 	
 	public abstract HSearchTableMultiQueryExecutor createExector();
 	public abstract IHSearchPlugin createPlugIn(String type) throws IOException ;
 
 	/**
+	 * output type
 	 * structured:A OR unstructured:B
 	 * structured:A=f|1|1|1|c|*|*
 	 * unstructured:B=*|*|*|*|*|*
@@ -71,6 +80,8 @@ public abstract class HSearchGenericFilter implements Filter {
 	@Override
 	public void write(DataOutput out) throws IOException {
 		StringBuilder sb = new StringBuilder();
+		
+		sb.append(new Integer(this.outputType).toString()).append('\n');
 		sb.append(this.multiQuery);
 		
 		if ( null != queryFilters) {
@@ -90,6 +101,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	}	
 
 	/**
+	 * output type
 	 * structured:A OR unstructured:B
 	 * structured:A=f|1|1|1|c|*|*
 	 * unstructured:B=*|*|*|*|*|*
@@ -128,7 +140,7 @@ public abstract class HSearchGenericFilter implements Filter {
 					int colNameAndQIdSplitIndex = colNameQuolonId.indexOf(':');
 					if ( -1 == colNameAndQIdSplitIndex || colNameQuolonId.length() - 1 == colNameAndQIdSplitIndex) {
 						throw new IOException("Sub queries expected as  X:Y eg.\n" + 
-								 "structured:A OR unstructured:B\nstructured:A=f|1|1|1|c|*|*\nunstructured:B=*|*|*|*|*|*");
+								 "family1:A OR family2:B\nfamily1:A=f|1|1|1|c|*|*\nfamily2:B=*|*|*|*|*|*");
 					}
 					String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
 					String qId =  colNameQuolonId.substring(colNameAndQIdSplitIndex+1);
@@ -282,4 +294,13 @@ public abstract class HSearchGenericFilter implements Filter {
 	public ReturnCode filterKeyValue(KeyValue arg0) {
 		return ReturnCode.INCLUDE;
 	}	
+	
+	/**
+	 * Version 0.94 FIX
+	 */
+	@Override
+	public KeyValue transform(KeyValue arg0) {
+		return arg0;
+	}
+	
 }

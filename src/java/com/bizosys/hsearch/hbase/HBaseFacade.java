@@ -144,8 +144,17 @@ public class HBaseFacade {
 	 */
 	public void putTable(HTableWrapper table) {
 		if ( null == pool ) return;
-		pool.putTable(table.table);
-		liveTables--;
+		try {
+			/**
+			 * 0.94 Version Fix
+			 */
+			table.table.close();
+		} catch (IOException ex) {
+			//Just ignore it.
+			ex.printStackTrace(System.err);
+		} finally {
+			liveTables--;
+		}
 	}
 	
 	/**
@@ -155,7 +164,12 @@ public class HBaseFacade {
 	 */
 	public void recycleTable(HTableWrapper table) throws IOException {
 		if ( null == pool ) return;
-		pool.putTable(table.table);
+		
+		/**
+		 * Version 0.94 FIX
+		 */
+		
+		table.table.close();
 		table.table = pool.getTable(table.tableName);
 	}	
 	

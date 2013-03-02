@@ -25,8 +25,9 @@ import java.util.List;
 
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
+import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 import org.apache.hadoop.hbase.io.hfile.Compression;
-import org.apache.hadoop.hbase.regionserver.StoreFile;
+import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.apache.log4j.Logger;
 
 import com.bizosys.hsearch.hbase.HDML;
@@ -52,12 +53,7 @@ public class HBaseTableSchemaCreator {
 	public HBaseTableSchemaCreator(){
 	}
 	
-	private static final String NO_COMPRESSION = Compression.Algorithm.NONE.getName();
-
-	private String partitionCompression = NO_COMPRESSION;	
-	private boolean partitionBlockCache = true;	
 	private int partitionBlockSize = 13035596;	
-	private String partitionBloomFilter = StoreFile.BloomType.NONE.toString();;	
 	private int partitionRepMode = HConstants.REPLICATION_SCOPE_GLOBAL;;	
 
 	/**
@@ -74,30 +70,16 @@ public class HBaseTableSchemaCreator {
 				
 				//Partitioned
 				for (String partition : def.familyNames.get(familyName)) {
-					HColumnDescriptor teaser = 
-							new HColumnDescriptor( (familyName + "_" + partition ).getBytes() ,
-								1, partitionCompression, 
-								false, partitionBlockCache,
-								partitionBlockSize,					
-								HConstants.FOREVER, 
-								partitionBloomFilter,
-								partitionRepMode);
-
-					colFamilies.add(teaser);
+					HColumnDescriptor rangeCols = new HColumnDescriptor( (familyName + "_" + partition ).getBytes());
+					configColumn(rangeCols);
+					colFamilies.add(rangeCols);
 				}
 				
 				//No Partition
 				if ( def.familyNames.get(familyName).size() == 0 ) {
-					HColumnDescriptor teaser = 
-							new HColumnDescriptor( (familyName).getBytes() ,
-								1, partitionCompression, 
-								false, partitionBlockCache,
-								partitionBlockSize,					
-								HConstants.FOREVER, 
-								partitionBloomFilter,
-								partitionRepMode);
-
-					colFamilies.add(teaser);
+					HColumnDescriptor rangeCols = new HColumnDescriptor( familyName.getBytes());
+					configColumn(rangeCols);
+					colFamilies.add(rangeCols);
 				}
 			}
 			
@@ -126,5 +108,20 @@ public class HBaseTableSchemaCreator {
 			compClazz = Compression.Algorithm.NONE.getName();
 		}
 		return compClazz;
+	}
+	
+	public void configColumn(HColumnDescriptor col) {
+		col.setMinVersions(1);
+		col.setMaxVersions(1);
+		col.setKeepDeletedCells(false);
+		col.setCompressionType(Compression.Algorithm.NONE);
+		col.setEncodeOnDisk(false);
+		col.setDataBlockEncoding(DataBlockEncoding.NONE);
+		col.setInMemory(false);
+		col.setBlockCacheEnabled(true);
+		col.setBlocksize(partitionBlockSize);
+		col.setTimeToLive(HConstants.FOREVER);
+		col.setBloomFilterType(BloomType.NONE);
+		col.setScope(partitionRepMode);
 	}
 }
