@@ -23,8 +23,6 @@ package com.bizosys.hsearch.treetable.client;
 import java.util.List;
 import java.util.Map;
 
-import com.bizosys.hsearch.byteutils.ByteArrays;
-import com.bizosys.hsearch.byteutils.ByteArrays.ArrayInt.Builder;
 import com.bizosys.hsearch.federate.FederatedFacade;
 import com.bizosys.hsearch.federate.FederatedFacade.IRowId;
 import com.bizosys.hsearch.federate.QueryPart;
@@ -56,33 +54,33 @@ public class HSearchTableMultiQueryExecutor {
 		this.processor = processor;
 	}
 	
-	public byte[] executeForIds (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<Long, String>.IRowId> executeForIds (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts ) throws Exception {
 		
 		return execute (tableParts, multiQueryStmt, multiQueryParts, HSearchTableMultiQueryExecutor.OUTPUT_ID);
 	}	
 
-	public byte[] executeForValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<Long, String>.IRowId> executeForValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts ) throws Exception {
 		
 		return execute (tableParts, multiQueryStmt, multiQueryParts, HSearchTableMultiQueryExecutor.OUTPUT_VAL);
 	}	
 
 
-	public byte[] executeForIdValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<Long, String>.IRowId> executeForIdValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts) throws Exception {
 
 		return execute (tableParts, multiQueryStmt, multiQueryParts, HSearchTableMultiQueryExecutor.OUTPUT_IDVAL);
 		
 	}	
 
-	public byte[] executeForCols (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<Long, String>.IRowId> executeForCols (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts ) throws Exception {
 		
 		return execute (tableParts, multiQueryStmt, multiQueryParts, HSearchTableMultiQueryExecutor.OUTPUT_COLS);
 	}	
 	
-	public byte[] execute (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<Long, String>.IRowId> execute (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts, int resultType) throws Exception {
 		
 		if ( null == tableParts) {
@@ -106,9 +104,9 @@ public class HSearchTableMultiQueryExecutor {
 		}
 		
 		System.out.println("HSearchTestMultiQuery : getProcessor ENTER ");
-		FederatedFacade<Long, Integer> ff = processor.getProcessor();
+		FederatedFacade<Long, String> ff = processor.getProcessor();
 		System.out.println("HSearchTestMultiQuery : ff.execute ENTER ");
-		List<FederatedFacade<Long, Integer>.IRowId> matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
+		List<FederatedFacade<Long, String>.IRowId> matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
 
 		if  ( DEBUG_ENABLED ) {
 			StringBuilder sb = new StringBuilder();
@@ -120,39 +118,6 @@ public class HSearchTableMultiQueryExecutor {
 			HbaseLog.l.debug("MultiQuery Output Ids: [" + sb.toString() + "]");
 		}
 		
-		return serializeMatchingIds(matchingIds);
+		return matchingIds;
 	}
-	
-	/**
-	 * Stream out data of only the  final matching ids of all 
-	 * @param ids
-	 * @return
-	 * @throws NotImplementedException
-	 */
-	public static byte[] serializeMatchingIds(List<FederatedFacade<Long, Integer>.IRowId> ids) throws Exception {
-		if ( DEBUG_ENABLED ) L.getInstance().logDebug( " getRowKeys > serializeMatchingIds." );
-		Builder idL = ByteArrays.ArrayInt.newBuilder();
-		StringBuffer sb = null;
-		if ( DEBUG_ENABLED ) sb = new StringBuffer();
-		
-		for (FederatedFacade<Long, Integer>.IRowId iRowId : ids) {
-			if ( null == iRowId) {
-				L.getInstance().logWarning(" HSearch Plugin - iRowId : is null." );
-				continue;
-			}
-			Integer docId = iRowId.getDocId();
-			if ( null == docId) {
-				L.getInstance().logWarning( " HSearch Plugin - DocId : is null." );
-				continue;
-			}
-			idL.addVal(docId);
-			if ( DEBUG_ENABLED ) sb.append(docId.toString()).append(',');
-		}
-		if ( DEBUG_ENABLED ) L.getInstance().logDebug( "Ids :" + sb.toString() );
-		return idL.build().toByteArray();
-	}	
-	
-	public static List<Integer> deSerializeMatchingIds(byte[] input) throws Exception {
-		return ByteArrays.ArrayInt.parseFrom(input).getValList();
-	}		
 }

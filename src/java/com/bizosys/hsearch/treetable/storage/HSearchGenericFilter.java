@@ -30,6 +30,9 @@ import java.util.StringTokenizer;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 
+import com.bizosys.hsearch.byteutils.ByteArrays;
+import com.bizosys.hsearch.byteutils.ByteArrays.ArrayString.Builder;
+import com.bizosys.hsearch.federate.FederatedFacade;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
@@ -45,10 +48,10 @@ public abstract class HSearchGenericFilter implements Filter {
 
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
-	public static int OUTPUT_IDS = 0;
-	public static int OUTPUT_VALS = 1;
-	public static int OUTPUT_IDVALS = 2;
-	public static int OUTPUT_COLS = 3;
+	public static final int OUTPUT_IDS = 0;
+	public static final int OUTPUT_VALS = 1;
+	public static final int OUTPUT_IDVALS = 2;
+	public static final int OUTPUT_COLS = 3;
 
 	String multiQuery = null;
 	Map<String, String> queryFilters = null;
@@ -70,6 +73,30 @@ public abstract class HSearchGenericFilter implements Filter {
 	
 	public abstract HSearchTableMultiQueryExecutor createExector();
 	public abstract IHSearchPlugin createPlugIn(String type) throws IOException ;
+	
+	public byte[] serializeOutput(List<FederatedFacade<Long, String>.IRowId> matchedIds, Map<String,QueryPart> queryPayload) {
+		if ( DEBUG_ENABLED ) L.getInstance().logDebug( " getRowKeys > serializeMatchingIds." );
+		Builder idL = ByteArrays.ArrayString.newBuilder();
+		StringBuffer sb = null;
+		if ( DEBUG_ENABLED ) sb = new StringBuffer();
+		
+		for (FederatedFacade<Long, String>.IRowId iRowId : matchedIds) {
+			if ( null == iRowId) {
+				L.getInstance().logWarning(" HSearch Plugin - iRowId : is null." );
+				continue;
+			}
+			String docId = iRowId.getDocId();
+			if ( null == docId) {
+				L.getInstance().logWarning( " HSearch Plugin - DocId : is null." );
+				continue;
+			}
+			idL.addVal(docId);
+			if ( DEBUG_ENABLED ) sb.append(docId.toString()).append(',');
+		}
+		if ( DEBUG_ENABLED ) L.getInstance().logDebug( "Ids :" + sb.toString() );
+		return idL.build().toByteArray();
+		
+	}
 
 	/**
 	 * output type
@@ -118,46 +145,60 @@ public abstract class HSearchGenericFilter implements Filter {
 
 			StringTokenizer stk = new StringTokenizer(new String(ser), "\n");
 			
-			boolean isFirst = true;
+			int lineNo = -1;
 			while ( stk.hasMoreTokens() ) {
-				if ( isFirst ) {
-					this.multiQuery = stk.nextToken();
-					this.queryPayload = new HashMap<String, QueryPart>();
-					isFirst = false;
-
-					if ( DEBUG_ENABLED ) {
-						HbaseLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
-					}
-					
-				} else {
-					String line = stk.nextToken();
-					int splitIndex = line.indexOf('=');
-					if ( -1 == splitIndex) throw new IOException("Expecting [=] in line " + line);
-					
-					String colNameQuolonId = line.substring(0,splitIndex);
-					String filtersPipeSeparated =  line.substring(splitIndex+1);
-					
-					int colNameAndQIdSplitIndex = colNameQuolonId.indexOf(':');
-					if ( -1 == colNameAndQIdSplitIndex || colNameQuolonId.length() - 1 == colNameAndQIdSplitIndex) {
-						throw new IOException("Sub queries expected as  X:Y eg.\n" + 
-								 "family1:A OR family2:B\nfamily1:A=f|1|1|1|c|*|*\nfamily2:B=*|*|*|*|*|*");
-					}
-					String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
-					String qId =  colNameQuolonId.substring(colNameAndQIdSplitIndex+1);
-					
-					if ( DEBUG_ENABLED ) {
-						HbaseLog.l.debug("colName:qId = " + colName + "/" + qId);
-					}
-					
-					colIdWithType.put(qId, colName);
-					
-					this.queryPayload.put(
-							colNameQuolonId, new QueryPart(filtersPipeSeparated, HSearchTableMultiQueryExecutor.PLUGIN,createPlugIn(colName) ) );
-
-					if ( DEBUG_ENABLED ) {
-						HbaseLog.l.debug("HBase Region Server: Query Payload" +  line);
-					}
 				
+				lineNo++;
+				
+				switch ( lineNo ) {
+					case 0:
+						String output = stk.nextToken();
+						if (output.length() == 0  ) throw new IOException("Unknown result output type.");
+						char firstChar = output.charAt(0);
+						if ( firstChar == '0')  outputType = OUTPUT_IDS;
+						else if ( firstChar == '1')  outputType = OUTPUT_VALS;
+						else if ( firstChar == '2')  outputType = OUTPUT_IDVALS;
+						else if ( firstChar == '3')  outputType = OUTPUT_COLS;
+						else throw new IOException("Unknown result output type[" + firstChar + ']');
+						break;
+					case 1:
+						this.multiQuery = stk.nextToken();
+						this.queryPayload = new HashMap<String, QueryPart>();
+
+						if ( DEBUG_ENABLED ) {
+							HbaseLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
+						}
+						break;
+
+					default:
+						String line = stk.nextToken();
+						int splitIndex = line.indexOf('=');
+						if ( -1 == splitIndex) throw new IOException("Expecting [=] in line " + line);
+						
+						String colNameQuolonId = line.substring(0,splitIndex);
+						String filtersPipeSeparated =  line.substring(splitIndex+1);
+						
+						int colNameAndQIdSplitIndex = colNameQuolonId.indexOf(':');
+						if ( -1 == colNameAndQIdSplitIndex || colNameQuolonId.length() - 1 == colNameAndQIdSplitIndex) {
+							throw new IOException("Sub queries expected as  X:Y eg.\n" + 
+									 "family1:A OR family2:B\nfamily1:A=f|1|1|1|c|*|*\nfamily2:B=*|*|*|*|*|*");
+						}
+						String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
+						String qId =  colNameQuolonId.substring(colNameAndQIdSplitIndex+1);
+						
+						if ( DEBUG_ENABLED ) {
+							HbaseLog.l.debug("colName:qId = " + colName + "/" + qId);
+						}
+						
+						colIdWithType.put(qId, colName);
+						
+						this.queryPayload.put(
+								colNameQuolonId, new QueryPart(filtersPipeSeparated, HSearchTableMultiQueryExecutor.PLUGIN,createPlugIn(colName) ) );
+
+						if ( DEBUG_ENABLED ) {
+							HbaseLog.l.debug("HBase Region Server: Query Payload" +  line);
+						}
+						break;
 				}
 			}
 		} catch (Exception ex) {
@@ -239,26 +280,53 @@ public abstract class HSearchGenericFilter implements Filter {
 				HbaseLog.l.debug("intersector.executeForCols ");
 			}
 			
-			byte[] intersectedIds = intersector.executeForCols(
-					queryData, this.multiQuery, this.queryPayload);
+			List<FederatedFacade<Long, String>.IRowId> intersectedIds = federatedQueryExec(row, intersector, queryData);
 			
-			if ( DEBUG_ENABLED ) {
-				HbaseLog.l.debug( new String(row) + " has ids of :" + intersectedIds.length);
-			}
-			
-			hasMatchingIds = ( null != intersectedIds && intersectedIds.length > 0 );
-			
-			HbaseLog.l.debug("Generaic filter hasMatchingIds :"+hasMatchingIds);
-			
-			kvL.clear();
+			kvL.clear(); //Clear all data
 			if ( hasMatchingIds) {
-				kvL.add(new KeyValue(row, firstFamily, firstCol, intersectedIds));
+				kvL.add(new KeyValue(row, firstFamily, firstCol, serializeOutput(intersectedIds, this.queryPayload) ) );
 			}
 			
 		} catch (Exception ex) {
 			ex.printStackTrace(System.err);
 		} 
 	}
+
+	private List<FederatedFacade<Long, String>.IRowId> federatedQueryExec(byte[] row,
+			HSearchTableMultiQueryExecutor intersector,
+			Map<String, HSearchTableParts> queryData) throws Exception,
+			IOException {
+		
+		List<FederatedFacade<Long, String>.IRowId> intersectedIds = null;
+		
+		switch (outputType ) {
+			case OUTPUT_IDS:
+				intersectedIds = intersector.executeForIds(queryData, this.multiQuery, this.queryPayload);
+				break;
+			case OUTPUT_VALS:
+				intersectedIds = intersector.executeForValues(queryData, this.multiQuery, this.queryPayload);
+				break;
+			case OUTPUT_IDVALS:
+				intersectedIds = intersector.executeForIdValues(queryData, this.multiQuery, this.queryPayload);
+				break;
+			case OUTPUT_COLS:
+				intersectedIds = intersector.executeForCols(queryData, this.multiQuery, this.queryPayload);
+				break;
+			default:
+				throw new IOException("Unknown output type :" + outputType);
+		}
+		
+		
+		if ( DEBUG_ENABLED ) {
+			HbaseLog.l.debug( new String(row) + " has ids of :" + intersectedIds.size());
+		}
+		
+		hasMatchingIds = ( null != intersectedIds && intersectedIds.size() > 0 );
+		
+		HbaseLog.l.debug("Generaic filter hasMatchingIds :" + hasMatchingIds);
+		return intersectedIds;
+	}
+	
 
 	@Override
 	public void reset() {

@@ -22,7 +22,7 @@ package com.bizosys.hsearch.treetable.client;
 import java.util.Collection;
 
 public interface IHSearchPlugin {
-	Collection<Integer> getUniqueRowKeys() throws Exception;
+	Collection<String> getUniqueRowKeys() throws Exception;
 	void onComplete();
 	void reset();
 }

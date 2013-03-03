@@ -32,29 +32,30 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
-	public final static List<com.bizosys.hsearch.federate.FederatedFacade<Long, Integer>.IRowId> noIdsFound = 
-			new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<Long, Integer>.IRowId>(0);
+	public final static List<com.bizosys.hsearch.federate.FederatedFacade<Long, String>.IRowId> noIdsFound = 
+			new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<Long, String>.IRowId>(0);
 	
 	public abstract IHSearchTableCombiner getCombiner();
 	
-	private FederatedFacade<Long, Integer> processor = null;
+	private FederatedFacade<Long, String> processor = null;
 	
 	public HSearchTableMultiQueryProcessor() {
 		processor = build();
 		processor.DEBUG_MODE = DEBUG_ENABLED;
 	}
 	
-	public FederatedFacade<Long, Integer> getProcessor() { 
+	public FederatedFacade<Long, String> getProcessor() { 
 		return processor;
 	}
 	
-	private FederatedFacade<Long, Integer> build() {
+	private FederatedFacade<Long, String> build() {
 
-		return new FederatedFacade<Long, Integer>(0, 
-				HSearchTableResourcesDefault.getInstance().multiQueryIdObjectInitialCache, HSearchTableResourcesDefault.getInstance().multiQueryPartsThreads) {
+		return new FederatedFacade<Long, String>("", 
+				HSearchTableResourcesDefault.getInstance().multiQueryIdObjectInitialCache,
+				HSearchTableResourcesDefault.getInstance().multiQueryPartsThreads) {
 			
 			@Override
-			public List<FederatedFacade<Long, Integer>.IRowId> populate(
+			public List<FederatedFacade<Long, String>.IRowId> populate(
 					String type, String multiQueryPartId, String aStmtOrValue, Map<String, Object> stmtParams) throws IOException {
 
 				if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "HSearchTableMultiQuery.populate ENTER.");
@@ -65,17 +66,17 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 					combiner.concurrentDeser(aStmtOrValue, stmtParams, type);
 
 					IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
-					Collection<Integer> keys = plugin.getUniqueRowKeys();
+					Collection<String> keys = plugin.getUniqueRowKeys();
 					if ( keys.size() == 0) {
 						if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "No Records found :");
 						return noIdsFound;
 					}
 					if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "Total Ids found :" + keys.size());
 	
-					List<com.bizosys.hsearch.federate.FederatedFacade<Long, Integer>.IRowId> results = 
-							new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<Long, Integer>.IRowId>(keys.size());
+					List<com.bizosys.hsearch.federate.FederatedFacade<Long, String>.IRowId> results = 
+							new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<Long, String>.IRowId>(keys.size());
 					
-					for (Integer id : keys) {
+					for (String id : keys) {
 						IRowId primary = objectFactory.getPrimaryKeyRowId(id);
 						results.add(primary);
 					}
