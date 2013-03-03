@@ -22,7 +22,7 @@ public class HBaseTableReader extends HSearchTableReader implements IScanCallBac
 	public HSearchGenericFilter getFilter(String multiQuery,
 			Map<String, String> multiQueryParts) {
 
-		return new HBaseHSearchFilter(multiQuery, multiQueryParts);
+		return new HBaseHSearchFilter(HSearchGenericFilter.OUTPUT_IDS, multiQuery, multiQueryParts);
 	}
 
 	@Override

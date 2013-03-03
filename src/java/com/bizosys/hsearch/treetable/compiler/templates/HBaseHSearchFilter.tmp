@@ -18,8 +18,8 @@ public class HBaseHSearchFilter extends HSearchGenericFilter {
 		
 	}
 	
-	public HBaseHSearchFilter(String query, Map<String, String> details){
-		super(query, details);
+	public HBaseHSearchFilter(int outputType, String query, Map<String, String> details){
+		super(outputType, query, details);
 	}
 	
 	@Override

@@ -12,7 +12,7 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	static boolean DEBUG_ENABLED = false;
 	
 	//Take care of Thread Safety
-	Map<String, --KEY_DATATYPE--> ids = new ConcurrentHashMap<String, --KEY_DATATYPE-->();
+	Map<String, String> ids = new ConcurrentHashMap<String, String>();
 	
 	/**
 	 * For each row, this is invoked. This is called if the findIds is called
@@ -21,7 +21,7 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	public boolean onRowKey(--KEY_DATATYPE-- id) {
 		if ( DEBUG_ENABLED ) System.out.println( Thread.currentThread().getName() + " > Found Row" +  id);
 		if ( ids.containsKey(id.toString())) return true;
-		ids.put(id.toString(), id);
+		ids.put(id.toString(), null);
 		return true;
 	}
 
@@ -32,7 +32,7 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	public boolean onRowCols(--ALL-COLS--) {
 		String cell--CELL-MAX-MINUS-1--Str = cell--CELL-MAX-MINUS-1--.toString();
 		if ( ids.containsKey(cell--CELL-MAX-MINUS-1--Str)) return true;
-		ids.put(cell--CELL-MAX-MINUS-1--Str, cell--CELL-MAX-MINUS-1--);
+		ids.put(cell--CELL-MAX-MINUS-1--Str, null);
 		return true;
 	}
 
@@ -65,12 +65,12 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	 * values like string, it should be converted to integer / long and passed.
 	 * @return
 	 */
-	public Collection<--KEY_DATATYPE--> getAllRowKeysInSequence() throws Exception{
-		return this.ids.values();
+	public Collection<String> getAllRowKeysInSequence() throws Exception{
+		return this.ids.keySet();
 	}
 	
-	public Collection<--KEY_DATATYPE--> getUniqueRowKeys() throws Exception{
-		return this.ids.values();
+	public Collection<String> getUniqueRowKeys() throws Exception{
+		return this.ids.keySet();
 	}
 	
 	public void reset() {
