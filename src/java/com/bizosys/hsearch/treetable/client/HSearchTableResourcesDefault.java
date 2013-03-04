@@ -40,7 +40,7 @@ public class HSearchTableResourcesDefault {
 	public int multiQueryIdObjectInitialCache = 1000;
 	public int multiQueryPartsThreads = 8;
 	
-	public int cpuIntensiveJobExecutorSize = 10;
+	public int cpuIntensiveJobExecutorSize = Runtime.getRuntime().availableProcessors();
 
 	/**
 	 * Processing threads.. No I/O wait. Please never make it more than the # of CPUs 
