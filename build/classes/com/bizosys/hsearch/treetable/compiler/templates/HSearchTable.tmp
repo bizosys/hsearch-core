@@ -1,0 +1,353 @@
+package --PACKAGE--.donotmodify;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import com.bizosys.hsearch.byteutils.SortedBytesDouble;
+import com.bizosys.hsearch.byteutils.SortedBytesLong;
+import com.bizosys.hsearch.byteutils.SortedBytesFloat;
+import com.bizosys.hsearch.byteutils.SortedBytesInteger;
+import com.bizosys.hsearch.byteutils.SortedBytesUnsignedShort;
+import com.bizosys.hsearch.byteutils.SortedBytesChar;
+import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
+import com.bizosys.hsearch.byteutils.SortedBytesString;
+
+import --PACKAGE--.*;
+
+--IMPORT-CELLS--
+
+import com.bizosys.hsearch.treetable.client.HSearchQuery;
+import com.bizosys.hsearch.treetable.client.HSearchTableDistribution;
+import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
+import com.bizosys.hsearch.treetable.client.IHSearchTable;
+
+import com.bizosys.hsearch.treetable.CellBase;
+import com.bizosys.hsearch.treetable.CellComparator;
+import com.bizosys.hsearch.treetable.CellComparator.BooleanComparator;
+import com.bizosys.hsearch.treetable.CellComparator.ByteComparator;
+import com.bizosys.hsearch.treetable.CellComparator.ShortComparator;
+import com.bizosys.hsearch.treetable.CellComparator.IntegerComparator;
+import com.bizosys.hsearch.treetable.CellComparator.FloatComparator;
+import com.bizosys.hsearch.treetable.CellComparator.LongComparator;
+import com.bizosys.hsearch.treetable.CellComparator.DoubleComparator;
+import com.bizosys.hsearch.treetable.CellComparator.StringComparator;
+import com.bizosys.hsearch.treetable.ValueComparator;
+
+public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
+	
+	private boolean DEBUG_ENABLED = false;
+	
+	--CELLMAX-SIGN-- table = createBlankTable();
+
+	public HSearchTable--COLUMN-NAME--() {
+	}
+	
+	public --CELLMAX-SIGN-- createBlankTable() {
+		return new --CELLMAX-SIGN--
+			(
+				--CELL-SORTERS--
+			);
+	}
+
+	public byte[] toBytes() throws IOException {
+		if ( null == table) return null;
+		return table.toBytes(new --VAL-COMPARATOR--<Integer>());
+	}
+
+	public void put (--PUT-PARAMS-SIGNS--) {
+		table.put( --PUT-PARAMS-- );
+	}
+	
+	public int get(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException, NumberFormatException {
+		
+		HSearchPlugin--COLUMN-NAME-- plugin = castPlugin(pluginI);
+		
+		query.parseValuesConcurrent(new String[] {--CELL-DATA--TYPES--});
+		
+		List<Integer> posL = new ArrayList<Integer>();
+		List<Integer> keyL = new ArrayList<Integer>();
+		List<--VAL-DATATYPE--> valL = new ArrayList<--VAL-DATATYPE-->();
+
+--DEFINE-EXACT--
+
+--DEFINE-MIN--
+
+--DEFINE-MAX--
+
+--DEFINE-MAPS--
+
+		this.table.parseElements(input);
+
+		if ( query.filterCells[0] ) {
+			this.table.getMap( matchingCell0, cellMin0, cellMax0, cell--CELL-MAX-MINUS-1--L);
+		} else {
+			this.table.sortedList = cell--CELL-MAX-MINUS-1--L;
+			this.table.parseElements();  
+		}
+		Iterator<Entry<--CELL-MAX-MINUS-1-SIGN-->> cell--CELL-MAX-MINUS-1--Itr = cell--CELL-MAX-MINUS-1--L.entrySet().iterator();  
+
+		int totalRows = 0;
+		
+
+		--TREE-BROWSE-LEAF-PREFIX--
+
+					while ( cell2Itr.hasNext()) {
+					
+						Entry<--VAL-PARENT-DATATYPE--, Cell2<--KEY_DATATYPE--, --VAL_DATATYPE-->> cell2 = cell2Itr.next();
+						--VAL-PARENT-DATATYPE-- cell2Key = cell2.getKey();
+						Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> cell2Val = cell2.getValue();
+						
+						posL.clear(); keyL.clear(); valL.clear();
+
+						if (query.filterCells[--CELL-MAX-MINUS-1--] ) {
+							cell2Val.getMap(matchingCell--CELL-MAX-MINUS-1--, cellMin--CELL-MAX-MINUS-1--, cellMax--CELL-MAX-MINUS-1--, posL, keyL, valL);
+						} else {
+							cell2Val.getMap(keyL, valL);
+						}
+
+						int keysT = keyL.size();
+						--KEY_DATATYPE-- cell1Key = null;
+						--VAL_DATATYPE-- cell1Val = null;
+						
+						for (int i=0; i<keysT; i++) {
+							cell1Key = keyL.get(i);
+							
+							if (query.filterCells[--CELL-MAX-MINUS-2--] ) {
+								if ( null != matchingCell--CELL-MAX-MINUS-2-- ) {
+									if ( matchingCell--CELL-MAX-MINUS-2-- != cell1Key ) continue;
+								} else {
+									if ( cell1Key < cellMin--CELL-MAX-MINUS-2-- || cell1Key > cellMax--CELL-MAX-MINUS-2--  ) continue;
+								}
+							}
+							
+							cell1Val = valL.get(i);
+							
+							if ( null != plugin) {
+								if ( plugin.onRowCols(--TREE-NODE-KEYS--, cell2Key, cell1Key, cell1Val) ) {
+									totalRows++; 
+								}
+							} else {
+								totalRows++;
+							}
+						}
+					}
+					
+		--TREE-BROWSE-LEAF-SUFFIX--
+		
+		if ( null != plugin ) plugin.onFilterationComplete();
+		return totalRows;
+	}
+
+	public int keySet(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException {
+		return onKeyAndValue(input, query, plugin, 0);
+	}
+	
+	public int values(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException {
+		return onKeyAndValue(input, query, plugin, 1);
+	}
+
+	public int keyValues(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException {
+		return onKeyAndValue(input, query, plugin, 2);
+	}
+
+	private int onKeyAndValue(byte[] input, HSearchQuery query, IHSearchPlugin pluginI, int mode) throws IOException {
+
+		HSearchPlugin--COLUMN-NAME-- plugin = castPlugin(pluginI);
+		
+		query.parseValuesConcurrent(new String[] {--CELL-DATA--TYPES--});
+		
+		List<Integer> posL = new ArrayList<Integer>();
+		List<Integer> keyL = new ArrayList<Integer>();
+		List<--VAL-DATATYPE--> valL = new ArrayList<--VAL-DATATYPE-->();
+
+--DEFINE-EXACT--
+
+--DEFINE-MIN--
+
+--DEFINE-MAX--
+
+--DEFINE-LIST--
+
+		int totalRows = 0;		
+
+		this.table.parseElements(input);
+		if ( query.filterCells[0] ) {
+			this.table.valuesUnchecked(matchingCell0, cellMin0, cellMax0, cell--CELL-MAX-MINUS-1--L);
+		} else {
+			this.table.values(cell--CELL-MAX-MINUS-1--L);
+		}
+
+		--LIST-BROWSE-LEAF-PREFIX--
+		
+					for ( Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> cell2Val : cell2L) {
+						
+						posL.clear(); keyL.clear(); valL.clear();
+
+						if (query.filterCells[--CELL-MAX-MINUS-1--] ) {
+							cell2Val.getMap(matchingCell--CELL-MAX-MINUS-1--, cellMin--CELL-MAX-MINUS-1--, cellMax--CELL-MAX-MINUS-1--, posL, keyL, valL);
+						} else {
+							cell2Val.getMap(keyL, valL);
+						}
+
+						if ( DEBUG_ENABLED ) {
+							System.out.println("keyL.size : " + keyL.size());
+						}
+						
+						if ( mode == 0 ) totalRows = totalRows + callbackOnKeys(query, plugin, keyL, valL,
+							matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);
+						else if ( mode == 1 ) totalRows = totalRows + callbackOnValues(query, plugin, keyL, valL,
+							matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);
+						else if ( mode == 2 ) totalRows = totalRows + callbackOnKeyValues(query, plugin, keyL, valL,
+								matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);
+					}
+		--LIST-BROWSE-LEAF-SUFFIX--
+
+		if ( null != plugin ) plugin.onFilterationComplete();
+		return totalRows;
+	}
+
+	public int callbackOnKeys(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
+			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyExact,
+			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
+		int keysT = keyL.size();
+		--KEY_DATATYPE-- cell1Key = null;
+		
+		for (int i=0; i<keysT; i++) {
+			cell1Key = keyL.get(i);
+			
+			if (query.filterCells[--CELL-MAX-MINUS-2--] ) {
+				if ( null != keyExact ) {
+					if ( keyExact != cell1Key ) continue;
+				} else {
+					if ( cell1Key < keyValMin || cell1Key > keyValMax  ) continue;
+				}
+			}
+			
+			if ( null != plugin) {
+				if ( plugin.onRowKey(cell1Key) ) {
+					totalRows++; 
+				}
+			} else {
+				totalRows++;
+			}
+		}
+		return totalRows;
+	}
+	
+	public int callbackOnValues(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
+			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyValExact,
+			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
+
+		int keysT = keyL.size();
+		--KEY_DATATYPE-- cell1Key = null;
+		--VAL_DATATYPE-- cell1Val = null;
+		
+		for (int i=0; i<keysT; i++) {
+			cell1Key = keyL.get(i);
+			
+			if (query.filterCells[--CELL-MAX-MINUS-2--] ) {
+				if ( null != keyValExact ) {
+					if ( keyValExact != cell1Key ) continue;
+				} else {
+					if ( cell1Key < keyValMin || cell1Key > keyValMax  ) continue;
+				}
+			}
+			
+			cell1Val = valL.get(i);
+			
+			if ( null != plugin) {
+				if ( plugin.onRowValue(cell1Val) ) totalRows++; 
+			} else {
+				totalRows++;
+			}
+		}
+		return totalRows;
+	}
+
+	public int callbackOnKeyValues(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
+			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyValExact,
+			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
+
+		int keysT = keyL.size();
+		--KEY_DATATYPE-- cell1Key = null;
+		--VAL_DATATYPE-- cell1Val = null;
+		
+		for (int i=0; i<keysT; i++) {
+			cell1Key = keyL.get(i);
+			
+			if (query.filterCells[--CELL-MAX-MINUS-2--] ) {
+				if ( null != keyValExact ) {
+					if ( keyValExact != cell1Key ) continue;
+				} else {
+					if ( cell1Key < keyValMin || cell1Key > keyValMax  ) continue;
+				}
+			}
+			
+			cell1Val = valL.get(i);
+			
+			if ( null != plugin) {
+				if ( plugin.onRowKeyValue(cell1Key, cell1Val) ) totalRows++; 
+			} else {
+				totalRows++;
+			}
+		}
+		return totalRows;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" }) 
+	public void getValues(CellBase parentCell, HSearchQuery query, List<?> cellL, int index) throws IOException {
+		if ( query.filterCells[index] ) { 
+			//Do filtering
+			if ( null == query.exactValCells[index]  ) {
+				parentCell.valuesUnchecked(null, query.minValCells[index], query.maxValCells[index], cellL);
+			} else {
+				parentCell.valuesUnchecked(query.exactValCells[index], null, null, cellL);	
+			}
+			
+		} else {
+			//No filtering
+			parentCell.valuesUnchecked(cellL);  
+		}	
+	}
+	
+	public byte[] toBytes(int partitionSeq) throws IOException {
+		
+		List<Double> distBiundaries = HSearchTableDistribution.getInstance().distBiundaries;
+
+		int pos = -1;
+		float boundaryLeft = Integer.MIN_VALUE;
+		float boundaryRight = boundaryLeft;
+		
+		for (Double boundary : distBiundaries) {
+			boundaryLeft = boundaryRight; 
+			boundaryRight = boundary.floatValue();;
+			pos++;
+			
+			if ( pos == partitionSeq) break;
+		}
+		table.sort(new CellComparator.--VAL-COMPARATOR--<Integer>());
+			
+		return table.toBytes( boundaryLeft, boundaryRight, false, true, new ValueComparator.--VAL-COMPARATOR--());
+	}
+	
+	public HSearchPlugin--COLUMN-NAME-- castPlugin(IHSearchPlugin pluginI) throws IOException {
+		HSearchPlugin--COLUMN-NAME-- plugin = null;
+		if ( null != pluginI) {
+			if ( pluginI instanceof HSearchPlugin--COLUMN-NAME--) plugin =  (HSearchPlugin--COLUMN-NAME--) pluginI;
+			if ( null == plugin )  throw new IOException("Invalid plugin Type :" + pluginI);
+		}
+		return plugin;
+	}	
+	
+	/**
+	 * Free the cube data
+	 */
+	public void clear() throws IOException {
+		table.getMap().clear();
+	}
+}

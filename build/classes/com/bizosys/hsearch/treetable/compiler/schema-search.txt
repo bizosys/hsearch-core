@@ -1,0 +1,34 @@
+            "indexes": [
+                {
+                    "name": "hashcode",
+                    "datatype": "Integer"
+                },
+                {
+                    "name": "term",
+                    "datatype": "String"
+                },
+                {
+                    "name": "doctype",
+                    "datatype": "Short"
+                },
+                {
+                    "name": "wordtype",
+                    "datatype": "Short"
+                }
+            ],
+            
+            "key": {
+                "name": "docid",
+                "datatype": "Integer"
+            },
+            
+            "value": 
+            {
+                "name": "weight",
+                "datatype": "Float"
+            },
+            
+            "partitions": {
+                "family": "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z",
+                "ranges": "a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z"
+            }
