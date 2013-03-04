@@ -21,6 +21,7 @@ package com.bizosys.hsearch.treetable.client;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class L {
 	
@@ -35,7 +36,7 @@ public class L {
 		return singleton;
 	}
 	
-	Map<String, StringBuilder> loggings = new HashMap<String, StringBuilder>();
+	Map<String, StringBuilder> loggings = new ConcurrentHashMap<String, StringBuilder>();
 	
 	public void logDebug(String msg) {
 		String threadName = Thread.currentThread().getName();

@@ -1,27 +1,45 @@
 package --PACKAGE--;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
+import java.util.Vector;
 
+import java.util.concurrent.ConcurrentHashMap;
+import com.bizosys.hsearch.federate.FederatedFacade;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
+import com.bizosys.hsearch.treetable.client.OutputType;
 
 public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	
 	static boolean DEBUG_ENABLED = false;
 	
 	//Take care of Thread Safety
-	Map<String, String> ids = new ConcurrentHashMap<String, String>();
+	Vector<String> ids = new Vector<String>();
+	
+	OutputType outputTypeCode = null;
+	long counts = 0;
+	double minValue = 0;
+	double maxValue = 0;
+	double avgValue = 0;
+
+	@Override
+	public void setOutputType(OutputType outputTypeCode) {
+		this.outputTypeCode = outputTypeCode;
+	}
 	
 	/**
 	 * For each row, this is invoked. This is called if the findIds is called
 	 * @return TRUE/FALSE whether it will be included in the result or not.
 	 */
 	public boolean onRowKey(--KEY_DATATYPE-- id) {
-		if ( DEBUG_ENABLED ) System.out.println( Thread.currentThread().getName() + " > Found Row" +  id);
-		if ( ids.containsKey(id.toString())) return true;
-		ids.put(id.toString(), null);
+		if ( DEBUG_ENABLED ) System.out.println( Thread.currentThread().getName() + " > ENTER Found Row" +  id);
+		ids.add(id.toString());
+		if ( DEBUG_ENABLED ) System.out.println( Thread.currentThread().getName() + " > EXIT Found Row" +  id);
 		return true;
 	}
 
@@ -31,8 +49,7 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	 */
 	public boolean onRowCols(--ALL-COLS--) {
 		String cell--CELL-MAX-MINUS-1--Str = cell--CELL-MAX-MINUS-1--.toString();
-		if ( ids.containsKey(cell--CELL-MAX-MINUS-1--Str)) return true;
-		ids.put(cell--CELL-MAX-MINUS-1--Str, null);
+		ids.add(cell--CELL-MAX-MINUS-1--Str);
 		return true;
 	}
 
@@ -56,26 +73,40 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	 * Called when all items are processed
 	 * Do not clear the ids here as the getUniqueRowKeys() are called after the onComplete.
 	 */
-	public void onComplete() {
+	@Override
+	public void onFilterationComplete() {
 	}
 	
-	/**
-	 * The intersection happens on the final matching ids.
-	 * Currently integer and long values are supported. If there are any other 
-	 * values like string, it should be converted to integer / long and passed.
-	 * @return
-	 */
-	public Collection<String> getAllRowKeysInSequence() throws Exception{
-		return this.ids.keySet();
+	@Override
+	public Collection<String> getUniqueMatchingDocumentIds() throws IOException {
+		Set<String> unique = new HashSet<String>();
+		unique.addAll(this.ids);
+		return unique;
 	}
 	
-	public Collection<String> getUniqueRowKeys() throws Exception{
-		return this.ids.keySet();
+	@Override
+	public void cleanupValuesFromLastRun() {
+		if ( null != ids ) this.ids.clear();
+	}
+
+	@Override
+	public long getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) {
+		Set<String> unique = new HashSet<String>();
+		unique.addAll(this.ids);
+		return unique.size();
 	}
 	
-	public void reset() {
-		this.ids.clear();
+	@Override
+	public double getMax(List<FederatedFacade<String, String>.IRowId> matchedIds) {
+		return this.maxValue;
+	}
+	@Override
+	public double getMin(List<FederatedFacade<String, String>.IRowId> matchedIds) {
+		return this.minValue;
+	}
+	@Override
+	public double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds) {
+		return this.avgValue;
 	}
 		
-	
 }

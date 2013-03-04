@@ -32,54 +32,64 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
-	public final static List<com.bizosys.hsearch.federate.FederatedFacade<Long, String>.IRowId> noIdsFound = 
-			new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<Long, String>.IRowId>(0);
+	public final static List<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId> noIdsFound = 
+			new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId>(0);
 	
 	public abstract IHSearchTableCombiner getCombiner();
 	
-	private FederatedFacade<Long, String> processor = null;
+	private FederatedFacade<String, String> processor = null;
 	
 	public HSearchTableMultiQueryProcessor() {
 		processor = build();
 		processor.DEBUG_MODE = DEBUG_ENABLED;
 	}
 	
-	public FederatedFacade<Long, String> getProcessor() { 
+	public FederatedFacade<String, String> getProcessor() { 
 		return processor;
 	}
 	
-	private FederatedFacade<Long, String> build() {
+	private FederatedFacade<String, String> build() {
 
-		return new FederatedFacade<Long, String>("", 
+		return new FederatedFacade<String, String>("", 
 				HSearchTableResourcesDefault.getInstance().multiQueryIdObjectInitialCache,
 				HSearchTableResourcesDefault.getInstance().multiQueryPartsThreads) {
 			
 			@Override
-			public List<FederatedFacade<Long, String>.IRowId> populate(
+			public List<FederatedFacade<String, String>.IRowId> populate(
 					String type, String multiQueryPartId, String aStmtOrValue, Map<String, Object> stmtParams) throws IOException {
 
+				System.out.println( Thread.currentThread().getName() + "> AA");
 				if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "HSearchTableMultiQuery.populate ENTER.");
 				long startTime = System.currentTimeMillis();
 				long endTime = -1L;
 				try {
-					IHSearchTableCombiner combiner = getCombiner(); 
-					combiner.concurrentDeser(aStmtOrValue, stmtParams, type);
+					System.out.println( Thread.currentThread().getName() + "> BB");
+					IHSearchTableCombiner combiner = getCombiner();
+					
+					Integer outputType = (Integer) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
+					System.out.println("Output Type :" + outputType);
+					
+					combiner.concurrentDeser(aStmtOrValue, new OutputType(outputType), stmtParams, type);
 
+					System.out.println( Thread.currentThread().getName() + "> CC");
 					IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
-					Collection<String> keys = plugin.getUniqueRowKeys();
+					Collection<String> keys = plugin.getUniqueMatchingDocumentIds();
 					if ( keys.size() == 0) {
 						if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "No Records found :");
 						return noIdsFound;
 					}
 					if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "Total Ids found :" + keys.size());
 	
-					List<com.bizosys.hsearch.federate.FederatedFacade<Long, String>.IRowId> results = 
-							new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<Long, String>.IRowId>(keys.size());
+					System.out.println( Thread.currentThread().getName() + "> DD");
+					List<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId> results = 
+							new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId>(keys.size());
 					
+					System.out.println( Thread.currentThread().getName() + "> EE");
 					for (String id : keys) {
 						IRowId primary = objectFactory.getPrimaryKeyRowId(id);
 						results.add(primary);
 					}
+					System.out.println( Thread.currentThread().getName() + "> FF");
 					return results;
 				} catch (Exception ex) {
 					throw new IOException(ex);

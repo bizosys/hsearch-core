@@ -92,7 +92,7 @@ public class HSearchTableDistribution {
 	}
 
 	
-	public byte[] addToDistribution(int distPos, List<HSearchTableDIstributionComparator> input) throws IOException {
+	public byte[] addToDistribution(int distPos, List<HSearchTableDistributionComparator> input) throws IOException {
 	
 		int pos = -1;
 		double boundaryLeft = Long.MIN_VALUE;
@@ -109,7 +109,7 @@ public class HSearchTableDistribution {
 			
 			Collection<Double> values = new ArrayList<Double>();
 			
-			for (HSearchTableDIstributionComparator entry : input) {
+			for (HSearchTableDistributionComparator entry : input) {
 				Double val = entry.value;
 				boolean isLeft = ( val > boundaryLeft);
 				//if ( !isLeft) continue;

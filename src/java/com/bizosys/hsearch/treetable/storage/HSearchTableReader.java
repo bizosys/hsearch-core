@@ -35,6 +35,7 @@ import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
+import com.bizosys.hsearch.treetable.client.OutputType;
 
 public abstract class HSearchTableReader {
 	
@@ -42,13 +43,15 @@ public abstract class HSearchTableReader {
 	
 	//public static ParallelHReader parallelReader = new ParallelHReader(10);
 	
-	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts); 
+	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts, OutputType outputType); 
 	public abstract IScanCallBack getResultCollector();
+	public abstract void agreegateCounts(Map<byte[], long[]> results);
 
-	public void read( String multiQuery, Map<String, String> multiQueryParts, boolean isPartitioned, boolean isParallel) 
+	public void read( String multiQuery, Map<String, String> multiQueryParts, 
+			OutputType outputType, boolean isPartitioned, boolean isParallel) 
 			throws IOException, ParseException {
 		
-		HSearchGenericFilter filter = getFilter(multiQuery, multiQueryParts);
+		HSearchGenericFilter filter = getFilter(multiQuery, multiQueryParts, outputType);
 		
 		Set<String> uniqueFamilies = new HashSet<String>(3);
 		
@@ -82,15 +85,19 @@ public abstract class HSearchTableReader {
 			HTableWrapper table = HBaseFacade.getInstance().getTable(tableName);
 			
 	        try {
-	        	Map<byte[], long[]> results = new HSearchGenericCoProcessorFactory(families, filter).execCoprocessor(table);
-	            long total = 0;
-	            for (Map.Entry<byte[], long[]> entry : results.entrySet()) {
-	                total += results.size();
-	                System.out.println("Region: " + Bytes.toString(entry.getKey()) + ", Count: " + entry.getValue());
-	            }
-	            System.out.println("Total Count: " + total);
-	        } catch (Throwable throwable) {
-	            throwable.printStackTrace();
+	        	switch ( outputType.typeCode) {
+	        		case OutputType.OUTPUT_COUNT:
+	    	        	Map<byte[], long[]> results = new HSearchGenericCoProcessorFactory(
+	    		        		families, filter).execCoprocessorCounts(table);
+	    		        agreegateCounts(results);
+	    		        break;
+	    		     
+	        		default:
+	        			new IOException("Type is not implemented Yet");
+	        			
+	        	}
+	        } catch (Throwable th) {
+	            throw new IOException(th);
 	        }
 			
 		} else {

@@ -43,44 +43,40 @@ public class HSearchTableMultiQueryExecutor {
 	public static final String OUTPUT_TYPE = "outputType";
 	public static final String PLUGIN = "plugin";
 	public static final String TABLE_PARTS = "tableParts";
-	public static final int OUTPUT_ID = 0;
-	public static final int OUTPUT_IDVAL = 1;
-	public static final int OUTPUT_VAL = 2;
-	public static final int OUTPUT_COLS = 3;
-
+	
 	IHSearchTableMultiQueryProcessor processor = null;
 	
 	public HSearchTableMultiQueryExecutor(IHSearchTableMultiQueryProcessor processor) {
 		this.processor = processor;
 	}
 	
-	public List<FederatedFacade<Long, String>.IRowId> executeForIds (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<String, String>.IRowId> executeForIds (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts ) throws Exception {
 		
-		return execute (tableParts, multiQueryStmt, multiQueryParts, HSearchTableMultiQueryExecutor.OUTPUT_ID);
+		return execute (tableParts, multiQueryStmt, multiQueryParts, OutputType.OUTPUT_ID);
 	}	
 
-	public List<FederatedFacade<Long, String>.IRowId> executeForValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<String, String>.IRowId> executeForValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts ) throws Exception {
 		
-		return execute (tableParts, multiQueryStmt, multiQueryParts, HSearchTableMultiQueryExecutor.OUTPUT_VAL);
+		return execute (tableParts, multiQueryStmt, multiQueryParts, OutputType.OUTPUT_VAL);
 	}	
 
 
-	public List<FederatedFacade<Long, String>.IRowId> executeForIdValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<String, String>.IRowId> executeForIdValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts) throws Exception {
 
-		return execute (tableParts, multiQueryStmt, multiQueryParts, HSearchTableMultiQueryExecutor.OUTPUT_IDVAL);
+		return execute (tableParts, multiQueryStmt, multiQueryParts, OutputType.OUTPUT_IDVAL);
 		
 	}	
 
-	public List<FederatedFacade<Long, String>.IRowId> executeForCols (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	public List<FederatedFacade<String, String>.IRowId> executeForCols (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts ) throws Exception {
 		
-		return execute (tableParts, multiQueryStmt, multiQueryParts, HSearchTableMultiQueryExecutor.OUTPUT_COLS);
+		return execute (tableParts, multiQueryStmt, multiQueryParts, OutputType.OUTPUT_COLS);
 	}	
 	
-	public List<FederatedFacade<Long, String>.IRowId> execute (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+	private List<FederatedFacade<String, String>.IRowId> execute (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts, int resultType) throws Exception {
 		
 		if ( null == tableParts) {
@@ -104,9 +100,9 @@ public class HSearchTableMultiQueryExecutor {
 		}
 		
 		System.out.println("HSearchTestMultiQuery : getProcessor ENTER ");
-		FederatedFacade<Long, String> ff = processor.getProcessor();
+		FederatedFacade<String, String> ff = processor.getProcessor();
 		System.out.println("HSearchTestMultiQuery : ff.execute ENTER ");
-		List<FederatedFacade<Long, String>.IRowId> matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
+		List<FederatedFacade<String, String>.IRowId> matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
 
 		if  ( DEBUG_ENABLED ) {
 			StringBuilder sb = new StringBuilder();

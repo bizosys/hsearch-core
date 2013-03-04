@@ -139,7 +139,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 					
 		--TREE-BROWSE-LEAF-SUFFIX--
 		
-		if ( null != plugin ) plugin.onComplete();
+		if ( null != plugin ) plugin.onFilterationComplete();
 		return totalRows;
 	}
 
@@ -207,7 +207,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 					}
 		--LIST-BROWSE-LEAF-SUFFIX--
 
-		if ( null != plugin ) plugin.onComplete();
+		if ( null != plugin ) plugin.onFilterationComplete();
 		return totalRows;
 	}
 

@@ -21,20 +21,20 @@ package com.bizosys.hsearch.treetable.client;
 
 import java.util.Comparator;
 
-public class HSearchTableDIstributionComparator implements Comparator<HSearchTableDIstributionComparator> {
+public class HSearchTableDistributionComparator implements Comparator<HSearchTableDistributionComparator> {
 	public int key;
 	public double value;
 	
-	public HSearchTableDIstributionComparator() {
+	public HSearchTableDistributionComparator() {
 	}
 
-	public HSearchTableDIstributionComparator(int key, double value) {
+	public HSearchTableDistributionComparator(int key, double value) {
 		this.key = key;
 		this.value = value;
 	}
 
 	@Override
-	public int compare(HSearchTableDIstributionComparator o1, HSearchTableDIstributionComparator o2) {
+	public int compare(HSearchTableDistributionComparator o1, HSearchTableDistributionComparator o2) {
 		if ( o1.value == o2.value ) return 0;
 		if ( o1.value < o2.value ) return -1;
 		else return 1;

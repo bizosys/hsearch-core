@@ -37,11 +37,12 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
-	public void concurrentDeser(String aStmtOrValue, Map<String, Object> stmtParams, String tableType) throws Exception {
+	@Override
+	public void concurrentDeser(String aStmtOrValue, OutputType outputType, Map<String, Object> stmtParams, String tableType) throws Exception {
 		
 		if ( DEBUG_ENABLED ){
 			String keys = ( null != stmtParams) ? stmtParams.keySet().toString() : "No Keys";
-			L.getInstance().logDebug( "> concurrentDeser Enter - stmt params keys : " + keys);
+			HbaseLog.l.debug( Thread.currentThread().getName() +  "> concurrentDeser Enter - stmt params keys : " + keys);
 		}
 		
 		Object tablePartsO = stmtParams.get(HSearchTableMultiQueryExecutor.TABLE_PARTS);
@@ -62,17 +63,8 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 			}
 			return;
 		}
-		plugin.reset();
+		plugin.cleanupValuesFromLastRun();
 
-		Object outputTypeO = stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
-		if ( null == outputTypeO) {
-			System.err.println("Warning : No output type for > " + tableType + ":" + aStmtOrValue);
-			for (String key : stmtParams.keySet()) {
-				System.err.println("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
-			}
-		}
-		Integer outputType = ( null != outputTypeO) ? (Integer) outputTypeO : HSearchTableMultiQueryExecutor.OUTPUT_COLS;
-		
 		HSearchQuery hQuery = new HSearchQuery(aStmtOrValue);		
 		
 		List<TableDeserExecutor> tasks = new ArrayList<TableDeserExecutor>();
@@ -83,9 +75,10 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 			tasks.add(deserTask);
 		}
 		if ( tasks.size() > 1 ) {
-			if ( DEBUG_ENABLED ) L.getInstance().logDebug( tasks.size() + " Processing in parallel.");
+			if ( DEBUG_ENABLED ) HbaseLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in parallel.");
 			HSearchTableResourcesDefault.getInstance().cpuIntensiveJobExecutor.invokeAll(tasks);
 		} else {
+			if ( DEBUG_ENABLED ) HbaseLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in sequence.");
 			for ( TableDeserExecutor deserExec : tasks) {
 				deserExec.call(); 
 			}
@@ -97,10 +90,10 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		byte[] tableSer = null; 
 		IHSearchPlugin plugin = null;
 		HSearchQuery hQuery = null;
-		int outputType = HSearchTableMultiQueryExecutor.OUTPUT_COLS;
+		OutputType outputType = new OutputType();
 		IHSearchTable t = null;
 
-		public TableDeserExecutor(IHSearchTable t, byte[] tableSer, IHSearchPlugin plugin, HSearchQuery hQuery, int outputType) {
+		public TableDeserExecutor(IHSearchTable t, byte[] tableSer, IHSearchPlugin plugin, HSearchQuery hQuery, OutputType outputType) {
 			this.t = t;
 			this.tableSer = tableSer;
 			this.plugin = plugin;
@@ -110,25 +103,31 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		
 		@Override
 		public Integer call() throws Exception {
+			System.out.println(Thread.currentThread().getName() + " HSearch Table Processing - ENTER");
 			try {
-				switch ( this.outputType) {
-					case HSearchTableMultiQueryExecutor.OUTPUT_COLS:
+				switch ( this.outputType.typeCode) {
+					case OutputType.OUTPUT_COLS:
 						t.get(tableSer, hQuery, plugin);
 						break;
-					case HSearchTableMultiQueryExecutor.OUTPUT_ID:
+					case OutputType.OUTPUT_ID:
 						t.keySet(tableSer, hQuery, plugin);
 						break;
-					case HSearchTableMultiQueryExecutor.OUTPUT_VAL:
+					case OutputType.OUTPUT_VAL:
 						t.values(tableSer, hQuery, plugin);
 						break;
-					case HSearchTableMultiQueryExecutor.OUTPUT_IDVAL:
+					case OutputType.OUTPUT_IDVAL:
 						t.keyValues(tableSer, hQuery, plugin);
 						break;
+					default:
+						throw new IOException("Unknown output type:" + this.outputType);
 				}
 				
+				System.out.println(Thread.currentThread().getName() + " HSearch Table Processing - SUCESS");
 				return 0;
 			} catch (Exception ex) {
 				throw new Exception(ex);
+			} finally {
+				System.out.println(Thread.currentThread().getName() + " HSearch Table Processing - EXIT");
 			}
 		}
 	}

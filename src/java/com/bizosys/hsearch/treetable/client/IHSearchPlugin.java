@@ -19,10 +19,23 @@
 */
 package com.bizosys.hsearch.treetable.client;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
+
+import com.bizosys.hsearch.federate.FederatedFacade;
 
 public interface IHSearchPlugin {
-	Collection<String> getUniqueRowKeys() throws Exception;
-	void onComplete();
-	void reset();
+	void setOutputType(OutputType outputTypeCode);
+	void cleanupValuesFromLastRun() ;
+	
+	Collection<String> getUniqueMatchingDocumentIds() throws IOException;
+	void onFilterationComplete();
+	
+	long getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
+	double getMax(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
+	double getMin(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
+	double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
+	
+	
 }

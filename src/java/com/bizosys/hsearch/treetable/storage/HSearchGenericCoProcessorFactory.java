@@ -30,7 +30,7 @@ public class HSearchGenericCoProcessorFactory {
 
 	}
 	
-	public Map<byte[], long[]> execCoprocessor(HTableWrapper table) throws IOException, Throwable  {
+	public Map<byte[], long[]> execCoprocessorCounts(HTableWrapper table) throws IOException, Throwable  {
 
 		Map<byte[], long[]> output = table.table.coprocessorExec(
                 HSearchGenericCoprocessor.class, null, null,

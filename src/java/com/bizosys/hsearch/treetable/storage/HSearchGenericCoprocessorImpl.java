@@ -2,6 +2,7 @@ package com.bizosys.hsearch.treetable.storage;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.hadoop.hbase.KeyValue;
@@ -24,47 +25,68 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 	 * @throws IOException
 	 */
 	public long[] getCount(byte[][] families, byte[][] cols, HSearchGenericFilter filter) throws IOException {
-		System.out.println("> " + Thread.currentThread().getName() + "@ coprocessor : getCount");
-
-		Scan scan = new Scan();
-		scan.setCacheBlocks(true);
-		scan.setCaching(500);
-		scan.setMaxVersions(1);
-		int familiesT = families.length;
-		for (int i=0; i<familiesT; i++) {
-			System.out.println("> " + Thread.currentThread().getName() + "@ adding family " + families[i]);
-			scan = scan.addColumn(families[i], cols[i]);
-		}
 		
-		if ( null != filter) {
-			System.out.println("> " + Thread.currentThread().getName() + "@ setting filter");
-			scan = scan.setFilter(filter);
-		} else {
-			System.out.println("> " + Thread.currentThread().getName() + "@ filter is not set");
-		}
+		System.out.println("> " + Thread.currentThread().getName() + "@ coprocessor : getCount");
+		InternalScanner scanner = null;
 
-		RegionCoprocessorEnvironment environment = (RegionCoprocessorEnvironment) getEnvironment();
-
-		System.out.println("> " + Thread.currentThread().getName() + "@ use an internal scanner to perform scanning.");
-		InternalScanner scanner = environment.getRegion().getScanner(scan);
-		System.out.println("> " + Thread.currentThread().getName() + "@ Got scanner.");
-		int result = 0;
 		try {
+
+			Scan scan = new Scan();
+			scan.setCacheBlocks(true);
+			scan.setCaching(500);
+			scan.setMaxVersions(1);
+			int familiesT = families.length;
+			
+			for (int i=0; i<familiesT; i++) {
+				System.out.println("> " + Thread.currentThread().getName() + "@ adding family " + families[i]);
+				scan = scan.addColumn(families[i], cols[i]);
+			}
+			
+			if ( null != filter) scan = scan.setFilter(filter);
+
+			RegionCoprocessorEnvironment environment = (RegionCoprocessorEnvironment) getEnvironment();
+
+			scanner = environment.getRegion().getScanner(scan);
+			
 			List<KeyValue> curVals = new ArrayList<KeyValue>();
 			boolean done = false;
+			
+			long[] queryPartCountsWithTotallingAtTop = new long[filter.getTotalQueryParts() + 1];
+			Arrays.fill(queryPartCountsWithTotallingAtTop, 0);
+			
 			do {
 				curVals.clear();
 				done = scanner.next(curVals);
-				
-				System.out.println("> " + Thread.currentThread().getName() + "@ " + curVals.size());
-				result = result + curVals.size();
+				for (KeyValue kv : curVals) {
+					byte[] input = kv.getValue();
+					if ( null == input) continue;
+					@SuppressWarnings("rawtypes")
+					List foundCounts = filter.deSerializeOutput(input);
+					if ( null == foundCounts) continue;
+					int i=0;
+					for (Object countV : foundCounts) {
+						Long aCount = (Long) countV;
+						System.out.println( i + "A count :" + aCount);
+						queryPartCountsWithTotallingAtTop[i] = queryPartCountsWithTotallingAtTop[i] + aCount.longValue();
+						i++;
+					}
+				}
 				
 			} while (done);
 			
-			System.out.println("> " + Thread.currentThread().getName() + "@ Total matching : " + result);
-			return new long[] {result};
+			for (long l : queryPartCountsWithTotallingAtTop) 
+				System.out.println("Final Counting > Value" + l);
+
+			return queryPartCountsWithTotallingAtTop;
+			
 		} finally {
-			if ( null != scanner) scanner.close();
+			if ( null != scanner) {
+				try {
+					scanner.close();
+				} catch (Exception ex) {
+					
+				}
+			}
 		}
 	}
 
