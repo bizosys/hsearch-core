@@ -30,18 +30,18 @@ import com.bizosys.hsearch.byteutils.SortedBytesDouble;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.CellBase;
 
-public class HSearchTableDistribution {
+public class HSearchTablePartition {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
-	private static HSearchTableDistribution singleton =  new HSearchTableDistribution();
+	private static HSearchTablePartition singleton =  new HSearchTablePartition();
 	
-	public static HSearchTableDistribution getInstance() {
+	public static HSearchTablePartition getInstance() {
 		return singleton;
 	}
 	
 	public List<Double> distBiundaries = new ArrayList<Double>();
-	private HSearchTableDistribution() {
+	private HSearchTablePartition() {
 	}
 	
 	public void initialize(String partitionPoints) {
@@ -92,7 +92,7 @@ public class HSearchTableDistribution {
 	}
 
 	
-	public byte[] addToDistribution(int distPos, List<HSearchTableDistributionComparator> input) throws IOException {
+	public byte[] addToDistribution(int distPos, List<HSearchTablePartitionComparator> input) throws IOException {
 	
 		int pos = -1;
 		double boundaryLeft = Long.MIN_VALUE;
@@ -109,7 +109,7 @@ public class HSearchTableDistribution {
 			
 			Collection<Double> values = new ArrayList<Double>();
 			
-			for (HSearchTableDistributionComparator entry : input) {
+			for (HSearchTablePartitionComparator entry : input) {
 				Double val = entry.value;
 				boolean isLeft = ( val > boundaryLeft);
 				//if ( !isLeft) continue;
