@@ -22,7 +22,9 @@ package com.bizosys.hsearch.treetable.storage;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +33,9 @@ import java.util.StringTokenizer;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 
-import com.bizosys.hsearch.byteutils.ByteArrays;
-import com.bizosys.hsearch.byteutils.ByteArrays.ArrayString.Builder;
+import com.bizosys.hsearch.byteutils.SortedBytesDouble;
+import com.bizosys.hsearch.byteutils.SortedBytesLong;
+import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.federate.FederatedFacade;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.hbase.HbaseLog;
@@ -84,7 +87,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	public void write(DataOutput out) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		
-		sb.append(new Integer(outputType.typeCode).toString()).append('\n');
+		sb.append(outputType.toString()).append('\n');
 		sb.append(this.multiQuery);
 		
 		if ( null != queryFilters) {
@@ -275,28 +278,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			IOException {
 		
 		List<FederatedFacade<String, String>.IRowId> intersectedIds = null;
-		
-		switch (outputType.typeCode ) {
-			case OutputType.OUTPUT_COUNT:
-			case OutputType.OUTPUT_MIN:
-			case OutputType.OUTPUT_MAX:
-			case OutputType.OUTPUT_AVG:
-			case OutputType.OUTPUT_ID:
-				intersectedIds = intersector.executeForIds(queryData, this.multiQuery, this.queryPayload);
-				break;
-			case OutputType.OUTPUT_VAL:
-				intersectedIds = intersector.executeForValues(queryData, this.multiQuery, this.queryPayload);
-				break;
-			case OutputType.OUTPUT_IDVAL:
-				intersectedIds = intersector.executeForIdValues(queryData, this.multiQuery, this.queryPayload);
-				break;
-			case OutputType.OUTPUT_COLS:
-				intersectedIds = intersector.executeForCols(queryData, this.multiQuery, this.queryPayload);
-				break;
-			default:
-				throw new IOException("Unknown output type :" + outputType);
-		}
-		
+		intersectedIds = intersector.execute(queryData, this.multiQuery, this.queryPayload, outputType);
 		
 		if ( DEBUG_ENABLED ) {
 			HbaseLog.l.debug( new String(row) + " has ids of :" + intersectedIds.size());
@@ -364,136 +346,170 @@ public abstract class HSearchGenericFilter implements Filter {
 
 		if ( DEBUG_ENABLED ) L.getInstance().logDebug( " getRowKeys > serializeMatchingIds." );
 		
-		switch (outputType.typeCode) {
+		switch (outputType.getOutputType()) {
 			
 			case OutputType.OUTPUT_COUNT:
 				return serializeCounts(matchedIds, queryPayload);
-		
-			case OutputType.OUTPUT_MAX:
-				return serializeMaximumValues(matchedIds, queryPayload);
-
+			
 			case OutputType.OUTPUT_MIN:
-				return serializeMinimumValues(matchedIds, queryPayload);
+			case OutputType.OUTPUT_MAX:
+			case OutputType.OUTPUT_AVG:
+			case OutputType.OUTPUT_SUM:
+				Collection<Double> outputL = new ArrayList<Double>(4);
+				serializeAggvValues(matchedIds, queryPayload, outputType.getOutputType(), outputL);
+				return SortedBytesDouble.getInstance().toBytes(outputL);
+				
+			case OutputType.OUTPUT_MIN_MAX:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX});
 
-			case OutputType.OUTPUT_ID:
+			case OutputType.OUTPUT_MIN_MAX_AVG:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_AVG});
+
+			case OutputType.OUTPUT_MIN_MAX_COUNT:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_COUNT});
+
+			case OutputType.OUTPUT_MIN_MAX_AVG_COUNT:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_AVG, OutputType.OUTPUT_COUNT});
+				
+			case OutputType.OUTPUT_MIN_MAX_SUM:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_SUM});
+
+			case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, 
+						OutputType.OUTPUT_SUM, OutputType.OUTPUT_AVG});
+
+			case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, 
+						OutputType.OUTPUT_SUM, OutputType.OUTPUT_COUNT});
+
+			case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_AVG,
+						OutputType.OUTPUT_SUM, OutputType.OUTPUT_COUNT});
+
+			case OutputType.CALLBACK_ID:
 				return serializeDocIds(matchedIds, queryPayload);
 
-			case OutputType.OUTPUT_IDVAL:
+			case OutputType.CALLBACK_IDVAL:
 				return serializeIdAndValues(matchedIds, queryPayload);
 				
-			case OutputType.OUTPUT_VAL:
+			case OutputType.CALLBACK_VAL:
 				return serializeValues(matchedIds, queryPayload);
 
-			case OutputType.OUTPUT_COLS:
+			case OutputType.CALLBACK_COLS:
 				return serializeColumns(matchedIds, queryPayload);
 		}
 		
-		throw new IOException("Serialization, Type not implemented :" + this.outputType.typeCode);
+		throw new IOException("Serialization, Type not implemented :" + this.outputType.getOutputType());
 		
-	}
-
-	@SuppressWarnings("rawtypes")
-	public List deSerializeOutput(byte[] input) throws IOException {
-		
-		if ( DEBUG_ENABLED ) L.getInstance().logDebug( " getRowKeys > de-serializeMatchingIds : " + outputType.typeCode );
-		switch (outputType.typeCode) {
-			
-			case OutputType.OUTPUT_COUNT:
-				return ByteArrays.ArrayLong.parseFrom(input).getValList();
-				
-			case OutputType.OUTPUT_MAX:
-			case OutputType.OUTPUT_MIN:
-				return ByteArrays.ArrayDouble.parseFrom(input).getValList();
-
-			case OutputType.OUTPUT_ID:
-				return ByteArrays.ArrayString.parseFrom(input).getValList();
-
-			case OutputType.OUTPUT_IDVAL:
-				return deserializeIdAndValues(input);
-				
-			case OutputType.OUTPUT_VAL:
-				return deserializeValues(input);
-
-			case OutputType.OUTPUT_COLS:
-				return deserializeColumns(input);
-		}
-		
-		throw new IOException("Deserialization Failute, type not implemented :" + this.outputType.typeCode);
-	}		
-		
-
-	private byte[] serializeMaximumValues(
-			List<FederatedFacade<String, String>.IRowId> matchedIds,
-			Map<String, QueryPart> queryPayload) throws IOException {
-		double maxValue = Long.MIN_VALUE;
-		double[] plugInMaxes = new double[queryPayload.size()];
-		Arrays.fill(plugInMaxes, Long.MIN_VALUE);
-		int seq = 0;
-		for (QueryPart part : queryPayload.values()) {
-			
-			Object pluginO =  part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
-			if ( null == pluginO) throw new IOException("Plugin object is not found, NULL");
-			IHSearchPlugin plugin =  (IHSearchPlugin) pluginO;
-			plugInMaxes[seq] = plugin.getMax(matchedIds);
-			if ( maxValue < plugInMaxes[seq]) maxValue = plugInMaxes[seq];
-			seq++;
-		}
-		com.bizosys.hsearch.byteutils.ByteArrays.ArrayDouble.Builder maxL = ByteArrays.ArrayDouble.newBuilder();
-		maxL.addVal(maxValue);
-		for (double pluginMax : plugInMaxes) {
-			maxL.addVal(pluginMax);	
-		}
-		
-		byte[] result = maxL.build().toByteArray();
-		return result;
 	}
 
 	private byte[] serializeCounts(
 			List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String, QueryPart> queryPayload) throws IOException {
 		
-		com.bizosys.hsearch.byteutils.ByteArrays.ArrayLong.Builder countL = ByteArrays.ArrayLong.newBuilder();
+		List<Long> countL = new ArrayList<Long>();
 		long multiQueryCount = ( null == matchedIds ) ? 0: matchedIds.size();
-		countL.addVal(multiQueryCount);
+		countL.add(multiQueryCount);
 		
 		for (QueryPart part : queryPayload.values()) {
 			
 			Object pluginO =  part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
 			if ( null == pluginO) throw new IOException("Plugin object is not found, NULL");
 			IHSearchPlugin plugin =  (IHSearchPlugin) pluginO;
-			countL.addVal(plugin.getCount(matchedIds));
+			countL.add(plugin.getCount(matchedIds));
 		}
-		return countL.build().toByteArray();
+		return SortedBytesLong.getInstance().toBytes(countL);
 	}
 	
-	private byte[] serializeMinimumValues( List<FederatedFacade<String, String>.IRowId> matchedIds,
-			Map<String, QueryPart> queryPayload) throws IOException {
-		double minValue = Long.MAX_VALUE;
-		double[] plugInMinimums = new double[queryPayload.size()];
-		Arrays.fill(plugInMinimums, Long.MAX_VALUE);
+	private byte[] serializeAggvValuesChained( List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Map<String, QueryPart> queryPayload, int[] outputCode) throws IOException {
+		
+		Collection<Double> outputList = new ArrayList<Double>();
+		for (int code : outputCode) {
+			serializeAggvValues(matchedIds, queryPayload, code, outputList);
+		}
+		return SortedBytesDouble.getInstance().toBytes(outputList);
+		
+	}
+	
+	private void serializeAggvValues( List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Map<String, QueryPart> queryPayload, int outputCode,
+			Collection<Double> outputL) throws IOException {
+
+		double outputMultiQuery = -1;
+		double[] outputQueryParts = new double[queryPayload.size()];
+		
+		switch(outputCode) {
+			case OutputType.OUTPUT_COUNT:
+			case OutputType.OUTPUT_SUM:
+			case OutputType.OUTPUT_AVG:
+				outputMultiQuery = 0; 
+				Arrays.fill(outputQueryParts, 0);
+				break;
+			case OutputType.OUTPUT_MAX:
+				outputMultiQuery = Long.MIN_VALUE; 
+				Arrays.fill(outputQueryParts, Long.MIN_VALUE);
+				break;
+			case OutputType.OUTPUT_MIN:
+				outputMultiQuery = Long.MAX_VALUE; 
+				Arrays.fill(outputQueryParts, Long.MAX_VALUE);
+				break;
+				
+			default:
+				throw new IOException("Not imeplemented Yet");
+		}
+		
 		int seq = 0;
+		
 		for (QueryPart part : queryPayload.values()) {
 			
 			Object pluginO =  part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
 			if ( null == pluginO) throw new IOException("Plugin object is not found, NULL");
 			IHSearchPlugin plugin =  (IHSearchPlugin) pluginO;
-			plugInMinimums[seq] = plugin.getMax(matchedIds);
-			if ( minValue > plugInMinimums[seq]) minValue = plugInMinimums[seq];
+			
+			switch(outputCode) {
+				case OutputType.OUTPUT_COUNT:
+					outputQueryParts[seq] = plugin.getCount(matchedIds);
+					outputMultiQuery += outputQueryParts[seq]; 
+					break;
+				case OutputType.OUTPUT_AVG:
+					outputQueryParts[seq] = plugin.getAvg(matchedIds);
+					outputMultiQuery += outputQueryParts[seq]; 
+					outputMultiQuery = outputMultiQuery / 2;
+					break;
+				case OutputType.OUTPUT_MAX:
+					outputQueryParts[seq] = plugin.getMax(matchedIds);
+					if ( outputMultiQuery < outputQueryParts[seq]) outputMultiQuery = outputQueryParts[seq];
+					break;
+				case OutputType.OUTPUT_MIN:
+					outputQueryParts[seq] = plugin.getMin(matchedIds);
+					if ( outputMultiQuery > outputQueryParts[seq]) outputMultiQuery = outputQueryParts[seq];
+					break;
+				case OutputType.OUTPUT_SUM:
+					outputQueryParts[seq] = plugin.getSum(matchedIds);
+					outputMultiQuery += outputQueryParts[seq]; 
+					break;
+			}
 			seq++;
 		}
-		com.bizosys.hsearch.byteutils.ByteArrays.ArrayDouble.Builder minL = ByteArrays.ArrayDouble.newBuilder();
-		minL.addVal(minValue);
-		for (double pluginMax : plugInMinimums) {
-			minL.addVal(pluginMax);	
+
+		outputL.add(outputMultiQuery);
+		for (double outputQueryPart : outputQueryParts) {
+			outputL.add(outputQueryPart);	
 		}
-		
-		byte[] result = minL.build().toByteArray();
-		return result;
 	}
 	
 	protected byte[] serializeDocIds( List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String, QueryPart> queryPayload) throws IOException {			
-		Builder idL = ByteArrays.ArrayString.newBuilder();
+		Collection<String> idL = new ArrayList<String>(1024);
 		StringBuffer sb = null;
 		if ( DEBUG_ENABLED ) sb = new StringBuffer();
 		
@@ -507,12 +523,53 @@ public abstract class HSearchGenericFilter implements Filter {
 				L.getInstance().logWarning( " HSearch Plugin - DocId : is null." );
 				continue;
 			}
-			idL.addVal(docId);
+			idL.add(docId);
 			if ( DEBUG_ENABLED ) sb.append(docId.toString()).append(',');
 		}
 		if ( DEBUG_ENABLED ) L.getInstance().logDebug( "Ids :" + sb.toString() );
-		return idL.build().toByteArray();
+		return SortedBytesString.getInstance().toBytes(idL);
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public Collection deSerializeOutput(byte[] input, Collection values) throws IOException {
+		
+		if ( DEBUG_ENABLED ) L.getInstance().logDebug(
+			"HSearch Generic Filter getRowKeys > de-serializeMatchingIds : " + outputType.getCallbackType() );
+		
+		switch (outputType.getOutputType()) {
+			
+			case OutputType.OUTPUT_COUNT:
+				return SortedBytesLong.getInstance().parse(input).values(values);
+				
+			case OutputType.OUTPUT_MIN:
+			case OutputType.OUTPUT_MAX:
+			case OutputType.OUTPUT_AVG:
+			case OutputType.OUTPUT_SUM:
+			case OutputType.OUTPUT_MIN_MAX:
+			case OutputType.OUTPUT_MIN_MAX_AVG:
+			case OutputType.OUTPUT_MIN_MAX_COUNT:
+			case OutputType.OUTPUT_MIN_MAX_AVG_COUNT:
+			case OutputType.OUTPUT_MIN_MAX_SUM:
+			case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
+			case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
+			case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
+				return SortedBytesDouble.getInstance().parse(input).values(values);
+
+			case OutputType.CALLBACK_ID:
+				return SortedBytesString.getInstance().parse(input).values(values);
+
+			case OutputType.CALLBACK_IDVAL:
+				return deserializeIdAndValues(input, values);
+				
+			case OutputType.CALLBACK_VAL:
+				return deserializeValues(input, values);
+
+			case OutputType.CALLBACK_COLS:
+				return deserializeColumns(input, values);
+		}
+		
+		throw new IOException("Deserialization Failute, type not implemented :" + this.outputType.getOutputType());
+	}			
 	
 	public abstract HSearchTableMultiQueryExecutor createExector();
 	public abstract IHSearchPlugin createPlugIn(String type) throws IOException ;
@@ -521,19 +578,19 @@ public abstract class HSearchGenericFilter implements Filter {
 			Map<String,QueryPart> queryPayload) throws IOException;
 	
 	@SuppressWarnings("rawtypes")
-	public abstract List deserializeValues(byte[] input) throws IOException;
+	public abstract List deserializeValues(byte[] input, Collection values) throws IOException;
 
 	public abstract byte[] serializeIdAndValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String,QueryPart> queryPayload) throws IOException;
 	
 	@SuppressWarnings("rawtypes")
-	public abstract List deserializeIdAndValues(byte[] input) throws IOException;
+	public abstract List deserializeIdAndValues(byte[] input, Collection values) throws IOException;
 	
 	public abstract byte[] serializeColumns(List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String,QueryPart> queryPayload) throws IOException;
 
 	@SuppressWarnings("rawtypes")
-	public abstract List deserializeColumns(byte[] input) throws IOException;
+	public abstract List deserializeColumns(byte[] input, Collection values) throws IOException;
 	
 	
 }

@@ -26,12 +26,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import com.bizosys.hsearch.hbase.HbaseLog;
-import com.bizosys.hsearch.treetable.client.HSearchQuery;
-import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
-import com.bizosys.hsearch.treetable.client.HSearchTableParts;
-import com.bizosys.hsearch.treetable.client.HSearchTableResourcesDefault;
-import com.bizosys.hsearch.treetable.client.IHSearchTableCombiner;
-import com.bizosys.hsearch.treetable.client.L;
 
 public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 
@@ -48,18 +42,18 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		Object tablePartsO = stmtParams.get(HSearchTableMultiQueryExecutor.TABLE_PARTS);
 		
 		if ( null == tablePartsO) {
-			System.err.println("Warning : Null Column data for > " + tableType + " For Query " + aStmtOrValue);
+			HbaseLog.l.warn("Warning : Null Column data for > " + tableType + " For Query " + aStmtOrValue);
 			for (String key : stmtParams.keySet()) {
-				System.err.println("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
+				HbaseLog.l.warn("Warning : For Key > " + key + "  , Value " + stmtParams.get(key));
 			}
 		}
 		HSearchTableParts tableParts = (HSearchTableParts) tablePartsO ;
 		
 		IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 		if ( null == plugin) {
-			System.err.println("Warning : Null plugin for > " + tableType + ":" + aStmtOrValue);
+			HbaseLog.l.error("Warning : Null plugin for > " + tableType + ":" + aStmtOrValue);
 			for (String key : stmtParams.keySet()) {
-				System.err.println("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
+				HbaseLog.l.error("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
 			}
 			return;
 		}
@@ -90,7 +84,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		byte[] tableSer = null; 
 		IHSearchPlugin plugin = null;
 		HSearchQuery hQuery = null;
-		OutputType outputType = new OutputType();
+		OutputType outputType = null;
 		IHSearchTable t = null;
 
 		public TableDeserExecutor(IHSearchTable t, byte[] tableSer, IHSearchPlugin plugin, HSearchQuery hQuery, OutputType outputType) {
@@ -103,31 +97,38 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		
 		@Override
 		public Integer call() throws Exception {
-			System.out.println(Thread.currentThread().getName() + " HSearch Table Processing - ENTER");
+			if ( DEBUG_ENABLED ) {
+				HbaseLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - ENTER");
+			}
 			try {
-				switch ( this.outputType.typeCode) {
-					case OutputType.OUTPUT_COLS:
+				switch ( this.outputType.getCallbackType()) {
+					case OutputType.CALLBACK_COLS:
 						t.get(tableSer, hQuery, plugin);
 						break;
-					case OutputType.OUTPUT_ID:
+					case OutputType.CALLBACK_ID:
 						t.keySet(tableSer, hQuery, plugin);
 						break;
-					case OutputType.OUTPUT_VAL:
+					case OutputType.CALLBACK_VAL:
 						t.values(tableSer, hQuery, plugin);
 						break;
-					case OutputType.OUTPUT_IDVAL:
+					case OutputType.CALLBACK_IDVAL:
 						t.keyValues(tableSer, hQuery, plugin);
 						break;
 					default:
 						throw new IOException("Unknown output type:" + this.outputType);
 				}
 				
-				System.out.println(Thread.currentThread().getName() + " HSearch Table Processing - SUCESS");
+				if ( DEBUG_ENABLED ) {
+					HbaseLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - SUCESS");
+				}
 				return 0;
 			} catch (Exception ex) {
+				HbaseLog.l.error(Thread.currentThread().getName(), ex);
 				throw new Exception(ex);
 			} finally {
-				System.out.println(Thread.currentThread().getName() + " HSearch Table Processing - EXIT");
+				if ( DEBUG_ENABLED ) {
+					HbaseLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - EXIT");
+				}
 			}
 		}
 	}

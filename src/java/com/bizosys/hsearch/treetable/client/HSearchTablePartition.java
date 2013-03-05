@@ -59,7 +59,7 @@ public class HSearchTablePartition {
 	
 	public List<Integer> getPartitionSequences(double start, double end) {
 		
-		if ( DEBUG_ENABLED ) System.out.println("Start :" + start + " , End : " + end);
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug("Start :" + start + " , End : " + end);
 		
 		List<Integer> positions = new ArrayList<Integer>();
 	
@@ -80,7 +80,7 @@ public class HSearchTablePartition {
 			positions.add(pos);
 		}
 		
-		if ( DEBUG_ENABLED ) System.out.println(start + " > startPos:" + distBiundaries.get(startPos) + "  , endpos:" + end + " > " + + distBiundaries.get(endPos) );
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug( start + " > startPos:" + distBiundaries.get(startPos) + "  , endpos:" + end + " > " + + distBiundaries.get(endPos) );
 		return positions;
 	}
 	
@@ -117,7 +117,7 @@ public class HSearchTablePartition {
 				boolean isRight = ( entry.value <= boundaryRight);
 				
 				if ( DEBUG_ENABLED ) {
-					System.out.println( "Key :" + entry.key + " : " +
+					if ( DEBUG_ENABLED ) HbaseLog.l.debug( "Key :" + entry.key + " : " +
 						boundaryLeft + "<" + val + "<" +  boundaryRight + "   :  "+  isLeft + "&&" + isRight );
 				}
 				

@@ -15,6 +15,7 @@ public interface ISortedByte<T> {
 
 	void addAll(Collection<T> vals) throws IOException;
 	Collection<T> values() throws IOException;
+	Collection<T> values(Collection<T> container) throws IOException;
 	T getValueAt(int pos) throws IOException;
 
 	int getEqualToIndex(T matchNo) throws IOException;

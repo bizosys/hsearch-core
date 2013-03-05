@@ -35,6 +35,7 @@ public class HSearchGenericCoProcessorFactory {
 		Map<byte[], long[]> output = table.table.coprocessorExec(
                 HSearchGenericCoprocessor.class, null, null,
                 
+                
                 new Batch.Call<HSearchGenericCoprocessor, long[]>() {
                     @Override
                     public long[] call(HSearchGenericCoprocessor counter) throws IOException {
@@ -45,4 +46,38 @@ public class HSearchGenericCoProcessorFactory {
 		return output;
 		
 	}
+	
+	public Map<byte[], double[]> execCoprocessorAggregates(HTableWrapper table) throws IOException, Throwable  {
+
+		Map<byte[], double[]> output = table.table.coprocessorExec(
+                HSearchGenericCoprocessor.class, null, null,
+                
+                
+                new Batch.Call<HSearchGenericCoprocessor, double[]>() {
+                    @Override
+                    public double[] call(HSearchGenericCoprocessor counter) throws IOException {
+                        return counter.getAggregates(families, cols, filter);
+                 }
+         } );
+		
+		return output;
+		
+	}
+	
+	public Map<byte[], byte[]> execCoprocessorRows(HTableWrapper table) throws IOException, Throwable  {
+
+		Map<byte[], byte[]> output = table.table.coprocessorExec(
+                HSearchGenericCoprocessor.class, null, null,
+                
+                
+                new Batch.Call<HSearchGenericCoprocessor, byte[]>() {
+                    @Override
+                    public byte[] call(HSearchGenericCoprocessor counter) throws IOException {
+                        return counter.getRows(families, cols, filter);
+                 }
+         } );
+		
+		return output;
+	}
+
 }

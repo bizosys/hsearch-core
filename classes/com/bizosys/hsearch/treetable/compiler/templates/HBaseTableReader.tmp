@@ -1,6 +1,10 @@
 package --PACKAGE--;
 
-import org.apache.hadoop.hbase.util.Bytes;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HDML;
@@ -38,14 +42,23 @@ public class HBaseTableReader extends HSearchTableReader implements IScanCallBac
 	}
 
 	@Override
-	public void agreegateCounts(Map<byte[], long[]> results) {
+	public void counts(Map<byte[], long[]> results) {
         long total = 0;
         for (Map.Entry<byte[], long[]> entry : results.entrySet()) {
-            total += results.size();
-            System.out.println("Region: " + Bytes.toString(entry.getKey()) + ", Count: " + entry.getValue());
+            total += entry.getValue()[0];
         }
         System.out.println("Total Count: " + total);
 	}
+	
+	@Override
+	public void agreegates(Map<byte[], double[]> results, OutputType aggregateType) {
+		
+	}
+	@Override
+	public void rows(Map<byte[], byte[]> results, OutputType aggregateType) {
+		
+	}
+	
 		
 	/**
 	 *   m|1|[1:7432]|[1:4]|*|[1:758320]|*
@@ -85,7 +98,10 @@ public class HBaseTableReader extends HSearchTableReader implements IScanCallBac
         multiQueryParts.put("EmpDetail:B", "*|developer|*|*|*");
         
         long start = System.currentTimeMillis();
-        ht.read("EmpDetail:A OR EmpDetail:B", multiQueryParts, new OutputType(OutputType.OUTPUT_COUNT), false, true);
+
+        ht.read("EmpDetail:A OR EmpDetail:B", multiQueryParts, 
+        	new OutputType(OutputType.CALLBACK_COLS, OutputType.OUTPUT_COUNT), false, true);
+
         long end = System.currentTimeMillis();
         System.out.println(" finished in  " + (end - start) + " millis ");
         */

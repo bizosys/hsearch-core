@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.hadoop.hbase.util.Bytes;
-
 import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HReader;
@@ -45,7 +43,10 @@ public abstract class HSearchTableReader {
 	
 	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts, OutputType outputType); 
 	public abstract IScanCallBack getResultCollector();
-	public abstract void agreegateCounts(Map<byte[], long[]> results);
+
+	public abstract void counts(Map<byte[], long[]> results);
+	public abstract void agreegates(Map<byte[], double[]> results, OutputType aggregateType);
+	public abstract void rows(Map<byte[], byte[]> results, OutputType rowType);
 
 	public void read( String multiQuery, Map<String, String> multiQueryParts, 
 			OutputType outputType, boolean isPartitioned, boolean isParallel) 
@@ -85,15 +86,38 @@ public abstract class HSearchTableReader {
 			HTableWrapper table = HBaseFacade.getInstance().getTable(tableName);
 			
 	        try {
-	        	switch ( outputType.typeCode) {
+	        	switch ( outputType.getOutputType()) {
 	        		case OutputType.OUTPUT_COUNT:
-	    	        	Map<byte[], long[]> results = new HSearchGenericCoProcessorFactory(
-	    		        		families, filter).execCoprocessorCounts(table);
-	    		        agreegateCounts(results);
+	    		        counts(new HSearchGenericCoProcessorFactory(
+	    		        		families, filter).execCoprocessorCounts(table));
 	    		        break;
-	    		     
-	        		default:
-	        			new IOException("Type is not implemented Yet");
+
+	    			case OutputType.OUTPUT_MIN:
+	    			case OutputType.OUTPUT_MAX:
+	    			case OutputType.OUTPUT_AVG:
+	    			case OutputType.OUTPUT_SUM:
+	    			case OutputType.OUTPUT_MIN_MAX:
+	    			case OutputType.OUTPUT_MIN_MAX_AVG:
+	    			case OutputType.OUTPUT_MIN_MAX_COUNT:
+	    			case OutputType.OUTPUT_MIN_MAX_AVG_COUNT:
+	    			case OutputType.OUTPUT_MIN_MAX_SUM:
+	    			case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
+	    			case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
+	    			case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
+	    				agreegates(new HSearchGenericCoProcessorFactory(
+	    		        		families, filter).execCoprocessorAggregates(table), outputType );
+	    		        break;
+	    		        
+	    			case OutputType.OUTPUT_ID:
+	    			case OutputType.OUTPUT_IDVAL:
+	    			case OutputType.OUTPUT_VAL:
+	    			case OutputType.OUTPUT_COLS:
+	    				rows(new HSearchGenericCoProcessorFactory(
+	    		        		families, filter).execCoprocessorRows(table), outputType );
+	    		        break;	    		        
+
+	    			default:
+	        			new IOException("Type is not supported.");
 	        			
 	        	}
 	        } catch (Throwable th) {

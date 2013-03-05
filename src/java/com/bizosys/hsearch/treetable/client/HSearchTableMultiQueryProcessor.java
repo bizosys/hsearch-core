@@ -58,20 +58,16 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 			public List<FederatedFacade<String, String>.IRowId> populate(
 					String type, String multiQueryPartId, String aStmtOrValue, Map<String, Object> stmtParams) throws IOException {
 
-				System.out.println( Thread.currentThread().getName() + "> AA");
 				if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "HSearchTableMultiQuery.populate ENTER.");
 				long startTime = System.currentTimeMillis();
-				long endTime = -1L;
 				try {
-					System.out.println( Thread.currentThread().getName() + "> BB");
 					IHSearchTableCombiner combiner = getCombiner();
+					OutputType outputType = (OutputType) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
 					
-					Integer outputType = (Integer) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
-					System.out.println("Output Type :" + outputType);
-					
-					combiner.concurrentDeser(aStmtOrValue, new OutputType(outputType), stmtParams, type);
+					if ( DEBUG_ENABLED ) HbaseLog.l.debug("Concurrent derer ENTER");
+					combiner.concurrentDeser(aStmtOrValue, outputType, stmtParams, type);
+					if ( DEBUG_ENABLED ) HbaseLog.l.debug("Concurrent derer EXIT");
 
-					System.out.println( Thread.currentThread().getName() + "> CC");
 					IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 					Collection<String> keys = plugin.getUniqueMatchingDocumentIds();
 					if ( keys.size() == 0) {
@@ -80,22 +76,19 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 					}
 					if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "Total Ids found :" + keys.size());
 	
-					System.out.println( Thread.currentThread().getName() + "> DD");
 					List<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId> results = 
-							new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId>(keys.size());
+						new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId>(keys.size());
 					
-					System.out.println( Thread.currentThread().getName() + "> EE");
 					for (String id : keys) {
 						IRowId primary = objectFactory.getPrimaryKeyRowId(id);
 						results.add(primary);
 					}
-					System.out.println( Thread.currentThread().getName() + "> FF");
 					return results;
 				} catch (Exception ex) {
 					throw new IOException(ex);
 				} finally {
 					if ( DEBUG_ENABLED ) {
-						endTime = System.currentTimeMillis();
+						long endTime = System.currentTimeMillis();
 						L.getInstance().logDebug( Thread.currentThread().getName() + "> " + "Deserialization Time :" + (endTime - startTime));
 					}
 				}

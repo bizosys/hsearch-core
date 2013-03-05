@@ -74,7 +74,7 @@ public class HSearchCompiler {
 					new File(args[1] + "/donotmodify/HSearchTableMultiQueryProcessorImpl.java") );
 						
 			FileWriterUtil.downloadToFile(generateHBaseHSearchFilter(newSchema).getBytes(), 
-					new File(args[1] + "/donotmodify/HBaseHSearchFilter.java") );
+					new File(args[1] + "/HBaseHSearchFilter.java") );
 
 			FileWriterUtil.downloadToFile(generateHBaseTableReader(newSchema.module, col.key, col.value, allFields).getBytes(), 
 					new File(args[1] + "/HBaseTableReader.java") );

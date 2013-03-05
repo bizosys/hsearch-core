@@ -14,9 +14,11 @@ import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
 import com.bizosys.hsearch.treetable.client.OutputType;
 
+import com.bizosys.hsearch.hbase.HbaseLog;
+
 public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	
-	static boolean DEBUG_ENABLED = false;
+	static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	//Take care of Thread Safety
 	Vector<String> ids = new Vector<String>();
@@ -100,13 +102,21 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	public double getMax(List<FederatedFacade<String, String>.IRowId> matchedIds) {
 		return this.maxValue;
 	}
+
 	@Override
 	public double getMin(List<FederatedFacade<String, String>.IRowId> matchedIds) {
 		return this.minValue;
 	}
+
 	@Override
-	public double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds) {
+	public double getSum(List<FederatedFacade<String, String>.IRowId> matchedIds) {
 		return this.avgValue;
 	}
+	
+	@Override
+	public double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds)  throws IOException {
+		return 0;
+	}
+	
 		
 }

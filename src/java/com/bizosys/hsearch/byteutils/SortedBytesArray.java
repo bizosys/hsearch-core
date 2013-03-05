@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public final class SortedBytesArray implements ISortedByte<byte[]>{
+public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 
 	public static ISortedByte<byte[]> getInstance() {
 		return new SortedBytesArray();
@@ -289,6 +289,18 @@ public final class SortedBytesArray implements ISortedByte<byte[]>{
 	public Collection<Integer> getRangeIndexesInclusive(byte[] matchNoStart,
 			boolean startMatch, byte[] matchNoEnd, boolean endMatch) throws IOException {
 		throw new IOException("Not implemented Yet");
+	}
+
+	@Override
+	protected int compare(byte[] inputB, int offset, byte[] compareBytes) {
+
+		if ( null == inputB && null == compareBytes) return 0;
+		if ( null == inputB) return 1;
+		if ( null == compareBytes) return -1;
+		
+		if ( ByteUtil.compareBytes(inputB, offset, compareBytes) ) return 0;
+		else if ( inputB[0] > compareBytes[0] ) return 1;
+		else return -1;
 	}
 
 }

@@ -3,49 +3,72 @@ package com.bizosys.hsearch.treetable.client;
 import java.io.IOException;
 
 public class OutputType {
+	public static final int CALLBACK_ID = 0;
+	public static final int CALLBACK_IDVAL = 1;
+	public static final int CALLBACK_VAL = 2;
+	public static final int CALLBACK_COLS = 3;
+	
 	public static final int OUTPUT_ID = 0;
 	public static final int OUTPUT_IDVAL = 1;
 	public static final int OUTPUT_VAL = 2;
 	public static final int OUTPUT_COLS = 3;
-	
+
 	public static final int OUTPUT_COUNT = 4;
 	public static final int OUTPUT_MIN = 5;
 	public static final int OUTPUT_MAX = 6;
 	public static final int OUTPUT_AVG = 7;
+	public static final int OUTPUT_SUM = 8;
+	
+	public static final int OUTPUT_MIN_MAX = 9;
+	public static final int OUTPUT_MIN_MAX_AVG = 10;
+	public static final int OUTPUT_MIN_MAX_COUNT = 11;
+	public static final int OUTPUT_MIN_MAX_AVG_COUNT = 12;
 
-	public int typeCode = OUTPUT_ID;
+	public static final int OUTPUT_MIN_MAX_SUM = 13;
+	public static final int OUTPUT_MIN_MAX_SUM_AVG = 14;
+	public static final int OUTPUT_MIN_MAX_SUM_COUNT = 15;
+	public static final int OUTPUT_MIN_MAX_AVG_SUM_COUNT = 16;
+	
+	//public static final int OUTPUT_FACETS = 17;
+	
+	private int callbackCode = CALLBACK_ID;
+	private int outputCode = CALLBACK_ID;
 	
 	public OutputType() {
 		
 	}
-	
-	public OutputType(int typeCode) {
-		this.typeCode = typeCode;
+
+	public OutputType(int callbackCode, int outputCode) {
+		this.callbackCode = callbackCode;
+		this.outputCode = outputCode;
 	}
 
 	public OutputType(String code) throws IOException {
-		char firstChar = code.charAt(0);
-		switch (firstChar) {
-			case '0':
-				this.typeCode = OUTPUT_ID; break;
-			case '1':
-				this.typeCode = OUTPUT_IDVAL; break;
-			case '2':
-				this.typeCode = OUTPUT_VAL; break;
-			case '3':
-				this.typeCode = OUTPUT_COLS; break;
-			case '4':
-				this.typeCode = OUTPUT_COUNT; break;
-			case '5':
-				this.typeCode = OUTPUT_MIN; break;
-			case '6':
-				this.typeCode = OUTPUT_MAX; break;
-			case '7':
-				this.typeCode = OUTPUT_AVG; break;
-			default:
-				throw new IOException("Unknown result output type[" + firstChar + ']');
-		}
-		
+		int divider = code.indexOf('|');
+		this.callbackCode = new Integer(code.substring(0, divider));
+		this.outputCode = new Integer(code.substring(divider + 1));
+	}
+
+	public int getOutputType() {
+		return this.outputCode;
+	}
+	
+	public int getCallbackType() {
+		return this.callbackCode;
+	}
+	
+	public String toString() {
+		return ( new Integer(callbackCode).toString() + '|' + new  Integer(outputCode).toString() );
+	}
+	
+	public String toStringHumanReadable() {
+		return ( new Integer(callbackCode).toString() + '|' + new  Integer(outputCode).toString() );
+	}
+
+	public static void main(String[] args) throws IOException {
+		OutputType o = new OutputType(CALLBACK_COLS, OUTPUT_MIN_MAX_AVG_SUM_COUNT);
+		OutputType x = new OutputType(o.toString());
+		System.out.println( x.toString());
 	}
 
 }

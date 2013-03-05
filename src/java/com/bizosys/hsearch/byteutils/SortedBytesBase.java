@@ -49,7 +49,12 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	@Override
 	public Collection<T> values() throws IOException {
 		List<T> vals = new ArrayList<T>();
-		if ( null == this.inputBytes ) return new ArrayList<T>();
+		return values(vals);
+	}
+	
+	@Override
+	public Collection<T> values(Collection<T> vals) throws IOException {
+		if ( null == this.inputBytes ) return vals;
 		int total = getSize();
 		
 		for ( int index=0; index<total; index++) {
@@ -57,7 +62,6 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		}
 		return vals;
 	}
-
 	
 	@Override
 	public int getEqualToIndex(T matchNo) throws IOException {

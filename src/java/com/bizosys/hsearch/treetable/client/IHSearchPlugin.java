@@ -33,9 +33,10 @@ public interface IHSearchPlugin {
 	void onFilterationComplete();
 	
 	long getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
+
+	double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	double getMax(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	double getMin(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
-	double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
-	
+	double getSum(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	
 }

@@ -40,9 +40,9 @@ public class HSearchTableMultiQueryExecutor {
 
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
-	public static final String OUTPUT_TYPE = "outputType";
+	public static final String OUTPUT_TYPE = "output";
 	public static final String PLUGIN = "plugin";
-	public static final String TABLE_PARTS = "tableParts";
+	public static final String TABLE_PARTS = "ranges";
 	
 	IHSearchTableMultiQueryProcessor processor = null;
 	
@@ -50,38 +50,13 @@ public class HSearchTableMultiQueryExecutor {
 		this.processor = processor;
 	}
 	
-	public List<FederatedFacade<String, String>.IRowId> executeForIds (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
-			Map<String,QueryPart> multiQueryParts ) throws Exception {
-		
-		return execute (tableParts, multiQueryStmt, multiQueryParts, OutputType.OUTPUT_ID);
-	}	
-
-	public List<FederatedFacade<String, String>.IRowId> executeForValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
-			Map<String,QueryPart> multiQueryParts ) throws Exception {
-		
-		return execute (tableParts, multiQueryStmt, multiQueryParts, OutputType.OUTPUT_VAL);
-	}	
-
-
-	public List<FederatedFacade<String, String>.IRowId> executeForIdValues (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
-			Map<String,QueryPart> multiQueryParts) throws Exception {
-
-		return execute (tableParts, multiQueryStmt, multiQueryParts, OutputType.OUTPUT_IDVAL);
-		
-	}	
-
-	public List<FederatedFacade<String, String>.IRowId> executeForCols (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
-			Map<String,QueryPart> multiQueryParts ) throws Exception {
-		
-		return execute (tableParts, multiQueryStmt, multiQueryParts, OutputType.OUTPUT_COLS);
-	}	
-	
-	private List<FederatedFacade<String, String>.IRowId> execute (Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
-			Map<String,QueryPart> multiQueryParts, int resultType) throws Exception {
+	public List<FederatedFacade<String, String>.IRowId> execute (
+		Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
+			Map<String,QueryPart> multiQueryParts, OutputType resultType) throws Exception {
 		
 		if ( null == tableParts) {
 			String msg = "Warning : TableParts is not found. Input bytes are not set.";
-			System.err.println(msg); HbaseLog.l.warn(msg);
+			HbaseLog.l.warn(msg);
 			return null;
 		}
 		
@@ -91,7 +66,7 @@ public class HSearchTableMultiQueryExecutor {
 			if ( null == part) {
 				String msg = ("Warning : Null table part bytes for " + queryId + "\n" + 
 						queryId + " is not in the supplied set :" + tableParts.keySet().toString());
-				System.err.println(msg); HbaseLog.l.warn(msg);
+				HbaseLog.l.error(msg);
 				return null;
 			}
 			
@@ -99,9 +74,9 @@ public class HSearchTableMultiQueryExecutor {
 			multiQueryParts.get(queryId).setParam(HSearchTableMultiQueryExecutor.OUTPUT_TYPE, resultType);
 		}
 		
-		System.out.println("HSearchTestMultiQuery : getProcessor ENTER ");
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTestMultiQuery : getProcessor ENTER ");
 		FederatedFacade<String, String> ff = processor.getProcessor();
-		System.out.println("HSearchTestMultiQuery : ff.execute ENTER ");
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");
 		List<FederatedFacade<String, String>.IRowId> matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
 
 		if  ( DEBUG_ENABLED ) {
