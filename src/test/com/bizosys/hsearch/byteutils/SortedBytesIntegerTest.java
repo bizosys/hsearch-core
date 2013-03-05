@@ -12,7 +12,7 @@ import com.oneline.ferrari.TestAll;
 public class SortedBytesIntegerTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+		public static String mode = modes[2];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesIntegerTest t = new SortedBytesIntegerTest();
@@ -24,7 +24,7 @@ public class SortedBytesIntegerTest extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testEqual();
+				t.testLessthan();
 				t.tearDown();
 			}
 		}

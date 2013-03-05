@@ -43,10 +43,11 @@ public class SortedBytesArrayTest extends TestCase {
 			for ( int i=0; i<1000; i++) {
 				sortedList.add( Storable.putLong(i));
 			}
-			
-			byte[] bytes = SortedBytesArray.getInstance().toBytes(sortedList);
+			ISortedByte<byte[]> instance = SortedBytesArray.getInstance();
+			byte[] bytes = instance.toBytes(sortedList);
+			instance.parse(bytes);
 			List<byte[]> reclaimed = new ArrayList<byte[]>();
-			SortedBytesArray.getInstance().addAll(reclaimed);
+			instance.addAll(reclaimed);
 			
 			int val = 0;
 			for (byte[] bs : reclaimed) {

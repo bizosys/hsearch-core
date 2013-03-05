@@ -11,8 +11,8 @@ import com.oneline.ferrari.TestAll;
 
 public class SortedBytesUnsignedShortTest extends TestCase {
 
-	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+    	public static String[] modes = new String[] { "all", "random", "method"};
+		public static String mode = modes[2];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesUnsignedShortTest t = new SortedBytesUnsignedShortTest();
@@ -55,7 +55,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();   
 			SortedBytesUnsignedShort.getInstance().parse(bytes).getEqualToIndexes(10, positions);
-			
+
 			assertNotNull(positions);
 			assertEquals(3, positions.size());
 			for (int pos : positions) {
@@ -65,27 +65,26 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 		
 		public void testLessthan() throws Exception {	
 			List<Integer> sortedList = new ArrayList<Integer>();
-			for ( int i=0; i<100; i++) {
+			for ( int i=0; i<1000; i++) {
 				sortedList.add(i);
 			}
 			Collections.sort(sortedList);
-
 			
 			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
 			List<Integer> positions = new ArrayList<Integer>();   
-			SortedBytesUnsignedShort.getInstance().parse(bytes).getLessThanIndexes(13, positions);
+			SortedBytesUnsignedShort.getInstance().parse(bytes).getLessThanIndexes(130, positions);
 			
 			assertNotNull(positions);
-			assertTrue(! positions.contains(13) );
-			assertTrue(!positions.contains(99) );
-			assertTrue(positions.contains(12) );
+			assertTrue(!positions.contains(130) );
+			assertTrue(!positions.contains(999) );
+			assertTrue(positions.contains(128) );
 			assertTrue(positions.contains(0) );
 			assertTrue(!positions.contains(-1) );
 			
-			assertEquals(13, positions.size());
+			assertEquals(130, positions.size());
 			
 			for (int pos : positions) {
-				assertTrue( (SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos) < 13) );
+				assertTrue( (SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos) < 130) );
 			}
 		}		
 		

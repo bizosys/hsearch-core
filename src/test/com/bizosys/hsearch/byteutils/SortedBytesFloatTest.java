@@ -88,8 +88,10 @@ public class SortedBytesFloatTest extends TestCase {
 			for (int pos : positions) {
 				assertTrue( (SortedBytesFloat.getInstance().parse(bytes).getValueAt(pos) < 130) );
 			}
-		}		
-		public void testLessthanMultiValue() throws Exception {	
+		}	
+		
+		public void testLessthanMultiValue() throws Exception {
+			
 			List<Float> sortedList = new ArrayList<Float>();
 			sortedList.add(new Float(0));
 			sortedList.add(new Float(5));
