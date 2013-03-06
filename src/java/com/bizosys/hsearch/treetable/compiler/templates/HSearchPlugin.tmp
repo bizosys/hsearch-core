@@ -39,9 +39,8 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	 * @return TRUE/FALSE whether it will be included in the result or not.
 	 */
 	public boolean onRowKey(--KEY_DATATYPE-- id) {
-		if ( DEBUG_ENABLED ) System.out.println( Thread.currentThread().getName() + " > ENTER Found Row" +  id);
+		//if ( DEBUG_ENABLED ) System.out.println( Thread.currentThread().getName() + " > ENTER HSearch Table Plugin onRowKey Id: " +  id);
 		ids.add(id.toString());
-		if ( DEBUG_ENABLED ) System.out.println( Thread.currentThread().getName() + " > EXIT Found Row" +  id);
 		return true;
 	}
 
