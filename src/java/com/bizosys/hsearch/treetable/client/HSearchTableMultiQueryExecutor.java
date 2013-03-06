@@ -54,6 +54,8 @@ public class HSearchTableMultiQueryExecutor {
 		Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts, OutputType resultType) throws Exception {
 		
+		long start = 0L;
+		
 		if ( null == tableParts) {
 			String msg = "Warning : TableParts is not found. Input bytes are not set.";
 			HbaseLog.l.warn(msg);
@@ -74,19 +76,34 @@ public class HSearchTableMultiQueryExecutor {
 			multiQueryParts.get(queryId).setParam(HSearchTableMultiQueryExecutor.OUTPUT_TYPE, resultType);
 		}
 		
-		if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTestMultiQuery : getProcessor ENTER ");
+		if ( DEBUG_ENABLED ) {
+			HbaseLog.l.debug("HSearchTestMultiQuery : getProcessor ENTER ");
+		}
+		
 		FederatedFacade<String, String> ff = processor.getProcessor();
-		if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");
-		List<FederatedFacade<String, String>.IRowId> matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
+		ff.DEBUG_MODE = false;
+		
+		if ( DEBUG_ENABLED ) {
+			HbaseLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");
+			start = System.currentTimeMillis();
+		}
+		
+		List<FederatedFacade<String, String>.IRowId> matchingIds = 
+				ff.execute(multiQueryStmt, multiQueryParts);
 
 		if  ( DEBUG_ENABLED ) {
-			StringBuilder sb = new StringBuilder();
-			
-			for (@SuppressWarnings("rawtypes") IRowId iRowId : matchingIds) {
-				if ( sb.length() > 0) sb.append(',');
-				sb.append(iRowId.getDocId().toString());
+			long end = System.currentTimeMillis();
+			if ( matchingIds.size() < 10 ) { 
+				StringBuilder sb = new StringBuilder();
+				
+				for (@SuppressWarnings("rawtypes") IRowId iRowId : matchingIds) {
+					if ( sb.length() > 0) sb.append(',');
+					sb.append(iRowId.getDocId().toString());
+				}
+				HbaseLog.l.debug("HSearchTableMultiQuery ff.execute: [" + sb.toString() + "]" + " in ms " + (end - start));
+			} else {
+				HbaseLog.l.debug("HSearchTableMultiQuery ff.execute: Output Ids Total : [" +  matchingIds.size() + "]" + " in ms " + (end - start));
 			}
-			HbaseLog.l.debug("MultiQuery Output Ids: [" + sb.toString() + "]");
 		}
 		
 		return matchingIds;

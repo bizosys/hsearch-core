@@ -40,6 +40,7 @@ import com.bizosys.hsearch.federate.FederatedFacade;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
+import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryProcessor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
@@ -263,6 +264,10 @@ public abstract class HSearchGenericFilter implements Filter {
 			if ( hasMatchingIds) {
 				kvL.add(new KeyValue(row, firstFamily, firstCol, serializeOutput(intersectedIds, this.queryPayload) ) );
 			}
+			
+			
+			if ( null != HSearchTableMultiQueryProcessor.processor) 
+				HSearchTableMultiQueryProcessor.processor.objectFactory.putprimaryKeyRowId(intersectedIds);
 			
 		} catch (Exception ex) {
 			ex.printStackTrace(System.err);

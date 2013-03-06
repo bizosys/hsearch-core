@@ -87,6 +87,7 @@ public abstract class HSearchTableReader {
 			
 	        try {
 	        	switch ( outputType.getOutputType()) {
+	        		
 	        		case OutputType.OUTPUT_COUNT:
 	    		        counts(new HSearchGenericCoProcessorFactory(
 	    		        		families, filter).execCoprocessorCounts(table));

@@ -8,8 +8,12 @@ import org.apache.hadoop.hbase.client.coprocessor.Batch;
 
 import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HTableWrapper;
+import com.bizosys.hsearch.hbase.HbaseLog;
 
 public class HSearchGenericCoProcessorFactory {
+	
+	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	
 	HSearchGenericFilter filter = null;
 	byte[][] families = null;
 	byte[][] cols = null;
@@ -30,11 +34,11 @@ public class HSearchGenericCoProcessorFactory {
 
 	}
 	
-	public Map<byte[], long[]> execCoprocessorCounts(HTableWrapper table) throws IOException, Throwable  {
+	public final Map<byte[], long[]> execCoprocessorCounts(HTableWrapper table) throws IOException, Throwable  {
 
+		if ( INFO_ENABLED) HbaseLog.l.info("HSearchGenericCoprocessor:execCoprocessorCounts");
 		Map<byte[], long[]> output = table.table.coprocessorExec(
                 HSearchGenericCoprocessor.class, null, null,
-                
                 
                 new Batch.Call<HSearchGenericCoprocessor, long[]>() {
                     @Override

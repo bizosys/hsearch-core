@@ -37,13 +37,18 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 	
 	public abstract IHSearchTableCombiner getCombiner();
 	
-	private FederatedFacade<String, String> processor = null;
+	public static FederatedFacade<String, String> processor = null;
 	
 	public HSearchTableMultiQueryProcessor() {
-		processor = build();
-		processor.DEBUG_MODE = DEBUG_ENABLED;
+		if ( null == processor) {
+			synchronized (HSearchTableMultiQueryProcessor.class) {
+				if ( null == processor ) processor = build();
+				processor.DEBUG_MODE = DEBUG_ENABLED;
+			}
+		}
 	}
 	
+	@Override
 	public FederatedFacade<String, String> getProcessor() { 
 		return processor;
 	}
@@ -64,17 +69,27 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 					IHSearchTableCombiner combiner = getCombiner();
 					OutputType outputType = (OutputType) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
 					
-					if ( DEBUG_ENABLED ) HbaseLog.l.debug("Concurrent derer ENTER");
+					if ( DEBUG_ENABLED ) {
+						startTime = System.currentTimeMillis();
+						HbaseLog.l.debug("Concurrent derer ENTER");
+					}
 					combiner.concurrentDeser(aStmtOrValue, outputType, stmtParams, type);
-					if ( DEBUG_ENABLED ) HbaseLog.l.debug("Concurrent derer EXIT");
+
+					if ( DEBUG_ENABLED ) {
+						HbaseLog.l.debug("Concurrent deser EXIT in ms > " + ( System.currentTimeMillis() - startTime ) );
+					}
 
 					IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 					Collection<String> keys = plugin.getUniqueMatchingDocumentIds();
+
 					if ( keys.size() == 0) {
 						if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "No Records found :");
 						return noIdsFound;
 					}
-					if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "Total Ids found :" + keys.size());
+					if ( DEBUG_ENABLED ) {
+						startTime = System.currentTimeMillis();
+						L.getInstance().logDebug(  "> " + "Total Ids found :" + keys.size());
+					}
 	
 					List<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId> results = 
 						new ArrayList<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId>(keys.size());
@@ -83,13 +98,18 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 						IRowId primary = objectFactory.getPrimaryKeyRowId(id);
 						results.add(primary);
 					}
+					
+					if ( DEBUG_ENABLED ) {
+						HbaseLog.l.debug("IRowId Collection EXIT in ms > " + ( System.currentTimeMillis() - startTime ) );
+					}
+					
 					return results;
 				} catch (Exception ex) {
 					throw new IOException(ex);
 				} finally {
 					if ( DEBUG_ENABLED ) {
 						long endTime = System.currentTimeMillis();
-						L.getInstance().logDebug( Thread.currentThread().getName() + "> " + "Deserialization Time :" + (endTime - startTime));
+						L.getInstance().logDebug( Thread.currentThread().getName() + "> " + "populate EXIT ms :" + (endTime - startTime));
 					}
 				}
 			}

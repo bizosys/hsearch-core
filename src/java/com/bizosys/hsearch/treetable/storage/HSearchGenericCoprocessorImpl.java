@@ -12,6 +12,7 @@ import org.apache.hadoop.hbase.coprocessor.BaseEndpointCoprocessor;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 
+import com.bizosys.hsearch.PerformanceLogger;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.OutputType;
@@ -20,6 +21,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		implements HSearchGenericCoprocessor {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = PerformanceLogger.l.isInfoEnabled(); 
 	
 	
 	/**
@@ -32,16 +34,20 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 	 * @return
 	 * @throws IOException
 	 */
-	public long[] getCount(byte[][] families, byte[][] cols, HSearchGenericFilter filter) throws IOException {
+	public final long[] getCount(byte[][] families, byte[][] cols, HSearchGenericFilter filter) throws IOException {
 		
-		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
-				" @ coprocessor : getCount");
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getCount");
+		
+		long startTime = 0L;
+		if ( INFO_ENABLED ) startTime = System.currentTimeMillis();
+
 		InternalScanner scanner = null;
 
 		try {
 
 			Scan scan = new Scan();
 			scan.setCacheBlocks(true);
+			scan.setCaching(1);
 			scan.setMaxVersions(1);
 			int familiesT = families.length;
 			
@@ -86,7 +92,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			
 			if ( DEBUG_ENABLED ) {
 				for (long l : queryPartCountsWithTotallingAtTop)
-					HbaseLog.l.debug( "Final Region Counting : " + l);
+					HbaseLog.l.debug( "Region Counting : " + l);
 			}
 
 			return queryPartCountsWithTotallingAtTop;
@@ -99,6 +105,11 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					
 				}
 			}
+			System.out.println(INFO_ENABLED);
+			if ( INFO_ENABLED ) {
+				PerformanceLogger.l.info("HSearchGenericCoprocessorImpl|getCount|" + ( System.currentTimeMillis() - startTime)) ;
+			}
+
 		}
 	}
 

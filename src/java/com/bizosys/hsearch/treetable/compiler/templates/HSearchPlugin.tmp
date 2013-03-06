@@ -21,7 +21,7 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	//Take care of Thread Safety
-	Vector<String> ids = new Vector<String>();
+	Vector<String> ids = new Vector<String>(65536, 256);
 	
 	OutputType outputTypeCode = null;
 	long counts = 0;
