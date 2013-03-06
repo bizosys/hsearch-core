@@ -24,7 +24,7 @@ public class SortedBytesStringTest extends TestCase {
 
 		} else if (modes[2].equals(mode)) {
 			t.setUp();
-			t.testAddAll();
+			t.testValues();
 			t.tearDown();
 		}
 
@@ -100,4 +100,29 @@ public class SortedBytesStringTest extends TestCase {
 		
 		assertEquals(sbs.getSize(), 6);
 	}
+
+	public void testValues()throws Exception{
+		SortedBytesString sbs = (SortedBytesString) SortedBytesString.getInstance();
+
+		List<String> sortedList = new ArrayList<String>();
+		
+		for ( int i=0; i<10; i++ ) {
+			sortedList.add(new String("first"));
+			sortedList.add(new String("test"));
+			sortedList.add(new String());
+			sortedList.add(new String("test"));
+			sortedList.add(new String("cos"));
+			sortedList.add(new String("cos"));
+		}
+		
+		System.out.println(sortedList.size());
+
+		byte[] bytes = sbs.toBytes(sortedList);
+		sbs.parse(bytes);
+		
+		System.out.println( SortedBytesString.getInstance().parse(bytes).values());
+		
+		
+	}
+
 }

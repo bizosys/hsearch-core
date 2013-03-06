@@ -2,6 +2,8 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -92,6 +94,48 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 		}		
 		ObjectFactory.getInstance().putIntegerList(seeks);
 	}
+	
+	@Override
+	public Collection<String> values(Collection<String> vals) throws IOException {
+
+		if ( null == this.inputBytes ) return vals;
+		int total = Storable.getInt(offset, this.inputBytes);
+	  
+		byte[] aElem = new byte[65536];
+		Arrays.fill(aElem, (byte)0);
+	  
+		int elemSizeOffset = 0;
+		int elemStartOffset = 0;
+		int elemEndOffset = 0; 
+		int elemLen = 0;	
+		int headerOffset = 0;
+		
+		String EMPTY = "";
+		
+		for ( int index=0; index<total; index++) {
+			elemSizeOffset = (offset + 4 + index * 4);
+			elemStartOffset = Storable.getInt( elemSizeOffset, inputBytes);
+			elemEndOffset = Storable.getInt( elemSizeOffset + 4, inputBytes);
+			
+			elemLen = elemEndOffset - elemStartOffset;
+			headerOffset = (offset + 8 + total * 4);
+	   
+			if ( 0 == elemLen) {
+				vals.add(EMPTY);
+				continue;
+			}
+			
+			if ( elemLen > 65536) {
+				byte[] aElemBig = new byte[elemLen];
+				System.arraycopy(inputBytes, headerOffset + elemStartOffset, aElemBig, 0, elemLen);
+				vals.add(new String(aElemBig) );
+			} else {
+				System.arraycopy(inputBytes, headerOffset + elemStartOffset, aElem, 0, elemLen);
+				vals.add(new String(aElem, 0, elemLen ));
+			}
+		}
+		return vals;
+	}	
 
 	@Override
 	public String getValueAt(int pos) throws IOException {
