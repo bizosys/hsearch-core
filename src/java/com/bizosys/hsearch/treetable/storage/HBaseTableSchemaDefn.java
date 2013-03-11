@@ -20,8 +20,9 @@
 package com.bizosys.hsearch.treetable.storage;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
+import com.bizosys.hsearch.treetable.client.partition.IPartition;
 
 public class HBaseTableSchemaDefn {
 	
@@ -37,12 +38,13 @@ public class HBaseTableSchemaDefn {
 
 	public String tableName = "htable";
 	
-	//FamilyName_partition is how the column families are created.
-	public Map<String, List<String>> familyNames = new HashMap<String, List<String>>();
-	public Map<String, List<Double>> distributionPoint = new HashMap<String, List<Double>>();
-	
 	public static final String COL_NAME = "1";
 	public static final byte[] COL_NAME_BYTES = COL_NAME.getBytes();
 	public static final byte COL_NAME_BYTE = COL_NAME_BYTES[0];
+	
+	
+	//FamilyName_partition is how the column families are created.
+	public Map<String, IPartition> columnPartions = new HashMap<String, IPartition>();
+	
 
 }

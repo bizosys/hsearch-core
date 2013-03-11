@@ -1,0 +1,111 @@
+package --PACKAGE--;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.bizosys.hsearch.hbase.ColumnFamName;
+import com.bizosys.hsearch.hbase.HDML;
+import com.bizosys.hsearch.hbase.HWriter;
+import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.hbase.IScanCallBack;
+import com.bizosys.hsearch.hbase.NV;
+import com.bizosys.hsearch.hbase.RecordScalar;
+import com.bizosys.hsearch.treetable.client.OutputType;
+import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
+import com.bizosys.hsearch.treetable.storage.HSearchTableReader;
+
+import --PACKAGE--.donotmodify.*;
+
+public class HBaseTableReader extends HSearchTableReader implements IScanCallBack {
+
+	@Override
+	public HSearchGenericFilter getFilter(String multiQuery,
+			Map<String, String> multiQueryParts, OutputType outputType) {
+		return new HBaseHSearchFilter(outputType, multiQuery, multiQueryParts);
+	}
+
+	@Override
+	public IScanCallBack getResultCollector() {
+		return this;
+	}
+	
+	@Override
+	public void process(byte[] pk, ColumnFamName fn,  byte[] storedBytes) throws IOException {
+		
+		int length = ( null == storedBytes ) ? 0 : storedBytes.length;
+		if ( length == 0 ) return;
+		
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug("Found Primary Key :" + new String(pk) + "/" + length);
+	}
+
+	@Override
+	public void counts(Map<byte[], long[]> results) {
+        long total = 0;
+        for (Map.Entry<byte[], long[]> entry : results.entrySet()) {
+            total += entry.getValue()[0];
+        }
+        System.out.println("Total Count: " + total);
+	}
+	
+	@Override
+	public void agreegates(Map<byte[], double[]> results, OutputType aggregateType) {
+		
+	}
+	@Override
+	public void rows(Map<byte[], byte[]> results, OutputType aggregateType) {
+		
+	}
+	
+		
+	/**
+	 *   m|1|[1:7432]|[1:4]|*|[1:758320]|*
+	 *  Range Query - [1:7432]
+	 *  Match All - *
+	 *  Exact match - m
+	 */
+    public static void main(String[] args) throws Exception {
+        
+        /**
+    	HDML.truncate("htable", new NV("EmpDetail".getBytes(), "1".getBytes() ));
+    	
+    	HSearchTableEmpDetail devTable = new HSearchTableEmpDetail();
+    	devTable.put(23, "developer", "bangalore", 1, 23.0F);
+    	
+    	RecordScalar devRecords = new RecordScalar(
+    		"DEV".getBytes(), new NV("EmpDetail".getBytes(), "1".getBytes() , devTable.toBytes() ) ) ;
+    	HSearchTableEmpDetail archTable = new HSearchTableEmpDetail();
+    	archTable.put(24, "architect", "bangalore", 1, 23.0F);
+    	archTable.put(28, "architect", "bangalore", 2, 23.0F);
+    	archTable.put(28, "architect", "pune", 3, 23.0F);
+    	archTable.put(25, "architect", "pune", 4, 23.0F);
+    	archTable.put(41, "architect", "pune", 5, 23.0F);
+    	
+    	RecordScalar archRecords = new RecordScalar(
+        		"ARCH".getBytes(), new NV("EmpDetail".getBytes(), "1".getBytes() , archTable.toBytes() ) ) ;
+    	List<RecordScalar> records = new ArrayList<RecordScalar>();
+    	records.add(devRecords);
+    	records.add(archRecords);
+    	
+    	HWriter.getInstance(true).insertScalar("htable", records);
+    	
+    	
+    	HBaseTableReader ht = new HBaseTableReader();
+        Map<String, String> multiQueryParts = new HashMap<String, String>();
+        multiQueryParts.put("EmpDetail:A", "*|architect|*|*|*");
+        multiQueryParts.put("EmpDetail:B", "*|developer|*|*|*");
+        
+        long start = System.currentTimeMillis();
+
+        ht.read("EmpDetail:A OR EmpDetail:B", multiQueryParts, 
+        	new OutputType(OutputType.CALLBACK_COLS, OutputType.OUTPUT_COUNT), false, true);
+
+        long end = System.currentTimeMillis();
+        System.out.println(" finished in  " + (end - start) + " millis ");
+        */
+        
+    }
+
+}

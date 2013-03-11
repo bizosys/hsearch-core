@@ -22,21 +22,27 @@ package com.bizosys.hsearch.treetable.client;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.bizosys.hsearch.federate.FederatedFacade;
 
 public interface IHSearchPlugin {
 	void setOutputType(OutputType outputTypeCode);
 	void cleanupValuesFromLastRun() ;
-	
-	Collection<String> getUniqueMatchingDocumentIds() throws IOException;
 	void onFilterationComplete();
 	
+	Collection<String> getUniqueMatchingDocumentIds() throws IOException;
+	void getMatchingRowsWithTSV( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<String> container) throws IOException;
+	void getMatchingValuesWithTSV( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<String> container) throws IOException;
+	void getMatchingIdsAndValuesWithTSV( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<String> container) throws IOException;
+	
 	long getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
-
 	double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	double getMax(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	double getMin(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	double getSum(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
+
+	void calculateFacets(Map<String, Integer> facets, 
+			List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	
 }

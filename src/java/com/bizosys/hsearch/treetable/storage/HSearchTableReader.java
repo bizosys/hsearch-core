@@ -33,6 +33,7 @@ import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
+import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.OutputType;
 
 public abstract class HSearchTableReader {
@@ -47,6 +48,16 @@ public abstract class HSearchTableReader {
 	public abstract void counts(Map<byte[], long[]> results);
 	public abstract void agreegates(Map<byte[], double[]> results, OutputType aggregateType);
 	public abstract void rows(Map<byte[], byte[]> results, OutputType rowType);
+	
+	
+	public void setPartionsFamiliesStructured(String colName, String range, Set<String> uniqueFamilies) 
+	throws ParseException, IOException  {
+		
+		HSearchQuery query = new HSearchQuery(range);
+		HBaseTableSchemaDefn.getInstance().columnPartions.
+			get(colName).getMatchingFamilies(query, uniqueFamilies);
+	}
+
 
 	public void read( String multiQuery, Map<String, String> multiQueryParts, 
 			OutputType outputType, boolean isPartitioned, boolean isParallel) 
@@ -63,9 +74,8 @@ public abstract class HSearchTableReader {
 				throw new IOException("Sub queries expected as  X:Y eg.\n" + 
 						 "structured:A OR unstructured:B\nstructured:A=f|1|1|1|c|*|*\nunstructured:B=*|*|*|*|*|*");
 			}
-			String family = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
-			uniqueFamilies.add(family);
-			
+			String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
+			setPartionsFamiliesStructured(colName, multiQueryParts.get(colNameQuolonId),uniqueFamilies);
 		}
 
 		List<ColumnFamName> families = new ArrayList<ColumnFamName>();

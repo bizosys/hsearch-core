@@ -37,4 +37,6 @@ public interface  HSearchGenericCoprocessor extends CoprocessorProtocol {
      */
 	byte[] getRows(byte[][] families, byte[][] cols, HSearchGenericFilter filter) throws IOException;
 
+	byte[] getFacets(byte[][] families, byte[][] cols, HSearchGenericFilter filter) throws IOException;
+
 }

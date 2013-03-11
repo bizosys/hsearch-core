@@ -29,7 +29,7 @@ public class HBaseHSearchFilter extends HSearchGenericFilter {
 	}
 	
 	@Override
-	public HSearchTableMultiQueryExecutor createExector() {
+	public HSearchTableMultiQueryExecutor createExecutor() {
 		return new HSearchTableMultiQueryExecutor(
 				new HSearchTableMultiQueryProcessorImpl());
 	}
@@ -44,41 +44,4 @@ public class HBaseHSearchFilter extends HSearchGenericFilter {
 				
 		throw new IOException("Unknown Column Type :" + type);
 	}
-	
-	@Override
-	public byte[] serializeValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
-			Map<String,QueryPart> queryPayload) throws IOException {
-		return null;
-	}
-	
-	@Override
-	public byte[] serializeIdAndValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
-			Map<String,QueryPart> queryPayload) throws IOException {
-		return null;
-	}
-	
-	@Override
-	public byte[] serializeColumns(List<FederatedFacade<String, String>.IRowId> matchedIds,
-			Map<String,QueryPart> queryPayload) throws IOException {
-		return null;
-	}
-	
-	@Override
-	public List deserializeValues(byte[] input, Collection values)
-			throws IOException {
-		return null;
-	}
-
-	@Override
-	public List deserializeIdAndValues(byte[] input, Collection values)
-			throws IOException {
-		return null;
-	}
-
-	@Override
-	public List deserializeColumns(byte[] input, Collection values)
-			throws IOException {
-		return null;
-	}
-	
 }

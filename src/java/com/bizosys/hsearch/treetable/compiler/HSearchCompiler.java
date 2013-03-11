@@ -242,14 +242,20 @@ public class HSearchCompiler {
 		StringBuilder families = new StringBuilder(4096);
 		for ( Column column : schema.columns ) {
 			
-			families.append("List<String> ").append(column.name).append(" = new ArrayList<String>();\n");
-			families.append("\t\tStringTokenizer token").append(column.name).append(" = new StringTokenizer(\"").append(column.partitions.family).append("\",\",\");\n");
+			if ( "numeric".equals(column.partitions.type) ) {
+				families.append("\t\t").append("columns.put(\"").append(column.name).append("\"," +
+						"new PartitionNumeric());\n\n");
+			} else if ( "text".equals(column.partitions.type) ) {
+				families.append("\t\t").append("columns.put(\"").append(column.name).append("\"," +
+						"new PartitionByFirstLetter());\n\n");
+			}
 			
-			families.append("\t\twhile ( token").append(column.name).append(".hasMoreTokens()) {\n");
-			families.append("\t\t\t").append(column.name).append(".add(token").append(column.name).append(".nextToken()); \n");
-			families.append("\t\t}\n");
-			families.append("\t\tHBaseTableSchemaDefn.getInstance().familyNames.put(\"").append(
-				column.name).append("\", ").append(column.name).append(");\n");	
+			families.append("\t\tcolumns.get(\"").append(column.name).append("\").setPartitionsAndRange(\n");
+			families.append("\t\t\t\"").append(column.name).append("\",\n");
+			families.append("\t\t\t\"").append(column.partitions.names).append("\",\n");
+			families.append("\t\t\t\"").append(column.partitions.ranges).append("\",\n");
+			families.append("\t\t\t").append(column.partitions.column).append(");\n\n");
+			
 		}
 
 		template = template.replace("--CREATE-COL-FAMILIES--", families.toString());

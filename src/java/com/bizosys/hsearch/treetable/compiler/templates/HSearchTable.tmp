@@ -22,7 +22,6 @@ import --PACKAGE--.*;
 --IMPORT-CELLS--
 
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
-import com.bizosys.hsearch.treetable.client.HSearchTablePartition;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.IHSearchTable;
 
@@ -313,26 +312,6 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 			//No filtering
 			parentCell.valuesUnchecked(cellL);  
 		}	
-	}
-	
-	public byte[] toBytes(int partitionSeq) throws IOException {
-		
-		List<Double> distBiundaries = HSearchTablePartition.getInstance().distBiundaries;
-
-		int pos = -1;
-		float boundaryLeft = Integer.MIN_VALUE;
-		float boundaryRight = boundaryLeft;
-		
-		for (Double boundary : distBiundaries) {
-			boundaryLeft = boundaryRight; 
-			boundaryRight = boundary.floatValue();;
-			pos++;
-			
-			if ( pos == partitionSeq) break;
-		}
-		table.sort(new CellComparator.--VAL-COMPARATOR--<Integer>());
-			
-		return table.toBytes( boundaryLeft, boundaryRight, false, true, new ValueComparator.--VAL-COMPARATOR--());
 	}
 	
 	public HSearchPlugin--COLUMN-NAME-- castPlugin(IHSearchPlugin pluginI) throws IOException {

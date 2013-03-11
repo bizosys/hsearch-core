@@ -12,7 +12,7 @@ import com.oneline.ferrari.TestAll;
 public class SortedBytesArrayTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[2];  
+		public static String mode = modes[1];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesArrayTest t = new SortedBytesArrayTest();

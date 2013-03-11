@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Scan;
@@ -42,6 +44,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		if ( INFO_ENABLED ) startTime = System.currentTimeMillis();
 
 		InternalScanner scanner = null;
+		long[] queryPartCountsWithTotallingAtTop = new long[filter.getTotalQueryParts() + 1];
 
 		try {
 
@@ -53,7 +56,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			
 			for (int i=0; i<familiesT; i++) {
 				if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
-					" @ adding family " + families[i]);
+					" @ adding family " + new String(families[i]));
 				scan = scan.addColumn(families[i], cols[i]);
 			}
 			
@@ -66,7 +69,6 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			List<KeyValue> curVals = new ArrayList<KeyValue>();
 			boolean done = false;
 			
-			long[] queryPartCountsWithTotallingAtTop = new long[filter.getTotalQueryParts() + 1];
 			Arrays.fill(queryPartCountsWithTotallingAtTop, 0);
 			Collection<Long> foundCounts = new ArrayList<Long>();
 			
@@ -79,8 +81,9 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					if ( null == input) continue;
 					if ( 0 == input.length) continue;
 					
-					filter.deSerializeOutput(input, foundCounts);
+					filter.deSerializeCounts(input, foundCounts);
 					int i=0;
+					System.out.println(foundCounts.size() + "/" + queryPartCountsWithTotallingAtTop.length);
 					for (Long aCount : foundCounts) {
 						if ( DEBUG_ENABLED ) HbaseLog.l.debug( "Row Count : " + i + " > " + aCount.longValue());
 						queryPartCountsWithTotallingAtTop[i] += aCount.longValue();
@@ -105,9 +108,10 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					
 				}
 			}
-			System.out.println(INFO_ENABLED);
 			if ( INFO_ENABLED ) {
-				PerformanceLogger.l.info("HSearchGenericCoprocessorImpl|getCount|" + ( System.currentTimeMillis() - startTime)) ;
+				PerformanceLogger.l.info("HSearchGenericCoprocessorImpl|getCount|" + 
+						queryPartCountsWithTotallingAtTop[0] + "|" +
+						( System.currentTimeMillis() - startTime) + "ms") ;
 			}
 
 		}
@@ -129,12 +133,13 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 
 			Scan scan = new Scan();
 			scan.setCacheBlocks(true);
+			scan.setCaching(1);
 			scan.setMaxVersions(1);
 			int familiesT = families.length;
 			
 			for (int i=0; i<familiesT; i++) {
 				if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
-					" @ adding family " + families[i]);
+					" @ adding family " + new String(families[i]));
 				scan = scan.addColumn(families[i], cols[i]);
 			}
 			
@@ -189,22 +194,18 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					foundAggregates.clear();
 					byte[] input = kv.getValue();
 					if ( null == input) continue;
-					filter.deSerializeOutput(input, foundAggregates);
-					if ( null == foundAggregates) continue;
+					filter.deSerializeAgreegates(input, foundAggregates);
 					
-					switch ( filter.outputType.getOutputType()) {
+					int outputType = filter.outputType.getOutputType();
+					switch ( outputType ) {
 						case OutputType.OUTPUT_MIN:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 0);
-							break;
 						case OutputType.OUTPUT_MAX:
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 0);
-							break;
 						case OutputType.OUTPUT_AVG:
-							computeAggregates(OutputType.OUTPUT_AVG, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 0);
-							break;
 						case OutputType.OUTPUT_SUM:
-							computeAggregates(OutputType.OUTPUT_SUM, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 0);
+							computeAggregates(outputType,
+								queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 0);
 							break;
+							
 						case OutputType.OUTPUT_MIN_MAX:
 							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
 							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
@@ -330,12 +331,13 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 
 			Scan scan = new Scan();
 			scan.setCacheBlocks(true);
+			scan.setCaching(1);
 			scan.setMaxVersions(1);
 			int familiesT = families.length;
 			
 			for (int i=0; i<familiesT; i++) {
 				if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
-					" @ adding family " + families[i]);
+					" @ adding family " + new String(families[i]));
 				scan = scan.addColumn(families[i], cols[i]);
 			}
 			
@@ -355,8 +357,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 				for (KeyValue kv : curVals) {
 					byte[] input = kv.getValue();
 					if ( null == input) continue;
-					
-					collection.add(kv.getKey());
+					collection.add(kv.getRow());
 					collection.add(input);
 				}
 				
@@ -367,6 +368,68 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			}
 
 			return SortedBytesArray.getInstance().toBytes(collection);
+			
+		} finally {
+			if ( null != scanner) {
+				try {
+					scanner.close();
+				} catch (Exception ex) {
+					
+				}
+			}
+		}
+	}
+	
+    /**
+     * Get Matching rows 
+     * @param filter
+     * @return
+     * @throws IOException
+     */
+	public byte[] getFacets(byte[][] families, byte[][] cols, HSearchGenericFilter filter) throws IOException {
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
+		InternalScanner scanner = null;
+
+		try {
+
+			Scan scan = new Scan();
+			scan.setCacheBlocks(true);
+			scan.setCaching(1);
+			scan.setMaxVersions(1);
+			int familiesT = families.length;
+			
+			for (int i=0; i<familiesT; i++) {
+				if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
+					" @ adding family " + new String(families[i]));
+				scan = scan.addColumn(families[i], cols[i]);
+			}
+			
+			if ( null != filter) scan = scan.setFilter(filter);
+
+			RegionCoprocessorEnvironment environment = (RegionCoprocessorEnvironment) getEnvironment();
+
+			scanner = environment.getRegion().getScanner(scan);
+			
+			List<KeyValue> curVals = new ArrayList<KeyValue>();
+			boolean done = false;
+			
+			Map<String, Integer> facets = new HashMap<String, Integer>();
+			do {
+				curVals.clear();
+				done = scanner.next(curVals);
+				for (KeyValue kv : curVals) {
+					byte[] input = kv.getValue();
+					if ( null == input) continue;
+					filter.deSerializeFacets(input, facets);
+				}
+				
+			} while (done);
+			
+			if ( DEBUG_ENABLED ) {
+				HbaseLog.l.debug( "Total Facets Packed : " + facets.size());
+			}
+
+			return HSearchGenericFilter.facetsToBytes(facets);
 			
 		} finally {
 			if ( null != scanner) {

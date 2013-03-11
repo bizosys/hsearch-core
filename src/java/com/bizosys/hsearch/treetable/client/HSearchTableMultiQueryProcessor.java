@@ -102,7 +102,6 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 					if ( DEBUG_ENABLED ) {
 						HbaseLog.l.debug("IRowId Collection EXIT in ms > " + ( System.currentTimeMillis() - startTime ) );
 					}
-					
 					return results;
 				} catch (Exception ex) {
 					throw new IOException(ex);

@@ -1,6 +1,7 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
@@ -106,7 +107,7 @@ public class SortedBytesStringTest extends TestCase {
 
 		List<String> sortedList = new ArrayList<String>();
 		
-		for ( int i=0; i<10; i++ ) {
+		for ( int i=0; i<1000000; i++ ) {
 			sortedList.add(new String("first"));
 			sortedList.add(new String("test"));
 			sortedList.add(new String());
@@ -115,12 +116,15 @@ public class SortedBytesStringTest extends TestCase {
 			sortedList.add(new String("cos"));
 		}
 		
-		System.out.println(sortedList.size());
+		//System.out.println(sortedList.size());
 
 		byte[] bytes = sbs.toBytes(sortedList);
-		sbs.parse(bytes);
 		
-		System.out.println( SortedBytesString.getInstance().parse(bytes).values());
+		long a = System.currentTimeMillis();
+		Collection<String> vals = SortedBytesString.getInstance().parse(bytes).values();
+		long b = System.currentTimeMillis();
+		
+		System.out.println(vals.size() + " Parsed in " + (b-a));
 		
 		
 	}

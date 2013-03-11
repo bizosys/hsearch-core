@@ -69,7 +69,7 @@ public class HSearchTableMultiQueryExecutor {
 				String msg = ("Warning : Null table part bytes for " + queryId + "\n" + 
 						queryId + " is not in the supplied set :" + tableParts.keySet().toString());
 				HbaseLog.l.error(msg);
-				return null;
+				continue;
 			}
 			
 			multiQueryParts.get(queryId).setParam(HSearchTableMultiQueryExecutor.TABLE_PARTS, part);
@@ -81,7 +81,7 @@ public class HSearchTableMultiQueryExecutor {
 		}
 		
 		FederatedFacade<String, String> ff = processor.getProcessor();
-		ff.DEBUG_MODE = false;
+		ff.DEBUG_MODE = true;
 		
 		if ( DEBUG_ENABLED ) {
 			HbaseLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");

@@ -12,33 +12,29 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		return new SortedBytesArray();
 	}
 	
-	byte[] bytes;
-	int inputOffset;
-	int length;
-	
 	private SortedBytesArray() {
 	}
 	
 	@Override
 	public ISortedByte<byte[]> parse(byte[] bytes) throws IOException {
-		this.bytes = bytes;
-		this.inputOffset = 0;
+		this.inputBytes = bytes;
+		this.offset = 0;
 		this.length = ( null == bytes) ? 0 : bytes.length;
 		return this;
 	}
 
 	@Override
 	public ISortedByte<byte[]> parse(byte[] bytes, int offset, int length) throws IOException {
-		this.bytes = bytes;
-		this.inputOffset = offset;
+		this.inputBytes = bytes;
+		this.offset = offset;
 		this.length = length;
 		return this;
 	}
 	
 	@Override
 	public int getSize() {
-		if ( null == bytes) return 0;
-		return Storable.getInt(inputOffset, bytes);
+		if ( null == inputBytes) return 0;
+		return Storable.getInt(offset, inputBytes);
 	}
 	
 
@@ -80,22 +76,22 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	@Override
 	public void addAll(Collection<byte[]> vals) throws IOException {
 		
-		byte[] inputBytes = this.bytes;
-		int offset = inputOffset;
+		byte[] inputBytes = this.inputBytes;
+		int readOffset = this.offset;
 		
-		int collectionSize = Storable.getInt(offset, inputBytes);
+		int collectionSize = Storable.getInt(readOffset, inputBytes);
 		
 		List<Integer> offsets = new ArrayList<Integer>();
-		offset = offset + 4;
+		readOffset = readOffset + 4;
 		
 		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( offset, inputBytes);
-			offset = offset + 4;
+			int bytesLen = Storable.getInt( readOffset, inputBytes);
+			readOffset = readOffset + 4;
 			offsets.add(bytesLen);
 		}
-		offset = offset + 4;
+		readOffset = readOffset + 4;
 
-		int headerOffset = offset;
+		int headerOffset = readOffset;
 		offsets.add( inputBytes.length - headerOffset);
 		
 		Integer nextElemOffset = -1;
@@ -112,20 +108,20 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	@Override
 	public byte[] getValueAt(int pos) throws IOException {
 		
-		byte[] inputBytes = this.bytes;
-		int offset = inputOffset;
+		byte[] inputBytes = this.inputBytes;
+		int readOffset = this.offset;
 		
-		int collectionSize = Storable.getInt(offset, inputBytes);
+		int collectionSize = Storable.getInt(readOffset, inputBytes);
 		if ( pos >= collectionSize) throw new IOException(
 			"Maximum position in array is " + collectionSize + " and accessed " + pos );
 		
-		int elemSizeOffset = (offset + 4 + pos * 4);
+		int elemSizeOffset = (readOffset + 4 + pos * 4);
 		int elemStartOffset = Storable.getInt( elemSizeOffset, inputBytes);
 		int elemEndOffset = Storable.getInt( elemSizeOffset + 4, inputBytes);
 		//System.out.println(elemEndOffset + "-" + elemStartOffset);
 		int elemLen = elemEndOffset - elemStartOffset;
 		
-		int headerOffset = (offset + 8 + collectionSize * 4);
+		int headerOffset = (readOffset + 8 + collectionSize * 4);
 		byte[] aElem = new byte[elemLen];
 
 		System.arraycopy(inputBytes, headerOffset + elemStartOffset, aElem, 0, elemLen);
@@ -134,25 +130,25 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 
 	@Override
 	public int getEqualToIndex(byte[] matchNo) throws IOException {
-		byte[] inputBytes = this.bytes;
-		int offset = inputOffset;
+		byte[] inputBytes = this.inputBytes;
+		int readOffset = this.offset;
 
-		int collectionSize = Storable.getInt(offset, inputBytes);
+		int collectionSize = Storable.getInt(readOffset, inputBytes);
 		
 		List<Integer> offsets = new ArrayList<Integer>();
-		offset = offset + 4;
+		readOffset = readOffset + 4;
 		
 		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( offset, inputBytes);
-			offset = offset + 4;
+			int bytesLen = Storable.getInt( readOffset, inputBytes);
+			readOffset = readOffset + 4;
 			offsets.add(bytesLen);
 		}
 		
-		int bodyLen = Storable.getInt(offset, inputBytes); // Find body bytes
+		int bodyLen = Storable.getInt(readOffset, inputBytes); // Find body bytes
 		offsets.add(bodyLen);		
-		offset = offset + 4;
+		readOffset = readOffset + 4;
 
-		int headerOffset = offset;
+		int headerOffset = readOffset;
 		offsets.add( inputBytes.length - headerOffset);
 		
 		Integer thisElemOffset = -1;
@@ -175,20 +171,20 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	@Override
 	public void getEqualToIndexes(byte[] matchBytes, Collection<Integer> matchings) throws IOException {
 		
-		byte[] inputData = this.bytes;
-		int offset = inputOffset;
+		byte[] inputData = this.inputBytes;
+		int readOffset = this.offset;
 
 		int collectionSize = Storable.getInt(0, inputData);
 		List<Integer> offsets = new ArrayList<Integer>(collectionSize);
-		offset = offset + 4;
+		readOffset = readOffset + 4;
 		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( offset, inputData);
-			offset = offset + 4;
+			int bytesLen = Storable.getInt( readOffset, inputData);
+			readOffset = readOffset + 4;
 			offsets.add(bytesLen);
 		}
-		offset = offset + 4;
+		readOffset = readOffset + 4;
 
-		int headerOffset = offset;
+		int headerOffset = readOffset;
 		offsets.add( inputData.length - headerOffset);
 		
 		Integer thisElemOffset = -1;
@@ -198,11 +194,6 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 			boolean isSame = ByteUtil.compareBytes(inputData, headerOffset + thisElemOffset, matchBytes);
 			if ( isSame ) matchings.add(i);
 		}		
-	}
-
-	@Override
-	public Collection<byte[]> values() throws IOException {
-		throw new IOException("Not implemented Yet");
 	}
 
 	@Override

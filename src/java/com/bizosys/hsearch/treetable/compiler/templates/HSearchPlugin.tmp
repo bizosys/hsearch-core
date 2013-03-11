@@ -2,11 +2,13 @@ package --PACKAGE--;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 import java.util.concurrent.ConcurrentHashMap;
 import com.bizosys.hsearch.federate.FederatedFacade;
@@ -22,6 +24,15 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	
 	//Take care of Thread Safety
 	Vector<String> ids = new Vector<String>(65536, 256);
+	Vector<String> values = new Vector<String>(65536, 256);
+	Map<String, String> cols = new ConcurrentHashMap<String, String>(65536, 256);
+	
+	private static final ThreadLocal < StringBuilder > colbuilder = new ThreadLocal<StringBuilder>() {
+	    @Override protected StringBuilder initialValue() {
+            return new StringBuilder(1024);
+	    }		
+	};
+	
 	
 	OutputType outputTypeCode = null;
 	long counts = 0;
@@ -50,7 +61,10 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	 */
 	public boolean onRowCols(--ALL-COLS--) {
 		String cell--CELL-MAX-MINUS-1--Str = cell--CELL-MAX-MINUS-1--.toString();
-		ids.add(cell--CELL-MAX-MINUS-1--Str);
+		StringBuilder sb = colbuilder.get();
+		sb.delete(0, sb.capacity());
+		sb.append(cell--CELL-MAX-MINUS-1--Str);
+		cols.put(cell--CELL-MAX-MINUS-1--Str, sb.toString());
 		return true;
 	}
 
@@ -59,7 +73,13 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	 * @return TRUE/FALSE whether it will be included in the result or not.
 	 */
 	public boolean onRowKeyValue(--KEY_DATATYPE-- k, --VAL_DATATYPE-- value) {
+		StringBuilder sb = colbuilder.get();
+		sb.delete(0, sb.capacity());
+		String keyStr = k.toString();
+		sb.append(keyStr).append('\t').append(value);
+		cols.put(keyStr, sb.toString());
 		return true;
+
 	}
 	
 	/**
@@ -67,6 +87,7 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	 * @return TRUE/FALSE whether it will be included in the result or not.
 	 */
 	public boolean onRowValue(--VAL_DATATYPE-- value) {
+		values.add(value.toString());
 		return true;
 	}
 	
@@ -80,21 +101,31 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	
 	@Override
 	public Collection<String> getUniqueMatchingDocumentIds() throws IOException {
-		Set<String> unique = new HashSet<String>();
-		unique.addAll(this.ids);
-		return unique;
+		if ( this.ids.size() == 0 ) {
+			return this.cols.keySet();
+		} else {
+			Set<String> unique = new HashSet<String>();
+			unique.addAll(this.ids);
+			return unique;		
+		}
 	}
 	
 	@Override
 	public void cleanupValuesFromLastRun() {
 		if ( null != ids ) this.ids.clear();
+		if ( null != values ) this.values.clear();
+		if ( null != cols ) this.cols.clear();
 	}
 
 	@Override
 	public long getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) {
-		Set<String> unique = new HashSet<String>();
-		unique.addAll(this.ids);
-		return unique.size();
+		if ( this.ids.size() == 0 ) {
+			return this.cols.size();
+		} else {
+			Set<String> unique = new HashSet<String>();
+			unique.addAll(this.ids);
+			return unique.size();
+		}
 	}
 	
 	@Override
@@ -115,6 +146,39 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	@Override
 	public double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds)  throws IOException {
 		return 0;
+	}
+	
+	@Override
+	public void calculateFacets(Map<String, Integer> facets, 
+			List<FederatedFacade<String, String>.IRowId> matchedIds ) throws IOException {
+	}
+	
+	@Override
+	public void getMatchingRowsWithTSV(List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Collection<String> container) throws IOException {
+		
+		String docId = null;
+		for (FederatedFacade<String, String>.IRowId rowId: matchedIds) {
+			docId = rowId.getDocId();
+			if ( cols.containsKey( docId ) )  container.add(cols.get(docId));
+		}
+		cols.clear();
+	}
+
+	@Override
+	public void getMatchingValuesWithTSV(List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Collection<String> container) throws IOException {
+		
+		container.addAll(values);
+		
+	}
+
+	@Override
+	public void getMatchingIdsAndValuesWithTSV(List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Collection<String> container) throws IOException {
+		
+		getMatchingRowsWithTSV(matchedIds, container);
+		
 	}
 	
 		

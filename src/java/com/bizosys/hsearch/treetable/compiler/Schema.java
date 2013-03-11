@@ -47,13 +47,17 @@ public class Schema {
 	}
 	
 	public static class Partitions {
-		public String family = "";
+		public String names = "";
 		public String ranges = "";
+		public int column = -1;
+		public String type = "numeric";
 		
 		public Partitions() {}
-		public Partitions(String family, String ranges ) {
-			this.family = family;
+		public Partitions(String family, String ranges, int column, String type ) {
+			this.names = family;
 			this.ranges = ranges;
+			this.column = column;
+			this.type = type;
 		}
 	}
 	

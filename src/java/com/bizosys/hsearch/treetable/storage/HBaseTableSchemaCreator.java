@@ -66,17 +66,19 @@ public class HBaseTableSchemaCreator {
 			List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
 			
 			HBaseTableSchemaDefn def = HBaseTableSchemaDefn.getInstance();
-			for (String familyName : def.familyNames.keySet()) {
+			
+			for (String familyName : def.columnPartions.keySet()) {
 				
 				//Partitioned
-				for (String partition : def.familyNames.get(familyName)) {
+				List<String> partitionNames = def.columnPartions.get(familyName).getPartitionNames();
+				for (String partition : partitionNames) {
 					HColumnDescriptor rangeCols = new HColumnDescriptor( (familyName + "_" + partition ).getBytes());
 					configColumn(rangeCols);
 					colFamilies.add(rangeCols);
 				}
 				
 				//No Partition
-				if ( def.familyNames.get(familyName).size() == 0 ) {
+				if ( partitionNames.size() == 0 ) {
 					HColumnDescriptor rangeCols = new HColumnDescriptor( familyName.getBytes());
 					configColumn(rangeCols);
 					colFamilies.add(rangeCols);

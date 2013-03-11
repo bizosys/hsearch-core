@@ -20,8 +20,41 @@
 
 package com.bizosys.hsearch.util;
 
-public class LineReaderUtil {
+import java.util.Collection;
 
+public class LineReaderUtil {
+	
+	public static final void fastSplit(final Collection<String> result,
+			final String text, final char separator) {
+
+		if (text == null)
+			return;
+		if (text.length() == 0)
+			return;
+
+		int index1 = 0;
+		int index2 = text.indexOf(separator);
+
+		if (index2 >= 0) {
+			String token = null;
+			while (index2 >= 0) {
+				token = text.substring(index1, index2);
+				result.add(token);
+				index1 = index2 + 1;
+				index2 = text.indexOf(separator, index1);
+				if (index2 < 0)
+					index1--;
+			}
+
+			if (index1 < text.length() - 1) {
+				result.add(text.substring(index1 + 1));
+			}
+
+		} else {
+			result.add(text);
+		}
+	}	
+	
 	public static final void fastSplit(final String[] result,
 			final int[] positions, final String text, final char separator) {
 

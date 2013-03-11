@@ -46,8 +46,10 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 			for (String key : stmtParams.keySet()) {
 				HbaseLog.l.warn("Warning : For Key > " + key + "  , Value " + stmtParams.get(key));
 			}
+			return;
 		}
 		HSearchTableParts tableParts = (HSearchTableParts) tablePartsO ;
+		if ( null == tableParts.allParts ) return; 
 		
 		IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 		if ( null == plugin) {
@@ -64,6 +66,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		List<TableDeserExecutor> tasks = new ArrayList<TableDeserExecutor>();
 		
 		for ( byte[] tableSer : tableParts.allParts) {
+			if ( null == tableSer) continue;
 			IHSearchTable t = buildTable(tableType);
 			TableDeserExecutor deserTask = new TableDeserExecutor(t, tableSer, plugin, hQuery, outputType);
 			tasks.add(deserTask);

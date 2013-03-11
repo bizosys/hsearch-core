@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -33,7 +34,9 @@ import java.util.StringTokenizer;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 
+import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesDouble;
+import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.federate.FederatedFacade;
@@ -45,6 +48,7 @@ import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
 import com.bizosys.hsearch.treetable.client.OutputType;
+import com.bizosys.hsearch.util.LineReaderUtil;
 
 /**
  * @author abinash
@@ -204,32 +208,35 @@ public abstract class HSearchGenericFilter implements Filter {
 			byte[] row = null;
 			byte[] firstFamily = null;
 			byte[] firstCol = null;
-			
-			Map<String, HSearchTableParts> colParts = new HashMap<String, HSearchTableParts>();
-			//colParts.put("structured:A", bytes);
-			
-			HSearchTableMultiQueryExecutor intersector = createExector();
 
+			//colParts.put("structured:A", bytes);
+			Map<String, HSearchTableParts> colNamesWithPartitionBytes = new HashMap<String, HSearchTableParts>();
+			
+			HSearchTableMultiQueryExecutor intersector = createExecutor();
+
+			//HBase Family Name = schema column name + "_" + partition
+			String columnNameWithParition = null;
+			String colName = null;
 			for (KeyValue kv : kvL) {
 				if ( null == kv) continue;
 
 				byte[] inputData = kv.getValue();
 				if ( null == inputData) continue;
+				columnNameWithParition = new String(kv.getFamily());
 				
-				String fName = new String(kv.getFamily());
+				int partitionIndex = columnNameWithParition.indexOf('_');
+				colName = ( partitionIndex == -1 ) ? columnNameWithParition : 
+					columnNameWithParition.substring(0, partitionIndex);
 				
-				int fNameI = fName.indexOf('_');
-				if ( fNameI > -1 ) fName = fName.substring(0, fNameI - 1);
-				
-				HSearchTableParts parts =  null;
-				if ( colParts.containsKey(fName)) {
-					parts = colParts.get(fName);
+				HSearchTableParts tableParts =  null;
+				if ( colNamesWithPartitionBytes.containsKey(colName)) {
+					tableParts = colNamesWithPartitionBytes.get(colName);
 				} else {
-					parts = new HSearchTableParts();
-					colParts.put(fName, parts);
+					tableParts = new HSearchTableParts();
+					colNamesWithPartitionBytes.put(colName, tableParts);
 				}
+				tableParts.put(inputData);
 
-				parts.collect(inputData);
 				if ( null == row ) {
 					firstFamily = kv.getFamily();
 					firstCol = kv.getQualifier();
@@ -242,27 +249,31 @@ public abstract class HSearchGenericFilter implements Filter {
 			}
 			
 			Map<String, HSearchTableParts> queryData = new HashMap<String, HSearchTableParts>();
+			
 			for (String queryId : colIdWithType.keySet()) { //A
 				String queryType = colIdWithType.get(queryId); //structured
-				HSearchTableParts parts = colParts.get(queryType);
+				HSearchTableParts parts = colNamesWithPartitionBytes.get(queryType);
 				
 				String queryTypeWithId = queryType + ":" + queryId;
-				HbaseLog.l.debug(queryTypeWithId);
+
 				if ( DEBUG_ENABLED ) {
+					HbaseLog.l.debug(queryTypeWithId);
 					HbaseLog.l.debug("Query Parts for " + queryTypeWithId);
 				}
 				
 				queryData.put(queryTypeWithId, parts);
 			}
-			colParts.clear();
-			colParts = null;
+			colNamesWithPartitionBytes.clear();
+			colNamesWithPartitionBytes = null;
 
 			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchGenericFilter: Filteration Starts");
-			List<FederatedFacade<String, String>.IRowId> intersectedIds = federatedQueryExec(row, intersector, queryData);
+			List<FederatedFacade<String, String>.IRowId> intersectedIds = 
+				federatedQueryExec(row, intersector, queryData);
 			
 			kvL.clear(); //Clear all data
 			if ( hasMatchingIds) {
-				kvL.add(new KeyValue(row, firstFamily, firstCol, serializeOutput(intersectedIds, this.queryPayload) ) );
+				kvL.add(new KeyValue(row, firstFamily, firstCol, 
+					serializeOutput(intersectedIds, this.queryPayload) ) );
 			}
 			
 			
@@ -285,13 +296,14 @@ public abstract class HSearchGenericFilter implements Filter {
 		List<FederatedFacade<String, String>.IRowId> intersectedIds = null;
 		intersectedIds = intersector.execute(queryData, this.multiQuery, this.queryPayload, outputType);
 		
+		hasMatchingIds = ( null != intersectedIds && intersectedIds.size() > 0 );
+
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug( new String(row) + " has ids of :" + intersectedIds.size());
+			HbaseLog.l.debug("Generaic filter hasMatchingIds :" + hasMatchingIds);
+			if ( hasMatchingIds ) HbaseLog.l.debug( new String(row) + " has ids of :" + intersectedIds.size());
 		}
 		
-		hasMatchingIds = ( null != intersectedIds && intersectedIds.size() > 0 );
 		
-		HbaseLog.l.debug("Generaic filter hasMatchingIds :" + hasMatchingIds);
 		return intersectedIds;
 	}
 	
@@ -399,6 +411,9 @@ public abstract class HSearchGenericFilter implements Filter {
 					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_AVG,
 						OutputType.OUTPUT_SUM, OutputType.OUTPUT_COUNT});
 
+			case OutputType.OUTPUT_FACETS:
+				return serializeFacets(matchedIds, queryPayload);
+				
 			case OutputType.CALLBACK_ID:
 				return serializeDocIds(matchedIds, queryPayload);
 
@@ -434,7 +449,31 @@ public abstract class HSearchGenericFilter implements Filter {
 		return SortedBytesLong.getInstance().toBytes(countL);
 	}
 	
-	private byte[] serializeAggvValuesChained( List<FederatedFacade<String, String>.IRowId> matchedIds,
+	private final byte[] serializeFacets(
+			List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Map<String, QueryPart> queryPayload) throws IOException {
+		
+		Map<String, Integer> facets = new HashMap<String, Integer>();
+		
+		for (QueryPart part : queryPayload.values()) {
+			Object pluginO =  part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
+			if ( null == pluginO) throw new IOException("Plugin object is not found, NULL");
+			IHSearchPlugin plugin =  (IHSearchPlugin) pluginO;
+			plugin.calculateFacets(facets, matchedIds);
+		}
+	
+		return facetsToBytes(facets);
+	}
+
+	public static byte[] facetsToBytes(Map<String, Integer> facets)
+			throws IOException {
+		List<byte[]> kvB = new ArrayList<byte[]>(2);
+		kvB.add( SortedBytesString.getInstance().toBytes(facets.keySet()) );
+		kvB.add( SortedBytesInteger.getInstance().toBytes(facets.values()) );
+		return SortedBytesArray.getInstance().toBytes(kvB);
+	}
+	
+	private final byte[] serializeAggvValuesChained( List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String, QueryPart> queryPayload, int[] outputCode) throws IOException {
 		
 		Collection<Double> outputList = new ArrayList<Double>();
@@ -445,7 +484,7 @@ public abstract class HSearchGenericFilter implements Filter {
 		
 	}
 	
-	private void serializeAggvValues( List<FederatedFacade<String, String>.IRowId> matchedIds,
+	private final void serializeAggvValues( List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String, QueryPart> queryPayload, int outputCode,
 			Collection<Double> outputL) throws IOException {
 
@@ -534,18 +573,20 @@ public abstract class HSearchGenericFilter implements Filter {
 		if ( DEBUG_ENABLED ) L.getInstance().logDebug( "Ids :" + sb.toString() );
 		return SortedBytesString.getInstance().toBytes(idL);
 	}
+
+	public Collection<Long> deSerializeCounts(byte[] input, Collection<Long> output) throws IOException {
+		if ( DEBUG_ENABLED ) L.getInstance().logDebug(
+				"HSearch Generic Filter getRowKeys > de-serializeMatchingIds : " + outputType.getCallbackType() );
+		return SortedBytesLong.getInstance().parse(input).values(output);
+	}
 	
-	@SuppressWarnings("rawtypes")
-	public Collection deSerializeOutput(byte[] input, Collection values) throws IOException {
+	public Collection<Double> deSerializeAgreegates(byte[] input, Collection<Double> output) throws IOException {
 		
 		if ( DEBUG_ENABLED ) L.getInstance().logDebug(
-			"HSearch Generic Filter getRowKeys > de-serializeMatchingIds : " + outputType.getCallbackType() );
-		
+				"HSearch Generic Filter getRowKeys > de-serializeMatchingIds : " + outputType.getCallbackType() );
+
 		switch (outputType.getOutputType()) {
-			
-			case OutputType.OUTPUT_COUNT:
-				return SortedBytesLong.getInstance().parse(input).values(values);
-				
+		
 			case OutputType.OUTPUT_MIN:
 			case OutputType.OUTPUT_MAX:
 			case OutputType.OUTPUT_AVG:
@@ -558,44 +599,155 @@ public abstract class HSearchGenericFilter implements Filter {
 			case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
 			case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
 			case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
-				return SortedBytesDouble.getInstance().parse(input).values(values);
+				return SortedBytesDouble.getInstance().parse(input).values(output);
+		}
 
-			case OutputType.CALLBACK_ID:
-				return SortedBytesString.getInstance().parse(input).values(values);
+		throw new IOException("Deserialization Failute, type not implemented :" + this.outputType.getOutputType());
+	}
+	
+	public Collection<String> deSerializeIds(byte[] input, Collection<String> output) throws IOException {
+		return SortedBytesString.getInstance().parse(input).values(output);
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public Collection deSerializeCells(byte[] input, Collection output) throws IOException {
+		
+		switch (outputType.getOutputType()) {
 
 			case OutputType.CALLBACK_IDVAL:
-				return deserializeIdAndValues(input, values);
+				return deserializeIdAndValues(input, output);
 				
 			case OutputType.CALLBACK_VAL:
-				return deserializeValues(input, values);
+				return deserializeValues(input, output);
 
 			case OutputType.CALLBACK_COLS:
-				return deserializeColumns(input, values);
+				return deserializeColumns(input, output);
+
 		}
 		
 		throw new IOException("Deserialization Failute, type not implemented :" + this.outputType.getOutputType());
 	}			
 	
-	public abstract HSearchTableMultiQueryExecutor createExector();
+	public Map<String, Integer> deSerializeFacets(byte[] input, Map<String, Integer> output) throws IOException {
+		
+		if ( null == input) return output;
+		if ( 0 == input.length ) return output;
+		
+		Collection<byte[]> keyValueB = SortedBytesArray.getInstance().parse(input).values();
+		
+		Collection<String> keys = null;
+		Collection<Integer> values = null;
+		
+		int seq = 0;
+		for (byte[] bs : keyValueB) {
+			if ( seq == 0 ) {
+				keys = SortedBytesString.getInstance().parse(bs).values();
+			} else {
+				values = SortedBytesInteger.getInstance().parse(bs).values();
+			}
+			seq++;
+		}
+
+		if ( null == keys && null == values ) return output;
+		
+		if ( null == keys || null == values ) {
+			throw new IOException("Corrupted bytes, " + keys + " - " + values);
+		}
+		
+		if ( keys.size() != values.size()) {
+			throw new IOException("Corrupted bytes, " + keys.size() + " - " + values.size());
+		}
+		
+		Iterator<Integer> valsI = values.iterator();
+		for (String key : keys) {
+			output.put(key, valsI.next());
+		}
+		return output;
+	}
+	
+	
+	public abstract HSearchTableMultiQueryExecutor createExecutor();
 	public abstract IHSearchPlugin createPlugIn(String type) throws IOException ;
 	
-	public abstract byte[] serializeValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
-			Map<String,QueryPart> queryPayload) throws IOException;
+	public byte[] serializeValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Map<String,QueryPart> queryPayload) throws IOException {
+		return serializeWithTsv(matchedIds, queryPayload, OutputType.CALLBACK_VAL);
+	}
 	
 	@SuppressWarnings("rawtypes")
-	public abstract List deserializeValues(byte[] input, Collection values) throws IOException;
+	public Collection deserializeValues(byte[] input, Collection values) throws IOException {
+		return deserializeTsv(input, values);		
+	}
 
-	public abstract byte[] serializeIdAndValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
-			Map<String,QueryPart> queryPayload) throws IOException;
+	public byte[] serializeIdAndValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Map<String,QueryPart> queryPayload) throws IOException {
+		return serializeWithTsv(matchedIds, queryPayload, OutputType.CALLBACK_IDVAL);
+	}
 	
 	@SuppressWarnings("rawtypes")
-	public abstract List deserializeIdAndValues(byte[] input, Collection values) throws IOException;
+	public Collection deserializeIdAndValues(byte[] input, Collection values) throws IOException {
+		return deserializeTsv(input, values);		
+	}
 	
-	public abstract byte[] serializeColumns(List<FederatedFacade<String, String>.IRowId> matchedIds,
-			Map<String,QueryPart> queryPayload) throws IOException;
+	public byte[] serializeColumns(List<FederatedFacade<String, String>.IRowId> matchedIds,
+			Map<String,QueryPart> queryPayload) throws IOException {
+		
+		return serializeWithTsv(matchedIds, queryPayload, OutputType.CALLBACK_COLS);
+	}
 
 	@SuppressWarnings("rawtypes")
-	public abstract List deserializeColumns(byte[] input, Collection values) throws IOException;
-	
+	public Collection deserializeColumns(byte[] input, Collection values) throws IOException {
+		return deserializeTsv(input, values);
+	}
+
+	private byte[] serializeWithTsv( List<FederatedFacade<String, String>.IRowId> matchedIds, 
+			Map<String, QueryPart> queryPayload, int outputType) throws IOException {
+		if ( DEBUG_ENABLED ) {
+			HbaseLog.l.debug("HSearchGenericFilter:serializeColumns : with matchedIds " +  matchedIds.size());
+		}
+		
+		Collection<String> container = new ArrayList<String>(8192);
+		for (QueryPart part : queryPayload.values()) {
+			Object pluginO = part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
+			IHSearchPlugin plugin = (IHSearchPlugin) pluginO;
+			switch ( outputType ) {
+				case OutputType.OUTPUT_COLS:
+					plugin.getMatchingRowsWithTSV(matchedIds, container);
+					break;
+					
+				case OutputType.CALLBACK_IDVAL:
+					plugin.getMatchingIdsAndValuesWithTSV(matchedIds, container);
+					break;
+					
+				case OutputType.CALLBACK_VAL:
+					plugin.getMatchingValuesWithTSV(matchedIds, container);
+					break;
+			}
+		}
+		
+		//Put it to Bytes
+		int totalSize = 0;
+		for (String line : container) {
+			totalSize += (line.length() + 1);
+		}
+		
+		StringBuilder sb = new StringBuilder(totalSize + 1);
+		for (String line : container) {
+			sb.append(line).append('\n');
+		}
+
+		if ( DEBUG_ENABLED ) {
+			HbaseLog.l.debug("HSearchGenericFilter:serializeColumns : Bytes Total " +  totalSize);
+		}
+		
+		return sb.toString().getBytes();
+	}
+
+	private Collection deserializeTsv(byte[] input, Collection values) {
+		if ( null == input) return values;
+		String allLines = new String(input);
+		LineReaderUtil.fastSplit(values, allLines, '\n');
+		return values;
+	}
 	
 }

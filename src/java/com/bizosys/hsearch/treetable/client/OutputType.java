@@ -29,10 +29,13 @@ public class OutputType {
 	public static final int OUTPUT_MIN_MAX_SUM_COUNT = 15;
 	public static final int OUTPUT_MIN_MAX_AVG_SUM_COUNT = 16;
 	
-	//public static final int OUTPUT_FACETS = 17;
+	public static final int OUTPUT_FACETS = 17;
 	
+	private static String EMPTY = "";
+
 	private int callbackCode = CALLBACK_ID;
 	private int outputCode = CALLBACK_ID;
+	private String processingHint = EMPTY;
 	
 	public OutputType() {
 		
@@ -43,10 +46,24 @@ public class OutputType {
 		this.outputCode = outputCode;
 	}
 
+	public OutputType(int callbackCode, int outputCode, String processingHint) {
+		this.callbackCode = callbackCode;
+		this.outputCode = outputCode;
+		this.processingHint = processingHint;
+	}
+
 	public OutputType(String code) throws IOException {
-		int divider = code.indexOf('|');
-		this.callbackCode = new Integer(code.substring(0, divider));
-		this.outputCode = new Integer(code.substring(divider + 1));
+		int fDivider = code.indexOf('|');
+		this.callbackCode = new Integer(code.substring(0, fDivider));
+		
+		int sDivider = code.indexOf('|', fDivider + 1);
+		if ( sDivider < 0 ) {
+			this.outputCode = new Integer(code.substring(fDivider + 1));
+			this.processingHint = EMPTY;
+		} else {
+			this.outputCode = new Integer(code.substring(fDivider + 1, sDivider));
+			this.processingHint = code.substring(sDivider + 1);
+		}
 	}
 
 	public int getOutputType() {
@@ -57,8 +74,20 @@ public class OutputType {
 		return this.callbackCode;
 	}
 	
+	public String getProcessingHint() {
+		return this.processingHint;
+	}
+	
 	public String toString() {
-		return ( new Integer(callbackCode).toString() + '|' + new  Integer(outputCode).toString() );
+		StringBuilder sb = new StringBuilder(32);
+		sb.append(callbackCode);
+		sb.append('|');
+		sb.append(outputCode);
+		if ( this.processingHint.length() > 0 ) {
+			sb.append('|');
+			sb.append(processingHint);
+		}		
+		return ( sb.toString());
 	}
 	
 	public String toStringHumanReadable() {
@@ -66,9 +95,9 @@ public class OutputType {
 	}
 
 	public static void main(String[] args) throws IOException {
-		OutputType o = new OutputType(CALLBACK_COLS, OUTPUT_MIN_MAX_AVG_SUM_COUNT);
+		OutputType o = new OutputType(CALLBACK_COLS, OUTPUT_MIN_MAX_AVG_SUM_COUNT, " ");
 		OutputType x = new OutputType(o.toString());
-		System.out.println( x.toString());
+		System.out.println( x.getProcessingHint());
 	}
 
 }

@@ -36,7 +36,7 @@ public class HSearchTableParts {
 		if ( null == this.allParts) this.allParts = new Vector<byte[]>();
 	}
 	
-	public void collect(byte[] dataParts) {
+	public void put(byte[] dataParts) {
 		this.allParts.add(dataParts);
 	}
 }

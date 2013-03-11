@@ -1,6 +1,7 @@
 package com.bizosys.hsearch.treetable.storage;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -83,5 +84,30 @@ public class HSearchGenericCoProcessorFactory {
 		
 		return output;
 	}
+	
+	public final Map<String, Integer> execCoprocessorFacets(HTableWrapper table) throws IOException, Throwable  {
+
+		if ( INFO_ENABLED) HbaseLog.l.info("HSearchGenericCoprocessor:execCoprocessorCounts");
+
+		
+        Map<byte[], byte[]> output = table.table.coprocessorExec(
+                HSearchGenericCoprocessor.class, null, null,
+                
+                new Batch.Call<HSearchGenericCoprocessor, byte[]>() {
+                    @Override
+                    public byte[] call(HSearchGenericCoprocessor counter) throws IOException {
+                    	return counter.getFacets(families, cols, filter);
+                        
+                 }
+         } );
+        
+        Map<String, Integer> facets = new HashMap<String, Integer>();
+        for (byte[] facetsB : output.values()) {
+        	filter.deSerializeFacets(facetsB, facets);
+		}
+        
+        return facets;		
+	}
+	
 
 }
