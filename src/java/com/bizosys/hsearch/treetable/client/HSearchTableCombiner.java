@@ -32,7 +32,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	@Override
-	public void concurrentDeser(String aStmtOrValue, OutputType outputType, Map<String, Object> stmtParams, String tableType) throws Exception {
+	public void concurrentDeser(String aStmtOrValue, HSearchPluginPoints outputType, Map<String, Object> stmtParams, String tableType) throws Exception {
 		
 		if ( DEBUG_ENABLED ){
 			String keys = ( null != stmtParams) ? stmtParams.keySet().toString() : "No Keys";
@@ -87,10 +87,10 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		byte[] tableSer = null; 
 		IHSearchPlugin plugin = null;
 		HSearchQuery hQuery = null;
-		OutputType outputType = null;
+		HSearchPluginPoints outputType = null;
 		IHSearchTable t = null;
 
-		public TableDeserExecutor(IHSearchTable t, byte[] tableSer, IHSearchPlugin plugin, HSearchQuery hQuery, OutputType outputType) {
+		public TableDeserExecutor(IHSearchTable t, byte[] tableSer, IHSearchPlugin plugin, HSearchQuery hQuery, HSearchPluginPoints outputType) {
 			this.t = t;
 			this.tableSer = tableSer;
 			this.plugin = plugin;
@@ -105,16 +105,16 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 			}
 			try {
 				switch ( this.outputType.getCallbackType()) {
-					case OutputType.CALLBACK_COLS:
+					case HSearchPluginPoints.PLUGIN_CALLBACK_COLS:
 						t.get(tableSer, hQuery, plugin);
 						break;
-					case OutputType.CALLBACK_ID:
+					case HSearchPluginPoints.PLUGIN_CALLBACK_ID:
 						t.keySet(tableSer, hQuery, plugin);
 						break;
-					case OutputType.CALLBACK_VAL:
+					case HSearchPluginPoints.PLUGIN_CALLBACK_VAL:
 						t.values(tableSer, hQuery, plugin);
 						break;
-					case OutputType.CALLBACK_IDVAL:
+					case HSearchPluginPoints.PLUGIN_CALLBACK_IDVAL:
 						t.keyValues(tableSer, hQuery, plugin);
 						break;
 					default:

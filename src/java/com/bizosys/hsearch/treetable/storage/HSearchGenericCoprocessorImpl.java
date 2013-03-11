@@ -17,7 +17,6 @@ import org.apache.hadoop.hbase.regionserver.InternalScanner;
 import com.bizosys.hsearch.PerformanceLogger;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.hbase.HbaseLog;
-import com.bizosys.hsearch.treetable.client.OutputType;
 
 public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		implements HSearchGenericCoprocessor {
@@ -83,7 +82,6 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					
 					filter.deSerializeCounts(input, foundCounts);
 					int i=0;
-					System.out.println(foundCounts.size() + "/" + queryPartCountsWithTotallingAtTop.length);
 					for (Long aCount : foundCounts) {
 						if ( DEBUG_ENABLED ) HbaseLog.l.debug( "Row Count : " + i + " > " + aCount.longValue());
 						queryPartCountsWithTotallingAtTop[i] += aCount.longValue();
@@ -150,39 +148,16 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			List<KeyValue> curVals = new ArrayList<KeyValue>();
 			boolean done = false;
 			
-			int merged = 1;
-			switch ( filter.outputType.getOutputType()) {
-				case OutputType.OUTPUT_MIN:
-				case OutputType.OUTPUT_MAX:
-				case OutputType.OUTPUT_AVG:
-				case OutputType.OUTPUT_SUM:
-					merged = 1;
-					break;
-				case OutputType.OUTPUT_MIN_MAX:
-					merged = 2;
-					break;
-
-				case OutputType.OUTPUT_MIN_MAX_AVG:
-				case OutputType.OUTPUT_MIN_MAX_COUNT:
-				case OutputType.OUTPUT_MIN_MAX_SUM:
-					merged = 3;
-					break;
-					
-				case OutputType.OUTPUT_MIN_MAX_AVG_COUNT:
-				case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
-				case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
-					merged = 4;
-					break;
-				case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
-					merged = 5;
-					break;
-				default:
-					throw new IOException("HSearchCoprocessor Not a agregate type - " + filter.outputType.toStringHumanReadable());
-			}
-
+			int merged = AggregateUtils.getMergedCount(filter.outputType.getOutputType());
 			int resultBunch = filter.getTotalQueryParts() + 1;
 			double[] queryPartAggvWithTotallingAtTop = new double[ resultBunch * merged];
-			Arrays.fill(queryPartAggvWithTotallingAtTop, 0);
+			AggregateUtils.initializeDefault( filter.outputType.getOutputType(), 
+				queryPartAggvWithTotallingAtTop, resultBunch);
+
+			if ( DEBUG_ENABLED) {
+				HbaseLog.l.debug("Total Query Output Records =" + queryPartAggvWithTotallingAtTop + 
+					" , Queries = " + resultBunch + " , merged=" + merged);
+			}
 			
 			List<Double> foundAggregates = new ArrayList<Double>();
 			scanner = environment.getRegion().getScanner(scan);
@@ -196,65 +171,8 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					if ( null == input) continue;
 					filter.deSerializeAgreegates(input, foundAggregates);
 					
-					int outputType = filter.outputType.getOutputType();
-					switch ( outputType ) {
-						case OutputType.OUTPUT_MIN:
-						case OutputType.OUTPUT_MAX:
-						case OutputType.OUTPUT_AVG:
-						case OutputType.OUTPUT_SUM:
-							computeAggregates(outputType,
-								queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 0);
-							break;
-							
-						case OutputType.OUTPUT_MIN_MAX:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
-							break;
-	
-						case OutputType.OUTPUT_MIN_MAX_AVG:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
-							computeAggregates(OutputType.OUTPUT_AVG, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
-							break;
-						case OutputType.OUTPUT_MIN_MAX_COUNT:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
-							computeAggregates(OutputType.OUTPUT_COUNT, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
-							break;
-						case OutputType.OUTPUT_MIN_MAX_SUM:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
-							computeAggregates(OutputType.OUTPUT_SUM, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
-							break;
-							
-						case OutputType.OUTPUT_MIN_MAX_AVG_COUNT:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
-							computeAggregates(OutputType.OUTPUT_AVG, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
-							computeAggregates(OutputType.OUTPUT_COUNT, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 3);
-							break;
-						case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
-							computeAggregates(OutputType.OUTPUT_SUM, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
-							computeAggregates(OutputType.OUTPUT_AVG, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 3);
-							break;
-						case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
-							computeAggregates(OutputType.OUTPUT_SUM, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
-							computeAggregates(OutputType.OUTPUT_COUNT, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 3);
-							break;
-						case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
-							computeAggregates(OutputType.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
-							computeAggregates(OutputType.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
-							computeAggregates(OutputType.OUTPUT_AVG, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
-							computeAggregates(OutputType.OUTPUT_SUM, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 3);
-							computeAggregates(OutputType.OUTPUT_COUNT, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 4);
-							break;
-						default:
-							throw new IOException("HSearchCoprocessor Not a agregate type - " + filter.outputType.toStringHumanReadable());
-					}
+					AggregateUtils.computeAgreegates(filter, resultBunch,
+						queryPartAggvWithTotallingAtTop, foundAggregates);
 				}
 				
 			} while (done);
@@ -276,46 +194,8 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			}
 		}
 	}
-	
-	private void computeAggregates(int output, double[] finalOutputValues,
-			List<Double> appendValues, int resultBunch, int aggvIndex ) throws IOException {
-		
-		switch(output) {
-			case OutputType.OUTPUT_COUNT:
-				for ( int i=0; i<resultBunch; i++) {
-					finalOutputValues[i] += appendValues.get(resultBunch * aggvIndex + i).doubleValue();
-				}
-				break;
-			case OutputType.OUTPUT_AVG:
-				for ( int i=0; i<resultBunch; i++) {
-					finalOutputValues[i] += appendValues.get(resultBunch * aggvIndex + i).doubleValue();
-					finalOutputValues[i] = finalOutputValues[i] / 2;
-				}
-				break;
-			case OutputType.OUTPUT_MAX:
-				for ( int i=0; i<resultBunch; i++) {
-					double d = appendValues.get(resultBunch * aggvIndex + i).doubleValue();
-					if ( finalOutputValues[i] < d )  finalOutputValues[i] = d;
-				}
-				break;
-				
-			case OutputType.OUTPUT_MIN:
-				for ( int i=0; i<resultBunch; i++) {
-					double d = appendValues.get(resultBunch * aggvIndex + i).doubleValue();
-					if ( finalOutputValues[i] > d )  finalOutputValues[i] = d;
-				}
-				break;
-			case OutputType.OUTPUT_SUM:
-				for ( int i=0; i<resultBunch; i++) {
-					finalOutputValues[i]  += appendValues.get(resultBunch * aggvIndex + i).doubleValue(); 
-				}
-				break;
-				
-			default:
-				throw new IOException("Not able to process the aggv type - Generic Coprocessor" +  output);
-		}
-	}
-	
+
+
 
     /**
      * Get Matching rows 

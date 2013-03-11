@@ -34,7 +34,7 @@ import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
-import com.bizosys.hsearch.treetable.client.OutputType;
+import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
 
 public abstract class HSearchTableReader {
 	
@@ -42,12 +42,12 @@ public abstract class HSearchTableReader {
 	
 	//public static ParallelHReader parallelReader = new ParallelHReader(10);
 	
-	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts, OutputType outputType); 
+	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts, HSearchPluginPoints outputType); 
 	public abstract IScanCallBack getResultCollector();
 
 	public abstract void counts(Map<byte[], long[]> results);
-	public abstract void agreegates(Map<byte[], double[]> results, OutputType aggregateType);
-	public abstract void rows(Map<byte[], byte[]> results, OutputType rowType);
+	public abstract void agreegates(Map<byte[], double[]> results, HSearchPluginPoints aggregateType);
+	public abstract void rows(Map<byte[], byte[]> results, HSearchPluginPoints rowType);
 	
 	
 	public void setPartionsFamiliesStructured(String colName, String range, Set<String> uniqueFamilies) 
@@ -60,7 +60,7 @@ public abstract class HSearchTableReader {
 
 
 	public void read( String multiQuery, Map<String, String> multiQueryParts, 
-			OutputType outputType, boolean isPartitioned, boolean isParallel) 
+			HSearchPluginPoints outputType, boolean isPartitioned, boolean isParallel) 
 			throws IOException, ParseException {
 		
 		HSearchGenericFilter filter = getFilter(multiQuery, multiQueryParts, outputType);
@@ -98,31 +98,31 @@ public abstract class HSearchTableReader {
 	        try {
 	        	switch ( outputType.getOutputType()) {
 	        		
-	        		case OutputType.OUTPUT_COUNT:
+	        		case HSearchPluginPoints.OUTPUT_COUNT:
 	    		        counts(new HSearchGenericCoProcessorFactory(
 	    		        		families, filter).execCoprocessorCounts(table));
 	    		        break;
 
-	    			case OutputType.OUTPUT_MIN:
-	    			case OutputType.OUTPUT_MAX:
-	    			case OutputType.OUTPUT_AVG:
-	    			case OutputType.OUTPUT_SUM:
-	    			case OutputType.OUTPUT_MIN_MAX:
-	    			case OutputType.OUTPUT_MIN_MAX_AVG:
-	    			case OutputType.OUTPUT_MIN_MAX_COUNT:
-	    			case OutputType.OUTPUT_MIN_MAX_AVG_COUNT:
-	    			case OutputType.OUTPUT_MIN_MAX_SUM:
-	    			case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
-	    			case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
-	    			case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
+	    			case HSearchPluginPoints.OUTPUT_MIN:
+	    			case HSearchPluginPoints.OUTPUT_MAX:
+	    			case HSearchPluginPoints.OUTPUT_AVG:
+	    			case HSearchPluginPoints.OUTPUT_SUM:
+	    			case HSearchPluginPoints.OUTPUT_MIN_MAX:
+	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG:
+	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_COUNT:
+	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_COUNT:
+	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM:
+	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_AVG:
+	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_COUNT:
+	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
 	    				agreegates(new HSearchGenericCoProcessorFactory(
 	    		        		families, filter).execCoprocessorAggregates(table), outputType );
 	    		        break;
 	    		        
-	    			case OutputType.OUTPUT_ID:
-	    			case OutputType.OUTPUT_IDVAL:
-	    			case OutputType.OUTPUT_VAL:
-	    			case OutputType.OUTPUT_COLS:
+	    			case HSearchPluginPoints.OUTPUT_ID:
+	    			case HSearchPluginPoints.OUTPUT_IDVAL:
+	    			case HSearchPluginPoints.OUTPUT_VAL:
+	    			case HSearchPluginPoints.OUTPUT_COLS:
 	    				rows(new HSearchGenericCoProcessorFactory(
 	    		        		families, filter).execCoprocessorRows(table), outputType );
 	    		        break;	    		        

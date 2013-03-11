@@ -67,7 +67,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 				long startTime = System.currentTimeMillis();
 				try {
 					IHSearchTableCombiner combiner = getCombiner();
-					OutputType outputType = (OutputType) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
+					HSearchPluginPoints outputType = (HSearchPluginPoints) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
 					
 					if ( DEBUG_ENABLED ) {
 						startTime = System.currentTimeMillis();

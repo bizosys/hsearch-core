@@ -47,7 +47,7 @@ import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryProcessor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
-import com.bizosys.hsearch.treetable.client.OutputType;
+import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
 import com.bizosys.hsearch.util.LineReaderUtil;
 
 /**
@@ -64,12 +64,12 @@ public abstract class HSearchGenericFilter implements Filter {
 	Map<String, String> colIdWithType = new HashMap<String, String>();
 	boolean hasMatchingIds = false;
 	
-	OutputType outputType = new OutputType();
+	HSearchPluginPoints outputType = new HSearchPluginPoints();
 
 	public HSearchGenericFilter(){
 	}
 	
-	public HSearchGenericFilter(OutputType outputType, String query, Map<String, String> details){
+	public HSearchGenericFilter(HSearchPluginPoints outputType, String query, Map<String, String> details){
 		this.multiQuery = query;
 		this.queryFilters = details;
 		this.outputType = outputType;
@@ -138,7 +138,7 @@ public abstract class HSearchGenericFilter implements Filter {
 					case 0:
 						String output = stk.nextToken();
 						if (output.length() == 0  ) throw new IOException("Unknown result output type.");
-						this.outputType = new OutputType(output);
+						this.outputType = new HSearchPluginPoints(output);
 						break;
 						
 					case 1:
@@ -365,65 +365,65 @@ public abstract class HSearchGenericFilter implements Filter {
 		
 		switch (outputType.getOutputType()) {
 			
-			case OutputType.OUTPUT_COUNT:
+			case HSearchPluginPoints.OUTPUT_COUNT:
 				return serializeCounts(matchedIds, queryPayload);
 			
-			case OutputType.OUTPUT_MIN:
-			case OutputType.OUTPUT_MAX:
-			case OutputType.OUTPUT_AVG:
-			case OutputType.OUTPUT_SUM:
+			case HSearchPluginPoints.OUTPUT_MIN:
+			case HSearchPluginPoints.OUTPUT_MAX:
+			case HSearchPluginPoints.OUTPUT_AVG:
+			case HSearchPluginPoints.OUTPUT_SUM:
 				Collection<Double> outputL = new ArrayList<Double>(4);
 				serializeAggvValues(matchedIds, queryPayload, outputType.getOutputType(), outputL);
 				return SortedBytesDouble.getInstance().toBytes(outputL);
 				
-			case OutputType.OUTPUT_MIN_MAX:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
-					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX});
+					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX});
 
-			case OutputType.OUTPUT_MIN_MAX_AVG:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
-					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_AVG});
+					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, HSearchPluginPoints.OUTPUT_AVG});
 
-			case OutputType.OUTPUT_MIN_MAX_COUNT:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_COUNT:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
-					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_COUNT});
+					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, HSearchPluginPoints.OUTPUT_COUNT});
 
-			case OutputType.OUTPUT_MIN_MAX_AVG_COUNT:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_COUNT:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
-					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_AVG, OutputType.OUTPUT_COUNT});
+					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, HSearchPluginPoints.OUTPUT_AVG, HSearchPluginPoints.OUTPUT_COUNT});
 				
-			case OutputType.OUTPUT_MIN_MAX_SUM:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
-					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_SUM});
+					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, HSearchPluginPoints.OUTPUT_SUM});
 
-			case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_AVG:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
-					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, 
-						OutputType.OUTPUT_SUM, OutputType.OUTPUT_AVG});
+					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, 
+						HSearchPluginPoints.OUTPUT_SUM, HSearchPluginPoints.OUTPUT_AVG});
 
-			case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_COUNT:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
-					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, 
-						OutputType.OUTPUT_SUM, OutputType.OUTPUT_COUNT});
+					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, 
+						HSearchPluginPoints.OUTPUT_SUM, HSearchPluginPoints.OUTPUT_COUNT});
 
-			case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
-					new int[] {OutputType.OUTPUT_MIN, OutputType.OUTPUT_MAX, OutputType.OUTPUT_AVG,
-						OutputType.OUTPUT_SUM, OutputType.OUTPUT_COUNT});
+					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, HSearchPluginPoints.OUTPUT_AVG,
+						HSearchPluginPoints.OUTPUT_SUM, HSearchPluginPoints.OUTPUT_COUNT});
 
-			case OutputType.OUTPUT_FACETS:
+			case HSearchPluginPoints.OUTPUT_FACETS:
 				return serializeFacets(matchedIds, queryPayload);
 				
-			case OutputType.CALLBACK_ID:
+			case HSearchPluginPoints.PLUGIN_CALLBACK_ID:
 				return serializeDocIds(matchedIds, queryPayload);
 
-			case OutputType.CALLBACK_IDVAL:
+			case HSearchPluginPoints.PLUGIN_CALLBACK_IDVAL:
 				return serializeIdAndValues(matchedIds, queryPayload);
 				
-			case OutputType.CALLBACK_VAL:
+			case HSearchPluginPoints.PLUGIN_CALLBACK_VAL:
 				return serializeValues(matchedIds, queryPayload);
 
-			case OutputType.CALLBACK_COLS:
+			case HSearchPluginPoints.PLUGIN_CALLBACK_COLS:
 				return serializeColumns(matchedIds, queryPayload);
 		}
 		
@@ -480,6 +480,8 @@ public abstract class HSearchGenericFilter implements Filter {
 		for (int code : outputCode) {
 			serializeAggvValues(matchedIds, queryPayload, code, outputList);
 		}
+		
+		if ( DEBUG_ENABLED) HbaseLog.l.debug("Output List : " + outputList.toString());
 		return SortedBytesDouble.getInstance().toBytes(outputList);
 		
 	}
@@ -492,17 +494,17 @@ public abstract class HSearchGenericFilter implements Filter {
 		double[] outputQueryParts = new double[queryPayload.size()];
 		
 		switch(outputCode) {
-			case OutputType.OUTPUT_COUNT:
-			case OutputType.OUTPUT_SUM:
-			case OutputType.OUTPUT_AVG:
+			case HSearchPluginPoints.OUTPUT_COUNT:
+			case HSearchPluginPoints.OUTPUT_SUM:
+			case HSearchPluginPoints.OUTPUT_AVG:
 				outputMultiQuery = 0; 
 				Arrays.fill(outputQueryParts, 0);
 				break;
-			case OutputType.OUTPUT_MAX:
+			case HSearchPluginPoints.OUTPUT_MAX:
 				outputMultiQuery = Long.MIN_VALUE; 
 				Arrays.fill(outputQueryParts, Long.MIN_VALUE);
 				break;
-			case OutputType.OUTPUT_MIN:
+			case HSearchPluginPoints.OUTPUT_MIN:
 				outputMultiQuery = Long.MAX_VALUE; 
 				Arrays.fill(outputQueryParts, Long.MAX_VALUE);
 				break;
@@ -520,24 +522,24 @@ public abstract class HSearchGenericFilter implements Filter {
 			IHSearchPlugin plugin =  (IHSearchPlugin) pluginO;
 			
 			switch(outputCode) {
-				case OutputType.OUTPUT_COUNT:
+				case HSearchPluginPoints.OUTPUT_COUNT:
 					outputQueryParts[seq] = plugin.getCount(matchedIds);
 					outputMultiQuery += outputQueryParts[seq]; 
 					break;
-				case OutputType.OUTPUT_AVG:
+				case HSearchPluginPoints.OUTPUT_AVG:
 					outputQueryParts[seq] = plugin.getAvg(matchedIds);
 					outputMultiQuery += outputQueryParts[seq]; 
 					outputMultiQuery = outputMultiQuery / 2;
 					break;
-				case OutputType.OUTPUT_MAX:
+				case HSearchPluginPoints.OUTPUT_MAX:
 					outputQueryParts[seq] = plugin.getMax(matchedIds);
 					if ( outputMultiQuery < outputQueryParts[seq]) outputMultiQuery = outputQueryParts[seq];
 					break;
-				case OutputType.OUTPUT_MIN:
+				case HSearchPluginPoints.OUTPUT_MIN:
 					outputQueryParts[seq] = plugin.getMin(matchedIds);
 					if ( outputMultiQuery > outputQueryParts[seq]) outputMultiQuery = outputQueryParts[seq];
 					break;
-				case OutputType.OUTPUT_SUM:
+				case HSearchPluginPoints.OUTPUT_SUM:
 					outputQueryParts[seq] = plugin.getSum(matchedIds);
 					outputMultiQuery += outputQueryParts[seq]; 
 					break;
@@ -545,7 +547,11 @@ public abstract class HSearchGenericFilter implements Filter {
 			seq++;
 		}
 
+		//For the top row
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug( outputCode + "|" + outputMultiQuery);
 		outputL.add(outputMultiQuery);
+		
+		//For the all queries
 		for (double outputQueryPart : outputQueryParts) {
 			outputL.add(outputQueryPart);	
 		}
@@ -587,18 +593,18 @@ public abstract class HSearchGenericFilter implements Filter {
 
 		switch (outputType.getOutputType()) {
 		
-			case OutputType.OUTPUT_MIN:
-			case OutputType.OUTPUT_MAX:
-			case OutputType.OUTPUT_AVG:
-			case OutputType.OUTPUT_SUM:
-			case OutputType.OUTPUT_MIN_MAX:
-			case OutputType.OUTPUT_MIN_MAX_AVG:
-			case OutputType.OUTPUT_MIN_MAX_COUNT:
-			case OutputType.OUTPUT_MIN_MAX_AVG_COUNT:
-			case OutputType.OUTPUT_MIN_MAX_SUM:
-			case OutputType.OUTPUT_MIN_MAX_SUM_AVG:
-			case OutputType.OUTPUT_MIN_MAX_SUM_COUNT:
-			case OutputType.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
+			case HSearchPluginPoints.OUTPUT_MIN:
+			case HSearchPluginPoints.OUTPUT_MAX:
+			case HSearchPluginPoints.OUTPUT_AVG:
+			case HSearchPluginPoints.OUTPUT_SUM:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_COUNT:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_COUNT:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_AVG:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_COUNT:
+			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
 				return SortedBytesDouble.getInstance().parse(input).values(output);
 		}
 
@@ -614,13 +620,13 @@ public abstract class HSearchGenericFilter implements Filter {
 		
 		switch (outputType.getOutputType()) {
 
-			case OutputType.CALLBACK_IDVAL:
+			case HSearchPluginPoints.PLUGIN_CALLBACK_IDVAL:
 				return deserializeIdAndValues(input, output);
 				
-			case OutputType.CALLBACK_VAL:
+			case HSearchPluginPoints.PLUGIN_CALLBACK_VAL:
 				return deserializeValues(input, output);
 
-			case OutputType.CALLBACK_COLS:
+			case HSearchPluginPoints.PLUGIN_CALLBACK_COLS:
 				return deserializeColumns(input, output);
 
 		}
@@ -671,7 +677,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	
 	public byte[] serializeValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String,QueryPart> queryPayload) throws IOException {
-		return serializeWithTsv(matchedIds, queryPayload, OutputType.CALLBACK_VAL);
+		return serializeWithTsv(matchedIds, queryPayload, HSearchPluginPoints.PLUGIN_CALLBACK_VAL);
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -681,7 +687,7 @@ public abstract class HSearchGenericFilter implements Filter {
 
 	public byte[] serializeIdAndValues(List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String,QueryPart> queryPayload) throws IOException {
-		return serializeWithTsv(matchedIds, queryPayload, OutputType.CALLBACK_IDVAL);
+		return serializeWithTsv(matchedIds, queryPayload, HSearchPluginPoints.PLUGIN_CALLBACK_IDVAL);
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -692,7 +698,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	public byte[] serializeColumns(List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String,QueryPart> queryPayload) throws IOException {
 		
-		return serializeWithTsv(matchedIds, queryPayload, OutputType.CALLBACK_COLS);
+		return serializeWithTsv(matchedIds, queryPayload, HSearchPluginPoints.PLUGIN_CALLBACK_COLS);
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -711,15 +717,15 @@ public abstract class HSearchGenericFilter implements Filter {
 			Object pluginO = part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
 			IHSearchPlugin plugin = (IHSearchPlugin) pluginO;
 			switch ( outputType ) {
-				case OutputType.OUTPUT_COLS:
+				case HSearchPluginPoints.OUTPUT_COLS:
 					plugin.getMatchingRowsWithTSV(matchedIds, container);
 					break;
 					
-				case OutputType.CALLBACK_IDVAL:
+				case HSearchPluginPoints.PLUGIN_CALLBACK_IDVAL:
 					plugin.getMatchingIdsAndValuesWithTSV(matchedIds, container);
 					break;
 					
-				case OutputType.CALLBACK_VAL:
+				case HSearchPluginPoints.PLUGIN_CALLBACK_VAL:
 					plugin.getMatchingValuesWithTSV(matchedIds, container);
 					break;
 			}

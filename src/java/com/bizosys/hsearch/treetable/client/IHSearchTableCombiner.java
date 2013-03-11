@@ -22,6 +22,6 @@ package com.bizosys.hsearch.treetable.client;
 import java.util.Map;
 
 public interface IHSearchTableCombiner {
-	public void concurrentDeser(String aStmtOrValue, OutputType outputType, 
+	public void concurrentDeser(String aStmtOrValue, HSearchPluginPoints outputType, 
 		Map<String, Object> stmtParams, String tableType) throws Exception;
 }

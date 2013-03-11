@@ -2,11 +2,12 @@ package com.bizosys.hsearch.treetable.client;
 
 import java.io.IOException;
 
-public class OutputType {
-	public static final int CALLBACK_ID = 0;
-	public static final int CALLBACK_IDVAL = 1;
-	public static final int CALLBACK_VAL = 2;
-	public static final int CALLBACK_COLS = 3;
+public class HSearchPluginPoints {
+	
+	public static final int PLUGIN_CALLBACK_ID = 0;
+	public static final int PLUGIN_CALLBACK_IDVAL = 1;
+	public static final int PLUGIN_CALLBACK_VAL = 2;
+	public static final int PLUGIN_CALLBACK_COLS = 3;
 	
 	public static final int OUTPUT_ID = 0;
 	public static final int OUTPUT_IDVAL = 1;
@@ -33,26 +34,26 @@ public class OutputType {
 	
 	private static String EMPTY = "";
 
-	private int callbackCode = CALLBACK_ID;
-	private int outputCode = CALLBACK_ID;
+	private int callbackCode = PLUGIN_CALLBACK_ID;
+	private int outputCode = PLUGIN_CALLBACK_ID;
 	private String processingHint = EMPTY;
 	
-	public OutputType() {
+	public HSearchPluginPoints() {
 		
 	}
 
-	public OutputType(int callbackCode, int outputCode) {
+	public HSearchPluginPoints(int callbackCode, int outputCode) {
 		this.callbackCode = callbackCode;
 		this.outputCode = outputCode;
 	}
 
-	public OutputType(int callbackCode, int outputCode, String processingHint) {
+	public HSearchPluginPoints(int callbackCode, int outputCode, String processingHint) {
 		this.callbackCode = callbackCode;
 		this.outputCode = outputCode;
 		this.processingHint = processingHint;
 	}
 
-	public OutputType(String code) throws IOException {
+	public HSearchPluginPoints(String code) throws IOException {
 		int fDivider = code.indexOf('|');
 		this.callbackCode = new Integer(code.substring(0, fDivider));
 		
@@ -95,8 +96,8 @@ public class OutputType {
 	}
 
 	public static void main(String[] args) throws IOException {
-		OutputType o = new OutputType(CALLBACK_COLS, OUTPUT_MIN_MAX_AVG_SUM_COUNT, " ");
-		OutputType x = new OutputType(o.toString());
+		HSearchPluginPoints o = new HSearchPluginPoints(PLUGIN_CALLBACK_COLS, OUTPUT_MIN_MAX_AVG_SUM_COUNT, " ");
+		HSearchPluginPoints x = new HSearchPluginPoints(o.toString());
 		System.out.println( x.getProcessingHint());
 	}
 

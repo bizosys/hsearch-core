@@ -27,7 +27,7 @@ import java.util.Map;
 import com.bizosys.hsearch.federate.FederatedFacade;
 
 public interface IHSearchPlugin {
-	void setOutputType(OutputType outputTypeCode);
+	void setOutputType(HSearchPluginPoints outputTypeCode);
 	void cleanupValuesFromLastRun() ;
 	void onFilterationComplete();
 	
