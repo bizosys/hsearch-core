@@ -24,8 +24,10 @@ public class HBaseTableSchema {
 	
 	private HBaseTableSchema() throws IOException {
 		
+		HBaseTableSchemaDefn.getInstance().tableName = --TABLE-NAME--;
 		Map<String, IPartition> columns = HBaseTableSchemaDefn.getInstance().columnPartions;
 --CREATE-COL-FAMILIES--
+
 	}
 	
 	

@@ -259,6 +259,7 @@ public class HSearchCompiler {
 		}
 
 		template = template.replace("--CREATE-COL-FAMILIES--", families.toString());
+		template = template.replace("--TABLE-NAME--", schema.table);
 		return template;
 	}
 	

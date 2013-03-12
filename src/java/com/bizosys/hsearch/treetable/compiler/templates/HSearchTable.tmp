@@ -197,12 +197,20 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 							System.out.println("keyL.size : " + keyL.size());
 						}
 						
-						if ( mode == 0 ) totalRows = totalRows + callbackOnKeys(query, plugin, keyL, valL,
-							matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);
-						else if ( mode == 1 ) totalRows = totalRows + callbackOnValues(query, plugin, keyL, valL,
-							matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);
-						else if ( mode == 2 ) totalRows = totalRows + callbackOnKeyValues(query, plugin, keyL, valL,
-								matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);
+						switch ( mode ) {
+							case 0:
+								totalRows = totalRows + callbackOnKeys(query, plugin, keyL, valL,
+									matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);
+								break;
+							case 1:
+								totalRows = totalRows + callbackOnValues(query, plugin, keyL, valL,
+									matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);	
+								break;
+							case 2:
+								totalRows = totalRows + callbackOnKeyValues(query, plugin, keyL, valL,
+									matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);							
+								break;
+						}
 					}
 		--LIST-BROWSE-LEAF-SUFFIX--
 
