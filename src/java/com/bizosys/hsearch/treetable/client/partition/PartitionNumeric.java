@@ -96,6 +96,11 @@ public class PartitionNumeric implements IPartition<Double> {
 	@Override
 	public void getColumnFamilies(Double startVal, Double endVal, Set<String> families) throws IOException {
 		
+		if ( this.rangeL.size() == 0 ) {
+			families.add(colName);
+			return;
+		}
+		
 		boolean isStart = false;
 		
 		/**
@@ -124,6 +129,8 @@ public class PartitionNumeric implements IPartition<Double> {
 	@Override
 	public String getColumnFamily(Double exactVal) throws IOException  {
 
+		if ( rangeL.size() == 0 ) return colName;
+		
 		for (NumericRange aRange : rangeL) {
 			if ( aRange.start <= exactVal && aRange.end > exactVal)
 					return colName + "_" + aRange.ext;

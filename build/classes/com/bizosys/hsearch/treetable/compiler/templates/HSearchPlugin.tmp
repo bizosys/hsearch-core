@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.bizosys.hsearch.federate.FederatedFacade;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
-import com.bizosys.hsearch.treetable.client.OutputType;
+import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
 
 import com.bizosys.hsearch.hbase.HbaseLog;
 
@@ -34,14 +34,14 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	};
 	
 	
-	OutputType outputTypeCode = null;
+	HSearchPluginPoints outputTypeCode = null;
 	long counts = 0;
 	double minValue = 0;
 	double maxValue = 0;
 	double avgValue = 0;
 
 	@Override
-	public void setOutputType(OutputType outputTypeCode) {
+	public void setOutputType(HSearchPluginPoints outputTypeCode) {
 		this.outputTypeCode = outputTypeCode;
 	}
 	

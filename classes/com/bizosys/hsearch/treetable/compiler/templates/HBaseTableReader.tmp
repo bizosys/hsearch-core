@@ -13,7 +13,7 @@ import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.RecordScalar;
-import com.bizosys.hsearch.treetable.client.OutputType;
+import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
 import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
 import com.bizosys.hsearch.treetable.storage.HSearchTableReader;
 
@@ -23,7 +23,7 @@ public class HBaseTableReader extends HSearchTableReader implements IScanCallBac
 
 	@Override
 	public HSearchGenericFilter getFilter(String multiQuery,
-			Map<String, String> multiQueryParts, OutputType outputType) {
+			Map<String, String> multiQueryParts, HSearchPluginPoints outputType) {
 		return new HBaseHSearchFilter(outputType, multiQuery, multiQueryParts);
 	}
 
@@ -51,11 +51,11 @@ public class HBaseTableReader extends HSearchTableReader implements IScanCallBac
 	}
 	
 	@Override
-	public void agreegates(Map<byte[], double[]> results, OutputType aggregateType) {
+	public void agreegates(Map<byte[], double[]> results, HSearchPluginPoints aggregateType) {
 		
 	}
 	@Override
-	public void rows(Map<byte[], byte[]> results, OutputType aggregateType) {
+	public void rows(Map<byte[], byte[]> results, HSearchPluginPoints aggregateType) {
 		
 	}
 	
@@ -100,7 +100,7 @@ public class HBaseTableReader extends HSearchTableReader implements IScanCallBac
         long start = System.currentTimeMillis();
 
         ht.read("EmpDetail:A OR EmpDetail:B", multiQueryParts, 
-        	new OutputType(OutputType.CALLBACK_COLS, OutputType.OUTPUT_COUNT), false, true);
+        	new HSearchPluginPoints(HSearchPluginPoints.PLUGIN_CALLBACK_COLS, HSearchPluginPoints.OUTPUT_COUNT), false, true);
 
         long end = System.currentTimeMillis();
         System.out.println(" finished in  " + (end - start) + " millis ");

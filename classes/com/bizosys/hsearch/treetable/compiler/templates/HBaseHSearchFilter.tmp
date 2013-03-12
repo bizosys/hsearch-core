@@ -10,7 +10,7 @@ import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
-import com.bizosys.hsearch.treetable.client.OutputType;
+import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
 import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
 import com.bizosys.hsearch.hbase.HbaseLog;
 
@@ -24,7 +24,7 @@ public class HBaseHSearchFilter extends HSearchGenericFilter {
 		
 	}
 	
-	public HBaseHSearchFilter(OutputType outputType, String query, Map<String, String> details){
+	public HBaseHSearchFilter(HSearchPluginPoints outputType, String query, Map<String, String> details){
 		super(outputType, query, details);
 	}
 	
