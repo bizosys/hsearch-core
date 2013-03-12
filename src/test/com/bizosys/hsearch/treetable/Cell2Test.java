@@ -9,10 +9,12 @@ import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
+import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
 import com.bizosys.hsearch.byteutils.SortedBytesFloat;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.oneline.ferrari.TestAll;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
 public class Cell2Test extends TestCase {
 
@@ -29,7 +31,7 @@ public class Cell2Test extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testSubsequentAdd(23, "aim");
+				t.testBooleanBoolean();
 				t.tearDown();
 			}
 		}
@@ -137,7 +139,26 @@ public class Cell2Test extends TestCase {
 		}
 		
 		public void testBooleanBoolean() throws Exception {
+			Cell2<Boolean, Boolean> tc = new Cell2<Boolean, Boolean>(
+					SortedBytesBoolean.getInstance(), SortedBytesBoolean.getInstance());
+
+			tc.add(true, true);
+			tc.add(false, true);
 			
+			tc.sort (new CellComparator.BooleanComparator<Boolean>());
+			byte[] data = tc.toBytesOnSortedData();
+			
+			Cell2<Boolean, Boolean> tcNewFinding = new Cell2<Boolean, Boolean>(
+					SortedBytesBoolean.getInstance(), SortedBytesBoolean.getInstance(), data);
+			
+			List<Boolean> foundValues = new ArrayList<Boolean>();
+			tcNewFinding.keySet(true,foundValues);
+
+			for (Boolean bs : foundValues) {
+				System.out.println(bs);
+			}
+
+
 		}
 		
 		public void testByteByte() throws Exception {

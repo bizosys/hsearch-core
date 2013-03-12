@@ -102,11 +102,11 @@ public class HSearchQuery {
 					  		exactValCellsO[i] = new Long(cellData);
 					  		break;
 					  	case 'S':
-					  		if ( "Short".equals(exactValCellsO[i])) exactValCellsO[i] = new Short(cellData);
+					  		if ( "Short".equals(dataTypes[i])) exactValCellsO[i] = new Short(cellData);
 					  		else exactValCellsO[i] = new String(cellData);
 					  		break;
 					  	case 'B':
-					  		if ( "Boolean".equals(exactValCellsO[i])) exactValCellsO[i] = new Boolean(cellData); //True or False
+					  		if ( "Boolean".equals(dataTypes[i])) exactValCellsO[i] = new Boolean(cellData); //True or False
 					  		else exactValCellsO[i] = new Byte(cellData.getBytes()[0]); //Byte
 					  		break;
 					  }
