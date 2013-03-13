@@ -29,8 +29,10 @@ public class HSearchPluginPoints {
 	public static final int OUTPUT_MIN_MAX_SUM_AVG = 14;
 	public static final int OUTPUT_MIN_MAX_SUM_COUNT = 15;
 	public static final int OUTPUT_MIN_MAX_AVG_SUM_COUNT = 16;
+
+	public static final int OUTPUT_AVG_SUM_COUNT = 17;
 	
-	public static final int OUTPUT_FACETS = 17;
+	public static final int OUTPUT_FACETS = 18;
 	
 	private static String EMPTY = "";
 

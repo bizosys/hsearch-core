@@ -1,5 +1,6 @@
 package com.bizosys.hsearch.byteutils;
 
+import java.io.IOException;
 import java.util.Collection;
 
 public final class SortedBytesFloat extends SortedBytesBase<Float> { 
@@ -12,14 +13,14 @@ public final class SortedBytesFloat extends SortedBytesBase<Float> {
 	private SortedBytesFloat() {
 		this.dataSize = 4;
 	}	
-
+	
 	@Override
-	public Float getValueAt(int pos) {
+	public final Float getValueAt(int pos) {
 		return Storable.getFloat(this.offset + pos*dataSize, this.inputBytes);
 	}	
 	
 	@Override
-	public byte[] toBytes(Collection<Float> sortedList) {
+	public final byte[] toBytes(Collection<Float> sortedList) {
 
 		int sortedListAT = sortedList.size();
 		byte[] inputsB = new byte[sortedListAT * dataSize];

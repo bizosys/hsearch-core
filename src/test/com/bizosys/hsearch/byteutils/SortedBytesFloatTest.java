@@ -12,7 +12,7 @@ import com.oneline.ferrari.TestAll;
 public class SortedBytesFloatTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+		public static String mode = modes[2];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesFloatTest t = new SortedBytesFloatTest();
@@ -24,7 +24,7 @@ public class SortedBytesFloatTest extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testRangeCheck();
+				t.testSpeed();
 				t.tearDown();
 			}
 		}
@@ -36,6 +36,32 @@ public class SortedBytesFloatTest extends TestCase {
 		@Override
 		protected void tearDown() throws Exception {
 		}
+		
+		public void testSpeed() throws Exception {
+			int size = 25000000;
+			List<Float> sortedList = new ArrayList<Float>(size);
+			for ( int i=0; i<size; i++) {
+				sortedList.add(new Float(i));
+			}
+			
+			byte[] bytes = SortedBytesFloat.getInstance().toBytes(sortedList);
+			sortedList.clear();
+			//long deserAmount = 0;
+			long st = System.currentTimeMillis();
+			{
+				int index = 0;
+				float f;
+				for ( int p=0; p<500; p++) {
+					for ( int i=0; i<size; i++) {
+						f = Storable.getFloat(i, bytes);
+						//deserAmount++;
+					}
+				}
+			}
+			long ed = System.currentTimeMillis();
+			System.out.println("12500000000 :" + (ed - st));
+		}
+		
 		
 		public void testEqual() throws Exception {	
 			List<Float> sortedList = new ArrayList<Float>();

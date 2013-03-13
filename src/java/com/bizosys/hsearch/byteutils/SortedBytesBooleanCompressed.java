@@ -2,55 +2,27 @@ package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
-public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
+import com.google.protobuf.InvalidProtocolBufferException;
+
+public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 
 	public static ISortedByte<Boolean> getInstance() {
-		return new SortedBytesBoolean();
+		return new SortedBytesBooleanCompressed();
 	}
 	
 	List<Boolean> parsedBooleans = null;
-	private SortedBytesBoolean() {
+	private SortedBytesBooleanCompressed() {
 		this.dataSize = -1;
 	}
 
 	@Override
 	public byte[] toBytes(Collection<Boolean> sortedCollection) throws IOException {
-		int available = sortedCollection.size();
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		int neededBytes = packed;
-		if ( remaining > 0 ) neededBytes++;
-		
-		neededBytes = neededBytes + 4; // How many
-		
-		byte[] out = new byte[neededBytes];
-		
-		
-		System.arraycopy(Storable.putInt(available), 0, out, 0, 4);
-		
-		Iterator<Boolean> itr = sortedCollection.iterator();
-		for ( int i=0; i<packed; i++) {
-			out[4+i]  = ByteUtil.fromBits(new boolean[] {
-					itr.next(), itr.next(), itr.next(), itr.next(),
-					itr.next(), itr.next(), itr.next(), itr.next()});
-		}
-		
-		if ( remaining > 0 ) {
-			boolean[] remainingBits = new boolean[8];
-			Arrays.fill(remainingBits, true);
-			for ( int j=0; j<remaining; j++) {
-				remainingBits[j] = itr.next();
-			}
-				
-			out[4+packed] = ByteUtil.fromBits(remainingBits);
-		}
-		return out;
+		ByteArrays.ArrayBool.Builder booleanBuilder = ByteArrays.ArrayBool.newBuilder();
+		booleanBuilder.addAllVal(sortedCollection);
+		return booleanBuilder.build().toByteArray();
 	}
 
 	@Override
@@ -133,20 +105,19 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	private void parse() throws IOException {
 		if ( null == this.inputBytes) return;
 		
-		int available = Storable.getInt(offset, this.inputBytes);
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		this.parsedBooleans = new ArrayList<Boolean>(available);
-		for (int i=0; i<packed; i++) {
-			Storable.byteToBits(this.inputBytes[4 + i]);
+		byte[] bytesSubset = null;
+		if ( offset == 0 && length == this.inputBytes.length) {
+			bytesSubset = this.inputBytes;
+		} else {
+			bytesSubset = new byte[length];
+			System.arraycopy(this.inputBytes, offset, bytesSubset, 0, this.length);
 		}
 		
-		if ( remaining > 0 ) {
-			boolean[] x = Storable.byteToBits(this.inputBytes[4 + packed]);
-			for ( int i=0; i<remaining; i++) {
-				parsedBooleans.add(x[i]);
- 			}
+		try {
+			parsedBooleans = ByteArrays.ArrayBool.parseFrom(bytesSubset).getValList();
+		} catch (InvalidProtocolBufferException e) {
+			e.printStackTrace(System.err);
+			throw new IOException(e);
 		}
 	}
 

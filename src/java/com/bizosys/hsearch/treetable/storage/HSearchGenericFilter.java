@@ -396,6 +396,10 @@ public abstract class HSearchGenericFilter implements Filter {
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
 					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, HSearchPluginPoints.OUTPUT_SUM});
 
+			case HSearchPluginPoints.OUTPUT_AVG_SUM_COUNT:
+				return serializeAggvValuesChained(matchedIds, queryPayload, 
+					new int[] {HSearchPluginPoints.OUTPUT_AVG, HSearchPluginPoints.OUTPUT_SUM, HSearchPluginPoints.OUTPUT_COUNT});
+
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_AVG:
 				return serializeAggvValuesChained(matchedIds, queryPayload, 
 					new int[] {HSearchPluginPoints.OUTPUT_MIN, HSearchPluginPoints.OUTPUT_MAX, 
@@ -602,6 +606,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_COUNT:
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_COUNT:
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM:
+			case HSearchPluginPoints.OUTPUT_AVG_SUM_COUNT:
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_AVG:
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_COUNT:
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_SUM_COUNT:

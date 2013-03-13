@@ -112,6 +112,7 @@ public abstract class HSearchTableReader {
 	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_COUNT:
 	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_COUNT:
 	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM:
+	    			case HSearchPluginPoints.OUTPUT_AVG_SUM_COUNT:
 	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_AVG:
 	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_COUNT:
 	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_SUM_COUNT:

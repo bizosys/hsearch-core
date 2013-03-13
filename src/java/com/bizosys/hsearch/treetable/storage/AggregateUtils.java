@@ -23,6 +23,7 @@ public class AggregateUtils {
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG:
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_COUNT:
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM:
+			case HSearchPluginPoints.OUTPUT_AVG_SUM_COUNT:
 				merged = 3;
 				break;
 				
@@ -61,6 +62,10 @@ public class AggregateUtils {
 				for (int i=0; i<queries; i++) output[i] = Long.MAX_VALUE;
 				for (int i=queries; i<queries * 2; i++) output[i] = Long.MIN_VALUE;
 				for (int i=queries * 2; i<queries * 3; i++) output[i] = 0;
+				break;
+			
+			case HSearchPluginPoints.OUTPUT_AVG_SUM_COUNT:
+				for (int i=0; i<queries * 3; i++) output[i] = 0;
 				break;
 				
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_COUNT:
@@ -117,6 +122,12 @@ public class AggregateUtils {
 				computeAggregate(HSearchPluginPoints.OUTPUT_SUM, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
 				break;
 				
+			case HSearchPluginPoints.OUTPUT_AVG_SUM_COUNT:
+				computeAggregate(HSearchPluginPoints.OUTPUT_AVG, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
+				computeAggregate(HSearchPluginPoints.OUTPUT_SUM, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);
+				computeAggregate(HSearchPluginPoints.OUTPUT_COUNT, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 2);
+				break;
+
 			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_COUNT:
 				computeAggregate(HSearchPluginPoints.OUTPUT_MIN, queryPartAggvWithTotallingAtTop, foundAggregates,resultBunch, 0);
 				computeAggregate(HSearchPluginPoints.OUTPUT_MAX, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 1);

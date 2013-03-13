@@ -21,6 +21,7 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.io.UnsupportedEncodingException;
+import java.util.List;
 
 /**
  * Forms a byte representation for a given java Data Type.
@@ -712,6 +713,12 @@ public class Storable {
         }
         return bits;
     }
+	
+	public static final void byteToBits(byte b, List<Boolean> output) {
+        for (int i = 0; i < 8; i++) {
+        	output.add(((b & (1 << i)) != 0));
+        }
+    }	
 
 	/**
 	 * Convert 8 bits to a Byte
