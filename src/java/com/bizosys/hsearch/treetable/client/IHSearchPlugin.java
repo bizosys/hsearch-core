@@ -36,7 +36,7 @@ public interface IHSearchPlugin {
 	void getMatchingValuesWithTSV( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<String> container) throws IOException;
 	void getMatchingIdsAndValuesWithTSV( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<String> container) throws IOException;
 	
-	long getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
+	double getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	double getAvg(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	double getMax(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;
 	double getMin(List<FederatedFacade<String, String>.IRowId> matchedIds) throws IOException;

@@ -69,7 +69,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			boolean done = false;
 			
 			Arrays.fill(queryPartCountsWithTotallingAtTop, 0);
-			Collection<Long> foundCounts = new ArrayList<Long>();
+			Collection<Double> foundCounts = new ArrayList<Double>();
 			
 			do {
 				curVals.clear();
@@ -82,7 +82,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					
 					filter.deSerializeCounts(input, foundCounts);
 					int i=0;
-					for (Long aCount : foundCounts) {
+					for (Double aCount : foundCounts) {
 						if ( DEBUG_ENABLED ) HbaseLog.l.debug( "Row Count : " + i + " > " + aCount.longValue());
 						queryPartCountsWithTotallingAtTop[i] += aCount.longValue();
 						i++;

@@ -37,17 +37,16 @@ import org.apache.hadoop.hbase.filter.Filter;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesDouble;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
-import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.federate.FederatedFacade;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryProcessor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
-import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
 import com.bizosys.hsearch.util.LineReaderUtil;
 
 /**
@@ -439,8 +438,8 @@ public abstract class HSearchGenericFilter implements Filter {
 			List<FederatedFacade<String, String>.IRowId> matchedIds,
 			Map<String, QueryPart> queryPayload) throws IOException {
 		
-		List<Long> countL = new ArrayList<Long>();
-		long multiQueryCount = ( null == matchedIds ) ? 0: matchedIds.size();
+		List<Double> countL = new ArrayList<Double>();
+		double multiQueryCount = ( null == matchedIds ) ? 0: matchedIds.size();
 		countL.add(multiQueryCount);
 		
 		for (QueryPart part : queryPayload.values()) {
@@ -450,7 +449,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			IHSearchPlugin plugin =  (IHSearchPlugin) pluginO;
 			countL.add(plugin.getCount(matchedIds));
 		}
-		return SortedBytesLong.getInstance().toBytes(countL);
+		return SortedBytesDouble.getInstance().toBytes(countL);
 	}
 	
 	private final byte[] serializeFacets(
@@ -584,10 +583,10 @@ public abstract class HSearchGenericFilter implements Filter {
 		return SortedBytesString.getInstance().toBytes(idL);
 	}
 
-	public Collection<Long> deSerializeCounts(byte[] input, Collection<Long> output) throws IOException {
+	public Collection<Double> deSerializeCounts(byte[] input, Collection<Double> output) throws IOException {
 		if ( DEBUG_ENABLED ) L.getInstance().logDebug(
 				"HSearch Generic Filter getRowKeys > de-serializeMatchingIds : " + outputType.getCallbackType() );
-		return SortedBytesLong.getInstance().parse(input).values(output);
+		return SortedBytesDouble.getInstance().parse(input).values(output);
 	}
 	
 	public Collection<Double> deSerializeAgreegates(byte[] input, Collection<Double> output) throws IOException {
