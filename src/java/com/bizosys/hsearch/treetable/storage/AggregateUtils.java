@@ -45,7 +45,13 @@ public class AggregateUtils {
 		
 		switch (outputType) {
 			case HSearchPluginPoints.OUTPUT_MIN:
+				for (int i=0; i<queries; i++) output[i] = Long.MAX_VALUE;
+				break;
+			
 			case HSearchPluginPoints.OUTPUT_MAX:
+				for (int i=0; i<queries; i++) output[i] = Long.MIN_VALUE;
+				break;
+
 			case HSearchPluginPoints.OUTPUT_AVG:
 			case HSearchPluginPoints.OUTPUT_SUM:
 				for (int i=0; i<queries; i++) output[i] = 0;
@@ -169,13 +175,15 @@ public class AggregateUtils {
 		switch(output) {
 			case HSearchPluginPoints.OUTPUT_COUNT:
 				for ( int i=0; i<resultBunch; i++) {
-					finalOutputValues[i] += appendValues.get(resultBunch * aggvIndex + i).doubleValue();
+					index = resultBunch * aggvIndex + i;
+					finalOutputValues[index] += appendValues.get(index).doubleValue();
 				}
 				break;
 			case HSearchPluginPoints.OUTPUT_AVG:
 				for ( int i=0; i<resultBunch; i++) {
-					finalOutputValues[i] += appendValues.get(resultBunch * aggvIndex + i).doubleValue();
-					finalOutputValues[i] = finalOutputValues[i] / 2;
+					index = resultBunch * aggvIndex + i;
+					finalOutputValues[index] += appendValues.get(index).doubleValue();
+					finalOutputValues[index] = finalOutputValues[index] / 2;
 				}
 				break;
 			case HSearchPluginPoints.OUTPUT_MAX:
@@ -195,7 +203,8 @@ public class AggregateUtils {
 				break;
 			case HSearchPluginPoints.OUTPUT_SUM:
 				for ( int i=0; i<resultBunch; i++) {
-					finalOutputValues[i]  += appendValues.get(resultBunch * aggvIndex + i).doubleValue(); 
+					index = resultBunch * aggvIndex + i;
+					finalOutputValues[index]  += appendValues.get(index).doubleValue(); 
 				}
 				break;
 				
