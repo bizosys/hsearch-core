@@ -1,7 +1,6 @@
 package com.bizosys.hsearch.treetable.storage;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,41 +34,7 @@ public class HSearchGenericCoProcessorFactory {
 
 	}
 	
-	public final Map<byte[], long[]> execCoprocessorCounts(HTableWrapper table) throws IOException, Throwable  {
-
-		if ( INFO_ENABLED) HbaseLog.l.info("HSearchGenericCoprocessor:execCoprocessorCounts");
-		Map<byte[], long[]> output = table.table.coprocessorExec(
-                HSearchGenericCoprocessor.class, null, null,
-                
-                new Batch.Call<HSearchGenericCoprocessor, long[]>() {
-                    @Override
-                    public long[] call(HSearchGenericCoprocessor counter) throws IOException {
-                        return counter.getCount(families, cols, filter);
-                 }
-         } );
-		
-		return output;
-		
-	}
-	
-	public Map<byte[], double[]> execCoprocessorAggregates(HTableWrapper table) throws IOException, Throwable  {
-
-		Map<byte[], double[]> output = table.table.coprocessorExec(
-                HSearchGenericCoprocessor.class, null, null,
-                
-                
-                new Batch.Call<HSearchGenericCoprocessor, double[]>() {
-                    @Override
-                    public double[] call(HSearchGenericCoprocessor counter) throws IOException {
-                        return counter.getAggregates(families, cols, filter);
-                 }
-         } );
-		
-		return output;
-		
-	}
-	
-	public Map<byte[], byte[]> execCoprocessorRows(HTableWrapper table) throws IOException, Throwable  {
+	public final Map<byte[], byte[]> execCoprocessorRows(HTableWrapper table) throws IOException, Throwable  {
 
 		Map<byte[], byte[]> output = table.table.coprocessorExec(
                 HSearchGenericCoprocessor.class, null, null,
@@ -77,37 +42,11 @@ public class HSearchGenericCoProcessorFactory {
                 
                 new Batch.Call<HSearchGenericCoprocessor, byte[]>() {
                     @Override
-                    public byte[] call(HSearchGenericCoprocessor counter) throws IOException {
+                    public final byte[] call(HSearchGenericCoprocessor counter) throws IOException {
                         return counter.getRows(families, cols, filter);
                  }
          } );
 		
 		return output;
 	}
-	
-	public final Map<String, Integer> execCoprocessorFacets(HTableWrapper table) throws IOException, Throwable  {
-
-		if ( INFO_ENABLED) HbaseLog.l.info("HSearchGenericCoprocessor:execCoprocessorCounts");
-
-		
-        Map<byte[], byte[]> output = table.table.coprocessorExec(
-                HSearchGenericCoprocessor.class, null, null,
-                
-                new Batch.Call<HSearchGenericCoprocessor, byte[]>() {
-                    @Override
-                    public byte[] call(HSearchGenericCoprocessor counter) throws IOException {
-                    	return counter.getFacets(families, cols, filter);
-                        
-                 }
-         } );
-        
-        Map<String, Integer> facets = new HashMap<String, Integer>();
-        for (byte[] facetsB : output.values()) {
-        	filter.deSerializeFacets(facetsB, facets);
-		}
-        
-        return facets;		
-	}
-	
-
 }

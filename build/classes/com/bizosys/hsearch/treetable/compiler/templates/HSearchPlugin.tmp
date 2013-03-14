@@ -118,7 +118,7 @@ public class HSearchPlugin--COLUMN-NAME-- implements IHSearchPlugin {
 	}
 
 	@Override
-	public long getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) {
+	public double getCount(List<FederatedFacade<String, String>.IRowId> matchedIds) {
 		if ( this.ids.size() == 0 ) {
 			return this.cols.size();
 		} else {

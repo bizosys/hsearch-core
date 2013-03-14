@@ -52,7 +52,7 @@ public class HSearchTableMultiQueryExecutor {
 	
 	public List<FederatedFacade<String, String>.IRowId> execute (
 		Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
-			Map<String,QueryPart> multiQueryParts, HSearchPluginPoints resultType) throws Exception {
+			Map<String,QueryPart> multiQueryParts, HSearchProcessingInstruction resultType) throws Exception {
 		
 		long start = 0L;
 		

@@ -3,10 +3,10 @@ package com.bizosys.hsearch.treetable.storage;
 import java.io.IOException;
 import java.util.List;
 
-import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
+import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 
 public class AggregateUtils {
-	
+	/**
 	public static final int getMergedCount(int outputCode) throws IOException {
 		int merged = 1;
 		switch ( outputCode) {
@@ -97,7 +97,7 @@ public class AggregateUtils {
 	public static int computeAgreegates(HSearchGenericFilter filter, int resultBunch,
 			double[] queryPartAggvWithTotallingAtTop,
 			List<Double> foundAggregates) throws IOException {
-		int outputType = filter.outputType.getOutputType();
+		int outputType = filter.processingInstructions.getOutputType();
 		switch ( outputType ) {
 			case HSearchPluginPoints.OUTPUT_MIN:
 			case HSearchPluginPoints.OUTPUT_MAX:
@@ -160,7 +160,7 @@ public class AggregateUtils {
 				computeAggregate(HSearchPluginPoints.OUTPUT_COUNT, queryPartAggvWithTotallingAtTop, foundAggregates, resultBunch, 4);
 				break;
 			default:
-				throw new IOException("HSearchCoprocessor Not a agregate type - " + filter.outputType.toStringHumanReadable());
+				throw new IOException("HSearchCoprocessor Not a agregate type - " + filter.processingInstructions.toStringHumanReadable());
 		}
 		return outputType;
 	}
@@ -212,5 +212,6 @@ public class AggregateUtils {
 				throw new IOException("Not able to process the aggv type - Generic Coprocessor" +  output);
 		}
 	}
+	*/
 		
 }

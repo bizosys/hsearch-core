@@ -34,33 +34,44 @@ import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
-import com.bizosys.hsearch.treetable.client.HSearchPluginPoints;
+import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 
-public abstract class HSearchTableReader {
+public abstract class HSearchTableReader implements IScanCallBack {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	//public static ParallelHReader parallelReader = new ParallelHReader(10);
 	
-	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts, HSearchPluginPoints outputType); 
-	public abstract IScanCallBack getResultCollector();
+	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts, HSearchProcessingInstruction outputType); 
 
-	public abstract void counts(Map<byte[], long[]> results);
-	public abstract void agreegates(Map<byte[], double[]> results, HSearchPluginPoints aggregateType);
-	public abstract void rows(Map<byte[], byte[]> results, HSearchPluginPoints rowType);
+	public abstract void rows(Map<byte[], byte[]> results, HSearchProcessingInstruction rowType);
 	
 	
 	public void setPartionsFamiliesStructured(String colName, String range, Set<String> uniqueFamilies) 
 	throws ParseException, IOException  {
 		
 		HSearchQuery query = new HSearchQuery(range);
-		HBaseTableSchemaDefn.getInstance().columnPartions.
-			get(colName).getMatchingFamilies(query, uniqueFamilies);
+		HBaseTableSchemaDefn.getInstance().columnPartions.get(
+			colName).getMatchingFamilies(query, uniqueFamilies);
 	}
+	
+	public IScanCallBack getResultCollector() {
+		return this;
+	}
+	
+	@Override
+	public void process(byte[] pk, ColumnFamName fn,  byte[] storedBytes) throws IOException {
+		
+		int length = ( null == storedBytes ) ? 0 : storedBytes.length;
+		if ( length == 0 ) return;
+		
+		if ( DEBUG_ENABLED ) HbaseLog.l.debug("Found Primary Key :" + new String(pk) + "/" + length);
+	}
+		
 
 
 	public void read( String multiQuery, Map<String, String> multiQueryParts, 
-			HSearchPluginPoints outputType, boolean isPartitioned, boolean isParallel) 
+			HSearchProcessingInstruction outputType, boolean isPartitioned, boolean isParallel) 
 			throws IOException, ParseException {
 		
 		HSearchGenericFilter filter = getFilter(multiQuery, multiQueryParts, outputType);
@@ -96,42 +107,8 @@ public abstract class HSearchTableReader {
 			HTableWrapper table = HBaseFacade.getInstance().getTable(tableName);
 			
 	        try {
-	        	switch ( outputType.getOutputType()) {
-	        		
-	        		case HSearchPluginPoints.OUTPUT_COUNT:
-	    		        counts(new HSearchGenericCoProcessorFactory(
-	    		        		families, filter).execCoprocessorCounts(table));
-	    		        break;
-
-	    			case HSearchPluginPoints.OUTPUT_MIN:
-	    			case HSearchPluginPoints.OUTPUT_MAX:
-	    			case HSearchPluginPoints.OUTPUT_AVG:
-	    			case HSearchPluginPoints.OUTPUT_SUM:
-	    			case HSearchPluginPoints.OUTPUT_MIN_MAX:
-	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG:
-	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_COUNT:
-	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_COUNT:
-	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM:
-	    			case HSearchPluginPoints.OUTPUT_AVG_SUM_COUNT:
-	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_AVG:
-	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_SUM_COUNT:
-	    			case HSearchPluginPoints.OUTPUT_MIN_MAX_AVG_SUM_COUNT:
-	    				agreegates(new HSearchGenericCoProcessorFactory(
-	    		        		families, filter).execCoprocessorAggregates(table), outputType );
-	    		        break;
-	    		        
-	    			case HSearchPluginPoints.OUTPUT_ID:
-	    			case HSearchPluginPoints.OUTPUT_IDVAL:
-	    			case HSearchPluginPoints.OUTPUT_VAL:
-	    			case HSearchPluginPoints.OUTPUT_COLS:
-	    				rows(new HSearchGenericCoProcessorFactory(
-	    		        		families, filter).execCoprocessorRows(table), outputType );
-	    		        break;	    		        
-
-	    			default:
-	        			new IOException("Type is not supported.");
-	        			
-	        	}
+				rows(new HSearchGenericCoProcessorFactory(
+		        		families, filter).execCoprocessorRows(table), outputType );
 	        } catch (Throwable th) {
 	            throw new IOException(th);
 	        }

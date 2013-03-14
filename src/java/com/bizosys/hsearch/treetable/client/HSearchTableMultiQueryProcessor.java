@@ -67,7 +67,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 				long startTime = System.currentTimeMillis();
 				try {
 					IHSearchTableCombiner combiner = getCombiner();
-					HSearchPluginPoints outputType = (HSearchPluginPoints) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
+					HSearchProcessingInstruction outputType = (HSearchProcessingInstruction) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
 					
 					if ( DEBUG_ENABLED ) {
 						startTime = System.currentTimeMillis();
@@ -81,14 +81,16 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 
 					IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 					Collection<String> keys = plugin.getUniqueMatchingDocumentIds();
+					
+					int keysT = ( null == keys) ? 0 : keys.size();
+					if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "Found Records :" + keysT);
 
-					if ( keys.size() == 0) {
-						if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "> " + "No Records found :");
+					if ( keysT == 0) {
 						return noIdsFound;
 					}
+					
 					if ( DEBUG_ENABLED ) {
 						startTime = System.currentTimeMillis();
-						L.getInstance().logDebug(  "> " + "Total Ids found :" + keys.size());
 					}
 	
 					List<com.bizosys.hsearch.federate.FederatedFacade<String, String>.IRowId> results = 
