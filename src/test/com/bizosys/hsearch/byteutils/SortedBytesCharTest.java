@@ -24,7 +24,7 @@ public class SortedBytesCharTest extends TestCase {
 	        
 		} else if  ( modes[2].equals(mode) ) {
 			t.setUp();
-			t.testLessthan();
+			t.testEqualWithOffset();
 			t.tearDown();
 		}
 	}
@@ -68,14 +68,15 @@ public class SortedBytesCharTest extends TestCase {
 		sortedList.add(new Byte((byte) 'z'));
 		sortedList.add(new Byte((byte) 'y'));
 		sortedList.add(new Byte((byte) 'z'));
-
+		
 		Collections.sort(sortedList);
 		
 		byte[] bytes = SortedBytesChar.getInstance().toBytes(sortedList);
 		byte[] finalbytes = new byte[bytes.length + 4];
 		System.arraycopy(bytes, 0, finalbytes, 4, bytes.length);
 		
-		int foundLoc = SortedBytesChar.getInstance().parse(finalbytes,4,finalbytes.length - 4).getEqualToIndex((byte)'z');
+		int foundLoc = SortedBytesChar.getInstance().parse(finalbytes,4,finalbytes.length - 4).
+				getEqualToIndex((byte)'z');
 		
 		assertTrue(foundLoc != -1);
 		System.out.println(foundLoc);

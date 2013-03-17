@@ -28,7 +28,7 @@
                 },
                 {
                     "name": "role",
-                    "datatype": "Boolean"
+                    "datatype": "String"
                 },
                 {
                     "name": "location",
@@ -48,8 +48,8 @@
             },
             
             "partitions": {
-                "names": "",
-                "ranges": "",
+                "names": "a,b,c,d,e,f,g,h,i",
+                "ranges": "[*:-123],[-123:-11],[-11:23],[23:45],[45:134],[134:10012],[10012:213923],[213923:1111111],[1111111:*]",
                 "column" : 4 ,
                 "type" : "numeric"
             }	

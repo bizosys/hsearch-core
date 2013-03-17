@@ -43,7 +43,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 		if ( null == processor) {
 			synchronized (HSearchTableMultiQueryProcessor.class) {
 				if ( null == processor ) processor = build();
-				processor.DEBUG_MODE = DEBUG_ENABLED;
+				processor.DEBUG_MODE = false; //DEBUG_ENABLED;
 			}
 		}
 	}

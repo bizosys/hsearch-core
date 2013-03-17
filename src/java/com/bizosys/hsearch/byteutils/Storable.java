@@ -540,7 +540,7 @@ public class Storable {
 	 * @param inputBytes	Input Bytes
 	 * @return	Integer representation
 	 */
-	public static int getInt(int index, byte[] inputBytes) {
+	public static final int getInt(int index, final byte[] inputBytes) {
 		
 		int intVal = (inputBytes[index] << 24 ) + 
 		( (inputBytes[++index] & 0xff ) << 16 ) + 
@@ -549,7 +549,7 @@ public class Storable {
 		return intVal;
 	}
 	
-	public static float getFloat(int index, byte[] inputBytes) {
+	public static final float getFloat(int index, final byte[] inputBytes) {
 		
 		int intVal = (inputBytes[index] << 24 ) + 
 		( (inputBytes[++index] & 0xff ) << 16 ) + 

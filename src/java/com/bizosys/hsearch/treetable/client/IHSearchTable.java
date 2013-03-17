@@ -22,8 +22,8 @@ package com.bizosys.hsearch.treetable.client;
 import java.io.IOException;
 
 public interface IHSearchTable {
-	public int get(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException, NumberFormatException;
-	public int values(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException;
-	public int keyValues(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException;
-	public int keySet(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException;
+	public void get(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException, NumberFormatException;
+	public void values(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException;
+	public void keyValues(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException;
+	public void keySet(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException;
 }

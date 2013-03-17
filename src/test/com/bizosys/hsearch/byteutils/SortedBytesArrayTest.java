@@ -85,7 +85,7 @@ public class SortedBytesArrayTest extends TestCase {
 			
 			try {
 				instance.parse(bytes).getValueAt(1000);
-			} catch (IOException ex) {
+			} catch (IndexOutOfBoundsException ex) {
 				assertEquals("Maximum position in array is 1000 and accessed 1000", ex.getMessage());
 			}
 			

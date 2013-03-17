@@ -60,7 +60,7 @@ public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public Boolean getValueAt(int pos) throws IOException {
+	public Boolean getValueAt(int pos) throws IndexOutOfBoundsException {
 		initialize();
 		return this.parsedBooleans.get(pos);
 	}
@@ -121,7 +121,7 @@ public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 		throw new RuntimeException("Not implemented");
 	}
 	
-	private void parse() throws IOException {
+	private void parse() throws IndexOutOfBoundsException {
 		if ( null == this.inputBytes) return;
 		
 		byte[] bytesSubset = null;
@@ -136,13 +136,13 @@ public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 			parsedBooleans = ByteArrays.ArrayBool.parseFrom(bytesSubset).getValList();
 		} catch (InvalidProtocolBufferException e) {
 			e.printStackTrace(System.err);
-			throw new IOException(e);
+			throw new IndexOutOfBoundsException(e.getMessage());
 		}
 	}
 
-	public void initialize() throws IOException {
+	public void initialize() throws IndexOutOfBoundsException {
 		if ( null == parsedBooleans ) parse();
-		if ( null == parsedBooleans ) throw new IOException("SortedBytesBoolean - No data exists");
+		if ( null == parsedBooleans ) throw new IndexOutOfBoundsException("SortedBytesBoolean - No data exists");
 	}
 
 	@Override

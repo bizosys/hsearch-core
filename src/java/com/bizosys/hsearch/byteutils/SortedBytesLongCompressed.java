@@ -60,7 +60,7 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public Long getValueAt(int pos) throws IOException {
+	public Long getValueAt(int pos) throws IndexOutOfBoundsException {
 		initialize();
 		return this.parsedLongs.get(pos);
 	}
@@ -169,7 +169,7 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 		}
 	}
 	
-	private void parse() throws IOException {
+	private void parse() throws IndexOutOfBoundsException {
 		if ( null == this.inputBytes) return;
 		
 		byte[] bytesSubset = null;
@@ -184,13 +184,13 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 			parsedLongs = ByteArrays.ArrayLong.parseFrom(bytesSubset).getValList();
 		} catch (InvalidProtocolBufferException e) {
 			e.printStackTrace(System.err);
-			throw new IOException(e);
+			throw new IndexOutOfBoundsException(e.getMessage());
 		}
 	}
 
-	public void initialize() throws IOException {
+	public void initialize() throws IndexOutOfBoundsException {
 		if ( null == parsedLongs ) parse();
-		if ( null == parsedLongs ) throw new IOException("SortedBytesLongCompressed - No data exists");
+		if ( null == parsedLongs ) throw new IndexOutOfBoundsException("SortedBytesLongCompressed - No data exists");
 	}
 
 	@Override

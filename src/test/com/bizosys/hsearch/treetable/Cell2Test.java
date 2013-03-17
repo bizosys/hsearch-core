@@ -19,7 +19,7 @@ import com.sun.org.apache.xpath.internal.operations.Bool;
 public class Cell2Test extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[2];  
+		public static String mode = modes[1];  
 		
 		public static void main(String[] args) throws Exception {
 			Cell2Test t = new Cell2Test();
@@ -31,7 +31,7 @@ public class Cell2Test extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testBooleanBoolean();
+				t.testCallbackFiltering();
 				t.tearDown();
 			}
 		}
@@ -114,9 +114,77 @@ public class Cell2Test extends TestCase {
 
 		}
 		
-		public void testUpdateExisting() throws Exception {	
+		public void testCallback() throws Exception {
+			Cell2Visitor visitor = new Cell2Visitor<Integer, Float>() {
+				@Override
+				public void visit(Integer k, Float v) {
+					System.out.println(k.toString() + "/" + v.toString());
+					if ( k.intValue() == 23) {
+						assertEquals(23.1F, v.floatValue());
+					} else if ( k.intValue() == 24) {
+						assertEquals(24.1F, v.floatValue());
+					} else {
+						assertTrue( k != 23 || k != 24);
+					}
+				}
+			};
+			
+			Cell2<Integer, Float> table  = new Cell2<Integer, Float>(
+				SortedBytesInteger.getInstance(), SortedBytesFloat.getInstance());
+			table.add(23, 23.1F);
+			table.add(24, 24.1F);
+			
+			Cell2<Integer, Float> tableNew  = new Cell2<Integer, Float>(
+					SortedBytesInteger.getInstance(), SortedBytesFloat.getInstance(), table.toBytesOnSortedData());
+			tableNew.process(visitor);
 		}
 
+		public void testCallbackResponse() throws Exception {
+			Cell2Visitor visitor = new Cell2Visitor<Integer, Float>() {
+				@Override public final void visit(final Integer k, final Float v) {}};
+			
+			Cell2<Integer, Float> table  = new Cell2<Integer, Float>(
+				SortedBytesInteger.getInstance(), SortedBytesFloat.getInstance());
+			for ( int i=0; i<5000000; i++) { table.add(i, (float) (i + .1));}
+			byte[] ser = table.toBytesOnSortedData();
+			System.out.println("Serialization Length :" + ser.length);
+			
+			long start = System.currentTimeMillis();
+			for ( int i=0; i<10; i++) {
+				Cell2<Integer, Float> tableNew  = new Cell2<Integer, Float>(
+						SortedBytesInteger.getInstance(), SortedBytesFloat.getInstance(), ser);
+				tableNew.process(visitor);
+			}
+			long end = System.currentTimeMillis();
+			System.out.println("Response time ms :" + (end - start));
+		}
+		
+		public void testCallbackFiltering() throws Exception {
+			
+			Cell2Visitor visitor = new Cell2Visitor<Integer, Float>() {
+				@Override
+				public void visit(Integer k, Float v) {
+					System.out.println(k.toString() + "/" + v.toString());
+				}
+			};
+			
+			Cell2<Integer, Float> table  = new Cell2<Integer, Float>(
+				SortedBytesInteger.getInstance(), SortedBytesFloat.getInstance());
+			for ( int i=0; i<10000000; i++) {
+				table.add(i, i + .1F);
+			}
+			
+			byte[] data = table.toBytesOnSortedData();
+			
+			long st = System.currentTimeMillis();
+			Cell2<Integer, Float> tableNew  = new Cell2<Integer, Float>(
+					SortedBytesInteger.getInstance(), SortedBytesFloat.getInstance(), data);
+			tableNew.process(null, 10F, 20F,  visitor);
+			long ed = System.currentTimeMillis();
+			System.out.println(ed - st);
+		}
+
+		
 		public void testUpdateNonExisting() throws Exception {	
 		}
 

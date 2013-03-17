@@ -88,7 +88,7 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public Boolean getValueAt(int pos) throws IOException {
+	public Boolean getValueAt(int pos) throws IndexOutOfBoundsException {
 		initialize();
 		return this.parsedBooleans.get(pos);
 	}
@@ -149,7 +149,7 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 		throw new RuntimeException("Not implemented");
 	}
 	
-	private void parse() throws IOException {
+	private void parse() throws IndexOutOfBoundsException {
 		if ( null == this.inputBytes) return;
 		
 		int available = Storable.getInt(offset, this.inputBytes);
@@ -169,9 +169,9 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 		}
 	}
 
-	public void initialize() throws IOException {
+	public void initialize() throws IndexOutOfBoundsException {
 		if ( null == parsedBooleans ) parse();
-		if ( null == parsedBooleans ) throw new IOException("SortedBytesBoolean - No data exists");
+		if ( null == parsedBooleans ) throw new IndexOutOfBoundsException("SortedBytesBoolean - No data exists");
 	}
 
 	@Override

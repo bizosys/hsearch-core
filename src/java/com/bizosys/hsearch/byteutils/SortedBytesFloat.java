@@ -33,7 +33,7 @@ public final class SortedBytesFloat extends SortedBytesBase<Float> {
 	}	
 	
 	@Override
-	public final Float getValueAt(int pos) {
+	public final Float getValueAt(final int pos) {
 		return Storable.getFloat(this.offset + pos*dataSize, this.inputBytes);
 	}	
 	
@@ -45,15 +45,15 @@ public final class SortedBytesFloat extends SortedBytesBase<Float> {
 		
 		int index = 0;
 		for (Float aVal : sortedList) {
-			System.arraycopy(Storable.putInt(Float.floatToIntBits(aVal)), 0, inputsB, index * dataSize, dataSize);
+			System.arraycopy(Storable.putFloat(aVal), 0, inputsB, index * dataSize, dataSize);
 			index++;
 		}
 		return inputsB;
 	}
 	
 	@Override
-	protected int compare(byte[] inputB, int offset, Float matchNo) {
-		float val = Float.intBitsToFloat( Storable.getInt(offset, inputB) );
+	protected final int compare(byte[] inputB, int offset, Float matchNo) {
+		float val = Storable.getFloat(offset, inputB);
 		if (val == matchNo) return 0;
 		if (val > matchNo) return 1;
 		return -1;

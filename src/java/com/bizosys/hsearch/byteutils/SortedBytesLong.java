@@ -33,7 +33,7 @@ public final class SortedBytesLong extends SortedBytesBase<Long>{
 	}
 	
 	@Override
-	public Long getValueAt(int pos) throws IOException {
+	public Long getValueAt(int pos) throws IndexOutOfBoundsException {
 		return Storable.getLong(this.offset + pos * dataSize, this.inputBytes);
 	}
 

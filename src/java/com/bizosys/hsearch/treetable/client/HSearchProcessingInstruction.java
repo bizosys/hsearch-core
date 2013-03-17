@@ -1,11 +1,8 @@
 package com.bizosys.hsearch.treetable.client;
 
-import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.hadoop.util.StringUtils;
-import java.text.ParseException;
 
 import com.bizosys.hsearch.functions.FunctionRepos;
 import com.bizosys.hsearch.util.LineReaderUtil;

@@ -49,13 +49,13 @@ import com.bizosys.hsearch.treetable.client.L;
  *
  */
 public abstract class HSearchGenericFilter implements Filter {
-
+	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	String multiQuery = null;
 	Map<String, String> queryFilters = null;
-	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>();
-	Map<String, String> colIdWithType = new HashMap<String, String>();
+	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>(3);
+	Map<String, String> colIdWithType = new HashMap<String, String>(3);
 	boolean hasMatchingIds = false;
 	
 	HSearchProcessingInstruction processingInstructions = new HSearchProcessingInstruction();
@@ -375,16 +375,22 @@ public abstract class HSearchGenericFilter implements Filter {
 		
 		HSearchReducer reducer = getReducer();
 		
+		int totalQueries = queryPayload.values().size();
+		
 		for (QueryPart part : queryPayload.values()) {
 			Object pluginO = part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
 			IHSearchPlugin plugin = (IHSearchPlugin) pluginO;
-			plugin.getResult(matchedIds, append);
 			
-			//Merge the data
-			if ( null != reducer) {
-				reducer.appendCols(merged, append);
+			if ( totalQueries == 1) {
+				plugin.getResultSingleQuery(merged);
+			} else {
+				//Merge the data
+				plugin.getResultMultiQuery(matchedIds, merged);
+				if ( null != reducer) {
+					reducer.appendCols(merged, append);
+				}
+				append.clear();
 			}
-			append.clear();
 		}
 		
 		//Put it to Bytes

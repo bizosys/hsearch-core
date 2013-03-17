@@ -155,10 +155,10 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	}	
 
 	@Override
-	public String getValueAt(int pos) throws IOException {
+	public String getValueAt(int pos) throws IndexOutOfBoundsException {
 		
 		int collectionSize = getSize();
-		if ( pos >= collectionSize) throw new IOException(
+		if ( pos >= collectionSize) throw new IndexOutOfBoundsException(
 			"Maximum position in array is " + collectionSize + " and accessed " + pos );
 		
 		int elemSizeOffset = (offset + 4 + pos * 4);

@@ -25,6 +25,16 @@ import java.util.List;
 
 public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	
+	public static class Reference {
+		public final int offset;
+		public final int length;
+		
+		public Reference(final int offset, final int length ) {
+			this.offset = offset;
+			this.length = length;
+		}
+	}
+	
 	protected byte[] inputBytes = null;
 	protected int offset = 0;
 	protected int length = -1;
@@ -33,7 +43,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	protected abstract int compare(byte[] inputB, int offset, T matchNo);
 	
 	@Override
-	public ISortedByte<T> parse(byte[] bytes) throws IOException {
+	public final ISortedByte<T> parse(byte[] bytes) throws IOException {
 		this.inputBytes = bytes;
 		this.offset = 0;
 		this.length = ( null == bytes) ? 0 : bytes.length;
@@ -41,7 +51,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	}
 
 	@Override
-	public ISortedByte<T> parse(byte[] bytes, int offset, int length) throws IOException {
+	public final ISortedByte<T> parse(byte[] bytes, int offset, int length) throws IOException {
 		this.inputBytes = bytes;
 		this.offset = offset;
 		this.length = length;
@@ -52,7 +62,10 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	@Override
 	public int getSize() throws IOException {
 		if ( null == this.inputBytes) return 0;
-		return ( this.length / this.dataSize);
+		int total = this.length / dataSize;
+		if ( total < 0 ) throw new IOException("Invalid size, offset is out of range. Length, " + 
+			this.length + " , Offset "  + this.offset + " , Size " + dataSize);
+		return total;
 	}
 	
 	@Override
@@ -65,13 +78,13 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	}
 	
 	@Override
-	public Collection<T> values() throws IOException {
+	public final Collection<T> values() throws IOException {
 		List<T> vals = new ArrayList<T>();
 		return values(vals);
 	}
 	
 	@Override
-	public Collection<T> values(Collection<T> vals) throws IOException {
+	public  Collection<T> values(Collection<T> vals) throws IOException {
 		if ( null == this.inputBytes ) return vals;
 		int total = getSize();
 		
@@ -84,9 +97,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	@Override
 	public int getEqualToIndex(T matchNo) throws IOException {
 		
-		if ( null == inputBytes) return -1;
-		int totalEntities = inputBytes.length / dataSize;
-		
+		int totalEntities = getSize();
 		if ( 0 == totalEntities) return -1;
 		
 		int left = 0;
@@ -112,7 +123,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		}
 		
 		while ( true ) {
-			isSame = ( compare(inputBytes, mid*dataSize + offset, matchNo));
+			isSame = ( compare(inputBytes, this.offset + mid*dataSize, matchNo));
 			if ( isSame == 0 ) return mid;
 			if ( mid == left || mid == right) {
 				mid = -1;
@@ -140,7 +151,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	}	
 	
 	@Override
-	public Collection<Integer> getEqualToIndexes(T matchNo) throws IOException  {
+	public Collection<Integer> getEqualToIndexes(final T matchNo) throws IOException  {
 		Collection<Integer> matchingPos = new ArrayList<Integer>();
 		getEqualToIndexes(matchNo, matchingPos);
 		return matchingPos;
@@ -148,25 +159,23 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	
 	
 	@Override
-	public void getEqualToIndexes(T matchingNo, Collection<Integer> matchings) throws IOException {
-		
-		if ( null == inputBytes ) return;
+	public void getEqualToIndexes(final T matchingNo, final Collection<Integer> matchings) throws IOException {
 		
 		int index = getEqualToIndex(matchingNo);
 		if ( index == -1) return;
 
-		int intBT = inputBytes.length / dataSize;
+		int intBT = getSize();
 		
 		//Include all matching indexes from left
 		matchings.add(index);
 		for ( int i=index-1; i>=0; i--) {
-			if ( compare(inputBytes,i * dataSize,matchingNo) != 0 )  break;
+			if ( compare(inputBytes, this.offset + i * dataSize, matchingNo) != 0 )  break;
 			matchings.add(i);
 		}
 		
 		//Include all matching indexes from right
 		for ( int i=index+1; i<intBT; i++) {
-			if ( compare(inputBytes,i * dataSize,matchingNo) != 0 )  break;
+			if ( compare(inputBytes, this.offset + i * dataSize, matchingNo) != 0 )  break;
 			matchings.add(i);	
 			
 		}
@@ -196,25 +205,24 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		this.computeGTGTEQIndexes(matchNo, matchingPos, true);
 	}
 
-	protected void computeGTGTEQIndexes(T matchingNo, Collection<Integer> matchingPos, boolean isEqualCheck) {
+	protected void computeGTGTEQIndexes(T matchingNo, Collection<Integer> matchingPos, boolean isEqualCheck) throws IOException {
 		
-		if ( null == inputBytes) return;
-		int inputBytesT = inputBytes.length / dataSize;
-		if ( 0 == inputBytesT) return;
+		int totalSize = getSize();
+		if (  totalSize <= 0 ) return;
 		
 		int left = 0;
-		int right = inputBytesT - 1;
+		int right = totalSize - 1;
 		int mid = ( right - left ) / 2;
 		int newMid = -1;
 
 		while ( true ) {
-			int isSame = ( compare(inputBytes, mid*dataSize, matchingNo));
+			int isSame = ( compare(inputBytes, this.offset + mid*dataSize, matchingNo));
 			boolean includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);  //matchNo > foundno
 			if ( includesMatching ) {
-				for ( int i=mid; i<inputBytesT; i++) matchingPos.add(i);
+				for ( int i=mid; i<totalSize; i++) matchingPos.add(i);
 
 				for ( int i=mid-1; i>=left; i--) {
-					isSame = ( compare(inputBytes, i*dataSize, matchingNo));
+					isSame = ( compare(inputBytes, this.offset +  i*dataSize, matchingNo));
 					includesMatching = (isEqualCheck) ? (isSame >= 0) : (isSame > 0);
 					if ( includesMatching ) matchingPos.add(i);
 					else break;
@@ -258,11 +266,10 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		computeLTLTEQIndexes(matchingNo, matchingPos, true);
 	}
 	
-	protected void computeLTLTEQIndexes(T matchingNo, Collection<Integer> matchingPos, boolean isEqualCheck) {
+	protected void computeLTLTEQIndexes(T matchingNo, Collection<Integer> matchingPos, boolean isEqualCheck) throws IOException {
 
-		if ( null == inputBytes) return;
-		int totalSize = inputBytes.length / dataSize;
-		if ( 0 == totalSize) return;
+		int totalSize = getSize();
+		if ( totalSize <= 0 ) return;
 		
 		int left = 0;
 		int right = totalSize - 1;
@@ -270,7 +277,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		int newMid = -1;
 		
 		while ( true ) {
-			int isSame = ( compare(inputBytes, mid*dataSize, matchingNo));
+			int isSame = ( compare(inputBytes, this.offset + mid*dataSize, matchingNo));
 			boolean includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
 			if (! includesMatching ) {
 				newMid = mid - ( mid - left) / 2;
@@ -282,7 +289,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 				for ( int i=mid; i>=left; i--) matchingPos.add(i);
 				
 				for ( int i=mid+1; i<=right ; i++) {
-					isSame = ( compare(inputBytes, i*dataSize, matchingNo));
+					isSame = ( compare(inputBytes, this.offset + i*dataSize, matchingNo));
 					includesMatching = (isEqualCheck) ? (isSame <= 0) : (isSame < 0);
 					if (includesMatching ) matchingPos.add(i);
 					else break;
@@ -316,7 +323,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	@Override
 	public Collection<Integer> getRangeIndexesInclusive(T matchNoStart, T matchNoEnd) throws IOException {
 		Collection<Integer> matchingPos = new ArrayList<Integer>();
-		getRangeIndexesInclusive(matchNoStart, matchNoEnd);
+		getRangeIndexesInclusive(matchNoStart, matchNoEnd, matchingPos);
 		return matchingPos;
 	}
 	
@@ -339,17 +346,16 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	protected void computeRangeIndexes(T matchingValS, T matchingValE, 
 			boolean isStartInclusive, boolean isEndInclusive, Collection<Integer> matchingPos) throws IOException  {
 		
-		if ( null == inputBytes) return;
-		int intBT = inputBytes.length / dataSize;
-		if ( 0 == intBT) return;
+		int size = this.getSize();
+		if ( size <= 0) return;
 		
 		int left = 0;
-		int right = intBT - 1;
+		int right = size - 1;
 		int mid = ( right - left ) / 2;
 		int newMid = -1;
 		
 		while ( true ) {
-			int isSameS = ( compare(inputBytes, mid*dataSize, matchingValS));
+			int isSameS = ( compare(inputBytes, this.offset + mid*dataSize, matchingValS));
 			/**
 			System.out.println("isSame:mid,left,right : " + new Integer(isSame).toString() + ":" + new Integer(mid).toString() + "/" + 
 					new Integer(left).toString() + "/" + new Integer(right).toString());
@@ -359,8 +365,8 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 				int isSameE = -1;
 				boolean includesMatchingE = false;
 				
-				for ( int i=mid; i<intBT; i++) {
-					isSameE = ( compare(inputBytes, i*dataSize, matchingValE));
+				for ( int i=mid; i<size; i++) {
+					isSameE = ( compare(inputBytes, this.offset + i*dataSize, matchingValE));
 					includesMatchingE = (isEndInclusive) ? (isSameE <= 0) : (isSameE < 0);
 					if ( includesMatchingE ) {
 						matchingPos.add(i);
@@ -368,8 +374,8 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 				}
 
 				for ( int i=mid-1; i>=left; i--) {
-					isSameS = ( compare(inputBytes, i*dataSize, matchingValS));
-					isSameE = ( compare(inputBytes, i*dataSize, matchingValE));
+					isSameS = ( compare(inputBytes, this.offset + i*dataSize, matchingValS));
+					isSameE = ( compare(inputBytes, this.offset + i*dataSize, matchingValE));
 					includesMatchingS = (isStartInclusive) ? (isSameS >= 0) : (isSameS > 0);
 					includesMatchingE = (isEndInclusive) ? (isSameE <= 0) : (isSameE < 0);
 					if ( includesMatchingS && includesMatchingE)  matchingPos.add(i);
@@ -389,4 +395,5 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 			if ( mid < 0) break;
 		}
 	}		
+	
 }

@@ -81,7 +81,6 @@ public class HSearchTableMultiQueryExecutor {
 		}
 		
 		FederatedFacade<String, String> ff = processor.getProcessor();
-		ff.DEBUG_MODE = true;
 		
 		if ( DEBUG_ENABLED ) {
 			HbaseLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");

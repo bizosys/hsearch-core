@@ -16,7 +16,7 @@ import com.oneline.ferrari.TestAll;
 public class Cell6Test extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[0];  
+		public static String mode = modes[1];  
 		
 		public static void main(String[] args) throws Exception {
 			Cell6Test t = new Cell6Test();

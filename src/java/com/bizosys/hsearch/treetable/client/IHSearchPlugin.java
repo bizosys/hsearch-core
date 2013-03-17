@@ -31,5 +31,6 @@ public interface IHSearchPlugin {
 	void onFilterationComplete();
 	
 	Collection<String> getUniqueMatchingDocumentIds() throws IOException;
-	void getResult( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<byte[]> rows) throws IOException;
+	void getResultMultiQuery( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<byte[]> rows) throws IOException;
+	void getResultSingleQuery( Collection<byte[]> rows) throws IOException;
 }
