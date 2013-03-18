@@ -130,10 +130,10 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		return aElem;
 	}
 
-	public final Reference getValueAtReference(final int pos) throws IOException {
+	public final Reference getValueAtReference(final int pos) {
 		
 		int collectionSize = Storable.getInt(this.offset, inputBytes);
-		if ( pos >= collectionSize) throw new IOException(
+		if ( pos >= collectionSize) throw new IndexOutOfBoundsException(
 			"Maximum position in array is " + collectionSize + " and accessed " + pos );
 		
 		int elemSizeOffset = (this.offset + 4 + pos * 4);

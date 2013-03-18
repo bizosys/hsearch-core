@@ -258,8 +258,11 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		
 		@Override
 		public final boolean add(Integer position) {
-			Cell2<K2, V> cell2 = new Cell2<K2, V>(
-					k2Sorter, vSorter, valSorter.getValueAt(position) );
+			SortedBytesArray sortedArr = (SortedBytesArray) valSorter;
+			Reference valueSectionPoints = sortedArr.getValueAtReference(position);
+			BytesSection valueSection = new BytesSection(data, valueSectionPoints.offset, valueSectionPoints.length);
+			
+			Cell2<K2, V> cell2 = new Cell2<K2, V>(k2Sorter, vSorter, valueSection);
 			rows.put( k1Sorter.getValueAt(position), cell2);
 			return true;
 		}
