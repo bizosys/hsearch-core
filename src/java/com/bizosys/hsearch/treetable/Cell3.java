@@ -201,21 +201,34 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	}
 	
 	public void parseElements() throws IOException {
+
+		if ( null == data) {
+			System.err.println("Null Data - It should be an warning");
+			return;
+		}
+		
 		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, Cell2<K2, V>>();
 		else this.sortedList.clear();
-		
-		List<K1> allKeys = new ArrayList<K1>();
-		List<Cell2<K2,V>> allValues = new ArrayList<Cell2<K2,V>>();
-		
-		keySet(allKeys);
-		values(allValues);
 
-		int allKeysT = allKeys.size();
-		if ( allKeysT != allValues.size() ) throw new IOException( 
-			"Keys and Values tally mismatched : keys(" + allKeysT + ") , values(" + allValues.size() + ")");
-		
-		for ( int i=0; i<allKeysT; i++) {
-			sortedList.put(allKeys.get(i), allValues.get(i));
+		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data);
+		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+
+		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference keyRef = kvbytesA.getValueAtReference(0);
+		if ( null == valRef || null == keyRef ) return;
+
+		SortedBytesArray valSorter = SortedBytesArray.getInstanceArr();
+		valSorter.parse(data, valRef.offset, valRef.length);
+		k1Sorter.parse(data, keyRef.offset, keyRef.length);
+
+		int size = valSorter.getSize();
+
+		for ( int i=0; i<size; i++) {
+			Reference valueSectionPoints = valSorter.getValueAtReference(i);
+			BytesSection valueSection = new BytesSection(
+				data, valueSectionPoints.offset, valueSectionPoints.length);
+			Cell2<K2, V> cell2 = new Cell2<K2, V>(k2Sorter, vSorter, valueSection);
+			this.sortedList.put( k1Sorter.getValueAt(i), cell2 );
 		}
 	}
 	

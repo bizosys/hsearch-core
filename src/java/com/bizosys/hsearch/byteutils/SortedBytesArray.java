@@ -30,6 +30,10 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		return new SortedBytesArray();
 	}
 	
+	public static final SortedBytesArray getInstanceArr() {
+		return new SortedBytesArray();
+	}
+
 	private SortedBytesArray() {
 	}
 	
