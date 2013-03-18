@@ -37,7 +37,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 
 			Scan scan = new Scan();
 			scan.setCacheBlocks(true);
-			scan.setCaching(500);
+			scan.setCaching(1);
 			scan.setMaxVersions(1);
 			int familiesT = families.length;
 			
@@ -56,8 +56,8 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			List<KeyValue> curVals = new ArrayList<KeyValue>();
 			boolean done = false;
 			
-			Collection<byte[]> merged = new ArrayList<byte[]>(1024);
-			Collection<byte[]> append = new ArrayList<byte[]>(1024);
+			Collection<byte[]> merged = new ArrayList<byte[]>();
+			Collection<byte[]> append = new ArrayList<byte[]>();
 			
 			HSearchReducer reducer = filter.getReducer();
 			do {
@@ -69,7 +69,6 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					
 					if ( null != reducer) {
 						filter.deserialize(input, append);
-						System.out.println(append.size() + "|" + merged.size());
 						reducer.appendRows(merged, kv.getRow(), append);
 					}
 				}
@@ -83,7 +82,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 				try {
 					scanner.close();
 				} catch (Exception ex) {
-					
+					ex.printStackTrace(System.err);
 				}
 			}
 		}
