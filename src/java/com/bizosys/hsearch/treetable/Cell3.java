@@ -280,7 +280,6 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		
 		@Override
 		public final boolean add(Integer position) {
-			System.out.println(position);
 			SortedBytesArray sortedArr = (SortedBytesArray) valSorter;
 			Reference valueSectionPoints = new Reference();
 			sortedArr.getValueAtReference(position, valueSectionPoints);
