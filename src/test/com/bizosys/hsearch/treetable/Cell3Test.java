@@ -1,12 +1,17 @@
 package com.bizosys.hsearch.treetable;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
+import com.bizosys.hsearch.byteutils.SortedBytesChar;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
@@ -75,14 +80,11 @@ public class Cell3Test extends TestCase {
 			
 			//Test Parsing
 			Cell3<String, Integer, Long> tcNewParsing = new Cell3<String, Integer, Long>(
-					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), 
+					SortedBytesLong.getInstance());
 
 			tcNewParsing.parseElements(tc.toBytes());
 			assertEquals(2, tcNewParsing.getMap().size());
-			
-			for (String key : tcNewParsing.getMap().keySet()) {
-				assertTrue( uniqueKeys.contains(key) );
-			}
 			
 
 			Iterator<Cell2<Integer, Long>> valItr = tcNewParsing.getMap().values().iterator();
@@ -106,8 +108,8 @@ public class Cell3Test extends TestCase {
 			
 			//Find Matching
 			Cell3<String, Integer, Long> tcNewFinding = new Cell3<String, Integer, Long>(
-					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
-			tcNewFinding.data = tc.toBytes();
+					SortedBytesString.getInstance(), 
+					SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
 
 			Collection<Cell2<Integer, Long>> all = tcNewFinding.values("entry100");
 			for (Cell2<Integer, Long> cell2 : all) {
@@ -119,60 +121,202 @@ public class Cell3Test extends TestCase {
 				assertEquals("0-1111|0-1111|0-2222|0-3333|1-4444|1-4444|1-4444|0-4444|0-5555|", sb.toString());
 			}
 		}
+		
+		public void testSorterConstructor() throws Exception {
+			
+			Cell3<String, Integer, Long> ser = new Cell3<String, Integer, Long>(
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
 
-		public void testSubsequentAdd() throws Exception {	
+			ser.put("entry100", 0, 0000L);
+			ser.put("entry100", 1, 1111L);
+			ser.put("entry101", 2, 2222L);
+			ser.put("entry101", 1, 1111L);
+			ser.put("entry101", 3, 3333L);
+			
+			ser.sort (new CellComparator.LongComparator<Integer>());
+			
+			//Test Parsing
+			Cell3<String, Integer, Long> deser = new Cell3<String, Integer, Long>(
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), 
+					SortedBytesLong.getInstance());
+
+			deser.parseElements(ser.toBytes());
+			assertEquals(2, deser.getMap().size());
+			assertEquals("[entry100, entry101]", deser.getMap().keySet().toString());
+			Iterator<Cell2<Integer, Long>> valItr = deser.getMap().values().iterator();
+
+			Cell2<Integer, Long> value = valItr.next();
+			assertEquals("[0, 1]", value.keySet().toString());
+			assertEquals("[0, 1111]", value.values().toString());
+
+			value = valItr.next();
+			assertEquals("[1, 2, 3]", value.keySet().toString());
+			assertEquals("[1111, 2222, 3333]", value.values().toString());
 		}
 		
-		public void testUpdateExisting() throws Exception {	
-		}
+		public void testBytesSectionConstructor() throws Exception {
+			
+			Cell3<String, Integer, Long> ser = new Cell3<String, Integer, Long>(
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
 
-		public void testUpdateNonExisting() throws Exception {	
-		}
+			ser.put("entry100", 0, 0000L);
+			ser.put("entry100", 1, 1111L);
+			ser.put("entry101", 2, 2222L);
+			ser.put("entry101", 1, 1111L);
+			ser.put("entry101", 3, 3333L);
+			
+			ser.sort (new CellComparator.LongComparator<Integer>());
+			
+			byte[] data = ser.toBytes();
+			byte[] appendedData = new byte[12 + data.length + 12];
+			Arrays.fill(appendedData, (byte) 0);
+			System.arraycopy(data, 0, appendedData, 12, data.length);
+			BytesSection dataSection = new BytesSection(appendedData, 12, data.length);
 
-		public void testDeleteOnEmpty() throws Exception {	
-		}
+			//Test Parsing
+			Cell3<String, Integer, Long> deser = new Cell3<String, Integer, Long>(
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), 
+					SortedBytesLong.getInstance(), dataSection);
+			
+			assertEquals(2, deser.getMap().size());
+			assertEquals("[entry100, entry101]", deser.getMap().keySet().toString());
+			Iterator<Cell2<Integer, Long>> valItr = deser.getMap().values().iterator();
 
-		public void testDeleteFistElement() throws Exception {	
-		}
+			Cell2<Integer, Long> value = valItr.next();
+			assertEquals("[0, 1]", value.keySet().toString());
+			assertEquals("[0, 1111]", value.values().toString());
 
-		public void testDeleteMidElement() throws Exception {	
-		}
-
-		public void testDeleteLastElement() throws Exception {	
-		}
-
-		public void testDeleteNonExistingElement() throws Exception {	
-		}
-
-		public void testDeleteAndReAdd() throws Exception {	
+			value = valItr.next();
+			assertEquals("[1, 2, 3]", value.keySet().toString());
+			assertEquals("[1111, 2222, 3333]", value.values().toString());
 		}
 		
-		public void testBooleanBoolean() throws Exception {
+		public void testGetMap() throws Exception {
 			
-		}
-		
-		public void testByteByte() throws Exception {
-			
-		}
+			Cell3<String, Integer, Long> ser = new Cell3<String, Integer, Long>(
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
 
-		public void testShortShort() throws Exception {
+			for ( int i=0; i<3; i++) {
+				for ( int j=0; j<2; j++) {
+					ser.put("c3" + i, j, (long) j * 1000);
+				}
+				
+			}
+			
+			ser.sort (new CellComparator.LongComparator<Integer>());
+			
+			byte[] data = ser.toBytes();
+			byte[] appendedData = new byte[12 + data.length + 12];
+			Arrays.fill(appendedData, (byte) 0);
+			System.arraycopy(data, 0, appendedData, 12, data.length);
+			BytesSection dataSection = new BytesSection(appendedData, 12, data.length);
+
+			//Test Parsing
+			Cell3<String, Integer, Long> deser = new Cell3<String, Integer, Long>(
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), 
+					SortedBytesLong.getInstance(), dataSection);
+			assertEquals("{c30=[0-0, 1-1000], c31=[0-0, 1-1000], c32=[0-0, 1-1000]}", deser.getMap().toString() );
+			
+			Map<String, Cell2<Integer, Long>> rows = new HashMap<String, Cell2<Integer, Long>>();
+			deser.getMap("c30", null, null, rows);
+			assertEquals("{c30=[0-0, 1-1000]}", rows.toString());
+		}
+		
+		public void testGetMapWithData() throws Exception {
+			
+			Cell3<Integer, Integer, Long> ser = new Cell3<Integer, Integer, Long>(
+					SortedBytesInteger.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
+
+			for ( int i=0; i<3; i++) {
+				for ( int j=10; j<12; j++) {
+					ser.put(i, j, (long) j * 1000);
+				}
+			}
+			
+			ser.sort (new CellComparator.LongComparator<Integer>());
+			
+			byte[] data = ser.toBytes();
+			byte[] appendedData = new byte[12 + data.length + 12];
+			Arrays.fill(appendedData, (byte) 0);
+			System.arraycopy(data, 0, appendedData, 12, data.length);
+			BytesSection dataSection = new BytesSection(appendedData, 12, data.length);
+
+			//Test Parsing
+			Cell3<Integer, Integer, Long> deser = new Cell3<Integer, Integer, Long>(
+				SortedBytesInteger.getInstance(), SortedBytesInteger.getInstance(), 
+				SortedBytesLong.getInstance(), dataSection);
+			
+			Map<Integer, Cell2<Integer, Long>> rows = new HashMap<Integer, Cell2<Integer, Long>>();
+			deser.getMap(null, 1, 2, rows);
+			assertEquals("{1=[10-10000, 11-11000], 2=[10-10000, 11-11000]}", rows.toString());
+			
+			rows = deser.getMap(data);
+			assertEquals("{0=[10-10000, 11-11000], 1=[10-10000, 11-11000], 2=[10-10000, 11-11000]}", rows.toString());
+		}
+		
+		public void testValues() throws Exception {
+			
+			Cell3<Integer, Integer, Long> ser = new Cell3<Integer, Integer, Long>(
+					SortedBytesInteger.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
+
+			for ( int i=0; i<3; i++) {
+				for ( int j=10; j<12; j++) {
+					ser.put(i, i * j, (long) i * j * 1000);
+				}
+			}
+			
+			ser.sort (new CellComparator.LongComparator<Integer>());
+			
+			byte[] data = ser.toBytes();
+			byte[] appendedData = new byte[12 + data.length + 12];
+			Arrays.fill(appendedData, (byte) 0);
+			System.arraycopy(data, 0, appendedData, 12, data.length);
+			BytesSection dataSection = new BytesSection(appendedData, 12, data.length);
+
+			//Test Parsing
+			Cell3<Integer, Integer, Long> deser = new Cell3<Integer, Integer, Long>(
+				SortedBytesInteger.getInstance(), SortedBytesInteger.getInstance(), 
+				SortedBytesLong.getInstance(), dataSection);
+			
+			assertEquals("[[20-20000, 22-22000]]", deser.values(2).toString());
+			assertEquals("[[10-10000, 11-11000]]", deser.values(1, 1).toString());
+			
+			java.util.List<Cell2<Integer, Long>> vals = new ArrayList<Cell2<Integer,Long>>();
+			deser.values(1, 1, vals);
+			assertEquals("[[10-10000, 11-11000]]", vals.toString());
+
+			assertEquals("[[10-10000, 11-11000]]", vals.toString());
+			
+			
+			assertEquals("[[0-0, 0-0], [10-10000, 11-11000], [20-20000, 22-22000]]", deser.values().toString());
 			
 		}
 		
-		public void testIntInt() throws Exception {
+		public void testParseElements() throws Exception {
 			
-		}
-		public void testFloatFloat() throws Exception {
+			Cell3<Byte, Integer, Long> ser = new Cell3<Byte, Integer, Long>(
+					SortedBytesChar.getInstance(), SortedBytesInteger.getInstance(), SortedBytesLong.getInstance());
+
+			for ( byte c='a'; c<'d'; c++) {
+				for ( int j=10; j<12; j++) {
+					ser.put( c, j, (long) j * 1000);
+				}
+			}
 			
-		}
-		public void testDoubleDouble() throws Exception {
+			ser.sort (new CellComparator.LongComparator<Integer>());
 			
-		}
-		public void testLongLong() throws Exception {
+			byte[] data = ser.toBytes();
+			byte[] appendedData = new byte[12 + data.length + 12];
+			Arrays.fill(appendedData, (byte) 0);
+			System.arraycopy(data, 0, appendedData, 12, data.length);
+			BytesSection dataSection = new BytesSection(appendedData, 12, data.length);
+
+			//Test Parsing
+			Cell3<Byte, Integer, Long> deser = new Cell3<Byte, Integer, Long>(
+				SortedBytesChar.getInstance(), SortedBytesInteger.getInstance(), 
+				SortedBytesLong.getInstance(), dataSection);
 			
+			deser.parseElements();
+			assertEquals("{97=[10-10000, 11-11000], 98=[10-10000, 11-11000], 99=[10-10000, 11-11000]}", deser.getMap().toString());
 		}
-		public void testStringString() throws Exception {
-			
-		}
-		
 }

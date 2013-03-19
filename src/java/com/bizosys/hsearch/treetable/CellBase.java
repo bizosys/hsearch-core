@@ -12,28 +12,28 @@ import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
 
 public abstract class CellBase<K1>  {
-	public byte[] data;
+	public BytesSection data;
 	public ISortedByte<K1> k1Sorter = null;
 	
 	public abstract void parseElements() throws IOException;
 	
 	public void parseElements(byte[] data) throws IOException {
-		this.data = data;
-		if ( null == this.data) return;
-		parseElements();
+		int len = ( null == data) ? 0 : data.length;
+		this.data = new BytesSection(data, 0, len);
+		if ( len > 0 ) parseElements();
 	}
 	
 	public int indexOfKey(K1 exactKey) throws IOException{
 		if ( null == this.data) return -1;
 		if ( null == exactKey ) return -1; //Nulls not allowed
 
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
-		
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
+
 		Reference keyRef = kvbytesA.getValueAtReference(0);
 		if ( null == keyRef ) return -1;
 		
-		k1Sorter.parse(data, keyRef.offset, keyRef.length);
+		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		return k1Sorter.getEqualToIndex(exactKey);
 	}
 	
@@ -53,13 +53,13 @@ public abstract class CellBase<K1>  {
 	protected Reference findMatchingPositions(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection<Integer> foundPositions) throws IOException {
 		
 		if ( null == this.data) return null;
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
 		
 		Reference keyRef = kvbytesA.getValueAtReference(0);
 		if ( null == keyRef ) return null;
 		
-		k1Sorter.parse(data, keyRef.offset, keyRef.length);
+		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		
 		if ( null != exactValue || null != minimumValue || null != maximumValue ) {
 				
@@ -101,13 +101,13 @@ public abstract class CellBase<K1>  {
 	private void get(K1 exactValue, K1 minimumValue,
 			K1 maximumValue, Collection<K1> foundKeys) throws IOException {
 
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
 		
 		Reference keyRef = kvbytesA.getValueAtReference(0);
 		if ( null == keyRef ) return;
 		
-		k1Sorter.parse(data, keyRef.offset, keyRef.length);
+		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 
 		findMatchingPositions(exactValue, minimumValue, maximumValue, 
 			new CellBaseFoundKeyIndex<K1>(k1Sorter, foundKeys));
@@ -125,13 +125,13 @@ public abstract class CellBase<K1>  {
 			throw new IOException("Null Data - Use sortedList to get Keys directly");
 		}
 
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
 		
 		Reference keyRef = kvbytesA.getValueAtReference(0);
 		if ( null == keyRef ) return;
 		
-		k1Sorter.parse(data, keyRef.offset, keyRef.length);
+		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		int size = k1Sorter.getSize();
 		for ( int i=0; i<size; i++) {
 			keys.add(k1Sorter.getValueAt(i));
@@ -164,7 +164,10 @@ public abstract class CellBase<K1>  {
 
 	private byte[] remove(K1 exactValue, K1 minimumValue, K1 maximumValue) throws IOException {
 
-		byte[] allKeysB = SortedBytesArray.getInstance().parse(data).getValueAt(0);
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
+		byte[] allKeysB = kvbytesA.getValueAt(0);
+		
 		Set<Integer> foundPositions = new HashSet<Integer>();
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
 	
@@ -174,7 +177,8 @@ public abstract class CellBase<K1>  {
 		List<K1> allKeys = new ArrayList<K1>(totalSize);
 		List<byte[]> allValues = new ArrayList<byte[]>(totalSize);
 		ISortedByte<byte[]> sba = SortedBytesArray.getInstance();
-		byte[] allValuesB = SortedBytesArray.getInstance().parse(data).getValueAt(1);
+		byte[] allValuesB = SortedBytesArray.getInstance().parse(
+			data.data, data.offset, data.length).getValueAt(1);
 		
 		sba.parse(allValuesB);
 		for (int position = 0 ; position< totalSize; position++) {

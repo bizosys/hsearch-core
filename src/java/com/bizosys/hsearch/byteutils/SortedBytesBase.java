@@ -26,13 +26,22 @@ import java.util.List;
 public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	
 	public static class Reference {
-		public final int offset;
-		public final int length;
+		public int offset;
+		public int length;
+
+		public Reference() {
+		}
 		
 		public Reference(final int offset, final int length ) {
 			this.offset = offset;
 			this.length = length;
 		}
+		
+		public void set(final int offset, final int length ) {
+			this.offset = offset;
+			this.length = length;
+		}
+		
 	}
 	
 	protected byte[] inputBytes = null;

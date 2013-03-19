@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -34,9 +35,15 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 
 	public Cell3 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter, ISortedByte<V> vSorter, byte[] data ) {
 		this(k1Sorter, k2Sorter, vSorter);
-		this.data = data;
+		int len = ( null == data) ? 0 : data.length;
+		this.data = new BytesSection(data, 0, len);
 	}
 	
+	public Cell3 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter, ISortedByte<V> vSorter, BytesSection data ) {
+		this(k1Sorter, k2Sorter, vSorter);
+		this.data = data;
+	}
+
 	//Builder
 	
 	public void put(K1 k1, K2 k2, V v) {
@@ -96,15 +103,17 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 			return;
 		}
 		
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
 
-		Reference keyRef = kvbytesA.getValueAtReference(0);
-		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference keyRef = new Reference();
+		kvbytesA.getValueAtReference(0, keyRef);
+		
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
+		
 		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
-		if ( null != keyRef && null != valRef ) {
-			valSorter.parse(data, valRef.offset, valRef.length);
-		}
+		valSorter.parse(data.data, valRef.offset, valRef.length);
 		
 		Callback callback = new Callback(rows, valSorter);
 		findMatchingPositions(exactValue, minimumValue, maximumValue, callback);
@@ -112,7 +121,8 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	
 
 	public Map<K1, Cell2<K2, V>> getMap(byte[] data) throws IOException {
-		this.data = data;
+		if ( null == data) return null;
+		this.data = new BytesSection(data, 0, data.length);
 		parseElements();
 		return sortedList;
 	}	
@@ -158,16 +168,20 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		List<Integer> foundPositions = ObjectFactory.getInstance().getIntegerList();
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
 
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
 
-		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
 		if ( null != valRef )  {
-			ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
-			valSorter.parse(data, valRef.offset, valRef.length);
+			SortedBytesArray valSorter = SortedBytesArray.getInstanceArr();
+			valSorter.parse(data.data, valRef.offset, valRef.length);
 
+			Reference ref = new Reference();
 			for (int position : foundPositions) {
-				foundValues.add( new Cell2<K2, V>(k2Sorter, vSorter, valSorter.getValueAt(position)));
+				valSorter.getValueAtReference(position, ref);
+				BytesSection sec = new BytesSection(data.data, ref.offset, ref.length);
+				foundValues.add( new Cell2<K2, V>(k2Sorter, vSorter, sec));
 			}
 		}
 		ObjectFactory.getInstance().putIntegerList(foundPositions);
@@ -186,17 +200,21 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 			return;
 		}
 		
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
 
-		Reference valRef = kvbytesA.getValueAtReference(1);
-		if ( null == valRef ) return;
-		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
-		valSorter.parse(data, valRef.offset, valRef.length);
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
+		
+		SortedBytesArray valSorter = SortedBytesArray.getInstanceArr();
+		valSorter.parse(data.data, valRef.offset, valRef.length);
 
 		int size = valSorter.getSize();
+		Reference ref = new Reference();
 		for ( int i=0; i<size; i++) {
-			values.add( new Cell2<K2, V>( k2Sorter, vSorter, valSorter.getValueAt(i)) );
+			valSorter.getValueAtReference(i, ref);
+			BytesSection sec = new BytesSection(data.data, ref.offset, ref.length);
+			values.add( new Cell2<K2, V>( k2Sorter, vSorter, sec) );
 		}
 	}
 	
@@ -205,17 +223,20 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		else this.sortedList.clear();
 		
 		List<K1> allKeys = new ArrayList<K1>();
-		List<Cell2<K2,V>> allValues = new ArrayList<Cell2<K2,V>>();
-		
 		keySet(allKeys);
+		int allKeysT = allKeys.size();
+
+		List<Cell2<K2,V>> allValues = new ArrayList<Cell2<K2,V>>(allKeysT);
 		values(allValues);
 
-		int allKeysT = allKeys.size();
 		if ( allKeysT != allValues.size() ) throw new IOException( 
 			"Keys and Values tally mismatched : keys(" + allKeysT + ") , values(" + allValues.size() + ")");
 		
-		for ( int i=0; i<allKeysT; i++) {
-			sortedList.put(allKeys.get(i), allValues.get(i));
+		Iterator<K1> itrKey = allKeys.iterator();
+		Iterator<Cell2<K2,V>> itrVal = allValues.iterator();
+
+		while ( itrKey.hasNext() ) {
+			sortedList.put(itrKey.next(), itrVal.next());
 		}
 	}
 	
@@ -230,6 +251,7 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 	
 	@Override
 	protected byte[] getKeyBytes() throws IOException {
+		if ( null == sortedList) throw new IOException("Cell is not initialized");
 		return k1Sorter.toBytes(sortedList.keySet());
 	}
 	
@@ -258,9 +280,12 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		
 		@Override
 		public final boolean add(Integer position) {
+			System.out.println(position);
 			SortedBytesArray sortedArr = (SortedBytesArray) valSorter;
-			Reference valueSectionPoints = sortedArr.getValueAtReference(position);
-			BytesSection valueSection = new BytesSection(data, valueSectionPoints.offset, valueSectionPoints.length);
+			Reference valueSectionPoints = new Reference();
+			sortedArr.getValueAtReference(position, valueSectionPoints);
+			BytesSection valueSection = new BytesSection(
+				data.data, valueSectionPoints.offset, valueSectionPoints.length);
 			
 			Cell2<K2, V> cell2 = new Cell2<K2, V>(k2Sorter, vSorter, valueSection);
 			rows.put( k1Sorter.getValueAt(position), cell2);
@@ -268,5 +293,10 @@ public class Cell3<K1, K2, V> extends CellBase<K1> {
 		}
 	};
 	
+	@Override
+	public String toString() {
+		if ( null == sortedList) try {parseElements();} catch (Exception e) {return e.getMessage();};
+		return sortedList.toString();
+	}
 	
 }

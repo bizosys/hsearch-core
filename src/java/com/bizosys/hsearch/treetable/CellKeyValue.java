@@ -19,4 +19,10 @@ public class CellKeyValue<K,V> {
 	public V getValue() {
 		return this.value;
 	}
+	
+	@Override
+	public String toString() {
+		return key.toString() + "-" + value.toString();
+	}
+	
 }

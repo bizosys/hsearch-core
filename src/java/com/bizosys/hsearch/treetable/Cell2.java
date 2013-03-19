@@ -60,18 +60,17 @@ public class Cell2<K1, V> {
 	 * @throws IOException
 	 */
 	public final void process(Cell2Visitor<K1,V> visitor) throws IOException{
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(
-			data.data,data.offset, data.length);
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data,data.offset, data.length);
 		
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		Reference keyRef = new Reference();
+		kvbytesA.getValueAtReference(0, keyRef);
 		
-		Reference keyRef = kvbytesA.getValueAtReference(0);
-		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
 		
-		if ( null == keyRef || null == valRef ) return;
-		
-		int sizeK = k1Sorter.parse(data.data, data.offset + keyRef.offset, keyRef.length).getSize();
-		int sizeV = vSorter.parse(data.data, data.offset + valRef.offset, valRef.length).getSize();
+		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
+		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
 		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
 		
 		for ( int i=0; i<sizeK; i++) {
@@ -91,16 +90,17 @@ public class Cell2<K1, V> {
 	 */
 	public final void process(final V exactValue, final V minimumValue, final V maximumValue, final Cell2Visitor<K1,V> visitor) throws IOException {
 		
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data.data, data.offset, data.length);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data,data.offset, data.length);
 		
-		Reference keyRef = kvbytesA.getValueAtReference(0);
-		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference keyRef = new Reference();
+		kvbytesA.getValueAtReference(0, keyRef);
 		
-		if ( null == keyRef || null == valRef ) return;
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
 		
-		int sizeK = k1Sorter.parse(data.data, data.offset + keyRef.offset, keyRef.length).getSize();
-		int sizeV = vSorter.parse(data.data, data.offset + valRef.offset, valRef.length).getSize();
+		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
+		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
 		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
 		
 		findMatchingPositionsVsorterInitialized(
@@ -148,7 +148,8 @@ public class Cell2<K1, V> {
 		
 		List<Integer> foundPositions = reusableFoundPosArray;
 		byte[] allValsB = findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
-		byte[] allKeysB = SortedBytesArray.getInstance().parse(data.data, data.offset, data.length).getValueAt(0);
+		byte[] allKeysB = SortedBytesArray.getInstance().parse(
+			data.data, data.offset, data.length).getValueAt(0);
 		
 		ISortedByte<V> valSorted =  vSorter.parse(allValsB);
 		ISortedByte<K1> keySorted =  k1Sorter.parse(allKeysB);
@@ -272,7 +273,6 @@ public class Cell2<K1, V> {
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
 		
 		k1Sorter.parse(allKeysB);
-		//System.out.println("Size :" + k1Sorter.getSize());
 		for (int position : foundPositions) {
 			foundKeys.add( k1Sorter.getValueAt(position) );
 		}
@@ -332,15 +332,14 @@ public class Cell2<K1, V> {
 			return;
 		}
 
-		ISortedByte<byte[]> kvbytes =  SortedBytesArray.getInstance().parse(data.data, data.offset, data.length);
-		SortedBytesArray kvbytesA = (SortedBytesArray)kvbytes;
+		SortedBytesArray kvbytesA = SortedBytesArray.getInstanceArr();  
+		kvbytesA.parse(data.data, data.offset, data.length);
 
-		Reference valRef = kvbytesA.getValueAtReference(1);
-		if ( null == valRef ) return;
-		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
-		valSorter.parse(data.data, data.offset + valRef.offset, valRef.length);
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
+		vSorter.parse(data.data, valRef.offset, valRef.length);
 
-		int size = valSorter.getSize();
+		int size = vSorter.getSize();
 		for ( int i=0; i<size; i++) {
 			values.add(vSorter.getValueAt(i));
 		}
@@ -401,7 +400,8 @@ public class Cell2<K1, V> {
 	
 	public void keySet( Collection<K1> keys) throws IOException {
 		
-		byte[] allKeysB = SortedBytesArray.getInstance().parse(data.data, data.offset, data.length).getValueAt(0);
+		byte[] allKeysB = SortedBytesArray.getInstance().parse(
+			data.data, data.offset, data.length).getValueAt(0);
 		if ( null == allKeysB ) return;
 		
 		int size = k1Sorter.parse(allKeysB).getSize();
@@ -434,5 +434,11 @@ public class Cell2<K1, V> {
 		int elemIndex = this.sortedList.indexOf(key);
 		if ( -1 == elemIndex) return;
 		this.sortedList.remove(elemIndex);
+	}
+	
+	@Override
+	public String toString() {
+		if ( null == sortedList) try {parseElements();} catch (Exception e) {return e.getMessage();};
+		return sortedList.toString();
 	}
 }

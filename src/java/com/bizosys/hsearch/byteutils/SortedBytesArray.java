@@ -30,6 +30,10 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		return new SortedBytesArray();
 	}
 	
+	public static final SortedBytesArray getInstanceArr() {
+		return new SortedBytesArray();
+	}
+
 	private SortedBytesArray() {
 	}
 	
@@ -131,6 +135,12 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	}
 
 	public final Reference getValueAtReference(final int pos) {
+		Reference ref = new Reference();
+		getValueAtReference(pos, ref);
+		return ref;
+	}
+	
+	public final void getValueAtReference(final int pos, Reference ref) {
 		
 		int collectionSize = Storable.getInt(this.offset, inputBytes);
 		if ( pos >= collectionSize) throw new IndexOutOfBoundsException(
@@ -142,7 +152,7 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		int elemLen = elemEndOffset - elemStartOffset;
 		
 		int headerOffset = (this.offset + 8 + collectionSize * 4);
-		return new Reference(headerOffset + elemStartOffset, elemLen);
+		ref.set(headerOffset + elemStartOffset, elemLen);
 	}	
 	
 	

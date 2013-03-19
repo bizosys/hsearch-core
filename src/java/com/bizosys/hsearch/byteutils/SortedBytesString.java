@@ -242,7 +242,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 		
 		List<Integer> seeks = ObjectFactory.getInstance().getIntegerList();
 		
-		int seek = 4;
+		int seek = this.offset + 4;
 		for ( int i=0; i<collectionSize; i++) {
 			int bytesLen = Storable.getInt( seek, inputBytes);
 			seek = seek + 4;
