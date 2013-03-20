@@ -1,0 +1,39 @@
+HSearch Plugin Sequences
+
+WebClient->HBaseTableReader: read
+
+HBaseTableReader->HSearchGenericCoprocessorImpl: coprocessorcall
+note left of HBaseHSearchFilter: Runs in multi machines
+
+HSearchGenericCoprocessorImpl->HBaseHSearchFilter
+
+HBaseHSearchFilter->HSearchPlugin<Schema>: createPlugIn
+
+HBaseHSearchFilter->HSearchPlugin<Schema>:getPart
+
+HBaseHSearchFilter->TablePartsCallback:onRowCols
+note left of TablePartsCallback: Can be onRowKeyValue, onRowValue , onRowKey
+
+HBaseHSearchFilter->TablePartsCallback:onFilterationComplete
+
+TablePartsCallback->HSearchPlugin<Schema>:merge
+
+HBaseHSearchFilter->HSearchPlugin<Schema>:onFilterationComplete
+
+HBaseHSearchFilter->HSearchPlugin<Schema>:getUniqueMatchingDocumentIds
+
+HBaseHSearchFilter->HSearchPlugin<Schema>:getResult(Multi|Single)Query
+
+
+HBaseHSearchFilter->HSearchPlugin<Schema>:cleanupValuesFromLastRun
+
+
+HBaseHSearchFilter->HSearchReducer:appendCols
+
+HSearchGenericCoprocessorImpl->HSearchReducer:appendRows
+
+HBaseHSearchFilter->HBaseTableReader: rows
+
+HBaseTableReader->HSearchReducer: appendRows
+
+HBaseTableReader->WebClient: values

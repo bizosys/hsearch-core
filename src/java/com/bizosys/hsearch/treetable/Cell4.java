@@ -1,7 +1,6 @@
 package com.bizosys.hsearch.treetable;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -11,7 +10,6 @@ import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
 import com.bizosys.hsearch.hbase.ObjectFactory;
-
 public class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 	public ISortedByte<K2> k2Sorter = null;
 	public ISortedByte<K3> k3Sorter = null;
@@ -207,19 +205,26 @@ public class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, Cell3< K2, K3,V>>();
 		else this.sortedList.clear();
 		
-		List<K1> allKeys = new ArrayList<K1>();
-		keySet(allKeys);
-		int allKeysT = allKeys.size();
-		List<Cell3< K2, K3,V>> allValues = new ArrayList<Cell3< K2, K3,V>>(allKeysT);
-		values(allValues);
-	
-		if ( allKeysT != allValues.size() ) throw new IOException( 
-			"Keys and Values tally mismatched : keys(" + allKeysT + ") , values(" + allValues.size() + ")");
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
+		Reference keyRef = kvbytesA.getValueAtReference(0);
+		Reference valRef = kvbytesA.getValueAtReference(1);
+		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
+		int sizeK = k1Sorter.getSize();
+		SortedBytesArray valSorter = SortedBytesArray.getInstanceArr();
+		valSorter.parse(data.data, valRef.offset, valRef.length);
+		int sizeV = valSorter.getSize();
+		if ( sizeK != sizeV ) {
+			throw new IOException(
+				"Keys and Values tally mismatched : keys(" + sizeK + 
+				") , values(" + sizeV + ")");					
+		}
 		
-		Iterator<K1> itrKey = allKeys.iterator();
-		Iterator<Cell3< K2, K3,V>> itrVal = allValues.iterator();
-		while ( itrKey.hasNext() ) {
-			sortedList.put(itrKey.next(), itrVal.next());
+		Reference ref = new Reference();
+		for ( int i=0; i<sizeK; i++) {
+			valSorter.getValueAtReference(i, ref);
+			BytesSection sec = new BytesSection(data.data, ref.offset, ref.length);
+			sortedList.put(k1Sorter.getValueAt(i), new Cell3< K2, K3,V>( k2Sorter,k3Sorter, vSorter, sec));
 		}
 	}
 	
@@ -275,12 +280,13 @@ public class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 			return true;
 		}
 	};
-
+	
 	@Override
 	public String toString() {
 		if ( null == sortedList) try {parseElements();} catch (Exception e) {return e.getMessage();};
 		return sortedList.toString();
 	}
+	
 	
 }
 
