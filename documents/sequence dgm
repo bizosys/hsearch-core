@@ -1,39 +1,39 @@
 HSearch Plugin Sequences
 
-WebClient->HBaseTableReader: read
+WebClient->Client: read
 
-HBaseTableReader->HSearchGenericCoprocessorImpl: coprocessorcall
-note left of HBaseHSearchFilter: Runs in multi machines
+Client->HSearchGenericCoprocessorImpl: coprocessorcall
+note left of Filter: Runs in multi machines
 
-HSearchGenericCoprocessorImpl->HBaseHSearchFilter
+HSearchGenericCoprocessorImpl->Filter
 
-HBaseHSearchFilter->HSearchPlugin<Schema>: createPlugIn
+Filter->Mapper: createPlugIn
 
-HBaseHSearchFilter->HSearchPlugin<Schema>:getPart
+Filter->Mapper:getPart
 
-HBaseHSearchFilter->TablePartsCallback:onRowCols
-note left of TablePartsCallback: Can be onRowKeyValue, onRowValue , onRowKey
+Filter->RowReader:onRowCols
+note left of RowReader: Can be onRowKeyValue, onRowValue , onRowKey
 
-HBaseHSearchFilter->TablePartsCallback:onFilterationComplete
+Filter->RowReader:onReadComplete
 
-TablePartsCallback->HSearchPlugin<Schema>:merge
+RowReader->Mapper:merge
 
-HBaseHSearchFilter->HSearchPlugin<Schema>:onFilterationComplete
+Filter->Mapper:onReadComplete
 
-HBaseHSearchFilter->HSearchPlugin<Schema>:getUniqueMatchingDocumentIds
+Filter->Mapper:getUniqueMatchingDocumentIds
 
-HBaseHSearchFilter->HSearchPlugin<Schema>:getResult(Multi|Single)Query
-
-
-HBaseHSearchFilter->HSearchPlugin<Schema>:cleanupValuesFromLastRun
+Filter->Mapper:getResult(Multi|Single)Query
 
 
-HBaseHSearchFilter->HSearchReducer:appendCols
+Filter->Mapper:cleanupValuesFromLastRun
 
-HSearchGenericCoprocessorImpl->HSearchReducer:appendRows
 
-HBaseHSearchFilter->HBaseTableReader: rows
+Filter->Reducer:appendCols
 
-HBaseTableReader->HSearchReducer: appendRows
+HSearchGenericCoprocessorImpl->Reducer:appendRows
 
-HBaseTableReader->WebClient: values
+Filter->Client: rows
+
+Client->Reducer: appendRows
+
+Client->WebClient: values
