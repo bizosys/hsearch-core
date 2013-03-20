@@ -59,7 +59,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 			}
 			return;
 		}
-		plugin.cleanupValuesFromLastRun();
+		plugin.clear();
 
 		HSearchQuery hQuery = new HSearchQuery(aStmtOrValue);		
 		

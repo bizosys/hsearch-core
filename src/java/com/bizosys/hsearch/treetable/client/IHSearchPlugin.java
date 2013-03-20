@@ -27,8 +27,8 @@ import com.bizosys.hsearch.federate.FederatedFacade;
 
 public interface IHSearchPlugin {
 	void setOutputType(HSearchProcessingInstruction outputTypeCode);
-	void cleanupValuesFromLastRun() ;
-	void onFilterationComplete();
+	void clear() ;
+	void onReadComplete();
 	
 	Collection<String> getUniqueMatchingDocumentIds() throws IOException;
 	void getResultMultiQuery( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<byte[]> rows) throws IOException;
