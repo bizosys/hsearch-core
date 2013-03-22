@@ -102,10 +102,15 @@ public class Cell2<K1, V> {
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
 		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
-		
-		findMatchingPositionsVsorterInitialized(
-			exactValue, minimumValue, maximumValue, 
-			new Cell2FoundIndex<K1, V>(k1Sorter, vSorter, visitor) );
+		if ( null != exactValue || null != minimumValue || null != maximumValue) {
+			findMatchingPositionsVsorterInitialized(
+					exactValue, minimumValue, maximumValue, 
+					new Cell2FoundIndex<K1, V>(k1Sorter, vSorter, visitor) );
+		} else {
+			for ( int i=0; i<sizeK; i++) {
+				visitor.visit(k1Sorter.getValueAt(i), vSorter.getValueAt(i));
+			}
+		}
 	}	
 	
 	public List<CellKeyValue<K1, V>> getMap(byte[] data) throws IOException {
