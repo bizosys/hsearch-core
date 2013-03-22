@@ -1,0 +1,183 @@
+package --PACKAGE--.donotmodify;
+
+import com.bizosys.hsearch.byteutils.SortedBytesChar;
+import com.bizosys.hsearch.byteutils.SortedBytesFloat;
+import com.bizosys.hsearch.byteutils.SortedBytesInteger;
+import com.bizosys.hsearch.byteutils.SortedBytesUnsignedShort;
+import com.bizosys.hsearch.treetable.Cell2;
+import com.bizosys.hsearch.treetable.Cell2Visitor;
+import com.bizosys.hsearch.treetable.CellComparator.FloatComparator;
+import com.bizosys.hsearch.treetable.client.HSearchQuery;
+import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
+import com.bizosys.hsearch.treetable.client.IHSearchTable;
+
+import java.io.IOException;
+
+public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
+
+    public static boolean DEBUG_ENABLED = false;
+    
+    public static final int MODE_COLS = 0;
+    public static final int MODE_KEY = 1;
+    public static final int MODE_VAL = 2;
+    public static final int MODE_KEYVAL = 3;
+
+    public static final class Cell2FilterVisitor implements Cell2Visitor<--KEY_DATATYPE--, --VAL_DATATYPE--> {
+
+        public HSearchQuery query;
+        public IHSearchPlugin plugin;
+        public Plugin--COLUMN-NAME--Base.TablePartsCallback tablePartsCallback = null;
+
+        public --KEY_DATATYPE-- cellMatchKey;
+        public --KEY_DATATYPE-- cellMinKey;
+        public --KEY_DATATYPE-- cellMaxKey;
+
+        public --KEY_DATATYPE_PRIMITIVE-- cellFoundKey;
+
+        public int mode = MODE_COLS;
+
+        public Cell2FilterVisitor(HSearchQuery query,
+                IHSearchPlugin plugin, Plugin--COLUMN-NAME--Base.TablePartsCallback tablePartsCallback, int mode) {
+
+            this.query = query;
+            this.plugin = plugin;
+            this.tablePartsCallback = tablePartsCallback;
+            this.mode = mode;
+
+        }
+
+        public void set(--KEY_DATATYPE-- matchingCell2, --KEY_DATATYPE-- cellMin2, --KEY_DATATYPE-- cellMax2) {
+            this.cellMatchKey = matchingCell2;
+            this.cellMinKey = cellMin2;
+            this.cellMaxKey = cellMax2;
+        }
+
+        @Override
+        public final void visit(--KEY_DATATYPE-- cell1Key, --VAL_DATATYPE-- cell1Val) {
+            if (query.filterCells[0]) {
+                if (null != cellMatchKey) {
+                    if (cellMatchKey.intValue() != cell1Key.intValue()) {
+                        return;
+                    }
+                } else {
+                    if (cell1Key.intValue() < cellMinKey.intValue() || cell1Key.intValue() > cellMaxKey.intValue()) {
+                        return;
+                    }
+                }
+            }
+
+            if (null != plugin) {
+
+            	switch (this.mode) {
+            		case MODE_COLS :
+            			tablePartsCallback.onRowCols(cell1Key, cell1Val);
+            			break;
+
+            		case MODE_KEY :
+            			tablePartsCallback.onRowKey(cell1Key);
+            			break;
+            		case MODE_KEYVAL :
+            			tablePartsCallback.onRowKeyValue(cell1Key, cell1Val);
+            			break;
+            		case MODE_VAL:
+            			tablePartsCallback.onRowValue(cell1Val);
+            			break;
+            	}
+                
+            }
+        }
+    }
+    ///////////////////////////////////////////////////////////////////	
+    --CELLMAX-SIGN-- table = createBlankTable();
+
+    public HSearchTable--COLUMN-NAME--() {
+    }
+
+    public --CELLMAX-SIGN-- createBlankTable() {
+        return new --CELLMAX-SIGN--(--CELL-SORTERS--);
+    }
+
+    public byte[] toBytes() throws IOException {
+        if (null == table) {
+            return null;
+        }
+        table.sort(new --VAL-COMPARATOR--<Integer>());
+        return table.toBytesOnSortedData();
+    }
+
+    public void put(--PUT-PARAMS-SIGNS--) {
+        table.add(--PUT-PARAMS--);
+    }
+
+    @Override
+    public void get(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException, NumberFormatException {
+    	iterate(input, query, pluginI, MODE_COLS);
+    }
+
+    @Override
+    public void keySet(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    	iterate(input, query, pluginI, MODE_KEY);
+    }
+
+    public void values(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    	iterate(input, query, pluginI, MODE_VAL);
+    }
+
+    public void keyValues(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    	iterate(input, query, pluginI, MODE_KEYVAL);
+    }
+    
+    private void iterate(byte[] input, HSearchQuery query, IHSearchPlugin pluginI, int mode) throws IOException, NumberFormatException {
+    	
+        Plugin--COLUMN-NAME--Base plugin = castPlugin(pluginI);
+        Plugin--COLUMN-NAME--Base.TablePartsCallback callback = plugin.getPart();
+
+        Cell2FilterVisitor cell2Visitor = new Cell2FilterVisitor(query, pluginI, callback, mode);
+
+        query.parseValuesConcurrent(new String[]{"--KEY_DATATYPE--", "--VAL_DATATYPE--"});
+
+        cell2Visitor.cellMatchKey = (query.filterCells[0]) ? (--KEY_DATATYPE--) query.exactValCellsO[0] : null;
+        --VAL_DATATYPE-- cellMatchValue = (query.filterCells[1]) ? (--VAL_DATATYPE--) query.exactValCellsO[1] : null;
+
+        cell2Visitor.cellMinKey = (query.minValCells[0] == HSearchQuery.DOUBLE_MIN_VALUE) ? null
+                : new Double(query.minValCells[0]).--KEY_DATATYPE_PRIMITIVE--Value();
+        --VAL_DATATYPE-- cellMinValue = (query.minValCells[1] == HSearchQuery.DOUBLE_MIN_VALUE) ? null
+                : new Double(query.minValCells[1]).--VAL_DATATYPE_PRIMITIVE--Value();
+
+        cell2Visitor.cellMaxKey = (query.maxValCells[0] == HSearchQuery.DOUBLE_MAX_VALUE) ? null
+                : new Double(query.maxValCells[0]).--KEY_DATATYPE_PRIMITIVE--Value();
+        --VAL_DATATYPE-- cellMaxValue = (query.maxValCells[1] == HSearchQuery.DOUBLE_MAX_VALUE) ? null
+                : new Double(query.maxValCells[1]).--VAL_DATATYPE_PRIMITIVE--Value();
+		this.table.data = new BytesSection(input);
+        this.table.process(cellMatchValue, cellMinValue, cellMaxValue, cell2Visitor);
+
+        if (null != callback) {
+            callback.onReadComplete();
+        }
+        if (null != plugin) {
+            plugin.onReadComplete();
+        }    	
+    }
+
+    public Plugin--COLUMN-NAME--Base castPlugin(IHSearchPlugin pluginI)
+            throws IOException {
+        Plugin--COLUMN-NAME--Base plugin = null;
+        if (null != pluginI) {
+            if (pluginI instanceof Plugin--COLUMN-NAME--Base) {
+                plugin = (Plugin--COLUMN-NAME--Base) pluginI;
+            }
+            if (null == plugin) {
+                throw new IOException("Invalid plugin Type :" + pluginI);
+            }
+        }
+        return plugin;
+    }
+
+    /**
+     * Free the cube data
+     */
+    public void clear() throws IOException {
+        table.getMap().clear();
+    }
+
+}

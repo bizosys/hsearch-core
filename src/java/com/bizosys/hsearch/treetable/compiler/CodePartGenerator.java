@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.treetable.compiler.Schema.Field;
 
 public class CodePartGenerator {
@@ -37,15 +38,17 @@ public class CodePartGenerator {
 		dataTypes.put("Boolean", 'b');
 		dataTypes.put("String", 't');
 		dataTypes.put("Byte", 'c');
+		dataTypes.put("byte[]", 'a');
 	}
 	
 	public static Map<String, String> cellSignatures = new HashMap<String, String>();
 
-	public String generateMapContainers(List<Field> fields) throws Exception {
-
-		int totalFields = fields.size();
+	public CodePartGenerator(){
 		
-		String allMaps = "";
+	}
+
+	public CodePartGenerator(List<Field> fields){
+		int totalFields = fields.size();
 		
 		int startIndex = 0;
 		int limit = totalFields;
@@ -67,42 +70,9 @@ public class CodePartGenerator {
 			}
 			cellSign = cellSign + ">";
 			cellSignatures.put(new Integer(cellNo).toString(), cellSign);
-			
-			allMaps = allMaps + "\t\tMap<" + cellSign + "> cell" + cellNo + "L = new HashMap<" + cellSign + ">();\n"; 
-		}
-		return allMaps;
+		}		
 	}
 	
-	public String generateListContainers(List<Field> fields) throws Exception {
-
-		int totalFields = fields.size();
-		
-		String allLists = "";
-		
-		int startIndex = 0;
-		int limit = totalFields;
-		int cellNo = limit; 
-		for ( int i=startIndex; i<limit-2; i++ ) {
-			String parentKeyDataType = fields.get(i).datatype;
-			if ( parentKeyDataType.equals("Short")) parentKeyDataType = "Integer";
-			
-			cellNo--;
-			String cellSign = "Cell" + cellNo + "<";
-			boolean firstTime = true;
-			for ( int j=i + 1; j<limit; j++ ) {
-				if ( firstTime ) {
-					firstTime = false;
-				} else cellSign = cellSign + ", ";
-				
-				if ( fields.get(j).datatype.equals("Short")) cellSign = cellSign + "Integer";
-				else cellSign = cellSign + fields.get(j).datatype;
-			}
-			cellSign = cellSign + ">";
-			
-			allLists = allLists + "\t\tList<" + cellSign + "> cell" + cellNo + "L = new ArrayList<" + cellSign + ">();\n"; 
-		}
-		return allLists;
-	}
 
 	public String generatePutParamsSigns(List<Field> fields) throws Exception {
 
@@ -180,13 +150,14 @@ public class CodePartGenerator {
 
 	
 	public String generateComparator(Field valField) throws Exception {
-		if ( "Integer".equals(valField.datatype) ) return "IntComparator";
+		if ( "Integer".equals(valField.datatype) ) return "IntegerComparator";
 		else if ("Double".equals(valField.datatype)) return "DoubleComparator";
 		else if ("Float".equals(valField.datatype)) return "FloatComparator";
 		else if ("Long".equals(valField.datatype)) return "LongComparator";
 		else if ("String".equals(valField.datatype)) return "StringComparator";
 		else if ("Byte".equals(valField.datatype)) return "ByteComparator";
 		else if ("Short".equals(valField.datatype)) return "ShortComparator";
+		else if ("byte[]".equals(valField.datatype)) return "BytesComparator";
 		else throw new Exception("Datatype is not found - " + valField.datatype );
 	}
 	
@@ -207,6 +178,7 @@ public class CodePartGenerator {
 			else if ("Long".equals(dataType)) allSorters = allSorters + "SortedBytesLong.getInstance()";
 			else if ("Double".equals(dataType)) allSorters = allSorters + "SortedBytesDouble.getInstance()";
 			else if ("Byte".equals(dataType)) allSorters = allSorters + "SortedBytesChar.getInstance()";
+			else if ("byte[]".equals(dataType)) allSorters = allSorters + "SortedBytesArray.getInstanceArr()";
 			else if ("Boolean".equals(dataType)) allSorters = allSorters + "SortedBytesBoolean.getInstance()";
 			else if ("Short".equals(dataType)) allSorters = allSorters + 
 					"SortedBytesUnsignedShort.getInstanceShort().setMinimumValueLimit((short) " + minVal + " ) ";
@@ -245,34 +217,8 @@ public class CodePartGenerator {
 		
 		return code;
 	}
-
-	public String createListIterator(List<Field> fields, int cellNo) {
-		
-		int remainingCells = fields.size() - cellNo;
-		int remainingCellsValueIndex = remainingCells - 1;
-		
-		String cellSignatureKey = fields.get(cellNo - 1).datatype;
-		if ( cellSignatureKey.equals("Short")) cellSignatureKey = "Integer";
-		String theValueCellSignature = cellSignatures.get(new Integer(remainingCells).toString());
-		theValueCellSignature = theValueCellSignature.replace("Short", "Integer");
-		
-		String theRemainingValueCellSignature = cellSignatures.get(new Integer(remainingCellsValueIndex).toString());
-		theRemainingValueCellSignature = theRemainingValueCellSignature.replace("Short", "Integer");
-		
-		String currentCellSign = theValueCellSignature.replaceFirst(cellSignatureKey + ", ", "") ;
-
-		String code="";
-		code = code +"for("+currentCellSign+"cell" + remainingCells +" : cell"+remainingCells+"L){\n";	
-		code = code + "\tcell"+remainingCellsValueIndex+"L.clear();\n";
-		code = code +"\tif ( query.filterCells[" + cellNo + "] ) {\n"+
-			"\t\tcell"+remainingCells+".valuesUnchecked(matchingCell"+cellNo+", cellMin"+cellNo+", cellMax"+cellNo+", cell"+remainingCellsValueIndex+"L);\n"+
-		"\t} else {\n"+
-			"\t\tcell"+remainingCells+".values(cell"+remainingCellsValueIndex+"L);\n}\n";
-		
-		return code;
-	}
 	
-	public String generatematchingCell(List<Field> fields, int castType) throws Exception {
+	public String generatematchingCell(List<Field> fields, int castType, boolean isFirst) throws Exception {
 		try {
 			int seq = -1;
 			String text = "";
@@ -283,15 +229,15 @@ public class CodePartGenerator {
 				  	case 'i':
 				  		switch ( castType ) {
 				  			case 1:
-						  		text = text +  ("Integer matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  		text = text +  ("\t\tInteger matchingCell" + seq + " = ( query.filterCells[" + seq + 
 						  				"] ) ? (Integer) query.exactValCellsO[" + seq + "]: null;\n");
 						  		break;
 				  			case 2:
-						  		text = text +  ("Integer cellMin" + seq + " = ( query.minValCells[" + seq + 
+						  		text = text +  ("\t\tInteger cellMin" + seq + " = ( query.minValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[" + seq + "]).intValue();\n");
 						  		break;
 				  			case 3:
-						  		text = text +  ("Integer cellMax" + seq + " =  (query.maxValCells[" + seq + 
+						  		text = text +  ("\t\tInteger cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).intValue();\n");
 						  		break;
 				  		}
@@ -299,15 +245,15 @@ public class CodePartGenerator {
 				  	case 'f':
 				  		switch ( castType ) {
 				  			case 1:
-						  		text = text +  ("Float matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  		text = text +  ("\t\tFloat matchingCell" + seq + " = ( query.filterCells[" + seq + 
 						  				"] ) ? (Float) query.exactValCellsO[" + seq + "]: null;\n");
 						  		break;
 				  			case 2:
-						  		text = text +  ("Float cellMin" + seq + " = ( query.minValCells[" + seq + 
+						  		text = text +  ("\t\tFloat cellMin" + seq + " = ( query.minValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[" + seq + "]).floatValue();\n");
 						  		break;
 				  			case 3:
-						  		text = text +  ("Float cellMax" + seq + " =  (query.maxValCells[" + seq + 
+						  		text = text +  ("\t\tFloat cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).floatValue();\n");
 						  		break;
 				  		}
@@ -315,15 +261,15 @@ public class CodePartGenerator {
 				  	case 'd':
 				  		switch ( castType ) {
 				  			case 1:
-						  		text = text +  ("Double matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  		text = text +  ("\t\tDouble matchingCell" + seq + " = ( query.filterCells[" + seq + 
 						  				"] ) ? (Double) query.exactValCellsO[" + seq + "]: null;\n");
 						  		break;
 				  			case 2:
-						  		text = text +  ("Double cellMin" + seq + " = ( query.minValCells[" + seq + 
+						  		text = text +  ("\t\tDouble cellMin" + seq + " = ( query.minValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : query.minValCells[" + seq + "];\n");
 						  		break;
 				  			case 3:
-						  		text = text +  ("Double cellMax" + seq + " =  (query.maxValCells[" + seq + 
+						  		text = text +  ("\t\tDouble cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : query.maxValCells[" + seq + "];\n");
 						  		break;
 				  		}
@@ -331,15 +277,15 @@ public class CodePartGenerator {
 				  	case 'l':
 				  		switch ( castType ) {
 				  			case 1:
-						  		text = text +  ("Long matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  		text = text +  ("\t\tLong matchingCell" + seq + " = ( query.filterCells[" + seq + 
 						  				"] ) ? (Long) query.exactValCellsO[" + seq + "]: null;\n");
 						  		break;
 				  			case 2:
-						  		text = text +  ("Long cellMin" + seq + " = ( query.minValCells[" + seq + 
+						  		text = text +  ("\t\tLong cellMin" + seq + " = ( query.minValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[" + seq + "]).longValue();\n");
 						  		break;
 				  			case 3:
-						  		text = text +  ("Long cellMax" + seq + " =  (query.maxValCells[" + seq + 
+						  		text = text +  ("\t\tLong cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).longValue();\n");
 						  		break;
 				  		}
@@ -347,15 +293,15 @@ public class CodePartGenerator {
 				  	case 's':
 				  		switch ( castType ) {
 				  			case 1:
-						  		text = text +  ("Integer matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  		text = text +  ("\t\tInteger matchingCell" + seq + " = ( query.filterCells[" + seq + 
 						  				"] ) ? (Integer) query.exactValCellsO[" + seq + "]: null;\n");
 						  		break;
 				  			case 2:
-						  		text = text +  ("Integer cellMin" + seq + " = ( query.minValCells[" + seq + 
+						  		text = text +  ("\t\tInteger cellMin" + seq + " = ( query.minValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[" + seq + "]).intValue();\n");
 						  		break;
 				  			case 3:
-						  		text = text +  ("Integer cellMax" + seq + " =  (query.maxValCells[" + seq + 
+						  		text = text +  ("\t\tInteger cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).intValue();\n");
 						  		break;
 				  		}
@@ -363,29 +309,29 @@ public class CodePartGenerator {
 				  	case 't':
 				  		switch ( castType ) {
 				  			case 1:
-						  		text = text +  ("String matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  		text = text +  ("\t\tString matchingCell" + seq + " = ( query.filterCells[" + seq + 
 						  				"] ) ? (String) query.exactValCellsO[" + seq + "]: null;\n");
 						  		break;
 				  			case 2:
-						  		text = text +  ("String cellMin" + seq + " = null;\n");
+						  		text = text +  ("\t\tString cellMin" + seq + " = null;\n");
 						  		break;
 				  			case 3:
-						  		text = text +  ("String cellMax" + seq + " = null;\n");
+						  		text = text +  ("\t\tString cellMax" + seq + " = null;\n");
 						  		break;
 				  		}
 				  		break;
 				  	case 'c':
 				  		switch ( castType ) {
 				  			case 1:
-						  		text = text +  ("Byte matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  		text = text +  ("\t\tByte matchingCell" + seq + " = ( query.filterCells[" + seq + 
 						  				"] ) ? (Byte) query.exactValCellsO[" + seq + "]: null;\n");
 						  		break;
 				  			case 2:
-						  		text = text +  ("Byte cellMin" + seq + " = ( query.minValCells[" + seq + 
+						  		text = text +  ("\t\tByte cellMin" + seq + " = ( query.minValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[" + seq + "]).byteValue();\n");
 						  		break;
 				  			case 3:
-						  		text = text +  ("Byte cellMax" + seq + " =  (query.maxValCells[" + seq + 
+						  		text = text +  ("\t\tByte cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).byteValue();\n");
 						  		break;
 				  		}
@@ -393,24 +339,135 @@ public class CodePartGenerator {
 				  	case 'b':
 				  		switch ( castType ) {
 				  			case 1:
-						  		text = text +  ("Boolean matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  		text = text +  ("\t\tBoolean matchingCell" + seq + " = ( query.filterCells[" + seq + 
 						  				"] ) ? (Boolean) query.exactValCellsO[" + seq + "]: null;\n");
 						  		break;
 				  			case 2:
-						  		text = text +  ("Boolean cellMin" + seq + " = null;\n");
+						  		text = text +  ("\t\tBoolean cellMin" + seq + " = null;\n");
 						  		break;
 				  			case 3:
-						  		text = text +  ("Boolean cellMax" + seq + " = null;\n");
+						  		text = text +  ("\t\tBoolean cellMax" + seq + " = null;\n");
 						  		break;
 				  		}
 				  		break;
 				  }
 		  	  }
-		  	return text;
+			
+			if(isFirst){
+				String result = "";
+				int CELLMAX = fields.size();
+				String keyCell = "";
+				if(castType == 1)keyCell = "matchingCell"+(CELLMAX - 2);
+				else if(castType == 2)keyCell = "cellMin"+(CELLMAX - 2);
+				else if(castType == 3)keyCell = "cellMax"+(CELLMAX - 2);
+				
+				String target = fields.get(CELLMAX - 2).datatype +" "+keyCell;
+				int index = text.indexOf(target);
+				result = text.replace(text.substring(index, index + target.length()), "cell2Visitor."+keyCell); 
+				return result;
+			}
+			return text;
 		  } catch (Exception ex) {
 			  ex.printStackTrace(System.err);
 			  
 			  throw ex;
 		  }
+	}
+		
+	public String createCellClass(List<Field> fields, int cellNo) {
+		
+		int remainingCells = fields.size() - cellNo;
+		int remainingCellsValueIndex = remainingCells - 1;
+		String cellSignatureKey = fields.get(cellNo - 1).datatype;
+		if ( cellSignatureKey.equals("Short")) cellSignatureKey = "Integer";
+		String theValueCellSignature = cellSignatures.get(new Integer(remainingCells).toString());
+		theValueCellSignature = theValueCellSignature.replace("Short", "Integer");
+		
+		String theRemainingValueCellSignature = cellSignatures.get(new Integer(remainingCellsValueIndex).toString());
+		theRemainingValueCellSignature = theRemainingValueCellSignature.replace("Short", "Integer");
+	
+		StringBuilder code = new StringBuilder();
+		code.append("public static final class Cell"+remainingCells+"Map\n\t\t extends EmptyMap<"+theValueCellSignature+"> {\n\n");
+		code.append("\tpublic HSearchQuery query;\n\tpublic Cell2FilterVisitor cell2Visitor;\n");
+		code.append("\tpublic Integer matchingCell"+cellNo+";\n\tpublic Integer cellMin"+cellNo+"; \n\tpublic Integer cellMax"+cellNo+";\n");
+		code.append("\tpublic Map<"+theRemainingValueCellSignature+"> cell"+remainingCellsValueIndex+"L = null;\n\n");
+		code.append("\tpublic Cell"+remainingCells+"Map(HSearchQuery query, Cell2FilterVisitor cell2Visitor"+getParams(fields,cellNo,true)+") {");
+		code.append("\n\t\tthis.query = query; \n\t\tthis.cell2Visitor = cell2Visitor;");
+		code.append("\n\t\tthis.matchingCell"+cellNo+" = matchingCell"+cellNo+";\n\t\tthis.cellMin"+cellNo+" = cellMin"+cellNo+";\n\t\tthis.cellMax"+cellNo+" = cellMax"+cellNo+";");
+		code.append("\n\t\tthis.cell"+remainingCellsValueIndex+"L = new Cell"+remainingCellsValueIndex+"Map(query, cell2Visitor"+getParams(fields, cellNo + 1, false)+");\n\t}");
+		code.append("\n\t@Override\n");
+
+		String completeCellSign = theValueCellSignature;
+		String currentCellSign = completeCellSign.replaceFirst(cellSignatureKey + ", ", ""); 
+
+		code.append("\tpublic "+currentCellSign+" put("+cellSignatureKey+" key, "+currentCellSign+" value) {");
+		code.append("\n\t\tif (DEBUG_ENABLED) System.out.println(\"Cell"+remainingCells+" - \" + key.byteValue());");
+		code.append("\n\ttry {\n\t\tcell2Visitor.cell"+remainingCells+"Key = key;");
+		code.append("\n\t\tif (query.filterCells["+cellNo+"]) {");
+		code.append("\n\t\t\tvalue.getMap(matchingCell"+cellNo+", cellMin"+cellNo+", cellMax"+cellNo+", cell"+remainingCellsValueIndex+"L);");
+		code.append("\n\t\t } else {\n\t\t\tvalue.sortedList = cell"+remainingCellsValueIndex+"L;\n\t\t\tvalue.parseElements();\n\t\t}\n\t\treturn value;");
+		code.append("\n\t\t} catch (IOException e) {\n\t\t\tthrow new IndexOutOfBoundsException(e.getMessage());\n\t\t}\n\t}\n}\n\n\n");
+		
+		return code.toString();
+	}
+	
+	public static String getParams(List<Field> fields, int cellNo, boolean withSignature){
+		String params = "";
+		String dataType = "";
+		int keyCellIndex = fields.size() - 2;
+		int startIndex = fields.size() - 1;
+		int endIndex = cellNo;
+
+		if(withSignature){
+			for ( int i = startIndex; i >= endIndex ; i-- ) {	
+				if(i == keyCellIndex)continue;
+				dataType = fields.get(i).datatype;
+				if ( dataType.equals("Short")) dataType = "Integer";
+				params = params + ","+dataType+" matchingCell"+i+", "+dataType+" cellMin"+i+", "+dataType+" cellMax"+i;
+			}
+		}
+		else {
+			for ( int i = startIndex; i >= endIndex ; i-- ) {	
+				if(i == keyCellIndex)continue;
+				params = params + ",matchingCell"+i+", cellMin"+i+", cellMax"+i;
+			}
+			
+		}
+		return params;		
+	}
+	
+	public static String getPrimitive(String str){
+		String result = "";
+		char firstchar = dataTypes.get(str);
+		switch ( firstchar) {
+		  	case 'i':
+		  		result = "int";
+		  		break;
+		  	case 'l':
+		  		result = "long";
+		  		break;
+		  	case 'f':
+		  		result = "float";
+		  		break;
+		  	case 'd':
+		  		result = "double";
+		  		break;
+		  	case 's':
+		  		result = "int";
+		  		break;
+		  	case 'b':
+		  		result = "boolean";
+		  		break;
+		  	case 'c':
+		  		result = "byte";
+		  		break;
+		  	case 't':
+		  		result = "String";
+		  		break;
+		  	case 'a':
+		  		result = "byte[]";
+		  		break;
+		}
+		return result;
 	}
 }

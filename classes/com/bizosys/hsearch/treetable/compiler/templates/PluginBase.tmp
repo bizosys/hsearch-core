@@ -1,0 +1,21 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package --PACKAGE--.donotmodify;
+
+import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
+
+public abstract class Plugin--COLUMN-NAME--Base implements IHSearchPlugin {
+    
+    public abstract TablePartsCallback getPart();
+    
+    public interface TablePartsCallback {
+
+        boolean onRowKey(--KEY_DATATYPE-- id);
+        public boolean onRowCols(--ALL_COLS--);
+        public boolean onRowKeyValue(--KEY_DATATYPE-- key, --VAL_DATATYPE-- value);
+        public boolean onRowValue(--VAL_DATATYPE-- value);
+        public void onReadComplete();
+    }
+}

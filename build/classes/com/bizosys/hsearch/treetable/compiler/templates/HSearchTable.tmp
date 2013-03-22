@@ -20,12 +20,13 @@ import com.bizosys.hsearch.byteutils.SortedBytesString;
 import --PACKAGE--.*;
 
 --IMPORT-CELLS--
+import com.bizosys.hsearch.treetable.Cell2Visitor;
+import com.bizosys.hsearch.treetable.CellBase;
 
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.IHSearchTable;
 
-import com.bizosys.hsearch.treetable.CellBase;
 import com.bizosys.hsearch.treetable.CellComparator;
 import com.bizosys.hsearch.treetable.CellComparator.BooleanComparator;
 import com.bizosys.hsearch.treetable.CellComparator.ByteComparator;
@@ -36,11 +37,122 @@ import com.bizosys.hsearch.treetable.CellComparator.LongComparator;
 import com.bizosys.hsearch.treetable.CellComparator.DoubleComparator;
 import com.bizosys.hsearch.treetable.CellComparator.StringComparator;
 import com.bizosys.hsearch.treetable.ValueComparator;
+import com.bizosys.hsearch.util.EmptyMap;
 
 public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 	
-	private boolean DEBUG_ENABLED = false;
+	public static boolean DEBUG_ENABLED = false;
 	
+	public static final int MODE_COLS = 0;
+    public static final int MODE_KEY = 1;
+    public static final int MODE_VAL = 2;
+    public static final int MODE_KEYVAL = 3;
+	
+	
+	--CELL-CLASS--
+	
+	public static final class Cell2Map extends EmptyMap<--VAL-PARENT-DATATYPE--, Cell2<--KEY_DATATYPE--, --VAL_DATATYPE-->> {
+
+		public HSearchQuery query;
+		public --CELLMAX_MINUS_1-SIGN-- matchingCell--CELL-MAX-MINUS-1--;
+		public --CELLMAX_MINUS_1-SIGN-- cellMin--CELL-MAX-MINUS-1--;
+		public --CELLMAX_MINUS_1-SIGN-- cellMax--CELL-MAX-MINUS-1--;
+		public Cell2FilterVisitor cell2Visitor;
+		
+		public Cell2Map(HSearchQuery query, Cell2FilterVisitor cell2Visitor,
+			--CELLMAX_MINUS_1-SIGN-- matchingCell--CELL-MAX-MINUS-1--, --CELLMAX_MINUS_1-SIGN-- cellMin--CELL-MAX-MINUS-1--, --CELLMAX_MINUS_1-SIGN-- cellMax--CELL-MAX-MINUS-1--) {
+			this.query = query;
+			this.cell2Visitor = cell2Visitor;
+
+			this.matchingCell--CELL-MAX-MINUS-1-- = matchingCell--CELL-MAX-MINUS-1--;
+			this.cellMin--CELL-MAX-MINUS-1-- = cellMin--CELL-MAX-MINUS-1--;
+			this.cellMax--CELL-MAX-MINUS-1-- = cellMax--CELL-MAX-MINUS-1--;
+		}
+		
+		@Override
+		public Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> put(--VAL-PARENT-DATATYPE-- key, Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> value) {
+			
+			if (DEBUG_ENABLED) System.out.println("Cell2 - " + key.intValue());
+			try {
+				cell2Visitor.cell2Key = key;
+				Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> cell2Val = value;
+
+				if (query.filterCells[--CELL-MAX-MINUS-1--]) {
+					cell2Val.process(matchingCell--CELL-MAX-MINUS-1--, cellMin--CELL-MAX-MINUS-1--, cellMax--CELL-MAX-MINUS-1--,cell2Visitor);
+				} else {
+					cell2Val.process(cell2Visitor);
+				}
+				return value;
+			} catch (IOException e) {
+				throw new IndexOutOfBoundsException(e.getMessage());
+			}
+		}
+	}
+	
+	///////////////////////////////////////////////////////////////////	
+	
+	public static final class Cell2FilterVisitor implements Cell2Visitor<--KEY_DATATYPE--, --VAL_DATATYPE--> {
+		public HSearchQuery query;
+		public IHSearchPlugin plugin;
+
+		public Plugin--COLUMN-NAME--Base.TablePartsCallback tablePartsCallback = null;
+
+		public --CELLMAX_MINUS_2-SIGN-- matchingCell--CELL-MAX-MINUS-2--;
+		public --CELLMAX_MINUS_2-SIGN-- cellMin--CELL-MAX-MINUS-2--;
+		public --CELLMAX_MINUS_2-SIGN-- cellMax--CELL-MAX-MINUS-2--;
+
+		--TREE-NODE-KEY-SIGN--
+		public int mode = MODE_COLS;
+        public Cell2FilterVisitor(HSearchQuery query,IHSearchPlugin plugin, Plugin--COLUMN-NAME--Base.TablePartsCallback tablePartsCallback, int mode) {
+			
+            this.query = query;
+            this.plugin = plugin;
+            this.tablePartsCallback = tablePartsCallback;
+            this.mode = mode;
+
+        }
+		
+		public void set(--CELLMAX_MINUS_2-SIGN-- matchingCell--CELL-MAX-MINUS-2--, --CELLMAX_MINUS_2-SIGN-- cellMin--CELL-MAX-MINUS-2--, --CELLMAX_MINUS_2-SIGN-- cellMax--CELL-MAX-MINUS-2--) {
+			this.matchingCell--CELL-MAX-MINUS-2-- = matchingCell--CELL-MAX-MINUS-2--;
+			this.cellMin--CELL-MAX-MINUS-2-- = cellMin--CELL-MAX-MINUS-2--;
+			this.cellMax--CELL-MAX-MINUS-2-- = cellMax--CELL-MAX-MINUS-2--;
+		}
+		
+		
+		
+		@Override
+		public final void visit(--KEY_DATATYPE-- cell1Key, --VAL_DATATYPE-- cell1Val) {
+			if (DEBUG_ENABLED) System.out.println("Cell - " + cell1Key.intValue() + "/" + cell1Val.floatValue());
+			if (query.filterCells[--CELL-MAX-MINUS-2--]) {
+				if (null != matchingCell--CELL-MAX-MINUS-2--) {
+					if (matchingCell--CELL-MAX-MINUS-2--.intValue() != cell1Key.intValue()) return;
+				} else {
+					if (cell1Key.intValue() < cellMin--CELL-MAX-MINUS-2--.intValue() || cell1Key.intValue() > cellMax--CELL-MAX-MINUS-2--.intValue()) return;
+				}
+			}
+
+			if (null != plugin) {
+            	switch (this.mode) {
+            		case MODE_COLS :
+            			tablePartsCallback.onRowCols(--TREE-NODE-KEYS--cell1Key, cell1Val);
+            			break;
+
+            		case MODE_KEY :
+            			tablePartsCallback.onRowKey(cell1Key);
+            			break;
+            		case MODE_KEYVAL :
+            			tablePartsCallback.onRowKeyValue(cell1Key, cell1Val);
+            			break;
+            		case MODE_VAL:
+            			tablePartsCallback.onRowValue(cell1Val);
+            			break;
+            	}
+			} 
+		}
+	}	
+	
+	///////////////////////////////////////////////////////////////////	
+
 	--CELLMAX-SIGN-- table = createBlankTable();
 
 	public HSearchTable--COLUMN-NAME--() {
@@ -62,279 +174,73 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		table.put( --PUT-PARAMS-- );
 	}
 	
-	public int get(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException, NumberFormatException {
-		
-		HSearchPlugin--COLUMN-NAME-- plugin = castPlugin(pluginI);
-		
-		query.parseValuesConcurrent(new String[] {--CELL-DATA--TYPES--});
-		
-		List<Integer> posL = new ArrayList<Integer>();
-		List<Integer> keyL = new ArrayList<Integer>();
-		List<--VAL-DATATYPE--> valL = new ArrayList<--VAL-DATATYPE-->();
+    @Override
+    public void get(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException, NumberFormatException {
+    	iterate(input, query, pluginI, MODE_COLS);
+    }
 
---DEFINE-EXACT--
+    @Override
+    public void keySet(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    	iterate(input, query, pluginI, MODE_KEY);
+    }
 
---DEFINE-MIN--
+    public void values(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    	iterate(input, query, pluginI, MODE_VAL);
+    }
 
---DEFINE-MAX--
+    public void keyValues(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    	iterate(input, query, pluginI, MODE_KEYVAL);
+    }
+    
+    private void iterate(byte[] input, HSearchQuery query, IHSearchPlugin pluginI, int mode) throws IOException, NumberFormatException {
+    	
+        Plugin--COLUMN-NAME--Base plugin = castPlugin(pluginI);
+        Plugin--COLUMN-NAME--Base.TablePartsCallback callback = plugin.getPart();
 
---DEFINE-MAPS--
+        Cell2FilterVisitor cell2Visitor = new Cell2FilterVisitor(query, pluginI, callback, mode);
 
-		this.table.parseElements(input);
+        query.parseValuesConcurrent(new String[]{--CELL-DATA--TYPES--});
 
-		if ( query.filterCells[0] ) {
-			this.table.getMap( matchingCell0, cellMin0, cellMax0, cell--CELL-MAX-MINUS-1--L);
-		} else {
-			this.table.sortedList = cell--CELL-MAX-MINUS-1--L;
-			this.table.parseElements();  
-		}
-		Iterator<Entry<--CELL-MAX-MINUS-1-SIGN-->> cell--CELL-MAX-MINUS-1--Itr = cell--CELL-MAX-MINUS-1--L.entrySet().iterator();  
+--DEFINE-EXACT-FIRST--
 
-		int totalRows = 0;
-		
+--DEFINE-MIN-FIRST--
 
-		--TREE-BROWSE-LEAF-PREFIX--
+--DEFINE-MAX-FIRST--
 
-					while ( cell2Itr.hasNext()) {
-					
-						Entry<--VAL-PARENT-DATATYPE--, Cell2<--KEY_DATATYPE--, --VAL_DATATYPE-->> cell2 = cell2Itr.next();
-						--VAL-PARENT-DATATYPE-- cell2Key = cell2.getKey();
-						Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> cell2Val = cell2.getValue();
-						
-						posL.clear(); keyL.clear(); valL.clear();
+		Cell--CELL-MAX-MINUS-1--Map cell--CELL-MAX-MINUS-1--L = new Cell--CELL-MAX-MINUS-1--Map(query, cell2Visitor--CELL-MAX-MINUS_1-PARAMS--);
 
-						if (query.filterCells[--CELL-MAX-MINUS-1--] ) {
-							cell2Val.getMap(matchingCell--CELL-MAX-MINUS-1--, cellMin--CELL-MAX-MINUS-1--, cellMax--CELL-MAX-MINUS-1--, posL, keyL, valL);
-						} else {
-							cell2Val.getMap(keyL, valL);
-						}
+        this.table.parseElements(input);
+        if (query.filterCells[0]) {
+            this.table.getMap(matchingCell0, cellMin0, cellMax0, cell--CELL-MAX-MINUS-1--L);
+        } else {
+            this.table.sortedList = cell--CELL-MAX-MINUS-1--L;
+            this.table.parseElements();
+        }
 
-						int keysT = keyL.size();
-						--KEY_DATATYPE-- cell1Key = null;
-						--VAL_DATATYPE-- cell1Val = null;
-						
-						for (int i=0; i<keysT; i++) {
-							cell1Key = keyL.get(i);
-							
-							if (query.filterCells[--CELL-MAX-MINUS-2--] ) {
-								if ( null != matchingCell--CELL-MAX-MINUS-2-- ) {
-									if ( matchingCell--CELL-MAX-MINUS-2-- != cell1Key ) continue;
-								} else {
-									if ( cell1Key < cellMin--CELL-MAX-MINUS-2-- || cell1Key > cellMax--CELL-MAX-MINUS-2--  ) continue;
-								}
-							}
-							
-							cell1Val = valL.get(i);
-							
-							if ( null != plugin) {
-								if ( plugin.onRowCols(--TREE-NODE-KEYS--, cell2Key, cell1Key, cell1Val) ) {
-									totalRows++; 
-								}
-							} else {
-								totalRows++;
-							}
-						}
-					}
-					
-		--TREE-BROWSE-LEAF-SUFFIX--
-		
-		if ( null != plugin ) plugin.onFilterationComplete();
-		return totalRows;
-	}
+        if (null != callback) callback.onReadComplete();
+        if (null != plugin) plugin.onReadComplete();
+    }
 
-	public int keySet(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException {
-		return onKeyAndValue(input, query, plugin, 0);
-	}
-	
-	public int values(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException {
-		return onKeyAndValue(input, query, plugin, 1);
-	}
+    public Plugin--COLUMN-NAME--Base castPlugin(IHSearchPlugin pluginI)
+            throws IOException {
+        Plugin--COLUMN-NAME--Base plugin = null;
+        if (null != pluginI) {
+            if (pluginI instanceof Plugin--COLUMN-NAME--Base) {
+                plugin = (Plugin--COLUMN-NAME--Base) pluginI;
+            }
+            if (null == plugin) {
+                throw new IOException("Invalid plugin Type :" + pluginI);
+            }
+        }
+        return plugin;
+    }
 
-	public int keyValues(byte[] input, HSearchQuery query, IHSearchPlugin plugin) throws IOException {
-		return onKeyAndValue(input, query, plugin, 2);
-	}
+    /**
+     * Free the cube data
+     */
+    public void clear() throws IOException {
+        table.getMap().clear();
+    }
 
-	private int onKeyAndValue(byte[] input, HSearchQuery query, IHSearchPlugin pluginI, int mode) throws IOException {
-
-		HSearchPlugin--COLUMN-NAME-- plugin = castPlugin(pluginI);
-		
-		query.parseValuesConcurrent(new String[] {--CELL-DATA--TYPES--});
-		
-		List<Integer> posL = new ArrayList<Integer>();
-		List<Integer> keyL = new ArrayList<Integer>();
-		List<--VAL-DATATYPE--> valL = new ArrayList<--VAL-DATATYPE-->();
-
---DEFINE-EXACT--
-
---DEFINE-MIN--
-
---DEFINE-MAX--
-
---DEFINE-LIST--
-
-		int totalRows = 0;		
-
-		this.table.parseElements(input);
-		if ( query.filterCells[0] ) {
-			this.table.valuesUnchecked(matchingCell0, cellMin0, cellMax0, cell--CELL-MAX-MINUS-1--L);
-		} else {
-			this.table.values(cell--CELL-MAX-MINUS-1--L);
-		}
-
-		--LIST-BROWSE-LEAF-PREFIX--
-		
-					for ( Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> cell2Val : cell2L) {
-						
-						posL.clear(); keyL.clear(); valL.clear();
-
-						if (query.filterCells[--CELL-MAX-MINUS-1--] ) {
-							cell2Val.getMap(matchingCell--CELL-MAX-MINUS-1--, cellMin--CELL-MAX-MINUS-1--, cellMax--CELL-MAX-MINUS-1--, posL, keyL, valL);
-						} else {
-							cell2Val.getMap(keyL, valL);
-						}
-
-						if ( DEBUG_ENABLED ) {
-							System.out.println("keyL.size : " + keyL.size());
-						}
-						
-						switch ( mode ) {
-							case 0:
-								totalRows = totalRows + callbackOnKeys(query, plugin, keyL, valL,
-									matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);
-								break;
-							case 1:
-								totalRows = totalRows + callbackOnValues(query, plugin, keyL, valL,
-									matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);	
-								break;
-							case 2:
-								totalRows = totalRows + callbackOnKeyValues(query, plugin, keyL, valL,
-									matchingCell--CELL-MAX-MINUS-2--, cellMin--CELL-MAX-MINUS-2--, cellMax--CELL-MAX-MINUS-2--, totalRows);							
-								break;
-						}
-					}
-		--LIST-BROWSE-LEAF-SUFFIX--
-
-		if ( null != plugin ) plugin.onFilterationComplete();
-		return totalRows;
-	}
-
-	public int callbackOnKeys(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
-			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyExact,
-			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
-		int keysT = keyL.size();
-		--KEY_DATATYPE-- cell1Key = null;
-		
-		for (int i=0; i<keysT; i++) {
-			cell1Key = keyL.get(i);
-			
-			if (query.filterCells[--CELL-MAX-MINUS-2--] ) {
-				if ( null != keyExact ) {
-					if ( keyExact != cell1Key ) continue;
-				} else {
-					if ( cell1Key < keyValMin || cell1Key > keyValMax  ) continue;
-				}
-			}
-			
-			if ( null != plugin) {
-				if ( plugin.onRowKey(cell1Key) ) {
-					totalRows++; 
-				}
-			} else {
-				totalRows++;
-			}
-		}
-		return totalRows;
-	}
-	
-	public int callbackOnValues(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
-			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyValExact,
-			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
-
-		int keysT = keyL.size();
-		--KEY_DATATYPE-- cell1Key = null;
-		--VAL_DATATYPE-- cell1Val = null;
-		
-		for (int i=0; i<keysT; i++) {
-			cell1Key = keyL.get(i);
-			
-			if (query.filterCells[--CELL-MAX-MINUS-2--] ) {
-				if ( null != keyValExact ) {
-					if ( keyValExact != cell1Key ) continue;
-				} else {
-					if ( cell1Key < keyValMin || cell1Key > keyValMax  ) continue;
-				}
-			}
-			
-			cell1Val = valL.get(i);
-			
-			if ( null != plugin) {
-				if ( plugin.onRowValue(cell1Val) ) totalRows++; 
-			} else {
-				totalRows++;
-			}
-		}
-		return totalRows;
-	}
-
-	public int callbackOnKeyValues(HSearchQuery query, HSearchPlugin--COLUMN-NAME-- plugin,
-			List<--KEY_DATATYPE--> keyL, List<--VAL_DATATYPE--> valL, --KEY_DATATYPE-- keyValExact,
-			--KEY_DATATYPE-- keyValMin, --KEY_DATATYPE-- keyValMax, int totalRows) {
-
-		int keysT = keyL.size();
-		--KEY_DATATYPE-- cell1Key = null;
-		--VAL_DATATYPE-- cell1Val = null;
-		
-		for (int i=0; i<keysT; i++) {
-			cell1Key = keyL.get(i);
-			
-			if (query.filterCells[--CELL-MAX-MINUS-2--] ) {
-				if ( null != keyValExact ) {
-					if ( keyValExact != cell1Key ) continue;
-				} else {
-					if ( cell1Key < keyValMin || cell1Key > keyValMax  ) continue;
-				}
-			}
-			
-			cell1Val = valL.get(i);
-			
-			if ( null != plugin) {
-				if ( plugin.onRowKeyValue(cell1Key, cell1Val) ) totalRows++; 
-			} else {
-				totalRows++;
-			}
-		}
-		return totalRows;
-	}
-
-	@SuppressWarnings({ "rawtypes", "unchecked" }) 
-	public void getValues(CellBase parentCell, HSearchQuery query, List<?> cellL, int index) throws IOException {
-		if ( query.filterCells[index] ) { 
-			//Do filtering
-			if ( null == query.exactValCells[index]  ) {
-				parentCell.valuesUnchecked(null, query.minValCells[index], query.maxValCells[index], cellL);
-			} else {
-				parentCell.valuesUnchecked(query.exactValCells[index], null, null, cellL);	
-			}
-			
-		} else {
-			//No filtering
-			parentCell.valuesUnchecked(cellL);  
-		}	
-	}
-	
-	public HSearchPlugin--COLUMN-NAME-- castPlugin(IHSearchPlugin pluginI) throws IOException {
-		HSearchPlugin--COLUMN-NAME-- plugin = null;
-		if ( null != pluginI) {
-			if ( pluginI instanceof HSearchPlugin--COLUMN-NAME--) plugin =  (HSearchPlugin--COLUMN-NAME--) pluginI;
-			if ( null == plugin )  throw new IOException("Invalid plugin Type :" + pluginI);
-		}
-		return plugin;
-	}	
-	
-	/**
-	 * Free the cube data
-	 */
-	public void clear() throws IOException {
-		table.getMap().clear();
-	}
 }
+	
