@@ -109,6 +109,9 @@ public class HSearchQuery {
 					  		if ( "Boolean".equals(dataTypes[i])) exactValCellsO[i] = new Boolean(cellData); //True or False
 					  		else exactValCellsO[i] = new Byte(cellData.getBytes()[0]); //Byte
 					  		break;
+					  	case 'b' :
+					  		exactValCellsO[i] = cellData.getBytes();
+					  		break;
 					  }
 			  	  }
 			  } catch (Exception ex) {

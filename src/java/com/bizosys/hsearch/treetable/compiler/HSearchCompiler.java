@@ -221,6 +221,10 @@ public class HSearchCompiler {
 		template = template.replace("--PUT-PARAMS-SIGNS--",  cg.generatePutParamsSigns(allFields));
 		template = template.replace("--PUT-PARAMS--",  cg.generatePutParams(allFields));
 		
+		template = template.replace("--DEFINE-EXACT-FIRST--", cg.generatematchingCell(allFields, 1, true));
+		template = template.replace("--DEFINE-MIN-FIRST--", cg.generatematchingCell(allFields, 2, true));
+		template = template.replace("--DEFINE-MAX-FIRST--", cg.generatematchingCell(allFields, 3, true));
+		
 		return template;
 	}
 

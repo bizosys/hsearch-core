@@ -31,6 +31,7 @@ import java.util.StringTokenizer;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.federate.FederatedFacade;
@@ -342,7 +343,6 @@ public abstract class HSearchGenericFilter implements Filter {
 		return arg0;
 	}
 	
-	
 	/**
 	 *******************************************************************************************
 	 * COMPUTATIONS
@@ -404,5 +404,32 @@ public abstract class HSearchGenericFilter implements Filter {
 	public abstract HSearchTableMultiQueryExecutor createExecutor();
 	public abstract IHSearchPlugin createPlugIn(String type) throws IOException ;
 	public abstract HSearchReducer getReducer();
+	
+	/**
+	 * Override this method if you want to set more filters in processing.
+	 * 
+	 	FilterList list = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+		RowFilter filter1 = new RowFilter(CompareOp.EQUAL, new BinaryComparator(Bytes.toBytes("row-22")) );
+		list.addFilter(filter1);
+		list.addFilter(this);
+		return list;
+		
+	 * @return
+	 */
+	public FilterList getFilters() {
+		return null;
+	}
+	
+	/**
+	 * Any information to be configured before starting the filtration process.
+	 */
+	public void configure() {
+	}
+	
+	/**
+	 * At the end release the resources.
+	 */
+	public void close() {
+	}
 	
 }

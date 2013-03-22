@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesDouble;
 import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesFloat;
@@ -30,6 +31,7 @@ import com.bizosys.hsearch.treetable.client.IHSearchTable;
 import com.bizosys.hsearch.treetable.CellComparator;
 import com.bizosys.hsearch.treetable.CellComparator.BooleanComparator;
 import com.bizosys.hsearch.treetable.CellComparator.ByteComparator;
+import com.bizosys.hsearch.treetable.CellComparator.BytesComparator;
 import com.bizosys.hsearch.treetable.CellComparator.ShortComparator;
 import com.bizosys.hsearch.treetable.CellComparator.IntegerComparator;
 import com.bizosys.hsearch.treetable.CellComparator.FloatComparator;
@@ -122,7 +124,6 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		
 		@Override
 		public final void visit(--KEY_DATATYPE-- cell1Key, --VAL_DATATYPE-- cell1Val) {
-			if (DEBUG_ENABLED) System.out.println("Cell - " + cell1Key.intValue() + "/" + cell1Val.floatValue());
 			if (query.filterCells[--CELL-MAX-MINUS-2--]) {
 				if (null != matchingCell--CELL-MAX-MINUS-2--) {
 					if (matchingCell--CELL-MAX-MINUS-2--.intValue() != cell1Key.intValue()) return;
@@ -209,7 +210,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
 		Cell--CELL-MAX-MINUS-1--Map cell--CELL-MAX-MINUS-1--L = new Cell--CELL-MAX-MINUS-1--Map(query, cell2Visitor--CELL-MAX-MINUS_1-PARAMS--);
 
-        this.table.parseElements(input);
+        this.table.data = new BytesSection(input);
         if (query.filterCells[0]) {
             this.table.getMap(matchingCell0, cellMin0, cellMax0, cell--CELL-MAX-MINUS-1--L);
         } else {

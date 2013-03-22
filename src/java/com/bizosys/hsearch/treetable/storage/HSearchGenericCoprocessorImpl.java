@@ -9,6 +9,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.coprocessor.BaseEndpointCoprocessor;
 import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
+import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 
 import com.bizosys.hsearch.PerformanceLogger;
@@ -34,7 +35,6 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		InternalScanner scanner = null;
 
 		try {
-
 			Scan scan = new Scan();
 			scan.setCacheBlocks(true);
 			scan.setCaching(1);
@@ -47,7 +47,11 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 				scan = scan.addColumn(families[i], cols[i]);
 			}
 			
-			if ( null != filter) scan = scan.setFilter(filter);
+			if ( null != filter) {
+				FilterList filterL = filter.getFilters();
+				if ( null != filterL) scan = scan.setFilter(filterL);
+				else scan = scan.setFilter(filter);
+			}
 
 			RegionCoprocessorEnvironment environment = (RegionCoprocessorEnvironment) getEnvironment();
 
@@ -60,6 +64,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			Collection<byte[]> append = new ArrayList<byte[]>();
 			
 			HSearchReducer reducer = filter.getReducer();
+			filter.configure();
 			do {
 				curVals.clear();
 				done = scanner.next(curVals);
@@ -78,6 +83,14 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			return SortedBytesArray.getInstance().toBytes(merged);
 			
 		} finally {
+			if ( null != scanner) {
+				try {
+					filter.close();
+				} catch (Exception ex) {
+					ex.printStackTrace(System.err);
+				}
+			}
+			
 			if ( null != scanner) {
 				try {
 					scanner.close();

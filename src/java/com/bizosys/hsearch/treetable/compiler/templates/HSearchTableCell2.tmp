@@ -1,12 +1,14 @@
 package --PACKAGE--.donotmodify;
 
+import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesChar;
 import com.bizosys.hsearch.byteutils.SortedBytesFloat;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.SortedBytesUnsignedShort;
+import com.bizosys.hsearch.treetable.BytesSection;
 import com.bizosys.hsearch.treetable.Cell2;
 import com.bizosys.hsearch.treetable.Cell2Visitor;
-import com.bizosys.hsearch.treetable.CellComparator.FloatComparator;
+import com.bizosys.hsearch.treetable.CellComparator.*;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.IHSearchTable;
@@ -28,9 +30,9 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
         public IHSearchPlugin plugin;
         public Plugin--COLUMN-NAME--Base.TablePartsCallback tablePartsCallback = null;
 
-        public --KEY_DATATYPE-- cellMatchKey;
-        public --KEY_DATATYPE-- cellMinKey;
-        public --KEY_DATATYPE-- cellMaxKey;
+        public --KEY_DATATYPE-- matchingCell0;
+        public --KEY_DATATYPE-- cellMin0;
+        public --KEY_DATATYPE-- cellMax0;
 
         public --KEY_DATATYPE_PRIMITIVE-- cellFoundKey;
 
@@ -47,20 +49,20 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
         }
 
         public void set(--KEY_DATATYPE-- matchingCell2, --KEY_DATATYPE-- cellMin2, --KEY_DATATYPE-- cellMax2) {
-            this.cellMatchKey = matchingCell2;
-            this.cellMinKey = cellMin2;
-            this.cellMaxKey = cellMax2;
+            this.matchingCell0 = matchingCell2;
+            this.cellMin0 = cellMin2;
+            this.cellMax0 = cellMax2;
         }
 
         @Override
         public final void visit(--KEY_DATATYPE-- cell1Key, --VAL_DATATYPE-- cell1Val) {
             if (query.filterCells[0]) {
-                if (null != cellMatchKey) {
-                    if (cellMatchKey.intValue() != cell1Key.intValue()) {
+                if (null != matchingCell0) {
+                    if (matchingCell0.intValue() != cell1Key.intValue()) {
                         return;
                     }
                 } else {
-                    if (cell1Key.intValue() < cellMinKey.intValue() || cell1Key.intValue() > cellMaxKey.intValue()) {
+                    if (cell1Key.intValue() < cellMin0.intValue() || cell1Key.intValue() > cellMax0.intValue()) {
                         return;
                     }
                 }
@@ -136,20 +138,14 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
         query.parseValuesConcurrent(new String[]{"--KEY_DATATYPE--", "--VAL_DATATYPE--"});
 
-        cell2Visitor.cellMatchKey = (query.filterCells[0]) ? (--KEY_DATATYPE--) query.exactValCellsO[0] : null;
-        --VAL_DATATYPE-- cellMatchValue = (query.filterCells[1]) ? (--VAL_DATATYPE--) query.exactValCellsO[1] : null;
+--DEFINE-EXACT-FIRST--
 
-        cell2Visitor.cellMinKey = (query.minValCells[0] == HSearchQuery.DOUBLE_MIN_VALUE) ? null
-                : new Double(query.minValCells[0]).--KEY_DATATYPE_PRIMITIVE--Value();
-        --VAL_DATATYPE-- cellMinValue = (query.minValCells[1] == HSearchQuery.DOUBLE_MIN_VALUE) ? null
-                : new Double(query.minValCells[1]).--VAL_DATATYPE_PRIMITIVE--Value();
+--DEFINE-MIN-FIRST--
 
-        cell2Visitor.cellMaxKey = (query.maxValCells[0] == HSearchQuery.DOUBLE_MAX_VALUE) ? null
-                : new Double(query.maxValCells[0]).--KEY_DATATYPE_PRIMITIVE--Value();
-        --VAL_DATATYPE-- cellMaxValue = (query.maxValCells[1] == HSearchQuery.DOUBLE_MAX_VALUE) ? null
-                : new Double(query.maxValCells[1]).--VAL_DATATYPE_PRIMITIVE--Value();
+--DEFINE-MAX-FIRST--
+	
 		this.table.data = new BytesSection(input);
-        this.table.process(cellMatchValue, cellMinValue, cellMaxValue, cell2Visitor);
+        this.table.process(matchingCell1, cellMin1, cellMax1, cell2Visitor);
 
         if (null != callback) {
             callback.onReadComplete();

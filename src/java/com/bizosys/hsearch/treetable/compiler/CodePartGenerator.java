@@ -186,38 +186,7 @@ public class CodePartGenerator {
 		}
 		return allSorters;
 	}	
-	
-	public String createIterator(List<Field> fields, int cellNo) {
 		
-		int remainingCells = fields.size() - cellNo;
-		int remainingCellsValueIndex = remainingCells - 1;
-		String cellSignatureKey = fields.get(cellNo - 1).datatype;
-		if ( cellSignatureKey.equals("Short")) cellSignatureKey = "Integer";
-		String theValueCellSignature = cellSignatures.get(new Integer(remainingCells).toString());
-		theValueCellSignature = theValueCellSignature.replace("Short", "Integer");
-		
-		String theRemainingValueCellSignature = cellSignatures.get(new Integer(remainingCellsValueIndex).toString());
-		theRemainingValueCellSignature = theRemainingValueCellSignature.replace("Short", "Integer");
-		
-		
-		String code = "Entry<" + theValueCellSignature + "> cell" +   
-			remainingCells + " = cell" + remainingCells + "Itr.next();\n";
-		code = code + cellSignatureKey + " cell" + remainingCells + "Key = cell" + remainingCells + ".getKey();\n";
-		code = code + theValueCellSignature.replaceFirst(cellSignatureKey + ", ", "") + 
-				" cell" + remainingCells + "Val = cell" + remainingCells + ".getValue();\n";
-
-		code = code + "if ( query.filterCells[" + cellNo + "] ) {\n" +
-			"\tcell" + remainingCells + "Val.getMap( matchingCell" + cellNo + ", cellMin" + cellNo + ", cellMax" + cellNo + ", cell" + remainingCellsValueIndex + "L);\n" +
-			"} else {\n" + 
-			"\tcell" + remainingCells + "Val.sortedList = cell" + (remainingCellsValueIndex) + "L;\n" + 
-			"\tcell" + remainingCells + "Val.parseElements();\n" + 
-			"}\n" + 
-			"Iterator<Entry<" + theRemainingValueCellSignature + ">> cell" + 
-			(remainingCellsValueIndex) + "Itr = cell" + (remainingCellsValueIndex) + "L.entrySet().iterator();\n" ;  
-		
-		return code;
-	}
-	
 	public String generatematchingCell(List<Field> fields, int castType, boolean isFirst) throws Exception {
 		try {
 			int seq = -1;
@@ -350,7 +319,22 @@ public class CodePartGenerator {
 						  		break;
 				  		}
 				  		break;
-				  }
+				  	case 'a':
+				  		switch ( castType ) {
+				  			case 1:
+						  		text = text +  ("\t\t byte[] matchingCell" + seq + " = ( query.filterCells[" + seq + 
+						  				"] ) ? (byte[]) query.exactValCellsO[" + seq + "]: null;\n");
+						  		break;
+				  			case 2:
+						  		text = text +  ("\t\t byte[] cellMin" + seq + " = null;\n");
+						  		break;
+				  			case 3:
+						  		text = text +  ("\t\t byte[] cellMax" + seq + " = null;\n");
+						  		break;
+				  		}
+				  		break;
+
+				}
 		  	  }
 			
 			if(isFirst){
