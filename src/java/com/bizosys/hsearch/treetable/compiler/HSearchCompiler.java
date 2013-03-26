@@ -37,11 +37,17 @@ import com.google.gson.Gson;
 public class HSearchCompiler {
 	public static void main(String[] args) throws Exception{
 		
+		if ( args.length != 2) {
+			System.err.println("\n\n\nUsage : java -classpath gson-2.2.2.jar;hsearch-core.jar com.bizosys.hsearch.treetable.compiler.HSearchCompiler schema.json output_path\n\n\n");
+			return;
+		}
+		
 		Gson gson = new Gson();
-
 		String schemaStr = fileToString(args[0]);
+		
 		schemaStr = schemaStr.replace("\"indexes\": \"unstructured\"", 
-				fileToString("com/bizosys/hsearch/treetable/compiler/schema-search.txt" ) );
+				ReadFileFromJar.getTextFileContent(
+					"/com/bizosys/hsearch/treetable/compiler/schema-search.txt" ) );
 		
 		System.out.println(schemaStr);
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
@@ -108,7 +114,8 @@ public class HSearchCompiler {
 
 	public static String generateHSearchTable(String module, Field fldKey, Field fldValue,
 			String colName, List<Field> allFields) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTable.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+				"/com/bizosys/hsearch/treetable/compiler/templates/HSearchTable.tmp");
 		template = template.replace("--PACKAGE--", module);
 		
 		
@@ -199,7 +206,8 @@ public class HSearchCompiler {
 
 	public static String generateHSearchTableCell2(String module, Field fldKey, Field fldValue,
 			String colName, List<Field> allFields) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTableCell2.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/HSearchTableCell2.tmp");
 		template = template.replace("--PACKAGE--", module);
 		template = 	template.replace("--COLUMN-NAME--", colName );
 
@@ -231,7 +239,8 @@ public class HSearchCompiler {
 
 	
 	public static String generateMapper(String module, String colName, Field key, Field val, List<Field> allFields) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/Mapper.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/Mapper.tmp");
 
 		template = template.replace("--PACKAGE--", module);
 		template = 	template.replace("--COLUMN-NAME--", colName );
@@ -244,7 +253,8 @@ public class HSearchCompiler {
 	}	
 
 	public static String generatePluginBase(String module, String colName, Field key, Field val, List<Field> allFields) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/PluginBase.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/PluginBase.tmp");
 
 		template = template.replace("--PACKAGE--", module);
 		template = 	template.replace("--COLUMN-NAME--", colName );
@@ -272,7 +282,8 @@ public class HSearchCompiler {
 	}
 
 	public static String generateFilter(Schema schema) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/Filter.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/Filter.tmp");
 		template = template.replace("--PACKAGE--", schema.module);
 		
 		StringBuilder plugins = new StringBuilder(4096);
@@ -294,13 +305,15 @@ public class HSearchCompiler {
 	}
 
 	public static String generateClient(String module) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/Client.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/Client.tmp");
 		template = template.replace("--PACKAGE--", module);
 		return template;
 	}
 
 	public static String generateHBaseTableSchema(Schema schema) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HBaseTableSchema.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/HBaseTableSchema.tmp");
 		template = template.replace("--PACKAGE--", schema.module);
 		
 		StringBuilder families = new StringBuilder(4096);
@@ -329,7 +342,8 @@ public class HSearchCompiler {
 
 	
 	public static String generateHSearchTableCombinerImpl(Schema schema) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTableCombinerImpl.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/HSearchTableCombinerImpl.tmp");
 		template = template.replace("--PACKAGE--", schema.module);
 		
 		StringBuilder tables = new StringBuilder(4096);
@@ -343,19 +357,22 @@ public class HSearchCompiler {
 	}
 
 	public static String generateHSearchTableMultiQueryProcessorImpl(String module) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/HSearchTableMultiQueryProcessorImpl.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/HSearchTableMultiQueryProcessorImpl.tmp");
 		template = template.replace("--PACKAGE--", module);
 		return template;
 	}
 
 	public static String generateReducer(String module) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/Reducer.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/Reducer.tmp");
 		template = template.replace("--PACKAGE--", module);
 		return template;
 	}	
 	
 	public static String generateWebservice(String module) throws Exception {
-		String template = fileToString("com/bizosys/hsearch/treetable/compiler/templates/Webservice.tmp");
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/Webservice.tmp");
 		template = template.replace("--PACKAGE--", module);
 		return template;
 	}	

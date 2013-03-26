@@ -36,6 +36,6 @@ public class PartitionNumericTest extends TestCase {
 
 	public void testPartitionPoints() throws Exception {
 		PartitionNumeric part = new PartitionNumeric();
-		part.setPartitionsAndRange(colName, familyNames, ranges, partitionIndex)
+		//part.setPartitionsAndRange(colName, familyNames, ranges, partitionIndex)
 	}
 }
