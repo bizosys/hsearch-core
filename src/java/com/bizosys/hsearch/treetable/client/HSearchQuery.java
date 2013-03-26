@@ -54,6 +54,9 @@ public class HSearchQuery {
 	   * @param query
 	   */
 	public HSearchQuery(String query) throws ParseException {
+		
+		if ( DEBUG_ENABLED) HbaseLog.l.debug("HSearchQuery Query :" + query);
+		
 		if ( null == query) throw new ParseException("Query is null.", 0);
 		if ( query.length() == 0) throw new ParseException("Query is empty.", 0);
 
@@ -115,8 +118,10 @@ public class HSearchQuery {
 					  }
 			  	  }
 			  } catch (Exception ex) {
+				  String message = "HBase Filter Failure : Query = " +  this.query + "\n Cell:" + cellData + "\n" + ex.getMessage();
+				  System.err.println(message);
 				  ex.printStackTrace(System.err);
-				  throw new InvalidObjectException("HBase Filter Failure :" +  cellData + " > " + ex.getMessage());
+				  throw new InvalidObjectException(message);
 			  }
 	  }
 	  

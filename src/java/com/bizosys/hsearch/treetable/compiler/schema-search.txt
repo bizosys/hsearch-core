@@ -1,19 +1,19 @@
             "indexes": [
                 {
-                    "name": "hashcode",
-                    "datatype": "Integer"
-                },
-                {
-                    "name": "term",
-                    "datatype": "String"
-                },
-                {
                     "name": "doctype",
                     "datatype": "Short"
                 },
                 {
                     "name": "wordtype",
                     "datatype": "Short"
+                },
+                {
+                    "name": "hashcode",
+                    "datatype": "Integer"
+                },
+                {
+                    "name": "term",
+                    "datatype": "String"
                 }
             ],
             

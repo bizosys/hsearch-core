@@ -11,9 +11,9 @@ import com.bizosys.hsearch.treetable.client.HSearchQuery;
 
 public class PartitionByFirstLetter implements IPartition<String> {
 	
-	public static class NumericRange {
+	public static class TextRange {
 		
-		public NumericRange(char start, char end, String ext) {
+		public TextRange(char start, char end, String ext) {
 			this.ext = ext;
 			this.start = start;
 			this.end = end;
@@ -27,7 +27,7 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	String colName = "";
 	int partitionIndex = -1;
 	List<String> partitions = new ArrayList<String>();
-	List<NumericRange> ranges = new ArrayList<NumericRange>();
+	List<TextRange> ranges = new ArrayList<TextRange>();
 	
 
 	@Override
@@ -39,7 +39,7 @@ public class PartitionByFirstLetter implements IPartition<String> {
 			partitions.add(tokenFamily.nextToken()); 
 		}
 
-		List<NumericRange> rangePartitions = new ArrayList<NumericRange>();
+		List<TextRange> rangePartitions = new ArrayList<TextRange>();
 		
 		StringTokenizer rangeTokens = new StringTokenizer(ranges,",");
 		if ( rangeTokens.countTokens() != partitions.size() ) {
@@ -69,7 +69,7 @@ public class PartitionByFirstLetter implements IPartition<String> {
 			
 			char rangeL = ( "*".equals(rangeLStr) )  ? 'a' : rangeLStr.charAt(0);
 			char rangeR = ( "*".equals(rangeRStr) )  ? 'z' : rangeRStr.charAt(0);
-			rangePartitions.add(new NumericRange(rangeL, rangeR, familiesItr.next())); 
+			rangePartitions.add(new TextRange(rangeL, rangeR, familiesItr.next())); 
 		}
 		this.partitionIndex = partitionIndex;
 	}
@@ -77,8 +77,13 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	@Override
 	public void getMatchingFamilies(HSearchQuery query, Set<String> uniqueFamilies) throws IOException {
 
-		Object exact = query.exactValCellsO[this.partitionIndex];
-		uniqueFamilies.add(getColumnFamily(exact.toString()));
+		if ( -1 == this.partitionIndex) throw new IOException("Partition Index is not set in the schema.");
+		Object keyword = query.exactValCells[this.partitionIndex];
+		if ( null == keyword) return;
+	
+		String keywordStr = keyword.toString();
+		String familyName = getColumnFamily(keywordStr);
+		uniqueFamilies.add(familyName);
 	}
 	
 	
@@ -93,7 +98,7 @@ public class PartitionByFirstLetter implements IPartition<String> {
 		 */
 		char startValFirst = startVal.charAt(0);
 		char endValFirst = endVal.charAt(0);
-		for (NumericRange aRange : ranges) {
+		for (TextRange aRange : ranges) {
 			
 			if ( isStart ) {
 				if ( aRange.start >= endValFirst) break;
@@ -114,9 +119,11 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	@Override
 	public String getColumnFamily(String exactVal) throws IOException  {
 
+		if ( ranges.size() == 0 ) return colName;
+		
 		char exactValFirst = exactVal.charAt(0);
 		
-		for (NumericRange aRange : ranges) {
+		for (TextRange aRange : ranges) {
 			if ( aRange.start <= exactValFirst && aRange.end > exactValFirst)
 					return colName + "_" + aRange.ext;
 		}

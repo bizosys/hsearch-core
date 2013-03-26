@@ -21,6 +21,7 @@ import com.bizosys.hsearch.byteutils.SortedBytesString;
 import --PACKAGE--.*;
 
 --IMPORT-CELLS--
+import com.bizosys.hsearch.treetable.BytesSection;
 import com.bizosys.hsearch.treetable.Cell2Visitor;
 import com.bizosys.hsearch.treetable.CellBase;
 
@@ -74,7 +75,6 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		@Override
 		public Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> put(--VAL-PARENT-DATATYPE-- key, Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> value) {
 			
-			if (DEBUG_ENABLED) System.out.println("Cell2 - " + key.intValue());
 			try {
 				cell2Visitor.cell2Key = key;
 				Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> cell2Val = value;

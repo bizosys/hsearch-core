@@ -176,7 +176,7 @@ public abstract class HSearchGenericFilter implements Filter {
 						
 
 						if ( DEBUG_ENABLED ) {
-							HbaseLog.l.debug("HBase Region Server: Query Payload" +  line);
+							HbaseLog.l.debug("HBase Region Server: Query Payload " +  line);
 						}
 						break;
 				}

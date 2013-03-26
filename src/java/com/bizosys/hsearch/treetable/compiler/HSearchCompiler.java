@@ -43,6 +43,7 @@ public class HSearchCompiler {
 		schemaStr = schemaStr.replace("\"indexes\": \"unstructured\"", 
 				fileToString("com/bizosys/hsearch/treetable/compiler/schema-search.txt" ) );
 		
+		System.out.println(schemaStr);
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
 		String path = args[1] + "/" + newSchema.module.replace(".", "/");
 		

@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.treetable.compiler.Schema.Field;
 
 public class CodePartGenerator {
@@ -362,34 +361,59 @@ public class CodePartGenerator {
 		
 		int remainingCells = fields.size() - cellNo;
 		int remainingCellsValueIndex = remainingCells - 1;
+		
 		String cellSignatureKey = fields.get(cellNo - 1).datatype;
 		if ( cellSignatureKey.equals("Short")) cellSignatureKey = "Integer";
+		
 		String theValueCellSignature = cellSignatures.get(new Integer(remainingCells).toString());
 		theValueCellSignature = theValueCellSignature.replace("Short", "Integer");
+
+		String parentKeySignature = fields.get(cellNo).datatype;
+		if ( parentKeySignature.equals("Short")) parentKeySignature = "Integer";
+		
 		
 		String theRemainingValueCellSignature = cellSignatures.get(new Integer(remainingCellsValueIndex).toString());
 		theRemainingValueCellSignature = theRemainingValueCellSignature.replace("Short", "Integer");
 	
 		StringBuilder code = new StringBuilder();
-		code.append("public static final class Cell"+remainingCells+"Map\n\t\t extends EmptyMap<"+theValueCellSignature+"> {\n\n");
+		code.append("public static final class Cell" + remainingCells
+				+ "Map\n\t\t extends EmptyMap<" + theValueCellSignature
+				+ "> {\n\n");
 		code.append("\tpublic HSearchQuery query;\n\tpublic Cell2FilterVisitor cell2Visitor;\n");
-		code.append("\tpublic Integer matchingCell"+cellNo+";\n\tpublic Integer cellMin"+cellNo+"; \n\tpublic Integer cellMax"+cellNo+";\n");
-		code.append("\tpublic Map<"+theRemainingValueCellSignature+"> cell"+remainingCellsValueIndex+"L = null;\n\n");
-		code.append("\tpublic Cell"+remainingCells+"Map(HSearchQuery query, Cell2FilterVisitor cell2Visitor"+getParams(fields,cellNo,true)+") {");
+		
+		code.append("\tpublic " + parentKeySignature + " matchingCell" + cellNo
+				+ ";\n\tpublic " + parentKeySignature + " cellMin" + cellNo
+				+ "; \n\tpublic " + parentKeySignature + " cellMax" + cellNo + ";\n");
+		code.append("\tpublic Map<" + theRemainingValueCellSignature + "> cell"
+				+ remainingCellsValueIndex + "L = null;\n\n");
+		code.append("\tpublic Cell" + remainingCells
+				+ "Map(HSearchQuery query, Cell2FilterVisitor cell2Visitor"
+				+ getParams(fields, cellNo, true) + ") {");
 		code.append("\n\t\tthis.query = query; \n\t\tthis.cell2Visitor = cell2Visitor;");
-		code.append("\n\t\tthis.matchingCell"+cellNo+" = matchingCell"+cellNo+";\n\t\tthis.cellMin"+cellNo+" = cellMin"+cellNo+";\n\t\tthis.cellMax"+cellNo+" = cellMax"+cellNo+";");
-		code.append("\n\t\tthis.cell"+remainingCellsValueIndex+"L = new Cell"+remainingCellsValueIndex+"Map(query, cell2Visitor"+getParams(fields, cellNo + 1, false)+");\n\t}");
+		code.append("\n\t\tthis.matchingCell" + cellNo + " = matchingCell"
+				+ cellNo + ";\n\t\tthis.cellMin" + cellNo + " = cellMin"
+				+ cellNo + ";\n\t\tthis.cellMax" + cellNo + " = cellMax"
+				+ cellNo + ";");
+		code.append("\n\t\tthis.cell" + remainingCellsValueIndex
+				+ "L = new Cell" + remainingCellsValueIndex
+				+ "Map(query, cell2Visitor"
+				+ getParams(fields, cellNo + 1, false) + ");\n\t}");
 		code.append("\n\t@Override\n");
 
 		String completeCellSign = theValueCellSignature;
 		String currentCellSign = completeCellSign.replaceFirst(cellSignatureKey + ", ", ""); 
 
-		code.append("\tpublic "+currentCellSign+" put("+cellSignatureKey+" key, "+currentCellSign+" value) {");
-		code.append("\n\t\tif (DEBUG_ENABLED) System.out.println(\"Cell"+remainingCells+" - \" + key.byteValue());");
-		code.append("\n\ttry {\n\t\tcell2Visitor.cell"+remainingCells+"Key = key;");
-		code.append("\n\t\tif (query.filterCells["+cellNo+"]) {");
-		code.append("\n\t\t\tvalue.getMap(matchingCell"+cellNo+", cellMin"+cellNo+", cellMax"+cellNo+", cell"+remainingCellsValueIndex+"L);");
-		code.append("\n\t\t } else {\n\t\t\tvalue.sortedList = cell"+remainingCellsValueIndex+"L;\n\t\t\tvalue.parseElements();\n\t\t}\n\t\treturn value;");
+		code.append("\tpublic " + currentCellSign + " put(" + cellSignatureKey
+				+ " key, " + currentCellSign + " value) {");
+		code.append("\n\ttry {\n\t\tcell2Visitor.cell" + remainingCells
+				+ "Key = key;");
+		code.append("\n\t\tif (query.filterCells[" + cellNo + "]) {");
+		code.append("\n\t\t\tvalue.getMap(matchingCell" + cellNo + ", cellMin"
+				+ cellNo + ", cellMax" + cellNo + ", cell"
+				+ remainingCellsValueIndex + "L);");
+		code.append("\n\t\t } else {\n\t\t\tvalue.sortedList = cell"
+				+ remainingCellsValueIndex
+				+ "L;\n\t\t\tvalue.parseElements();\n\t\t}\n\t\treturn value;");
 		code.append("\n\t\t} catch (IOException e) {\n\t\t\tthrow new IndexOutOfBoundsException(e.getMessage());\n\t\t}\n\t}\n}\n\n\n");
 		
 		return code.toString();

@@ -78,6 +78,40 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		}
 		return outputBytes;
 	}
+	
+	public final byte[] toBytes(final byte[] ... sortedCollection) throws IOException {
+
+		//Total collection size, element start location, End Location
+		byte[] headerBytes = new byte[4 + sortedCollection.length * 4 + 4] ;
+		System.arraycopy(Storable.putInt(sortedCollection.length), 0, headerBytes, 0, 4);
+		int offset = 4;  //4 is added for array size
+		
+		int outputBytesLen = 0;
+		for (byte[] bytes : sortedCollection) {
+
+			//Populate header
+			System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, offset, 4);
+			offset = offset + 4;
+			
+			//Calculate Next Chunk length
+			int bytesLen = bytes.length;
+			outputBytesLen = outputBytesLen + bytesLen ;
+			
+		}
+		System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, offset, 4);
+		
+		outputBytesLen = outputBytesLen + headerBytes.length; 
+		byte[] outputBytes = new byte[outputBytesLen];
+		System.arraycopy(headerBytes, 0, outputBytes, 0, headerBytes.length);
+		offset = headerBytes.length;
+		
+		for (byte[] bytes : sortedCollection) {
+			int byteSize = bytes.length;
+			System.arraycopy(bytes, 0, outputBytes, offset, byteSize);
+			offset = offset + byteSize;
+		}
+		return outputBytes;
+	}	
 
 	@Override
 	public final void addAll(final Collection<byte[]> vals) throws IOException {
