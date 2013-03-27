@@ -188,6 +188,12 @@ public abstract class HSearchGenericFilter implements Filter {
 		}
 	}
 	
+	/**
+	 * TODO: 
+	 * If we have a query as FieldA OR FieldB
+	 * FieldA, tableparts should only contain byte[] of family FieldA_*
+	 * and FieldB byte[] of family FieldB_*
+	 */
 	@Override
 	public void filterRow(List<KeyValue> kvL) {
 		if ( null == kvL) return;
@@ -368,14 +374,15 @@ public abstract class HSearchGenericFilter implements Filter {
 			HbaseLog.l.debug("HSearchGenericFilter:serialize : with matchedIds " +  matchedIdsT);
 		}
 		
-		//Collect data from the independent plugins
-		
+		/**
+		 * - Iterate through all the parts and find the values.
+		 * - Collect the data for multiple queries
+		 */
+		HSearchReducer reducer = getReducer();
+		int totalQueries = queryPayload.values().size();
+
 		Collection<byte[]> merged = new ArrayList<byte[]>();
 		Collection<byte[]> append = new ArrayList<byte[]>(1);
-		
-		HSearchReducer reducer = getReducer();
-		
-		int totalQueries = queryPayload.values().size();
 		
 		for (QueryPart part : queryPayload.values()) {
 			Object pluginO = part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
@@ -384,11 +391,8 @@ public abstract class HSearchGenericFilter implements Filter {
 			if ( totalQueries == 1) {
 				plugin.getResultSingleQuery(merged);
 			} else {
-				//Merge the data
-				plugin.getResultMultiQuery(matchedIds, merged);
-				if ( null != reducer) {
-					reducer.appendCols(merged, append);
-				}
+				plugin.getResultMultiQuery(matchedIds, append);
+				if ( null != reducer) reducer.appendCols(merged, append);
 				append.clear();
 			}
 		}
