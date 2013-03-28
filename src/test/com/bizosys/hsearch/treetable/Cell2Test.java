@@ -26,7 +26,7 @@ import com.oneline.ferrari.TestAll;
 public class Cell2Test extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+		public static String mode = modes[2];  
 		
 		public static void main(String[] args) throws Exception {
 			Cell2Test t = new Cell2Test();
@@ -38,7 +38,7 @@ public class Cell2Test extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testCallbackFiltering();
+				t.toBytesOnSortedDataWithMapTest();
 				t.tearDown();
 			}
 		}
@@ -602,6 +602,24 @@ public class Cell2Test extends TestCase {
 			for (Boolean bs : foundValues) {
 				System.out.println(bs);
 			}
+		}
+		
+		public void toBytesOnSortedDataWithMapTest() throws Exception  {
+			Map<String, String> cellL = new HashMap<String, String>();
+			for ( int i=0; i< 100; i++) {
+				cellL.put("key" + i, "value" + i);
+			}
+			Cell2<String, String> cellMap = new Cell2<String, String>(
+				SortedBytesString.getInstance(), SortedBytesString.getInstance() );
+			byte[] ser = cellMap.toBytesOnSortedData(cellL);
+			
+			Map<String, String> deserL = new HashMap<String, String>();
+			
+			new Cell2<String, String>(
+					SortedBytesString.getInstance(), SortedBytesString.getInstance(), ser ).
+					populate(deserL);
+			System.out.println(deserL.toString());
+			
 		}
 		
 		

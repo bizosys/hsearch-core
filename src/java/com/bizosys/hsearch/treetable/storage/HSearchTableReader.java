@@ -39,6 +39,7 @@ import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 public abstract class HSearchTableReader implements IScanCallBack {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
 	
 	//public static ParallelHReader parallelReader = new ParallelHReader(10);
 	
@@ -91,7 +92,7 @@ public abstract class HSearchTableReader implements IScanCallBack {
 
 		List<ColumnFamName> families = new ArrayList<ColumnFamName>();
 		for (String  family : uniqueFamilies) {
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableReader > Adding Family: " + family);
+			if ( INFO_ENABLED ) HbaseLog.l.info("HSearchTableReader > Adding Family: " + family);
 			families.add(new ColumnFamName(family.getBytes(), HBaseTableSchemaDefn.COL_NAME_BYTES));
 		}
 	

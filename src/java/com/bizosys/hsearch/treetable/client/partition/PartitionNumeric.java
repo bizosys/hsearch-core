@@ -78,13 +78,12 @@ public class PartitionNumeric implements IPartition<Double> {
 	public void getMatchingFamilies(HSearchQuery query, Set<String> uniqueFamilies) throws IOException {
 		
 		if ( query.filterCells[this.partitionIndex]) {
-			if ( null == query.exactValCellsO) {
+			if ( null == query.exactValCells[this.partitionIndex]) {
 				double min = query.minValCells[this.partitionIndex];
 				double max = query.maxValCells[this.partitionIndex];
 				getColumnFamilies(min, max, uniqueFamilies);
 			} else {
-				Object exact = query.exactValCellsO[this.partitionIndex];
-				uniqueFamilies.add(getColumnFamily(new Double(exact.toString()) ));
+				uniqueFamilies.add(getColumnFamily(new Double(query.exactValCells[this.partitionIndex]) ));
 			}
 		} else {
 			getColumnFamilies(HSearchQuery.DOUBLE_MIN_VALUE, HSearchQuery.DOUBLE_MAX_VALUE, uniqueFamilies);
@@ -121,8 +120,13 @@ public class PartitionNumeric implements IPartition<Double> {
 
 		}
 		
-		if ( !isStart ) 
-			throw new IOException("No matching columns found for value = " + startVal + ":" + endVal +"\n" + families.toString());
+		if ( !isStart ) {
+			System.err.println("Start is not found. Adding All : " + startVal + "\t-\t" + endVal);
+			for (NumericRange aRange : rangeL) {
+				families.add(colName + "_" + aRange.ext);
+			}
+		}
+		//throw new IOException("No matching columns found for value = " + startVal + ":" + endVal +"\n" + families.toString());
 
 	}
 	
@@ -131,10 +135,14 @@ public class PartitionNumeric implements IPartition<Double> {
 
 		if ( rangeL.size() == 0 ) return colName;
 		
+		NumericRange lastRange = null;
 		for (NumericRange aRange : rangeL) {
 			if ( aRange.start <= exactVal && aRange.end > exactVal)
 					return colName + "_" + aRange.ext;
+			lastRange = aRange;
 		}
+		
+		if ( lastRange.end == exactVal) return colName + "_" + lastRange.ext;
 		
 		throw new IOException("No matching columns found for value :" + exactVal);
 	}

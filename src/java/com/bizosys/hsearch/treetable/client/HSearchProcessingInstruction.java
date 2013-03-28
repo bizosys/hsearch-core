@@ -127,6 +127,7 @@ public class HSearchProcessingInstruction {
 	public static void main(String[] args) throws ParseException {
 		FunctionExpr count = new FunctionExpr(1, FunctionRepos.COUNT);
 		FunctionExpr min = new FunctionExpr(21, FunctionRepos.COUNT);
+
 		HSearchProcessingInstruction o = 
 			new HSearchProcessingInstruction(PLUGIN_CALLBACK_COLS, OUTPUT_COLS, 
 				new FunctionExpr[]{count, min});

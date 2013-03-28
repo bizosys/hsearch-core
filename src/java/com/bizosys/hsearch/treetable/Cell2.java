@@ -168,6 +168,11 @@ public class Cell2<K1, V> {
 	public void populate(Map<K1,V> map) throws IOException {
 		ISortedByte<byte[]> kvB = SortedBytesArray.getInstance().parse(data.data, data.offset, data.length);
 		
+		if ( kvB.getSize() == 0 ) {
+			System.err.println("Null Values to pipulate in Cell2");
+			return;
+		}
+		
 		byte[] allKeysB = kvB.getValueAt(0);
 		if ( null == allKeysB ) return;
 
@@ -206,6 +211,23 @@ public class Cell2<K1, V> {
 		bytesElems.clear();
 		return cellB;
 	}
+	
+	public byte[] toBytesOnSortedData(Map<K1, V> customMap) throws IOException {
+
+		if ( null == customMap) return null;
+		if ( customMap.size() == 0 ) return null;
+		
+		Collection<K1> keys = customMap.keySet();
+		Collection<V> values = customMap.values();
+		
+		List<byte[]> bytesElems = new ArrayList<byte[]>();
+		bytesElems.add(k1Sorter.toBytes(keys)); 
+		bytesElems.add(vSorter.toBytes(values));
+		
+		byte[] cellB = SortedBytesArray.getInstance().toBytes(bytesElems);
+		bytesElems.clear();
+		return cellB;
+	}	
 	
 	public byte[] toBytes(V minValue, V maximumValue, boolean leftInclusize, boolean rightInclusize, Comparator<V> vComp) throws IOException {
 		
