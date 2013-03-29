@@ -13,7 +13,7 @@ import com.oneline.ferrari.TestAll;
 public class SearchTester extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-	public static String mode = modes[2];  
+	public static String mode = modes[1];  
 	
 	public static void main(String[] args) throws Exception {
 		SearchTester t = new SearchTester();
@@ -25,7 +25,7 @@ public class SearchTester extends TestCase {
 	        
 		} else if  ( modes[2].equals(mode) ) {
 			t.setUp();
-			t.threeQuery3PartTest();
+			t.threeQuery3PartMultiOrTest();
 			t.tearDown();
 		}
 	}
@@ -222,78 +222,9 @@ public class SearchTester extends TestCase {
             assertEquals("[10, 5]", ht.finalOutput.keySet().toString());
 
             System.out.println(ht.finalOutput.values().toString());
-            assertTrue( ht.finalOutput.values().toString().matches(".+0\\1.0,.+0\\0.5\\]"));
+            assertTrue( ht.finalOutput.values().toString().matches("\\[.+\\|10\\|1\\.0, .+\\|5\\|0\\.5\\]"));
     	}
-    	if ( 1 == 1 ) return;
 
-    	//Middle partition start
-    	{
-    		ht.finalOutput.clear();
-        	Map<String, String> multiQueryParts = new HashMap<String, String>();
-            multiQueryParts.put("ExamResult:1", "*|*|*|*|4");
-            ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[40]", ht.finalOutput.keySet().toString());
-            assertTrue(ht.finalOutput.values().toString().endsWith("|4.0]"));
-    	}
-    	
-    	//Middle partition middle
-    	{
-    		ht.finalOutput.clear();
-        	Map<String, String> multiQueryParts = new HashMap<String, String>();
-            multiQueryParts.put("ExamResult:1", "*|*|*|*|4.5");
-            ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[45]", ht.finalOutput.keySet().toString());
-            assertTrue(ht.finalOutput.values().toString().endsWith("|4.5]"));
-    	}
-    	
-    	//Middle partition ends
-    	{
-    		ht.finalOutput.clear();
-        	Map<String, String> multiQueryParts = new HashMap<String, String>();
-            multiQueryParts.put("ExamResult:1", "*|*|*|*|5");
-            ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[50]", ht.finalOutput.keySet().toString());
-            assertTrue(ht.finalOutput.values().toString().endsWith("|5.0]"));
-    	}    	
-
-    	//End partition start
-    	{
-    		ht.finalOutput.clear();
-        	Map<String, String> multiQueryParts = new HashMap<String, String>();
-            multiQueryParts.put("ExamResult:1", "*|*|*|*|9");
-            ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[90]", ht.finalOutput.keySet().toString());
-            assertTrue(ht.finalOutput.values().toString().endsWith("|9.0]"));
-    	}
-    	
-    	//Middle partition middle
-    	{
-    		ht.finalOutput.clear();
-        	Map<String, String> multiQueryParts = new HashMap<String, String>();
-            multiQueryParts.put("ExamResult:1", "*|*|*|*|9.5");
-            ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[95]", ht.finalOutput.keySet().toString());
-            assertTrue(ht.finalOutput.values().toString().endsWith("|9.5]"));
-    	}
-    	
-    	//Middle partition ends
-    	{
-    		ht.finalOutput.clear();
-        	Map<String, String> multiQueryParts = new HashMap<String, String>();
-            multiQueryParts.put("ExamResult:1", "*|*|*|*|10");
-            ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[100]", ht.finalOutput.keySet().toString());
-            assertTrue(ht.finalOutput.values().toString().endsWith("|10.0]"));
-    	}      	
-    	
-    	//Beyond partition ends
-    	{
-    		ht.finalOutput.clear();
-        	Map<String, String> multiQueryParts = new HashMap<String, String>();
-            multiQueryParts.put("ExamResult:1", "*|*|*|*|11");
-            ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals(0, ht.finalOutput.size());
-    	}      	    			
 	}
 
 	public void twoQuery2PartTest() throws Exception {
@@ -307,20 +238,22 @@ public class SearchTester extends TestCase {
 
 	public void threeQuery2PartTest() throws Exception {
 	}
+	
+	public void threeQuery3PartMultiOrTest() throws Exception {
+		Client ht = new Client();
+		
+  		ht.finalOutput.clear();
+    	Map<String, String> multiQueryParts = new HashMap<String, String>();
+        multiQueryParts.put("ExamResult:1", "*|*|*|*|0");
+        multiQueryParts.put("ExamResult:2", "*|*|*|*|0.6");
+        multiQueryParts.put("ExamResult:3", "*|*|*|*|10.0");
+        ht.execute("ExamResult:1 OR ExamResult:2 OR ExamResult:3", multiQueryParts);
+        System.out.println(ht.finalOutput.toString());
+	}
 
 	public void threeQuery3PartTest() throws Exception {
 		Client ht = new Client();
 		
-		{
-	  		ht.finalOutput.clear();
-	    	Map<String, String> multiQueryParts = new HashMap<String, String>();
-	        multiQueryParts.put("ExamResult:1", "*|*|*|*|0");
-	        multiQueryParts.put("ExamResult:2", "*|*|*|*|0.6");
-	        multiQueryParts.put("ExamResult:3", "*|*|*|*|10.0");
-	        ht.execute("ExamResult:1 OR ExamResult:2 OR ExamResult:3", multiQueryParts);
-	        System.out.println(ht.finalOutput.toString());
-		}
-        
 		{
 	  		ht.finalOutput.clear();
 	    	Map<String, String> multiQueryParts = new HashMap<String, String>();

@@ -19,8 +19,8 @@
 */
 package com.bizosys.hsearch.treetable.client;
 
-import com.bizosys.hsearch.federate.FederatedFacade;
+import com.bizosys.hsearch.federate.FederatedSearch;
 
 public interface IHSearchTableMultiQueryProcessor {
-	FederatedFacade<String, String> getProcessor();
+	FederatedSearch getProcessor();
 }

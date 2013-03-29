@@ -118,7 +118,7 @@
 	<classpathentry kind="lib" path="/hsearch-hbase/hbase-cdh4/lib/snappy-java-1.0.4.1.jar"/>
 	<classpathentry kind="lib" path="/hsearch-hbase/hbase-cdh4/lib/stax-api-1.0.1.jar"/>
 	<classpathentry kind="lib" path="/hsearch-hbase/hbase-cdh4/lib/xmlenc-0.52.jar"/>
-	<classpathentry kind="lib" path="lib/hsearch-federated_1.2.jar"/>
-	<classpathentry kind="lib" path="lib/src-hsearch-federated_1.2.jar"/>
+	<classpathentry kind="lib" path="lib/hsearch-federated.jar"/>
+	<classpathentry kind="lib" path="lib/src-hsearch-federated.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

@@ -1,15 +1,16 @@
 package com.bizosys.hsearch.treetable.storage.sampleImpl;
 
-import java.awt.List;
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.jasper.tagplugins.jstl.core.ForEach;
+import org.junit.internal.matchers.Each;
+
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
-import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
+import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.treetable.BytesSection;
 import com.bizosys.hsearch.treetable.Cell2;
@@ -43,20 +44,28 @@ public class Client extends HSearchTableReader {
 
             for (Map.Entry<byte[], byte[]> entry : results.entrySet()) {
             	
+            	//This is the complete data of a coprocessor output.
             	byte[] data = entry.getValue();
-            	SortedBytesArray arr = SortedBytesArray.getInstanceArr();
-            	arr.parse(data);
             	
-            	int size = arr.getSize();
-            	SortedBytesArray.Reference ref = new SortedBytesArray.Reference();
-            	for ( int i=0; i<size; i++) {
-            		arr.getValueAtReference(i,ref);
-                	Cell2<String, String> cell2 = new Cell2<String, String>(
-                		SortedBytesString.getInstance(), SortedBytesString.getInstance(),
-                		new BytesSection(data, ref.offset, ref.length));
+	           	SortedBytesArray arr = SortedBytesArray.getInstanceArr();
+	        	arr.parse(data);
+	        	
+	        	int size = arr.getSize();
+	        	SortedBytesArray.Reference ref = new SortedBytesArray.Reference();
+	        	
+	        	for ( int i=0; i<size; i++) {
+	        		arr.getValueAtReference(i,ref);
+	        		
+	            	Cell2<Integer, String> cell2 = new Cell2<Integer, String>(
+	                		SortedBytesInteger.getInstance(), SortedBytesString.getInstance(),
+	                		new BytesSection(data, ref.offset, ref.length));
+	            	
+	            	List<CellKeyValue<Integer, String>> kvL = cell2.getMap();
+	            	for (CellKeyValue<Integer, String> cell : kvL) {
+	            		finalOutput.put(cell.key.toString(), cell.value);
+					}
+	        	}	            	
 
-                	cell2.populate(finalOutput);
-            	}
             }
 
         } catch (IOException ex) {

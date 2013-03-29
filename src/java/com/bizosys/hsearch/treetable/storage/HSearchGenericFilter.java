@@ -34,13 +34,12 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
-import com.bizosys.hsearch.federate.FederatedFacade;
+import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.functions.HSearchReducer;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
-import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryProcessor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.L;
@@ -268,15 +267,12 @@ public abstract class HSearchGenericFilter implements Filter {
 			colNamesWithPartitionBytes = null;
 
 			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchGenericFilter: Filteration Starts");
-			List<FederatedFacade<String, String>.IRowId> intersectedIds = 
-				federatedQueryExec(row, intersector, queryData);
+			BitSetOrSet intersectedIds = federatedQueryExec(row, intersector, queryData);
 			
 			kvL.clear(); //Clear all data
 			byte[] value = serialize(intersectedIds, this.queryPayload);
 			kvL.add(new KeyValue(row, firstFamily, firstCol, value) );
 			
-			if ( null != HSearchTableMultiQueryProcessor.processor) 
-				HSearchTableMultiQueryProcessor.processor.objectFactory.putprimaryKeyRowId(intersectedIds);
 			
 		} catch (Exception ex) {
 			ex.printStackTrace(System.err);
@@ -286,13 +282,13 @@ public abstract class HSearchGenericFilter implements Filter {
 		}
 	}
 
-	private List<FederatedFacade<String, String>.IRowId> federatedQueryExec(byte[] row,
+	private BitSetOrSet federatedQueryExec(byte[] row,
 			HSearchTableMultiQueryExecutor intersector,
 			Map<String, HSearchTableParts> queryData) throws Exception,
 			IOException {
 		
-		List<FederatedFacade<String, String>.IRowId> intersectedIds = null;
-		intersectedIds = intersector.execute(queryData, this.multiQuery, this.queryPayload, processingInstructions);
+		BitSetOrSet intersectedIds = intersector.execute(
+			queryData, this.multiQuery, this.queryPayload, processingInstructions);
 
 		hasMatchingIds = ( null != intersectedIds && intersectedIds.size() > 0 );
 
@@ -367,8 +363,8 @@ public abstract class HSearchGenericFilter implements Filter {
 	 * @return
 	 * @throws IOException
 	 */
-	public byte[] serialize( List<FederatedFacade<String, String>.IRowId> matchedIds, 
-		Map<String, QueryPart> queryPayload) throws IOException {
+	public byte[] serialize( BitSetOrSet matchedIds, Map<String, QueryPart> queryPayload) throws IOException {
+		
 		if ( DEBUG_ENABLED ) {
 			int matchedIdsT = ( null == matchedIds) ? 0 : matchedIds.size();
 			HbaseLog.l.debug("HSearchGenericFilter:serialize : with matchedIds " +  matchedIdsT);

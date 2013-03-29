@@ -116,6 +116,8 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	@Override
 	public final void addAll(final Collection<byte[]> vals) throws IOException {
 		
+		if ( null == inputBytes) return;
+		
 		byte[] inputBytes = this.inputBytes;
 		int readOffset = this.offset;
 		

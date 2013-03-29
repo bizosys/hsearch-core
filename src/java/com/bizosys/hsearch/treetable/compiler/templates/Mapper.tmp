@@ -5,8 +5,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.bizosys.hsearch.byteutils.Storable;
-import com.bizosys.hsearch.federate.FederatedFacade;
+import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
+
 import --PACKAGE--.donotmodify.Plugin--COLUMN-NAME--Base;
 
 public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
@@ -48,9 +49,12 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
     /**
      * For multi queries, we need to provide matching documents for 
      * intersection. For sinle query this is having no usage and can be passed null to save computing.
+     *     	BitSetOrSet sets = new BitSetOrSet();  sets.setDocumentIds(this.rows.keySet());
+     *      OR,
+     *      Set Document Positions. 
      */
     @Override
-    public Collection<String> getUniqueMatchingDocumentIds() throws IOException {
+    public BitSetOrSet getUniqueMatchingDocumentIds() throws IOException {
         return null;
     }
 
@@ -65,8 +69,7 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
      * Collects the results for rows level aggregation.
      */
     @Override
-    public void getResultMultiQuery(List<FederatedFacade<String, String>.IRowId> matchedIds,
-            Collection<byte[]> container) throws IOException {
+    public void getResultMultiQuery(BitSetOrSet matchedIds, Collection<byte[]> container) throws IOException {
     }
 
     /**

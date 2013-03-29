@@ -9,8 +9,9 @@ public class Reducer implements HSearchReducer {
     @Override
     public void appendCols(Collection<byte[]> mergedB, Collection<byte[]> appendB) {
 
-    	System.out.println("appendCols");
         if (null == appendB) return;
+
+        System.out.println("appendCols :" + mergedB.size() + ":" + appendB.size() );
         if (appendB.size() == 0) return;
 
         for (byte[] bs : appendB) {
@@ -21,8 +22,9 @@ public class Reducer implements HSearchReducer {
 
     @Override
     public void appendRows(Collection<byte[]> mergedB, Collection<byte[]> appendB) {
-    	System.out.println("appendRows");
         if (null == appendB) return;
+
+    	System.out.println("appendRows : " + mergedB.size() + ":" + appendB.size());
         if (appendB.size() == 0) return;
 
         mergedB.addAll(appendB);

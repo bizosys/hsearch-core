@@ -21,6 +21,7 @@ import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesShort;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.byteutils.Storable;
+import com.bizosys.hsearch.hbase.HbaseLog;
 import com.oneline.ferrari.TestAll;
 
 public class Cell2Test extends TestCase {
@@ -38,7 +39,7 @@ public class Cell2Test extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.toBytesOnSortedDataWithMapTest();
+				t.testMultiRow();
 				t.tearDown();
 			}
 		}
@@ -51,6 +52,53 @@ public class Cell2Test extends TestCase {
 		protected void tearDown() throws Exception {
 		}
 		
+		public void testOneRow() throws Exception {
+	    	Cell2<Integer, String> ser = new Cell2<Integer, String>(
+	        		SortedBytesInteger.getInstance(), SortedBytesString.getInstance());
+	    	ser.add(100, "AAAAAAAAAA");
+
+	    	Cell2<Integer, String> deser = new Cell2<Integer, String>(
+	        		SortedBytesInteger.getInstance(), SortedBytesString.getInstance(),
+	        		ser.toBytesOnSortedData());
+	    	HashMap<Integer, String> out = new HashMap<Integer, String>();
+	    	deser.populate(out);
+	    	System.out.println(out.toString());
+		}
+		
+		public void testMultiRow() throws Exception {
+	    	
+			List<byte[]> merged = new ArrayList<byte[]>();
+			for ( int i=0; i<3; i++ ) {
+				Cell2<Integer, String> ser = new Cell2<Integer, String>(
+		        		SortedBytesInteger.getInstance(), SortedBytesString.getInstance());
+		    	ser.add(100, "AAAAAAAAAA");
+		    	merged.add(ser.toBytesOnSortedData());
+			}
+			
+			SortedBytesArray sbaSet = SortedBytesArray.getInstanceArr();
+			byte[] mergedData = sbaSet.toBytes(merged);
+			
+			////
+			
+			SortedBytesArray sbaDeser = SortedBytesArray.getInstanceArr();
+			sbaDeser.parse(mergedData);
+			int size = sbaDeser.getSize();
+			System.out.println(size);
+			
+        	SortedBytesArray.Reference ref = new SortedBytesArray.Reference();
+        	
+        	for ( int i=0; i<size; i++) {
+        		sbaDeser.getValueAtReference(i,ref);
+            	Cell2<Integer, String> cell2 = new Cell2<Integer, String>(
+            		SortedBytesInteger.getInstance(), SortedBytesString.getInstance(),
+            		new BytesSection(mergedData, ref.offset, ref.length));
+            	Map<Integer, String> elems = new HashMap<Integer, String>();
+            	cell2.populate(elems);
+            	System.out.println("Cell2 :" + elems.toString());
+        	}	
+        	
+		}
+
 		public void testSorterOnlyConsrtuctor() throws Exception {
 			
 			Cell2<Boolean, Short> ser = new Cell2<Boolean, Short>(

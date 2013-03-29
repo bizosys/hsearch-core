@@ -20,17 +20,17 @@
 package com.bizosys.hsearch.treetable.client;
 
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.Collection;
-import java.util.List;
 
-import com.bizosys.hsearch.federate.FederatedFacade;
+import com.bizosys.hsearch.federate.BitSetOrSet;
 
 public interface IHSearchPlugin {
 	void setOutputType(HSearchProcessingInstruction outputTypeCode);
 	void clear() ;
 	void onReadComplete();
 	
-	Collection<String> getUniqueMatchingDocumentIds() throws IOException;
-	void getResultMultiQuery( List<FederatedFacade<String, String>.IRowId> matchedIds, Collection<byte[]> rows) throws IOException;
+	BitSetOrSet getUniqueMatchingDocumentIds() throws IOException;
+	void getResultMultiQuery( BitSetOrSet matchedIds, Collection<byte[]> rows) throws IOException;
 	void getResultSingleQuery( Collection<byte[]> rows) throws IOException;
 }

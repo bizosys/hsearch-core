@@ -1,15 +1,16 @@
 package com.bizosys.hsearch.treetable.storage.sampleImpl;
 
 import java.io.IOException;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-import com.bizosys.hsearch.byteutils.SortedBytesArray;
+import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.byteutils.Storable;
-import com.bizosys.hsearch.federate.FederatedFacade;
+import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.treetable.Cell2;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.storage.sampleImpl.donotmodify.PluginExamResultBase;
@@ -22,7 +23,7 @@ public class MapperExamResult extends PluginExamResultBase {
 
     HSearchProcessingInstruction instruction = null;
     
-    Map<String, String> rows = new HashMap<String, String>();
+    Map<Integer, String> rows = new HashMap<Integer, String>();
 
     @Override
     public void setOutputType(HSearchProcessingInstruction outputTypeCode) {
@@ -35,11 +36,11 @@ public class MapperExamResult extends PluginExamResultBase {
      * Maintain thread concurrency in the code.
      * Don't remove <code>this.parts.remove();</code> as after merging, it clears the ThreadLocal object. 
      */
-    protected void merge(Map<String, String> rows) {
+    protected void merge(Map<Integer, String> rows) {
         synchronized (this) {
             this.rows.putAll(rows);
         }
-        System.out.println("Number of Rows :" +  this.rows.size());
+        System.out.println("Merge Number of Rows :" +  this.rows.size());
         this.parts.remove();
     }
 
@@ -58,8 +59,10 @@ public class MapperExamResult extends PluginExamResultBase {
      * intersection. For sinle query this is having no usage and can be passed null to save computing.
      */
     @Override
-    public Collection<String> getUniqueMatchingDocumentIds() throws IOException {
-        return this.rows.keySet();
+    public BitSetOrSet getUniqueMatchingDocumentIds() throws IOException {
+    	BitSetOrSet sets = new BitSetOrSet();
+    	sets.setDocumentIds(this.rows.keySet());
+        return sets;
     }
 
     /**
@@ -67,8 +70,8 @@ public class MapperExamResult extends PluginExamResultBase {
      */
     @Override
     public void getResultSingleQuery(Collection<byte[]> container) throws IOException {
-    	Cell2<String, String> cell2 = new Cell2<String, String>(SortedBytesString.getInstance(),
-    			SortedBytesString.getInstance());
+    	Cell2<Integer, String> cell2 = new Cell2<Integer, String>(
+    		SortedBytesInteger.getInstance(), SortedBytesString.getInstance());
     	
     	byte[] keyVal = cell2.toBytesOnSortedData(rows);
     	container.add(keyVal);
@@ -78,17 +81,21 @@ public class MapperExamResult extends PluginExamResultBase {
      * Collects the results for rows level aggregation.
      */
     @Override
-    public void getResultMultiQuery(List<FederatedFacade<String, String>.IRowId> matchedIds,
-            Collection<byte[]> container) throws IOException {
+    public void getResultMultiQuery(BitSetOrSet matchedIds, Collection<byte[]> container) throws IOException {
     	
-    	Cell2<String, String> cell2 = new Cell2<String, String>(SortedBytesString.getInstance(),
-    			SortedBytesString.getInstance());
+    	Cell2<Integer, String> cell2 = new Cell2<Integer, String>(
+    		SortedBytesInteger.getInstance(), SortedBytesString.getInstance());
 
-    	for (FederatedFacade<String, String>.IRowId row : matchedIds) {
-    		String docId = row.getDocId();
-    		if ( ! rows.containsKey(docId) ) continue;
-    		cell2.add(docId, rows.get(docId));
+    	Set<Integer> matchedIdsSet = matchedIds.getDocumentIds();
+    	
+    	for (Integer foundId : matchedIdsSet) {
+			if ( rows.containsKey(foundId)) {
+				System.out.println("Adding to cell2 :" + foundId.intValue() + "/" + rows.get(foundId));
+				cell2.add(foundId, rows.get(foundId));
+			}
 		}
+    	System.out.println("getResultMultiQuery:" + matchedIdsSet.toString() + "\n" + cell2.toString());
+    	
     	container.add(cell2.toBytesOnSortedData());    	
     }
 
@@ -112,7 +119,7 @@ public class MapperExamResult extends PluginExamResultBase {
      */
     public static class RowReader implements TablePartsCallback {
 
-    	Map<String, String> rows = new HashMap<String, String>();
+    	Map<Integer, String> rows = new HashMap<Integer, String>();
         public MapperExamResult whole = null;
 
         public RowReader(MapperExamResult whole) {
@@ -125,7 +132,7 @@ public class MapperExamResult extends PluginExamResultBase {
 
         public final boolean onRowCols(int cell1, String cell2, String cell3, int studentId, float cell5) {
         	String rowAsStr = "" + cell1 + "|" + cell2 + "|" + cell3 + "|" + studentId + "|" + cell5;
-        	rows.put(new Integer(studentId).toString(), rowAsStr);
+        	rows.put(studentId, rowAsStr);
         	System.out.println(rowAsStr);
         	return true;
         }

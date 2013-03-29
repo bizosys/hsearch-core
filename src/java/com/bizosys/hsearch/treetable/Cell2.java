@@ -166,23 +166,47 @@ public class Cell2<K1, V> {
 	}		
 	
 	public void populate(Map<K1,V> map) throws IOException {
-		ISortedByte<byte[]> kvB = SortedBytesArray.getInstance().parse(data.data, data.offset, data.length);
+		SortedBytesArray kvB = SortedBytesArray.getInstanceArr();
+		kvB.parse(data.data, data.offset, data.length);
 		
-		if ( kvB.getSize() == 0 ) {
+		int kvBT = kvB.getSize();
+		if ( kvBT == 0 ) {
 			System.err.println("Null Values to pipulate in Cell2");
 			return;
 		}
 		
-		byte[] allKeysB = kvB.getValueAt(0);
-		if ( null == allKeysB ) return;
+		if ( kvBT != 2 ) {
+			throw new IOException("The data signature does not look like cell2 - " + kvBT);
+		}
 
-		byte[] allValuesB = kvB.getValueAt(1);
-		if ( null == allValuesB ) return;
+		Reference keyRef = new Reference();
+		kvB.getValueAtReference(0, keyRef);
+
+		Reference valRef = new Reference();
+		kvB.getValueAtReference(1, valRef);
+
+		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
+		vSorter.parse(data.data, valRef.offset, valRef.length);
 		
-		int sizeK = k1Sorter.parse(allKeysB).getSize();
-		int sizeV = vSorter.parse(allValuesB).getSize();
+		int sizeK = k1Sorter.getSize();
+		int sizeV = vSorter.getSize();
 		
-		if ( sizeK != sizeV) throw new IOException("Mismatch keys : " + sizeK + " , and values = " + sizeK); 
+		if ( sizeK != sizeV) {
+			
+			StringBuilder errState = new StringBuilder();
+			errState.append("Mismatch keys : " + sizeK + " , and values = " + sizeV + "\n" );
+			for ( int i=0; i<sizeK; i++) {
+				//errState.append(k1Sorter.getValueAt(i));
+			}			
+			
+			for ( int i=0; i<sizeV; i++) {
+				errState.append(vSorter.getValueAt(i));
+			}			
+			System.err.println(errState.toString());
+			
+			throw new IOException(errState.toString());
+			
+		}
 		
 		for ( int i=0; i<sizeK; i++) {
 			map.put(k1Sorter.getValueAt(i), vSorter.getValueAt(i));

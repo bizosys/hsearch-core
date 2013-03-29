@@ -20,11 +20,10 @@
 
 package com.bizosys.hsearch.treetable.client;
 
-import java.util.List;
 import java.util.Map;
 
-import com.bizosys.hsearch.federate.FederatedFacade;
-import com.bizosys.hsearch.federate.FederatedFacade.IRowId;
+import com.bizosys.hsearch.federate.BitSetOrSet;
+import com.bizosys.hsearch.federate.FederatedSearch;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.hbase.HbaseLog;
 
@@ -50,7 +49,7 @@ public class HSearchTableMultiQueryExecutor {
 		this.processor = processor;
 	}
 	
-	public List<FederatedFacade<String, String>.IRowId> execute (
+	public BitSetOrSet execute (
 		Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
 			Map<String,QueryPart> multiQueryParts, HSearchProcessingInstruction resultType) throws Exception {
 		
@@ -80,28 +79,26 @@ public class HSearchTableMultiQueryExecutor {
 			HbaseLog.l.debug("HSearchTestMultiQuery : getProcessor ENTER ");
 		}
 		
-		FederatedFacade<String, String> ff = processor.getProcessor();
+		FederatedSearch ff = processor.getProcessor();
 		
 		if ( DEBUG_ENABLED ) {
 			HbaseLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");
 			start = System.currentTimeMillis();
 		}
 		
-		List<FederatedFacade<String, String>.IRowId> matchingIds = 
-				ff.execute(multiQueryStmt, multiQueryParts);
+		BitSetOrSet matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
 
 		if  ( DEBUG_ENABLED ) {
 			long end = System.currentTimeMillis();
-			if ( matchingIds.size() < 10 ) { 
-				StringBuilder sb = new StringBuilder();
-				
-				for (@SuppressWarnings("rawtypes") IRowId iRowId : matchingIds) {
-					if ( sb.length() > 0) sb.append(',');
-					sb.append(iRowId.getDocId().toString());
-				}
-				HbaseLog.l.debug("HSearchTableMultiQuery ff.execute: [" + sb.toString() + "]" + " in ms " + (end - start));
+			
+			int size = matchingIds.size();
+			
+			if ( size < 10 ) { 
+				HbaseLog.l.debug("HSearchTableMultiQuery ff.execute: [" + 
+						matchingIds.toString() + "]" + " in ms " + (end - start));
 			} else {
-				HbaseLog.l.debug("HSearchTableMultiQuery ff.execute: Output Ids Total : [" +  matchingIds.size() + "]" + " in ms " + (end - start));
+				HbaseLog.l.debug("HSearchTableMultiQuery ff.execute: Output Ids Total : [" +  
+					matchingIds.size() + "]" + " in ms " + (end - start));
 			}
 		}
 		
