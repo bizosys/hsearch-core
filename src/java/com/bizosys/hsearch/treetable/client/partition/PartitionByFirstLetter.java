@@ -27,7 +27,7 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	String colName = "";
 	int partitionIndex = -1;
 	List<String> partitions = new ArrayList<String>();
-	List<TextRange> ranges = new ArrayList<TextRange>();
+	List<TextRange> rangesL = new ArrayList<TextRange>();
 	
 
 	@Override
@@ -39,11 +39,12 @@ public class PartitionByFirstLetter implements IPartition<String> {
 			partitions.add(tokenFamily.nextToken()); 
 		}
 
-		List<TextRange> rangePartitions = new ArrayList<TextRange>();
-		
 		StringTokenizer rangeTokens = new StringTokenizer(ranges,",");
 		if ( rangeTokens.countTokens() != partitions.size() ) {
-			throw new IOException("Incorrect range data in " + colName + ". " + rangeTokens.countTokens() + "!=" +  partitions.size() );
+			throw new IOException("Incorrect range data in " + colName + ". " + 
+				rangeTokens.countTokens() + "!=" +  partitions.size() +"\n" + 
+				"rangeTokens=" + rangeTokens.toString() + "\n" + 
+				"partitions=" + partitions.toString());
 		}
 		
 		Iterator<String> familiesItr = partitions.iterator();
@@ -69,7 +70,7 @@ public class PartitionByFirstLetter implements IPartition<String> {
 			
 			char rangeL = ( "*".equals(rangeLStr) )  ? 'a' : rangeLStr.charAt(0);
 			char rangeR = ( "*".equals(rangeRStr) )  ? 'z' : rangeRStr.charAt(0);
-			rangePartitions.add(new TextRange(rangeL, rangeR, familiesItr.next())); 
+			rangesL.add(new TextRange(rangeL, rangeR, familiesItr.next()) ); 
 		}
 		this.partitionIndex = partitionIndex;
 	}
@@ -89,41 +90,19 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	
 	@Override
 	public void getColumnFamilies(String startVal, String endVal, Set<String> families) throws IOException {
-		
-		boolean isStart = false;
-		
-		/**
-		 * suppose we have to find 30-45
-		 * and ranges are 0-10 10-20  20-30  30-40  40-50  50-60 
-		 */
-		char startValFirst = startVal.charAt(0);
-		char endValFirst = endVal.charAt(0);
-		for (TextRange aRange : ranges) {
-			
-			if ( isStart ) {
-				if ( aRange.start >= endValFirst) break;
-				families.add(colName + "_" + aRange.ext);
-			} else {
-				if ( aRange.start <= startValFirst && aRange.end > startValFirst) {
-					isStart = true;
-					families.add(colName + "_" + aRange.ext);
-				}
-			}
-		}
-		
-		if ( !isStart ) 
-			throw new IOException("No matching columns found for value = " + startVal + ":" + endVal +"\n" + families.toString());
-
+		throw new IOException("No matching columns found for value = " + startVal + ":" + endVal +"\n" + families.toString());
 	}
 	
 	@Override
 	public String getColumnFamily(String exactVal) throws IOException  {
 
-		if ( ranges.size() == 0 ) return colName;
+		if ( rangesL.size() == 0 ) return colName;
+		
+		if ( exactVal.startsWith("-")) exactVal = exactVal.substring(1);
 		
 		char exactValFirst = exactVal.charAt(0);
 		
-		for (TextRange aRange : ranges) {
+		for (TextRange aRange : rangesL) {
 			if ( aRange.start <= exactValFirst && aRange.end > exactValFirst)
 					return colName + "_" + aRange.ext;
 		}

@@ -155,7 +155,7 @@ public class CodePartGenerator {
 		else if ("Long".equals(valField.datatype)) return "LongComparator";
 		else if ("String".equals(valField.datatype)) return "StringComparator";
 		else if ("Byte".equals(valField.datatype)) return "ByteComparator";
-		else if ("Short".equals(valField.datatype)) return "ShortComparator";
+		else if ("Short".equals(valField.datatype)) return "IntegerComparator";
 		else if ("byte[]".equals(valField.datatype)) return "BytesComparator";
 		else throw new Exception("Datatype is not found - " + valField.datatype );
 	}
@@ -431,7 +431,9 @@ public class CodePartGenerator {
 				if(i == keyCellIndex)continue;
 				dataType = fields.get(i).datatype;
 				if ( dataType.equals("Short")) dataType = "Integer";
-				params = params + ","+dataType+" matchingCell"+i+", "+dataType+" cellMin"+i+", "+dataType+" cellMax"+i;
+				params = params + "," + dataType + " matchingCell" + i + ", "
+						+ dataType + " cellMin" + i + ", " + dataType
+						+ " cellMax" + i;
 			}
 		}
 		else {

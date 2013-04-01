@@ -34,8 +34,9 @@ public class Schema {
 		public Column() {}
 		public String name = "";
 		public Field mergeId = null;
+		public String indexType = null;
 		public List<Field> indexes = new ArrayList<Schema.Field>();
-		public Field key = null;
+		public Field key = new Schema.Field();
 		public Field value = new Schema.Field();
 		public Partitions partitions = new Partitions();
 		

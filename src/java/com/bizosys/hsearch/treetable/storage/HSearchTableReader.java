@@ -48,12 +48,13 @@ public abstract class HSearchTableReader implements IScanCallBack {
 	public abstract void rows(Map<byte[], byte[]> results, HSearchProcessingInstruction rowType);
 	
 	
-	public void setPartionsFamiliesStructured(String colName, String range, Set<String> uniqueFamilies) 
+	@SuppressWarnings("unchecked")
+	public void setPartionsFamilies(String colName, String range, Set<String> uniqueFamilies) 
 	throws ParseException, IOException  {
 		
 		HSearchQuery query = new HSearchQuery(range);
-		HBaseTableSchemaDefn.getInstance().columnPartions.get(
-			colName).getMatchingFamilies(query, uniqueFamilies);
+		HBaseTableSchemaDefn.getInstance().columnPartions.get(colName).
+			getMatchingFamilies(query, uniqueFamilies);
 	}
 	
 	public IScanCallBack getResultCollector() {
@@ -87,13 +88,14 @@ public abstract class HSearchTableReader implements IScanCallBack {
 						 "structured:A OR unstructured:B\nstructured:A=f|1|1|1|c|*|*\nunstructured:B=*|*|*|*|*|*");
 			}
 			String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
-			setPartionsFamiliesStructured(colName, multiQueryParts.get(colNameQuolonId),uniqueFamilies);
+			setPartionsFamilies(colName, multiQueryParts.get(colNameQuolonId),uniqueFamilies);
 		}
 
 		List<ColumnFamName> families = new ArrayList<ColumnFamName>();
 		for (String  family : uniqueFamilies) {
 			if ( INFO_ENABLED ) HbaseLog.l.info("HSearchTableReader > Adding Family: " + family);
-			families.add(new ColumnFamName(family.getBytes(), HBaseTableSchemaDefn.COL_NAME_BYTES));
+			families.add(new ColumnFamName( family.getBytes(), 
+				new String( new char[] {HBaseTableSchemaDefn.getColumnName()}).getBytes() ) );
 		}
 	
 		IScanCallBack recordsCollector = getResultCollector();

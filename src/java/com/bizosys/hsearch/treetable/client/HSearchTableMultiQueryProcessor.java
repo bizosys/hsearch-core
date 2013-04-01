@@ -82,6 +82,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 					IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 					BitSetOrSet keys = plugin.getUniqueMatchingDocumentIds();
 					
+					if ( null == keys) return EMPTY_BITSET;
 					if ( keys.isEmpty()) return EMPTY_BITSET;
 					
 					if ( DEBUG_ENABLED ) {

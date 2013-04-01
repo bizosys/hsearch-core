@@ -208,6 +208,31 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 			
 		}			
 		
+		public void testMaximumMinimumValue() throws Exception {	
+			List<Integer> sortedList = new ArrayList<Integer>();
+			for ( int i=-400; i<1000; i++) {
+				sortedList.add(i);
+			}
+			
+			Collections.sort(sortedList);
+
+			SortedBytesUnsignedShort sortedBytes = SortedBytesUnsignedShort.getInstanceShort();
+			sortedBytes = sortedBytes.setMinimumValueLimit( (short) -32768);
+			
+
+			byte[] bytes = sortedBytes.toBytes(sortedList);
+			List<Integer> positions = new ArrayList<Integer>();  
+			sortedBytes.parse(bytes).getLessThanEqualToIndexes(-398, positions);
+			
+			assertNotNull(positions);
+			assertEquals(3, positions.size());
+			for (int pos : positions) {
+				//System.out.println(sortedBytes.getValueAt(bytes,pos));
+				assertTrue( (sortedBytes.parse(bytes).getValueAt(pos) <= -398) );
+			}
+			
+		}			
+
 		public void testRangeValuesInclusive() throws Exception {	
 			List<Integer> sortedList = new ArrayList<Integer>();
 			for ( int i=400; i<1000; i++) {

@@ -68,7 +68,7 @@
 	<target name="jar" depends="compile-core,jar-sources">
 		<copy todir="${build.classes}" verbose="true">
 			<fileset dir="${src.dir}" includes="**/*.tmp" />
-			<fileset dir="${src.dir}" includes="**/schema-search.txt" />
+			<fileset dir="${src.dir}" includes="**/schema-*.json" />
 		</copy>
 		<jar jarfile="${name}.jar" basedir="${build.classes}">
 			<manifest>

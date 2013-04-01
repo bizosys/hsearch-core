@@ -48,8 +48,9 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			
 			for (int i=0; i<familiesT; i++) {
 				if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
-					" @ adding family " + new String(families[i]));
-				scan = scan.addColumn(families[i], cols[i]);
+					" @ adding family " + new String(families[i]) + "_" + new String(cols[i]));
+				//scan = scan.addColumn(families[i], cols[i]);
+				scan = scan.addFamily(families[i]);
 			}
 			
 			if ( null != filter) {

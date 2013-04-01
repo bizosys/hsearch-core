@@ -45,10 +45,18 @@ public class HSearchCompiler {
 		Gson gson = new Gson();
 		String schemaStr = fileToString(args[0]);
 		
-		schemaStr = schemaStr.replace("\"indexes\": \"unstructured\"", 
+		schemaStr = schemaStr.replace("\"indexes\": \"schema-offset\"", 
 				ReadFileFromJar.getTextFileContent(
-					"/com/bizosys/hsearch/treetable/compiler/schema-search.txt" ) );
+					"/com/bizosys/hsearch/treetable/compiler/schema-offset.json" ) );
 		
+		schemaStr = schemaStr.replace("\"indexes\": \"schema-frequency\"", 
+				ReadFileFromJar.getTextFileContent(
+					"/com/bizosys/hsearch/treetable/compiler/schema-frequency.json" ) );
+
+		schemaStr = schemaStr.replace("\"indexes\": \"schema-positions\"", 
+				ReadFileFromJar.getTextFileContent(
+					"/com/bizosys/hsearch/treetable/compiler/schema-positions.json" ) );
+
 		System.out.println(schemaStr);
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
 		String path = args[1] + "/" + newSchema.module.replace(".", "/");
@@ -101,7 +109,7 @@ public class HSearchCompiler {
 
 			//check if the number of columns is 2 or more
 			if(allFields.size() > 2){
-				FileWriterUtil.downloadToFile(generateHSearchTable(newSchema.module, col.key, col.value, col.name, allFields).getBytes(), 
+				FileWriterUtil.downloadToFile(generateHSearchTable(newSchema.module, col.indexType , col.key, col.value, col.name, allFields).getBytes(), 
 						new File(path + "/donotmodify/HSearchTable" + col.name + ".java") );				
 			}			
 			else{
@@ -112,12 +120,15 @@ public class HSearchCompiler {
 		}
 	}
 
-	public static String generateHSearchTable(String module, Field fldKey, Field fldValue,
+	public static String generateHSearchTable(String module, String indexType, Field fldKey, Field fldValue,
 			String colName, List<Field> allFields) throws Exception {
 		String template = ReadFileFromJar.getTextFileContent(
 				"/com/bizosys/hsearch/treetable/compiler/templates/HSearchTable.tmp");
 		template = template.replace("--PACKAGE--", module);
 		
+		if (  null != indexType) {
+			template = template.replace("implements IHSearchTable", "implements " + indexType);
+		}
 		
 		//Required Cells
 		String reqCells = "";
@@ -143,8 +154,14 @@ public class HSearchCompiler {
 			cellClass = cellClass + cg.createCellClass(allFields, i ) ; 
 		}
 		template = template.replace("--CELL-CLASS--", cellClass);
-		template = template.replace("--CELLMAX_MINUS_1-SIGN--", allFields.get(CELLMAX_MINUS_1).datatype);
-		template = template.replace("--CELLMAX_MINUS_2-SIGN--", allFields.get(CELLMAX - 2).datatype);
+		
+		String cellMinus1DataType = allFields.get(CELLMAX_MINUS_1).datatype;
+		if ( "Short".equals(cellMinus1DataType)) cellMinus1DataType = "Integer";
+		template = template.replace("--CELLMAX_MINUS_1-SIGN--", cellMinus1DataType);
+		
+		String cellMinus2DataType = allFields.get(CELLMAX - 2).datatype;
+		if ( "Short".equals(cellMinus2DataType)) cellMinus2DataType = "Integer";
+		template = template.replace("--CELLMAX_MINUS_2-SIGN--", cellMinus2DataType);
 		
 		String treeNodes = "";
 		int count = 0;
@@ -274,6 +291,10 @@ public class HSearchCompiler {
 				firstTime = false;
 			} else allParams = allParams + ", ";
 
+			if ( null == fld) {
+				System.err.println("\n\n ***** Error : Compiler is not able to parse your schema json. Check the ending commas and other syntax.\n\n");
+				System.exit(1);
+			}
 			String type = CodePartGenerator.getPrimitive(fld.datatype);
 			allParams = allParams + type + " cell" + seq;
 			seq++;

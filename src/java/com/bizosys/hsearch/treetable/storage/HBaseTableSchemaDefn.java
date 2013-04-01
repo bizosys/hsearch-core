@@ -38,13 +38,17 @@ public class HBaseTableSchemaDefn {
 
 	public String tableName = "htable";
 	
-	public static final String COL_NAME = "1";
-	public static final byte[] COL_NAME_BYTES = COL_NAME.getBytes();
-	public static final byte COL_NAME_BYTE = COL_NAME_BYTES[0];
-	
-	
 	//FamilyName_partition is how the column families are created.
 	public Map<String, IPartition> columnPartions = new HashMap<String, IPartition>();
+
+	public static char getColumnName() {
+		return getColumnName(1);
+	}
+	
+	public static char getColumnName(int token) {
+		String tokenStr  = new Integer(token).toString();
+		return tokenStr.charAt(tokenStr.length() - 1);
+	}	
 	
 
 }
