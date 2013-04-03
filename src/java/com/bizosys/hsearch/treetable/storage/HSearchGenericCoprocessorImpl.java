@@ -3,9 +3,7 @@ package com.bizosys.hsearch.treetable.storage;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Scan;
@@ -16,11 +14,8 @@ import org.apache.hadoop.hbase.regionserver.InternalScanner;
 
 import com.bizosys.hsearch.PerformanceLogger;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
-import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.functions.HSearchReducer;
 import com.bizosys.hsearch.hbase.HbaseLog;
-import com.bizosys.hsearch.treetable.BytesSection;
-import com.bizosys.hsearch.treetable.Cell2;
 
 public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		implements HSearchGenericCoprocessor {
@@ -73,6 +68,8 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			filter.configure();
 			do {
 				curVals.clear();
+				append.clear();
+				
 				done = scanner.next(curVals);
 				for (KeyValue kv : curVals) {
 					byte[] input = kv.getValue();

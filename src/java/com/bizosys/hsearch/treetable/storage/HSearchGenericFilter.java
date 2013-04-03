@@ -37,6 +37,7 @@ import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.functions.HSearchReducer;
+import com.bizosys.hsearch.functions.StatementWithOutput;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
@@ -375,24 +376,32 @@ public abstract class HSearchGenericFilter implements Filter {
 		 * - Collect the data for multiple queries
 		 */
 		HSearchReducer reducer = getReducer();
-		int totalQueries = queryPayload.values().size();
-
-		Collection<byte[]> merged = new ArrayList<byte[]>();
-		Collection<byte[]> append = new ArrayList<byte[]>(1);
+		int totalQueries = queryPayload.size();
 		
-		for (QueryPart part : queryPayload.values()) {
-			Object pluginO = part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
+		Collection<byte[]> merged = new ArrayList<byte[]>(1);
+
+		if ( totalQueries == 1) {
+			Object pluginO = queryPayload.values().iterator().next().getParams().get(
+				HSearchTableMultiQueryExecutor.PLUGIN);
 			IHSearchPlugin plugin = (IHSearchPlugin) pluginO;
-			
-			if ( totalQueries == 1) {
-				plugin.getResultSingleQuery(merged);
-			} else {
+			plugin.getResultSingleQuery(merged);
+		} else {
+			StatementWithOutput[] stmtWithOutputs = new StatementWithOutput[totalQueries];
+			int seq = 0;
+			for (QueryPart part : queryPayload.values()) {
+				Collection<byte[]> append = new ArrayList<byte[]>(1);
+				Object pluginO = part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
+				IHSearchPlugin plugin = (IHSearchPlugin) pluginO;
 				plugin.getResultMultiQuery(matchedIds, append);
-				if ( null != reducer) reducer.appendCols(merged, append);
-				append.clear();
+				stmtWithOutputs[seq] = new StatementWithOutput(part.aStmtOrValue, append);
+				seq++;
+			}
+			reducer.appendCols(stmtWithOutputs, merged);
+			for (StatementWithOutput stmtWithOutput : stmtWithOutputs) {
+				if ( null != stmtWithOutput.cells ) stmtWithOutput.cells.clear();
 			}
 		}
-		
+
 		//Put it to Bytes
 		return SortedBytesArray.getInstance().toBytes(merged);
 	}
