@@ -23,7 +23,7 @@ import java.util.Collection;
 
 public final class SortedBytesShort extends SortedBytesBase<Short>{
 
-	public static ISortedByte<Short> getInstance() {
+	public final static ISortedByte<Short> getInstance() {
 		return new SortedBytesShort();
 	}
 	
@@ -32,12 +32,12 @@ public final class SortedBytesShort extends SortedBytesBase<Short>{
 	}
 	
 	@Override
-	public Short getValueAt(int pos) {
+	public final Short getValueAt(final int pos) {
 		return Storable.getShort(this.offset + pos*dataSize, inputBytes);
 	}	
 	
 	@Override
-	public byte[] toBytes(Collection<Short> sortedList) {
+	public final byte[] toBytes(final Collection<Short> sortedList) {
 
 		int sortedListAT = sortedList.size();
 		byte[] inputsB = new byte[sortedListAT * dataSize];
@@ -51,7 +51,7 @@ public final class SortedBytesShort extends SortedBytesBase<Short>{
 	}
 	
 	@Override
-	protected int compare(byte[] inputB, int offset, Short matchNo) {
+	protected final int compare(final byte[] inputB, int offset, final Short matchNo) {
 		int val = (  ( inputB[offset] & 0xff ) << 8 ) + ( inputB[++offset] & 0xff );
 		
 		if ( val == matchNo) return 0;

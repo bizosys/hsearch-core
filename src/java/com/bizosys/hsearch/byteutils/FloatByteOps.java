@@ -36,7 +36,7 @@ public class FloatByteOps {
 		System.out.println( getLessThanEuqalTo(bytes, 4.9F ) );
 	}
 	
-	public static byte[] toBytes(List<Float> inputs) {
+	public static final byte[] toBytes(final List<Float> inputs) {
 		if ( null == inputs) return null;
 		byte[] inputsB = new byte[inputs.size() * 4];
 		int index = 0;
@@ -46,7 +46,7 @@ public class FloatByteOps {
 		return inputsB;
 	}
 	
-	public static int getEqualToIndex(byte[] intB, float matchingNoB) {
+	public static final int getEqualToIndex(final byte[] intB, final float matchingNoB) {
 		if ( null == intB ) return -1;
 		int intBT = intB.length / 4;
 		int pos = 0;
@@ -60,7 +60,7 @@ public class FloatByteOps {
 		return -1;
 	}
 	
-	public static void getEqualToIndexes(byte[] intB, float matchingNoB, List<Integer> indexes) {
+	public static final void getEqualToIndexes(final byte[] intB, final float matchingNoB, final List<Integer> indexes) {
 		if ( null == intB) return;
 		
 		int intBT = intB.length / 4;
@@ -75,15 +75,15 @@ public class FloatByteOps {
 		}
 	}	
 	
-	public static List<Integer> getGreaterThanIndexes(byte[] intB, float matchingNoB) {
+	public static final List<Integer> getGreaterThanIndexes(final byte[] intB, final float matchingNoB) {
 		return computeGTGTEQIndexes(intB, matchingNoB, false);
 	}	
 	
-	public static List<Integer> getGreaterThanEuqalTo(byte[] intB, float matchingNoB) {
+	public static final List<Integer> getGreaterThanEuqalTo(final byte[] intB, final float matchingNoB) {
 		return computeGTGTEQIndexes(intB, matchingNoB, true);
 	}	
 	
-	private static List<Integer> computeGTGTEQIndexes(byte[] intB, float matchingNoB, boolean isEqualCheck) {
+	private static final List<Integer> computeGTGTEQIndexes(final byte[] intB, final float matchingNoB, final boolean isEqualCheck) {
 		if ( null == intB ) return null;
 
 		int intBT = intB.length / 4;
@@ -103,15 +103,15 @@ public class FloatByteOps {
 		return indexes;
 	}
 	
-	public static List<Integer> getLessThan(byte[] intB, float matchingNoB) {
+	public static final List<Integer> getLessThan(final byte[] intB, final float matchingNoB) {
 		return checkLTLTEQ(intB, matchingNoB, false);
 	}	
 	
-	public static List<Integer> getLessThanEuqalTo(byte[] intB, float matchingNoB) {
+	public static final List<Integer> getLessThanEuqalTo(final byte[] intB, final float matchingNoB) {
 		return checkLTLTEQ(intB, matchingNoB, true);
 	}	
 	
-	private static List<Integer> checkLTLTEQ(byte[] intB, float matchingNoB, boolean isEqualCheck) {
+	private static final List<Integer> checkLTLTEQ(final byte[] intB, final float matchingNoB, final boolean isEqualCheck) {
 		if ( null == intB) return null;
 		int intBT = intB.length / 4;
 		int pos = 0;
@@ -133,15 +133,15 @@ public class FloatByteOps {
 		return indexes;
 	}
 	
-	public static List<Integer> getRange(byte[] intB, float matchingNoStart, float matchingNoEnd) {
+	public static final List<Integer> getRange(final byte[] intB, final  float matchingNoStart, final float matchingNoEnd) {
 		return computeRangeIndexes(intB, matchingNoStart, matchingNoEnd, false);
 	}	
 	
-	public static List<Integer> getRangeInclusive(byte[] intB, float matchingNoStart, float matchingNoEnd) {
+	public static final List<Integer> getRangeInclusive(final byte[] intB, final float matchingNoStart, final  float matchingNoEnd) {
 		return computeRangeIndexes(intB, matchingNoStart, matchingNoEnd, true);
 	}	
 	
-	private static List<Integer> computeRangeIndexes(byte[] intB, float matchingNoStart, float matchingNoEnd, boolean isEqualCheck) {
+	private static final List<Integer> computeRangeIndexes(final byte[] intB, final float matchingNoStart, final float matchingNoEnd, final boolean isEqualCheck) {
 		
 		if ( null == intB ) return null;
 

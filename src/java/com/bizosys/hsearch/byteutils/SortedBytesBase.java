@@ -25,7 +25,7 @@ import java.util.List;
 
 public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	
-	public static class Reference {
+	public static final class Reference {
 		public int offset;
 		public int length;
 
@@ -52,7 +52,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	protected abstract int compare(byte[] inputB, int offset, T matchNo);
 	
 	@Override
-	public final ISortedByte<T> parse(byte[] bytes) throws IOException {
+	public final ISortedByte<T> parse(final byte[] bytes) throws IOException {
 		this.inputBytes = bytes;
 		this.offset = 0;
 		this.length = ( null == bytes) ? 0 : bytes.length;
@@ -60,7 +60,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	}
 
 	@Override
-	public final ISortedByte<T> parse(byte[] bytes, int offset, int length) throws IOException {
+	public final ISortedByte<T> parse(final byte[] bytes, final int offset, final int length) throws IOException {
 		this.inputBytes = bytes;
 		this.offset = offset;
 		this.length = length;
@@ -214,7 +214,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		this.computeGTGTEQIndexes(matchNo, matchingPos, true);
 	}
 
-	protected void computeGTGTEQIndexes(T matchingNo, Collection<Integer> matchingPos, boolean isEqualCheck) throws IOException {
+	protected final void computeGTGTEQIndexes(final T matchingNo, final Collection<Integer> matchingPos, final boolean isEqualCheck) throws IOException {
 		
 		int totalSize = getSize();
 		if (  totalSize <= 0 ) return;
@@ -275,7 +275,8 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		computeLTLTEQIndexes(matchingNo, matchingPos, true);
 	}
 	
-	protected void computeLTLTEQIndexes(T matchingNo, Collection<Integer> matchingPos, boolean isEqualCheck) throws IOException {
+	protected final void computeLTLTEQIndexes(final T matchingNo, 
+		final Collection<Integer> matchingPos, final boolean isEqualCheck) throws IOException {
 
 		int totalSize = getSize();
 		if ( totalSize <= 0 ) return;
@@ -317,7 +318,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	
 	
 	@Override
-	public Collection<Integer> getRangeIndexes(T matchNoStart, T matchNoEnd) throws IOException {
+	public Collection<Integer> getRangeIndexes(final T matchNoStart, final T matchNoEnd) throws IOException {
 		Collection<Integer> matchingPos = new ArrayList<Integer>();
 		getRangeIndexes(matchNoStart, matchNoEnd, matchingPos);
 		return matchingPos;
@@ -325,35 +326,37 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	}
 
 	@Override
-	public void getRangeIndexes(T matchNoStart, T matchNoEnd, Collection<Integer> matchings) throws IOException {
+	public void getRangeIndexes(final T matchNoStart, final T matchNoEnd, final Collection<Integer> matchings) throws IOException {
 		computeRangeIndexes(matchNoStart, matchNoEnd, false, false, matchings);		
 	}
 	
 	@Override
-	public Collection<Integer> getRangeIndexesInclusive(T matchNoStart, T matchNoEnd) throws IOException {
+	public Collection<Integer> getRangeIndexesInclusive(final T matchNoStart, final T matchNoEnd) throws IOException {
 		Collection<Integer> matchingPos = new ArrayList<Integer>();
 		getRangeIndexesInclusive(matchNoStart, matchNoEnd, matchingPos);
 		return matchingPos;
 	}
 	
-	public void getRangeIndexesInclusive(T matchNoStart, T matchNoEnd, Collection<Integer> matchings) throws IOException {
+	public void getRangeIndexesInclusive(final T matchNoStart, final T matchNoEnd, final Collection<Integer> matchings) throws IOException {
 		computeRangeIndexes(matchNoStart, matchNoEnd, true, true, matchings);		
 	}
 	
 	@Override
-	public Collection<Integer> getRangeIndexesInclusive(T matchNoStart, boolean startMatch, T matchNoEnd, boolean endMatch) throws IOException {
+	public Collection<Integer> getRangeIndexesInclusive(final T matchNoStart, 
+			final boolean startMatch, final T matchNoEnd, final boolean endMatch) throws IOException {
 		Collection<Integer> matchingPos = new ArrayList<Integer>();
 		getRangeIndexesInclusive(matchNoStart, startMatch, matchNoEnd, endMatch, matchingPos);		
 		return matchingPos;
 	}
 
 	@Override
-	public void getRangeIndexesInclusive(T matchNoStart, boolean startMatch, T matchNoEnd, boolean endMatch, Collection<Integer> matchings) throws IOException {
+	public void getRangeIndexesInclusive(final T matchNoStart, final boolean startMatch, 
+			final T matchNoEnd, final boolean endMatch, final Collection<Integer> matchings) throws IOException {
 		computeRangeIndexes(matchNoStart, matchNoEnd, startMatch, endMatch, matchings);		
 	}
 	
-	protected void computeRangeIndexes(T matchingValS, T matchingValE, 
-			boolean isStartInclusive, boolean isEndInclusive, Collection<Integer> matchingPos) throws IOException  {
+	protected void computeRangeIndexes(final T matchingValS, final T matchingValE, 
+			final boolean isStartInclusive, final boolean isEndInclusive, final Collection<Integer> matchingPos) throws IOException  {
 		
 		int size = this.getSize();
 		if ( size <= 0) return;

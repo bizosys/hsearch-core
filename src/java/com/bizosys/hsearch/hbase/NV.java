@@ -50,7 +50,7 @@ public class NV {
 	 * @param family	Column Family
 	 * @param name	Column Name / Qualifier
 	 */
-	public NV(String family, String name) throws IOException {
+	public NV(final String family, final String name) throws IOException {
 		if ( null == family || null == name) throw new IOException("Family or Name is null");
 		if ( family.length() == 0 || name.length() == 0 ) throw new IOException("Family or Name is Empty");
 		
@@ -63,7 +63,7 @@ public class NV {
 	 * @param family	Column Family
 	 * @param name	Column Name / Qualifier
 	 */
-	public NV(byte[] family, byte[] name) throws IOException {
+	public NV(final byte[] family, final byte[] name) throws IOException {
 		if ( null == family || null == name) throw new IOException("Family or Name is null");
 		
 		this.family = family;
@@ -76,7 +76,7 @@ public class NV {
 	 * @param name	Column Name / Qualifier
 	 * @param data	Column Value
 	 */
-	public NV(byte[] family, byte[] name, byte[] data) throws IOException {
+	public NV(final byte[] family, final byte[] name, final byte[] data) throws IOException {
 		if ( null == family || null == name) throw new IOException("Family or Name is null");
 		
 		this.family = family;
@@ -84,7 +84,7 @@ public class NV {
 		this.data = data;
 	}
 	
-	public NV(byte[] family, byte[] name, byte[] data, boolean isDataUnchanged)  throws IOException{
+	public NV(final byte[] family, final byte[] name, final byte[] data, final boolean isDataUnchanged)  throws IOException{
 		this(family,name,data);
 		this.isDataUnchanged = isDataUnchanged;
 	}

@@ -12,25 +12,11 @@ public class Reducer implements HSearchReducer {
     @Override
     void appendCols(StatementWithOutput[] queryOutput, Collection<byte[]> mergedQueryOutput) throws IOException {
 
-        if (null == appendB) return;
-        
-        if (appendB.size() == 0) return;
+        if (null == queryOutput) return;
+        if (queryOutput.size() == 0) return;
 
-        if (mergedB.size() == 0) {
-            mergedB.addAll(appendB);
-            return;
-        }
-
-        byte[] merged = mergedB.iterator().next();
-        byte[] append = appendB.iterator().next();
-        
         /**
          * TODO:// De-serialize and compute.
-         */
-        
-        mergedB.clear();
-        /**
-         * TODO:// Add the processed bytes to merged container
          */
     }
 

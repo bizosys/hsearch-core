@@ -7,27 +7,27 @@ import java.util.Set;
 public class EmptyMap<K, V> implements Map<K, V> {
 
 	@Override
-	public int size() {
+	public final int size() {
 		return 0;
 	}
 
 	@Override
-	public boolean isEmpty() {
+	public final boolean isEmpty() {
 		return false;
 	}
 
 	@Override
-	public boolean containsKey(Object key) {
+	public final boolean containsKey(Object key) {
 		return false;
 	}
 
 	@Override
-	public boolean containsValue(Object value) {
+	public final boolean containsValue(Object value) {
 		return false;
 	}
 
 	@Override
-	public V get(Object key) {
+	public final V get(Object key) {
 		return null;
 	}
 
@@ -37,30 +37,30 @@ public class EmptyMap<K, V> implements Map<K, V> {
 	}
 
 	@Override
-	public V remove(Object key) {
+	public final V remove(Object key) {
 		return null;
 	}
 
 	@Override
-	public void putAll(Map<? extends K, ? extends V> m) {
+	public final void putAll(Map<? extends K, ? extends V> m) {
 	}
 
 	@Override
-	public void clear() {
+	public final void clear() {
 	}
 
 	@Override
-	public Set<K> keySet() {
+	public final Set<K> keySet() {
 		return null;
 	}
 
 	@Override
-	public Collection<V> values() {
+	public final Collection<V> values() {
 		return null;
 	}
 
 	@Override
-	public Set<java.util.Map.Entry<K, V>> entrySet() {
+	public final Set<java.util.Map.Entry<K, V>> entrySet() {
 		return null;
 	}
 

@@ -1,6 +1,6 @@
 package com.bizosys.hsearch.hbase;
 
-public class ColumnFamName {
+public final class ColumnFamName {
 	/**
 	 * Column Family
 	 */
@@ -16,7 +16,7 @@ public class ColumnFamName {
 	 * @param family	Column Family
 	 * @param name	Column Name / Qualifier
 	 */
-	public ColumnFamName(byte[] family, byte[] name) {
+	public ColumnFamName(final byte[] family, final byte[] name) {
 		this.family = family;
 		this.name = name;
 	}	

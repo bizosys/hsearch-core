@@ -36,7 +36,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	}
 	
 	@Override
-	public int getSize() {
+	public final int getSize() {
 		if ( null == this.inputBytes) return 0;
 		return Storable.getInt(offset, this.inputBytes);
 	}
@@ -48,7 +48,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	 * Each element bytes
 	 */
 	@Override
-	public byte[] toBytes(Collection<String> sortedCollection) throws IOException {
+	public final byte[] toBytes(final Collection<String> sortedCollection) throws IOException {
 
 		//Total collection size, element start location, End Location
 		byte[] headerBytes = new byte[4 + sortedCollection.size() * 4 + 4] ;
@@ -83,7 +83,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	}
 
 	@Override
-	public void addAll(Collection<String> vals) throws IOException {
+	public final void addAll(final Collection<String> vals) throws IOException {
 		
 		int collectionSize = getSize();
 		
@@ -113,7 +113,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	}
 	
 	@Override
-	public Collection<String> values(Collection<String> vals) throws IOException {
+	public final Collection<String> values(final Collection<String> vals) throws IOException {
 
 		if ( null == this.inputBytes ) return vals;
 		int total = Storable.getInt(offset, this.inputBytes);
@@ -155,7 +155,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	}	
 
 	@Override
-	public String getValueAt(int pos) throws IndexOutOfBoundsException {
+	public final String getValueAt(final int pos) throws IndexOutOfBoundsException {
 		
 		int collectionSize = getSize();
 		if ( pos >= collectionSize) throw new IndexOutOfBoundsException(
@@ -176,7 +176,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	}
 
 	@Override
-	public int getEqualToIndex(String matchVal) throws IOException {
+	public final int getEqualToIndex(final String matchVal) throws IOException {
 
 		int collectionSize = getSize();
 		if ( 0 == collectionSize) return -1;
@@ -229,7 +229,8 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	 */
 	
 	@Override
-	public void getEqualToIndexes(String matchVal, Collection<Integer> matchings) throws IOException {
+	public final void getEqualToIndexes(final String matchVal, 
+		final Collection<Integer> matchings) throws IOException {
 		
 		int collectionSize = getSize();
 		if ( 0 == collectionSize) return;
@@ -275,7 +276,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 	}
 
 	@Override
-	protected int compare(byte[] inputB, int offset, String matchNo) {
+	protected final int compare(final byte[] inputB, final int offset, final String matchNo) {
 		throw new RuntimeException("Not implemened Yet");
 	}
 }

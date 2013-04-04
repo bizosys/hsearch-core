@@ -1,52 +1,24 @@
 package com.bizosys.hsearch.treetable.storage.sampleImpl.donotmodify;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
-import com.bizosys.hsearch.byteutils.SortedBytesArray;
-import com.bizosys.hsearch.byteutils.SortedBytesDouble;
-import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesFloat;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
-import com.bizosys.hsearch.byteutils.SortedBytesUnsignedShort;
-import com.bizosys.hsearch.byteutils.SortedBytesChar;
-import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
-
-import com.bizosys.hsearch.treetable.storage.sampleImpl.*;
-
+import com.bizosys.hsearch.treetable.BytesSection;
 import com.bizosys.hsearch.treetable.Cell2;
+import com.bizosys.hsearch.treetable.Cell2Visitor;
 import com.bizosys.hsearch.treetable.Cell3;
 import com.bizosys.hsearch.treetable.Cell4;
 import com.bizosys.hsearch.treetable.Cell5;
-
-import com.bizosys.hsearch.treetable.BytesSection;
-import com.bizosys.hsearch.treetable.Cell2Visitor;
-import com.bizosys.hsearch.treetable.CellBase;
-
+import com.bizosys.hsearch.treetable.CellComparator.FloatComparator;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.IHSearchTable;
-
-import com.bizosys.hsearch.treetable.CellComparator;
-import com.bizosys.hsearch.treetable.CellComparator.BooleanComparator;
-import com.bizosys.hsearch.treetable.CellComparator.ByteComparator;
-import com.bizosys.hsearch.treetable.CellComparator.BytesComparator;
-import com.bizosys.hsearch.treetable.CellComparator.ShortComparator;
-import com.bizosys.hsearch.treetable.CellComparator.IntegerComparator;
-import com.bizosys.hsearch.treetable.CellComparator.FloatComparator;
-import com.bizosys.hsearch.treetable.CellComparator.LongComparator;
-import com.bizosys.hsearch.treetable.CellComparator.DoubleComparator;
-import com.bizosys.hsearch.treetable.CellComparator.StringComparator;
-import com.bizosys.hsearch.treetable.ValueComparator;
 import com.bizosys.hsearch.util.EmptyMap;
 
-public class HSearchTableExamResult implements IHSearchTable {
+public final class HSearchTableExamResult implements IHSearchTable {
 	
 	public static boolean DEBUG_ENABLED = false;
 	
@@ -66,7 +38,7 @@ public class HSearchTableExamResult implements IHSearchTable {
 	public String cellMax1;
 	public Map<String, Cell3<String, Integer, Float>> cell3L = null;
 
-	public Cell4Map(HSearchQuery query, Cell2FilterVisitor cell2Visitor,Float matchingCell4, Float cellMin4, Float cellMax4,String matchingCell2, String cellMin2, String cellMax2,String matchingCell1, String cellMin1, String cellMax1) {
+	public Cell4Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor, final Float matchingCell4, final Float cellMin4, final Float cellMax4, final String matchingCell2, final String cellMin2, final String cellMax2, final String matchingCell1, final String cellMin1, final String cellMax1) {
 		this.query = query; 
 		this.cell2Visitor = cell2Visitor;
 		this.matchingCell1 = matchingCell1;

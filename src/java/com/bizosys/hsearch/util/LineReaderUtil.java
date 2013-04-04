@@ -22,7 +22,7 @@ package com.bizosys.hsearch.util;
 
 import java.util.Collection;
 
-public class LineReaderUtil {
+public final class LineReaderUtil {
 	
 	public static final void fastSplit(final Collection<String> result,
 			final String text, final char separator) {
@@ -140,7 +140,7 @@ public class LineReaderUtil {
 
 	private StringBuilder appender = new StringBuilder(65536);
 
-	public String append(final String[] cols, final char separator) {
+	public final String append(final String[] cols, final char separator) {
 		boolean isFirst = true;
 		for (String col : cols) {
 			if (isFirst)

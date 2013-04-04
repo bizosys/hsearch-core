@@ -53,7 +53,7 @@ public class HSearchQuery {
 	   * "*|*|23|[11-12]|*|*"
 	   * @param query
 	   */
-	public HSearchQuery(String query) throws ParseException {
+	public HSearchQuery(final String query) throws ParseException {
 		
 		if ( DEBUG_ENABLED) HbaseLog.l.debug("HSearchQuery Query :" + query);
 		
@@ -64,7 +64,7 @@ public class HSearchQuery {
 		this.load(query);
 	}
 	  
-	  public void parseValuesConcurrent(String[] dataTypes) throws InvalidObjectException{
+	  public final void parseValuesConcurrent(final String[] dataTypes) throws InvalidObjectException{
 		  if ( valuesParsed ) return; 
 		  synchronized (this) {
 			  if ( valuesParsed ) return; 
@@ -73,7 +73,7 @@ public class HSearchQuery {
 		  }
 	  }
 
-	  private void parseValues(String[] dataTypes) throws InvalidObjectException{
+	  private final void parseValues(final String[] dataTypes) throws InvalidObjectException{
 	  
 		  if ( null == exactValCells) return;
 		  int exactValCellsT = exactValCells.length;
@@ -125,7 +125,7 @@ public class HSearchQuery {
 			  }
 	  }
 	  
-	  public void load(String text) throws ParseException  {
+	  public final void load(final String text) throws ParseException  {
 		  final List<String> tokenizedFilters = new ArrayList<String>();
 		  int index1 = 0;
 		  int index2 = text.indexOf(FIELD_SEPARATOR);
@@ -150,7 +150,7 @@ public class HSearchQuery {
 		  loadAValue(tokenizedFilters);
 	  }
 	  
-	  public void loadAValue(final List<String> filters) throws ParseException{
+	  public final void loadAValue(final List<String> filters) throws ParseException{
 		  
 		  int size = filters.size();
 		  

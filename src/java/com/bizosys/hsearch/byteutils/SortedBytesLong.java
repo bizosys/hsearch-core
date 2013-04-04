@@ -24,7 +24,7 @@ import java.util.Collection;
 
 public final class SortedBytesLong extends SortedBytesBase<Long>{
 
-	public static ISortedByte<Long> getInstance() {
+	public static final ISortedByte<Long> getInstance() {
 		return new SortedBytesLong();
 	}
 	
@@ -33,12 +33,12 @@ public final class SortedBytesLong extends SortedBytesBase<Long>{
 	}
 	
 	@Override
-	public Long getValueAt(int pos) throws IndexOutOfBoundsException {
+	public final Long getValueAt(final int pos) throws IndexOutOfBoundsException {
 		return Storable.getLong(this.offset + pos * dataSize, this.inputBytes);
 	}
 
 	@Override
-	public byte[] toBytes(Collection<Long> sortedList) throws IOException {
+	public final byte[] toBytes(final Collection<Long> sortedList) throws IOException {
 		int sortedListAT = sortedList.size();
 		byte[] inputsB = new byte[sortedListAT * dataSize];
 		
@@ -53,7 +53,7 @@ public final class SortedBytesLong extends SortedBytesBase<Long>{
 
 
 	@Override
-	protected int compare(byte[] inputB, int offset, Long matchNo) {
+	protected final int compare(final byte[] inputB, int offset, final Long matchNo) {
 		
 		long val = ( ( (long) (inputB[offset]) )  << 56 )  + 
 		( (inputB[++offset] & 0xffL ) << 48 ) + 

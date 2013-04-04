@@ -32,7 +32,8 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	@Override
-	public void concurrentDeser(String aStmtOrValue, HSearchProcessingInstruction outputType, Map<String, Object> stmtParams, String tableType) throws Exception {
+	public final void concurrentDeser(final String aStmtOrValue, final HSearchProcessingInstruction outputType,
+		final Map<String, Object> stmtParams, final String tableType) throws Exception {
 		
 		if ( DEBUG_ENABLED ){
 			String keys = ( null != stmtParams) ? stmtParams.keySet().toString() : "No Keys";
@@ -82,7 +83,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		}
 	}
 	
-	public static class TableDeserExecutor implements Callable<Integer> {
+	public static final class TableDeserExecutor implements Callable<Integer> {
 
 		byte[] tableSer = null; 
 		IHSearchPlugin plugin = null;
@@ -90,7 +91,8 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		HSearchProcessingInstruction outputType = null;
 		IHSearchTable t = null;
 
-		public TableDeserExecutor(IHSearchTable t, byte[] tableSer, IHSearchPlugin plugin, HSearchQuery hQuery, HSearchProcessingInstruction outputType) {
+		public TableDeserExecutor(final IHSearchTable t, final byte[] tableSer, final IHSearchPlugin plugin, 
+				final HSearchQuery hQuery, final HSearchProcessingInstruction outputType) {
 			this.t = t;
 			this.tableSer = tableSer;
 			this.plugin = plugin;
@@ -99,7 +101,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		}
 		
 		@Override
-		public Integer call() throws Exception {
+		public final Integer call() throws Exception {
 			if ( DEBUG_ENABLED ) {
 				HbaseLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - ENTER");
 			}

@@ -23,7 +23,7 @@ package com.bizosys.hsearch.treetable.client;
 import java.util.List;
 import java.util.Vector;
 
-public class HSearchTableParts {
+public final class HSearchTableParts {
 	
 	public List<byte[]> allParts = null;
 
@@ -36,7 +36,7 @@ public class HSearchTableParts {
 		if ( null == this.allParts) this.allParts = new Vector<byte[]>();
 	}
 	
-	public void put(byte[] dataParts) {
+	public final void put(final byte[] dataParts) {
 		this.allParts.add(dataParts);
 	}
 }

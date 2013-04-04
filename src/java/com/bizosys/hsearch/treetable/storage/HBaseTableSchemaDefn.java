@@ -24,7 +24,7 @@ import java.util.Map;
 
 import com.bizosys.hsearch.treetable.client.partition.IPartition;
 
-public class HBaseTableSchemaDefn {
+public final class HBaseTableSchemaDefn {
 	
 	private static HBaseTableSchemaDefn singleton = new HBaseTableSchemaDefn();
 	
@@ -41,11 +41,11 @@ public class HBaseTableSchemaDefn {
 	//FamilyName_partition is how the column families are created.
 	public Map<String, IPartition> columnPartions = new HashMap<String, IPartition>();
 
-	public static char getColumnName() {
+	public final static char getColumnName() {
 		return getColumnName(1);
 	}
 	
-	public static char getColumnName(int token) {
+	public final static char getColumnName(int token) {
 		String tokenStr  = new Integer(token).toString();
 		return tokenStr.charAt(tokenStr.length() - 1);
 	}	

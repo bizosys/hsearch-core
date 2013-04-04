@@ -26,9 +26,9 @@ import java.util.List;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
-public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
+public final class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 
-	public static ISortedByte<Boolean> getInstance() {
+	public final static ISortedByte<Boolean> getInstance() {
 		return new SortedBytesBooleanCompressed();
 	}
 	
@@ -38,14 +38,14 @@ public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public byte[] toBytes(Collection<Boolean> sortedCollection) throws IOException {
+	public final byte[] toBytes(final Collection<Boolean> sortedCollection) throws IOException {
 		ByteArrays.ArrayBool.Builder booleanBuilder = ByteArrays.ArrayBool.newBuilder();
 		booleanBuilder.addAllVal(sortedCollection);
 		return booleanBuilder.build().toByteArray();
 	}
 
 	@Override
-	public int getSize() throws IOException {
+	public final int getSize() throws IOException {
 		if ( null == parsedBooleans ) parse();
 		if ( null == parsedBooleans ) return 0;
 		return this.parsedBooleans.size();
@@ -53,20 +53,20 @@ public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public void addAll(Collection<Boolean> vals) throws IOException {
+	public final void addAll(final Collection<Boolean> vals) throws IOException {
 		if ( null != this.parsedBooleans ) parse();
 		if ( null == this.parsedBooleans ) this.parsedBooleans = new ArrayList<Boolean>(); 
 		this.parsedBooleans.addAll(vals);
 	}
 
 	@Override
-	public Boolean getValueAt(int pos) throws IndexOutOfBoundsException {
+	public final Boolean getValueAt(final int pos) throws IndexOutOfBoundsException {
 		initialize();
 		return this.parsedBooleans.get(pos);
 	}
 
 	@Override
-	public int getEqualToIndex(Boolean matchNo) throws IOException {
+	public final int getEqualToIndex(final Boolean matchNo) throws IOException {
 		initialize();
 
 		boolean matchNoL = matchNo.booleanValue();
@@ -79,7 +79,7 @@ public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public void getEqualToIndexes(Boolean matchNo, Collection<Integer> matchings) throws IOException {
+	public final void getEqualToIndexes(final Boolean matchNo, final Collection<Integer> matchings) throws IOException {
 
 		initialize();
 
@@ -121,7 +121,7 @@ public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 		throw new RuntimeException("Not implemented");
 	}
 	
-	private void parse() throws IndexOutOfBoundsException {
+	private final void parse() throws IndexOutOfBoundsException {
 		if ( null == this.inputBytes) return;
 		
 		byte[] bytesSubset = null;
@@ -140,13 +140,13 @@ public class SortedBytesBooleanCompressed extends SortedBytesBase<Boolean>{
 		}
 	}
 
-	public void initialize() throws IndexOutOfBoundsException {
+	public final void initialize() throws IndexOutOfBoundsException {
 		if ( null == parsedBooleans ) parse();
 		if ( null == parsedBooleans ) throw new IndexOutOfBoundsException("SortedBytesBoolean - No data exists");
 	}
 
 	@Override
-	protected int compare(byte[] inputB, int offset, Boolean matchNo) {
+	protected final int compare(final byte[] inputB, final int offset, final Boolean matchNo) {
 		throw new RuntimeException("Not implemented");
 	}
 

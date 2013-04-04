@@ -26,7 +26,7 @@ import java.io.UnsupportedEncodingException;
 
 import com.google.protobuf.ByteString;
 
-public class ByteUtil {
+public final class ByteUtil {
 	/**
 	 * Compare byte values
 	 * @param inputOffset	Starting position of compare with Byte Array
@@ -34,7 +34,7 @@ public class ByteUtil {
 	 * @param compareBytes	Compare to Bytes
 	 * @return	True if matches
 	 */
-	public static boolean compareBytes(byte[] inputBytes, int inputOffset, byte[] compareBytes) {
+	public static final boolean compareBytes(final byte[] inputBytes, final int inputOffset, final byte[] compareBytes) {
 
 		int inputBytesT = inputBytes.length;
 		int compareBytesT = compareBytes.length;
@@ -108,7 +108,9 @@ public class ByteUtil {
 		return true;
 	}
 	
-	public static boolean compareBytes(byte[] inputBytes, int offset, int length, byte[] compareBytes) throws IOException {
+	public static final boolean compareBytes(final byte[] inputBytes, final int offset, 
+			final int length, final byte[] compareBytes) throws IOException {
+		
 		int requiredLen = (offset + length);
 		if ( inputBytes.length < requiredLen ) throw new IOException("Corrupted input bytes");
 		
@@ -130,7 +132,7 @@ public class ByteUtil {
 	 * @param compareBytes	Compare to Bytes
 	 * @return	True if matches
 	 */
-	public static boolean compareBytes(byte[] inputBytes, byte[] compareBytes) {
+	public static final boolean compareBytes(final byte[] inputBytes, final byte[] compareBytes) {
 		return compareBytes(inputBytes,0,compareBytes);
 	}
 	
@@ -141,7 +143,7 @@ public class ByteUtil {
 	 * @param compareBytes	Compare to character array
 	 * @return	True if matches
 	 */
-	public static boolean compareBytes(char[] inputBytes, char[] compareBytes) {
+	public static final boolean compareBytes(final char[] inputBytes, final char[] compareBytes) {
 
 		int inputBytesT = inputBytes.length;
 		int compareBytesT = compareBytes.length;
@@ -181,7 +183,7 @@ public class ByteUtil {
 	 * @param inputBytes	Input Bytes
 	 * @return	Short representation
 	 */
-	public static short toShort(byte[] inputBytes, int offset) {
+	public static final short toShort(final byte[] inputBytes, int offset) {
 		return (short) (
 			(inputBytes[offset] << 8 ) + ( inputBytes[++offset] & 0xff ) );
 	}
@@ -191,7 +193,7 @@ public class ByteUtil {
 	 * @param value	Short data
 	 * @return	2 bytes
 	 */
-	public static byte[] toBytes( short value ) {
+	public static final byte[] toBytes( final short value ) {
 
 		return new byte[] { 
 			(byte)(value >> 8 & 0xff), 
@@ -204,7 +206,7 @@ public class ByteUtil {
 	 * @param inputBytes	Input Bytes
 	 * @return	Integer representation
 	 */
-	public static int toInt(byte[] inputBytes, int offset) {
+	public static final int toInt(final byte[] inputBytes, int offset) {
 		
 		int intVal = (inputBytes[offset] << 24 ) + 
 		( (inputBytes[++offset] & 0xff ) << 16 ) + 
@@ -218,7 +220,7 @@ public class ByteUtil {
 	 * @param value	Integer data
 	 * @return	4 bytes
 	 */
-	public static byte[] toBytes( int value ) {
+	public static final byte[] toBytes(final int value ) {
 		return new byte[] { 
 			(byte)(value >> 24), 
 			(byte)(value >> 16 ), 
@@ -226,12 +228,12 @@ public class ByteUtil {
 			(byte)(value) }; 
 	}
 	
-	public static float toFloat(byte[] inputBytes, int offset) {
+	public static final float toFloat(final byte[] inputBytes, final int offset) {
 		
 		return Float.intBitsToFloat(toInt(inputBytes, offset));
 	}
 	
-	public static byte[] toBytes( float value ) {
+	public static final byte[] toBytes( final float value ) {
 		return (toBytes(Float.floatToIntBits(value)));
 	}
 	
@@ -242,7 +244,7 @@ public class ByteUtil {
 	 * @param inputBytes	Input Bytes
 	 * @return	Long representation
 	 */
-	public static long toLong(final byte[] inputBytes, int offset) {
+	public static final long toLong(final byte[] inputBytes, int offset) {
 		
 		if ( 0 == inputBytes.length) return 0;
 		
@@ -262,7 +264,7 @@ public class ByteUtil {
 	 * @param value	Long data
 	 * @return	8 bytes
 	 */
-	public static byte[] toBytes(long value) {
+	public static final byte[] toBytes(final long value) {
 		return new byte[]{
 			(byte)(value >> 56), 
 			(byte)(value >> 48 ), 
@@ -274,12 +276,12 @@ public class ByteUtil {
 			(byte)(value ) };		
 	}
 	
-	public static double toDouble(final byte[] inputBytes, int offset) {
+	public static final double toDouble(final byte[] inputBytes, final int offset) {
 		return Double.longBitsToDouble(toLong(inputBytes, offset));
 	}
 	
 	
-	public static byte[] toBytes(double value) {
+	public static final byte[] toBytes(final double value) {
 		return toBytes(Double.doubleToLongBits(value));
 	}
 	
@@ -288,7 +290,7 @@ public class ByteUtil {
 	 * @param inputBytes	Input bytes array
 	 * @return	A UTF-8 String
 	 */
-	public static String toString(byte[] inputBytes, int offset, int length) {
+	public static final String toString(final byte[] inputBytes, final int offset, final int length) {
 		try {
 			return new String( inputBytes , offset, length, "UTF-8");
 		} catch (UnsupportedEncodingException ex) {
@@ -301,7 +303,7 @@ public class ByteUtil {
 	 * @param inputObj	Input String
 	 * @return	bytes representation
 	 */
-	public static byte[] toBytes( String inputObj) {
+	public static final byte[] toBytes( final String inputObj) {
 		try {
 			return inputObj.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException ex) {
@@ -310,179 +312,13 @@ public class ByteUtil {
 		
 	}
 	
-/**	
-	public static ByteString toBytesLongFloatMap(Map<Long, Float> input) {
-		
-		ByteArrays.ArrayLong.Builder keyBuilder = ByteArrays.ArrayLong.newBuilder();
-		ByteArrays.ArrayFloat.Builder valBuilder = ByteArrays.ArrayFloat.newBuilder();
-		
-		for (Long mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (Float mapVal : input.values()) valBuilder.addVal(mapVal);
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}
-	
-	public static ByteString toBytesLongDoubleMap(Map<Long, Double> input) {
-		
-		ByteArrays.ArrayLong.Builder keyBuilder = ByteArrays.ArrayLong.newBuilder();
-		ByteArrays.ArrayDouble.Builder valBuilder = ByteArrays.ArrayDouble.newBuilder();
-		
-		for (long mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (double mapVal : input.values()) valBuilder.addVal(mapVal);
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}	
-	
-	public static ByteString toBytesLongIntMap(Map<Long, Integer> input) {
-		
-		ByteArrays.ArrayLong.Builder keyBuilder = ByteArrays.ArrayLong.newBuilder();
-		ByteArrays.ArrayInt.Builder valBuilder = ByteArrays.ArrayInt.newBuilder();
-		
-		for (long mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (int mapVal : input.values()) valBuilder.addVal(mapVal);
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}
-	
-	public static ByteString toBytesLongBooleanMap(Map<Long, Boolean> input) {
-		
-		ByteArrays.ArrayLong.Builder keyBuilder = ByteArrays.ArrayLong.newBuilder();
-		ByteArrays.ArrayBool.Builder valBuilder = ByteArrays.ArrayBool.newBuilder();
-		
-		for (long mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (boolean mapVal : input.values()) valBuilder.addVal(mapVal);
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}	
-	
-	public static ByteString toBytesLongBytesMap(Map<Long, byte[]> input) {
-		
-		ByteArrays.ArrayLong.Builder keyBuilder = ByteArrays.ArrayLong.newBuilder();
-		ByteArrays.ArrayBytes.Builder valBuilder = ByteArrays.ArrayBytes.newBuilder();
-		
-		for (long mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (byte[] mapVal : input.values()) valBuilder.addVal(ByteString.copyFrom(mapVal));
-
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}
-	
-	public static ByteString toBytesLongBytesStringMap(Map<Long, ByteString> input) {
-		
-		ByteArrays.ArrayLong.Builder keyBuilder = ByteArrays.ArrayLong.newBuilder();
-		ByteArrays.ArrayBytes.Builder valBuilder = ByteArrays.ArrayBytes.newBuilder();
-		
-		for (long mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (ByteString mapVal : input.values()) valBuilder.addVal(mapVal);
-
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}
-	
-///////
-	public static ByteString toBytesIntegerFloatMap(Map<Integer, Float> input) {
-		
-		ByteArrays.ArrayInt.Builder keyBuilder = ByteArrays.ArrayInt.newBuilder();
-		ByteArrays.ArrayFloat.Builder valBuilder = ByteArrays.ArrayFloat.newBuilder();
-		
-		for (Integer mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (Float mapVal : input.values()) valBuilder.addVal(mapVal);
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}
-	
-	public static ByteString toBytesIntegerDoubleMap(Map<Integer, Double> input) {
-		
-		ByteArrays.ArrayInt.Builder keyBuilder = ByteArrays.ArrayInt.newBuilder();
-		ByteArrays.ArrayDouble.Builder valBuilder = ByteArrays.ArrayDouble.newBuilder();
-		
-		for (int mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (double mapVal : input.values()) valBuilder.addVal(mapVal);
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}	
-	
-	public static ByteString toBytesIntegerIntMap(Map<Integer, Integer> input) {
-		
-		ByteArrays.ArrayInt.Builder keyBuilder = ByteArrays.ArrayInt.newBuilder();
-		ByteArrays.ArrayInt.Builder valBuilder = ByteArrays.ArrayInt.newBuilder();
-		
-		for (int mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (int mapVal : input.values()) valBuilder.addVal(mapVal);
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}
-	
-	public static ByteString toBytesIntegerBooleanMap(Map<Integer, Boolean> input) {
-		
-		ByteArrays.ArrayInt.Builder keyBuilder = ByteArrays.ArrayInt.newBuilder();
-		ByteArrays.ArrayBool.Builder valBuilder = ByteArrays.ArrayBool.newBuilder();
-		
-		for (int mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (boolean mapVal : input.values()) valBuilder.addVal(mapVal);
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}	
-	
-	public static ByteString toBytesIntegerBytesMap(Map<Integer, byte[]> input) {
-		
-		ByteArrays.ArrayInt.Builder keyBuilder = ByteArrays.ArrayInt.newBuilder();
-		ByteArrays.ArrayBytes.Builder valBuilder = ByteArrays.ArrayBytes.newBuilder();
-		
-		for (int mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (byte[] mapVal : input.values()) valBuilder.addVal(ByteString.copyFrom(mapVal));
-
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}
-	
-	public static ByteString toBytesIntegerBytesStringMap(Map<Integer, ByteString> input) {
-		
-		ByteArrays.ArrayInt.Builder keyBuilder = ByteArrays.ArrayInt.newBuilder();
-		ByteArrays.ArrayBytes.Builder valBuilder = ByteArrays.ArrayBytes.newBuilder();
-		
-		for (int mapKey : input.keySet()) keyBuilder.addVal(mapKey);
-		for (ByteString mapVal : input.values()) valBuilder.addVal(mapVal);
-
-		return joinKV(keyBuilder.build().toByteString(), valBuilder.build().toByteString());
-	}	
-//////
-	
-	public static PartialParsed<Integer> parseIntegerMap(byte[] data) throws IOException {
-
-		ByteArrays.ArrayBytes kvBytes = ByteArrays.ArrayBytes.parseFrom(data);
-		ByteString keyData = kvBytes.getValList().get(0);
-		ByteArrays.ArrayInt pks = ByteArrays.ArrayInt.parseFrom(keyData);
-		
-		return new PartialParsed<Integer>(pks.getValList(), kvBytes.getValList().get(1)); 
-	}	
-	
-	public static PartialParsed<Integer> parseIntegerMap(ByteString data) throws IOException {
-
-		ByteArrays.ArrayBytes kvBytes = ByteArrays.ArrayBytes.parseFrom(data);
-		ByteString keyData = kvBytes.getValList().get(0);
-		ByteArrays.ArrayInt pks = ByteArrays.ArrayInt.parseFrom(keyData);
-		
-		return new PartialParsed<Integer>(pks.getValList(), kvBytes.getValList().get(1)); 
-	}		
-	
-
-	public static PartialParsed<Long> parseLongMap(byte[] data) throws IOException {
-
-		ByteArrays.ArrayBytes kvBytes = ByteArrays.ArrayBytes.parseFrom(data);
-		ByteString keyData = kvBytes.getValList().get(0);
-		ByteArrays.ArrayLong pks = ByteArrays.ArrayLong.parseFrom(keyData);
-		
-		return new PartialParsed<Long>(pks.getValList(), kvBytes.getValList().get(1)); 
-	}	
-	
-	public static PartialParsed<Long> parseLongMap(ByteString data) throws IOException {
-
-		ByteArrays.ArrayBytes kvBytes = ByteArrays.ArrayBytes.parseFrom(data);
-		ByteString keyData = kvBytes.getValList().get(0);
-		ByteArrays.ArrayLong pks = ByteArrays.ArrayLong.parseFrom(keyData);
-		
-		return new PartialParsed<Long>(pks.getValList(), kvBytes.getValList().get(1)); 
-	}	
-*/	
-	
-	
 	/**
 	 * Put two array on one Array
 	 * @param k
 	 * @param v
 	 * @return
 	 */
-	public static ByteString joinKV(ByteString k, ByteString v) {
+	public final static ByteString joinKV(final ByteString k, final ByteString v) {
 
 		ByteArrays.ArrayBytes.Builder kvBuilder = ByteArrays.ArrayBytes.newBuilder();
 		kvBuilder.addVal(k);
@@ -490,7 +326,7 @@ public class ByteUtil {
 		return kvBuilder.build().toByteString();		
 	}
 	
-	public static ByteString joinKV(byte[] k, ByteString v) {
+	public static final ByteString joinKV(final byte[] k, final ByteString v) {
 
 		ByteArrays.ArrayBytes.Builder kvBuilder = ByteArrays.ArrayBytes.newBuilder();
 		kvBuilder.addVal(ByteString.copyFrom(k));
@@ -498,7 +334,7 @@ public class ByteUtil {
 		return kvBuilder.build().toByteString();		
 	}	
 	
-	public static ByteString joinKV(byte[] k, byte[] v) {
+	public static final ByteString joinKV(final byte[] k, final byte[] v) {
 
 		ByteArrays.ArrayBytes.Builder kvBuilder = ByteArrays.ArrayBytes.newBuilder();
 		kvBuilder.addVal(ByteString.copyFrom(k));
@@ -506,7 +342,7 @@ public class ByteUtil {
 		return kvBuilder.build().toByteString();		
 	}		
 	
-	public static KVBytes getKV(byte[] data) throws IOException {
+	public static final KVBytes getKV(final byte[] data) throws IOException {
 		
 		ByteArrays.ArrayBytes kvBytes = ByteArrays.ArrayBytes.parseFrom(data);
 		KVBytes kv = new KVBytes();
@@ -515,7 +351,7 @@ public class ByteUtil {
 		return kv;
 	}
 	
-	public static KVBytes getKV(ByteString data) throws IOException {
+	public static final KVBytes getKV(final ByteString data) throws IOException {
 		
 		ByteArrays.ArrayBytes kvBytes = ByteArrays.ArrayBytes.parseFrom(data);
 		KVBytes kv = new KVBytes();
@@ -531,7 +367,7 @@ public class ByteUtil {
      * @param b	A byte
      * @return	8 bits
      */
-	public static final boolean[] toBits(byte b) {
+	public static final boolean[] toBits(final byte b) {
         boolean[] bits = new boolean[8];
         for (int i = 0; i < bits.length; i++) {
             bits[i] = ((b & (1 << i)) != 0);
@@ -544,7 +380,7 @@ public class ByteUtil {
 	 * @param bits	Bits array. Reading happens from position 0
 	 * @return	1 Byte
 	 */
-    public static byte fromBits(boolean[] bits) {
+    public static final byte fromBits(final boolean[] bits) {
 		return fromBits(bits, 0);
     }
 	
@@ -554,7 +390,7 @@ public class ByteUtil {
      * @param offset	Read starting position
      * @return	1 Byte
      */
-	public static byte fromBits(boolean[] bits, int offset) {
+	public static final byte fromBits(final boolean[] bits, final int offset) {
 		int value = 0;
         for (int i = 0; i < 8; i++) {
 			if(bits[i] == true) {

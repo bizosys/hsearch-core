@@ -23,7 +23,7 @@ package com.bizosys.hsearch.byteutils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class BinaryFloat {
+public final class BinaryFloat {
 	
 	public static final List<Float> emptyList = new ArrayList<Float>(0);
 	
@@ -34,7 +34,7 @@ public class BinaryFloat {
 		
 	}
 	
-	public void add(float aFloat) {
+	public final void add(final float aFloat) {
 		if ( isEmpty ) {
 			isEmpty = false;
 			values = new ArrayList<Float>(0);
@@ -43,7 +43,7 @@ public class BinaryFloat {
 		values.add(aFloat);
 	}
 	
-	public byte[] toBytes() {
+	public final byte[] toBytes() {
 		int val = -1;
 		int valuesT = values.size();
 		byte[] b = new byte[4 * valuesT];

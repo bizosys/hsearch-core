@@ -58,7 +58,7 @@ public class NVBytes {
 	 * @param name	Column Name / Qualifier
 	 * @param data	Column Value
 	 */
-	public NVBytes(byte[] family, byte[] name, byte[] data) {
+	public NVBytes(final byte[] family, final byte[] name, final byte[] data) {
 		this.family = family;
 		this.name = name;
 		this.data = data;

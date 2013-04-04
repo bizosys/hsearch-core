@@ -47,7 +47,7 @@ public class HDML {
 	 * @param cols
 	 * @throws IOException
 	 */
-    public static final boolean create(String tableName, List<HColumnDescriptor> cols) throws HBaseException {
+    public static final boolean create(final String tableName, final List<HColumnDescriptor> cols) throws HBaseException {
     	
 		if  (DEBUG_ENABLED) 
 			HbaseLog.l.debug("Creating HBase Table - " + tableName);
@@ -86,7 +86,7 @@ public class HDML {
 	 * @param tableName
 	 * @throws IOException
 	 */
-	public static void drop(String tableName) throws HBaseException {
+	public final static void drop(final String tableName) throws HBaseException {
 
 		if  (DEBUG_ENABLED) 
 			HbaseLog.l.debug("Checking for table existance");
@@ -109,7 +109,7 @@ public class HDML {
 		}
 	}
 	
-	public static void truncate(String tableName, NV kv) throws IOException {
+	public final static void truncate(final String tableName, final NV kv) throws IOException {
 		
 		HBaseFacade facade = null;
 		ResultScanner scanner = null;
@@ -141,7 +141,7 @@ public class HDML {
 		}
 	}		
 	
-	public static void truncateBatch(String tableName, String keyPrefix) throws IOException {
+	public static final void truncateBatch(final String tableName, final String keyPrefix) throws IOException {
 		
 		if  (INFO_ENABLED) HbaseLog.l.info(
 			"Deleted from " + tableName + " with prefix " + keyPrefix);
@@ -192,7 +192,7 @@ public class HDML {
 		}
 	}			
 	
-	public static void truncateBatch(String tableName, List<byte[]> rows) throws IOException {
+	public final static void truncateBatch(final String tableName, final List<byte[]> rows) throws IOException {
 		
 		if ( null == rows) return;
 		if ( rows.size() == 0) return;

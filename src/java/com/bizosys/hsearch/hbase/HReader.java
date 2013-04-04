@@ -46,7 +46,8 @@ public class HReader {
 	 * @param scalar
 	 * @throws SystemFault
 	 */
-	public static long idGenerationByAutoIncr(String tableName, RecordScalar scalar, long amount ) throws HBaseException {
+	public static final long idGenerationByAutoIncr(final String tableName, 
+			final RecordScalar scalar, final long amount ) throws HBaseException {
 		
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
@@ -63,7 +64,7 @@ public class HReader {
 		}
 	}
 	
-	public static boolean exists (String tableName, byte[] pk) throws HBaseException {
+	public final static boolean exists (final String tableName, final byte[] pk) throws HBaseException {
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
 		try {
@@ -78,19 +79,19 @@ public class HReader {
 		}
 	}
 
-	public static List<NVBytes> getCompleteRow (String tableName, 
-		byte[] pk) throws HBaseException{
+	public static final List<NVBytes> getCompleteRow (final String tableName, 
+		final byte[] pk) throws HBaseException{
 		
 		return getCompleteRow (tableName, pk, null, null);
 	}
 	
-	public static List<NVBytes> getCompleteRow (String tableName, byte[] pk, 
-		Filter filter) throws HBaseException {
+	public static final List<NVBytes> getCompleteRow (final String tableName, final byte[] pk, 
+			final Filter filter) throws HBaseException {
 		
 		return getCompleteRow (tableName, pk, filter, null);
 	}		
-	public static List<NVBytes> getCompleteRow (String tableName, byte[] pk, 
-		Filter filter, RowLock lock) throws HBaseException {
+	public final static List<NVBytes> getCompleteRow (final String tableName, final byte[] pk, 
+			final Filter filter, final RowLock lock) throws HBaseException {
 		
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
@@ -118,7 +119,7 @@ public class HReader {
 		}
 	}	
 	
-	public static void getScalar (String tableName, RecordScalar scalar) throws HBaseException {
+	public static final void getScalar (final String tableName, final RecordScalar scalar) throws HBaseException {
 		HBaseFacade facade = null;
 		HTableWrapper table = null;
 		try {
@@ -136,15 +137,15 @@ public class HReader {
 		}
 	}
 	
-	public static byte[] getScalar (String tableName, 
-		byte[] family, byte[] col, byte[] pk) throws HBaseException {
+	public static final byte[] getScalar (final String tableName, 
+		final byte[] family, final byte[] col, final byte[] pk) throws HBaseException {
 
 		return getScalar(tableName,family,col,pk,null);		
 	}	
 		
 	
-	public static byte[] getScalar (String tableName, 
-			byte[] family, byte[] col, byte[] pk, Filter filter) throws HBaseException {
+	public static final byte[] getScalar (final String tableName, 
+		final byte[] family, final byte[] col, final byte[] pk, final Filter filter) throws HBaseException {
 		
 		if ( null == family || null == col || null == pk ) return null;
 		
@@ -171,7 +172,8 @@ public class HReader {
 		}
 	}
 	
-	public static void getAllValues(String tableName, byte[] family, byte[] col, String keyPrefix, IScanCallBack callback ) throws IOException {
+	public static final void getAllValues(final String tableName, final byte[] family, 
+			final byte[] col, final String keyPrefix, final IScanCallBack callback ) throws IOException {
 		
 		Filter rowFilter = null;
 		if ( null != keyPrefix) {
@@ -182,7 +184,8 @@ public class HReader {
 
 	}
 	
-	public static void getAllValues(String tableName, byte[] family, byte[] col, Filter filter, IScanCallBack callback ) throws IOException {
+	public static final void getAllValues(final String tableName, final byte[] family, 
+			final byte[] col, final Filter filter, final IScanCallBack callback ) throws IOException {
 		
 		HBaseFacade facade = null;
 		ResultScanner scanner = null;
@@ -238,7 +241,8 @@ public class HReader {
 	}
 	
 	
-	public static void getAllValues(String tableName, List<ColumnFamName> columns, String keyPrefix, IScanCallBack callback ) throws IOException {
+	public static final void getAllValues(final String tableName, final List<ColumnFamName> columns, 
+			final String keyPrefix, final IScanCallBack callback ) throws IOException {
 		
 		Filter rowFilter = null;
 		if ( null != keyPrefix) {
@@ -249,7 +253,8 @@ public class HReader {
 
 	}
 	
-	public static void getAllValues(String tableName, List<ColumnFamName> columns, Filter filter, IScanCallBack callback ) throws IOException {
+	public final static void getAllValues(final String tableName, final List<ColumnFamName> columns, 
+			final Filter filter, final IScanCallBack callback ) throws IOException {
 		
 		HBaseFacade facade = null;
 		ResultScanner scanner = null;
@@ -309,8 +314,8 @@ public class HReader {
 	 * @return	Record Keys	
 	 * @throws SystemFault
 	 */
-	public static void getAllKeys(String tableName, NV kv, 
-			String keyPrefix, IScanCallBack callback) throws HBaseException {
+	public static final void getAllKeys(final String tableName, final NV kv, 
+			final String keyPrefix, final IScanCallBack callback) throws HBaseException {
 	
 		HBaseFacade facade = null;
 		ResultScanner scanner = null;
@@ -356,8 +361,8 @@ public class HReader {
 	 * @return	Record Keys	
 	 * @throws SystemFault
 	 */
-	public static List<byte[]> getKeysForAPage(String tableName, NV kv, 
-		byte[] startKey, String keyPrefix, int pageSize) throws HBaseException {
+	public static final List<byte[]> getKeysForAPage(final String tableName, final NV kv, 
+		final byte[] startKey, final String keyPrefix, final int pageSize) throws HBaseException {
 	
 		HBaseFacade facade = null;
 		ResultScanner scanner = null;

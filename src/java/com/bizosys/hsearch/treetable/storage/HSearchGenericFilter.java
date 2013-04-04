@@ -64,13 +64,13 @@ public abstract class HSearchGenericFilter implements Filter {
 	public HSearchGenericFilter(){
 	}
 	
-	public HSearchGenericFilter(HSearchProcessingInstruction outputType, String query, Map<String, String> details){
+	public HSearchGenericFilter(final HSearchProcessingInstruction outputType, final String query, final  Map<String, String> details){
 		this.multiQuery = query;
 		this.queryFilters = details;
 		this.processingInstructions = outputType;
 	}
 	
-	public int getTotalQueryParts() throws IOException {
+	public final int getTotalQueryParts() throws IOException {
 		if ( null != this.queryFilters) return this.queryFilters.size();
 		if ( null != this.queryPayload) return this.queryPayload.size();
 		throw new IOException("Unable to find total queries inside the multi query.");
@@ -84,7 +84,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	 * unstructured:B=*|*|*|*|*|*
 	 */
 	@Override
-	public void write(DataOutput out) throws IOException {
+	public final void write(final DataOutput out) throws IOException {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append(processingInstructions.toString()).append('\n');
@@ -114,7 +114,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	 * TODO:// Replace with Fast Split.
 	 */
 	@Override
-	public void readFields(DataInput in) throws IOException {
+	public final void readFields(final DataInput in) throws IOException {
 		try {
 			int length = in.readInt();
 			if ( 0 == length) throw new IOException("Invalid Query");
@@ -195,7 +195,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	 * and FieldB byte[] of family FieldB_*
 	 */
 	@Override
-	public void filterRow(List<KeyValue> kvL) {
+	public final  void filterRow(final List<KeyValue> kvL) {
 		if ( null == kvL) return;
 		int kvT = kvL.size();
 		if ( 0 == kvT) return;
@@ -283,10 +283,9 @@ public abstract class HSearchGenericFilter implements Filter {
 		}
 	}
 
-	private BitSetOrSet federatedQueryExec(byte[] row,
-			HSearchTableMultiQueryExecutor intersector,
-			Map<String, HSearchTableParts> queryData) throws Exception,
-			IOException {
+	private final  BitSetOrSet federatedQueryExec(final byte[] row,
+			final HSearchTableMultiQueryExecutor intersector,
+			final Map<String, HSearchTableParts> queryData) throws Exception, IOException {
 		
 		BitSetOrSet intersectedIds = intersector.execute(
 			queryData, this.multiQuery, this.queryPayload, processingInstructions);

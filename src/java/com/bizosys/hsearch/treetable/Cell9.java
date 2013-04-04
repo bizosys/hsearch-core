@@ -10,7 +10,7 @@ import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
 import com.bizosys.hsearch.hbase.ObjectFactory;
-public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
+public final class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 	public ISortedByte<K2> k2Sorter = null;
 	public ISortedByte<K3> k3Sorter = null;
 	public ISortedByte<K4> k4Sorter = null;
@@ -22,7 +22,7 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 	public ISortedByte<V> vSorter = null;
 	
 	public Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> sortedList;
-	public Cell9 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter, ISortedByte<V> vSorter) {
+	public Cell9 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter, final ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.k2Sorter = k2Sorter;
 		this.k3Sorter = k3Sorter;
@@ -35,25 +35,25 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 		this.vSorter = vSorter;
 	}
 	
-	public Cell9 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter, 
-			ISortedByte<V> vSorter, Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> sortedList ) {
+	public Cell9 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter, 
+			final ISortedByte<V> vSorter, final Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> sortedList ) {
 		this(k1Sorter,k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,k7Sorter,k8Sorter,vSorter);
 		this.sortedList = sortedList;
 	}
-	public Cell9 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,
-			ISortedByte<V> vSorter, byte[] data ) {
+	public Cell9 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,
+			final ISortedByte<V> vSorter, final byte[] data ) {
 		this(k1Sorter,k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,k7Sorter,k8Sorter,vSorter);
 		int len = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, len);
 	}
 	
-	public Cell9 (ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,
-			ISortedByte<V> vSorter, BytesSection data ) {
+	public Cell9 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,
+			final ISortedByte<V> vSorter, final BytesSection data ) {
 		this(k1Sorter,k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,k7Sorter,k8Sorter,vSorter);
 		this.data = data;
 	}
 	//Builder
-	public void put(K1 k1,K2 k2,K3 k3,K4 k4,K5 k5,K6 k6,K7 k7,K8 k8, V v) {
+	public final void put(final K1 k1,final K2 k2,final K3 k3,final K4 k4,final K5 k5,final K6 k6,final K7 k7,final K8 k8, final V v) {
 		if ( null == sortedList) sortedList = new TreeMap<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V> >();
 		
 		Cell8< K2, K3, K4, K5, K6, K7, K8,V> val = null;
@@ -65,19 +65,19 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 		val.put(k2,k3,k4,k5,k6,k7,k8, v);
 	}
 	
-	public void sort(Comparator<CellKeyValue<K8, V>> comp) {
+	public final void sort(final Comparator<CellKeyValue<K8, V>> comp) {
 		if ( null == sortedList) return;
 		for (Cell8< K2, K3, K4, K5, K6, K7, K8,V> entry : sortedList.values()) {
 			entry.sort(comp);
 		}
 	}	
 	
-	public byte[] toBytes(Comparator<CellKeyValue<K8, V>> comp) throws IOException {
+	public final byte[] toBytes(final Comparator<CellKeyValue<K8, V>> comp) throws IOException {
 		this.sort(comp);
 		return toBytes();
 	}	
 	
-	public byte[] toBytes(V minValue, V maximumValue, boolean leftInclusize, boolean rightInclusize, Comparator<V> vComp) throws IOException {
+	public final byte[] toBytes(final V minValue, final V maximumValue, final boolean leftInclusize, final boolean rightInclusize, final Comparator<V> vComp) throws IOException {
 		
 		List<K1> keysL = new ArrayList<K1>(1);
 		List<byte[]> valuesL = new ArrayList<byte[]>(1);
@@ -95,14 +95,14 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 		valuesL.clear();
 		return cellB;
 	}		
-	public Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> getMap(byte[] data) throws IOException {
+	public final Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> getMap(final byte[] data) throws IOException {
 		if ( null == data) return null;
 		this.data = new BytesSection(data, 0, data.length);
 		parseElements();
 		return sortedList;
 	}	
 	
-	public Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> getMap() throws IOException {
+	public final Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> getMap() throws IOException {
 		if ( null != sortedList) return sortedList;
 		if ( null != this.data) {
 			parseElements();
@@ -111,7 +111,7 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 		throw new IOException("Cell is not initialized");
 	}
 	
-	public void getMap(K1 exactValue, K1 minimumValue, K1 maximumValue, Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> rows) throws IOException 
+	public final void getMap(final K1 exactValue, final K1 minimumValue, final K1 maximumValue, final Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> rows) throws IOException 
 	{
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
@@ -140,27 +140,27 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values(K1 exactValue) throws IOException {
+	public final Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values(final K1 exactValue) throws IOException {
 		Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values = new ArrayList<Cell8< K2, K3, K4, K5, K6, K7, K8,V>>();
 		values(exactValue, null, null, values);
 		return values;
 	}
-	public Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values(K1 minimumValue, K1 maximumValue) throws IOException {
+	public final Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values(final K1 minimumValue, final K1 maximumValue) throws IOException {
 		Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values = new ArrayList<Cell8< K2, K3, K4, K5, K6, K7, K8,V>>();
 		values(null, minimumValue, maximumValue, values);
 		return values;
 	}	
 	
-	public void values(K1 exactValue, Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> foundValues) throws IOException {
+	public final void values(final K1 exactValue, final Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> foundValues) throws IOException {
 		values(exactValue, null, null, foundValues);
 	}
 	
-	public void values(K1 minimumValue, K1 maximumValue, Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> foundValues) throws IOException {
+	public final void values(final K1 minimumValue, final K1 maximumValue, final Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> foundValues) throws IOException {
 		values(null, minimumValue, maximumValue, foundValues);
 	}
 	
-	private void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
-			Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> foundValues) throws IOException {
+	private final void values(final K1 exactValue, final K1 minimumValue, final K1 maximumValue, 
+			final Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> foundValues) throws IOException {
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
 			return;
@@ -185,13 +185,13 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 		ObjectFactory.getInstance().putIntegerList(foundPositions);
 	}
 	
-	public Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values() throws IOException {
+	public final Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values() throws IOException {
 		Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values = new ArrayList<Cell8< K2, K3, K4, K5, K6, K7, K8,V>>();
 		values(values);
 		return values;
 	}	
 	
-	public void values(Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values) throws IOException {
+	public final void values(final Collection<Cell8< K2, K3, K4, K5, K6, K7, K8,V>> values) throws IOException {
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
 			return;
@@ -211,7 +211,7 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 		}
 	}
 	
-	public void parseElements() throws IOException {
+	public final void parseElements() throws IOException {
 		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>>();
 		else this.sortedList.clear();
 		
@@ -239,7 +239,7 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 	}
 	
 	@Override
-	protected List<byte[]> getEmbeddedCellBytes() throws IOException {
+	protected final List<byte[]> getEmbeddedCellBytes() throws IOException {
 		List<byte[]> values = new ArrayList<byte[]>();
 		for (Cell8< K2, K3, K4, K5, K6, K7, K8,V> cell8 : sortedList.values()) {
 			values.add(cell8.toBytes());
@@ -248,19 +248,20 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 	}
 	
 	@Override
-	protected byte[] getKeyBytes() throws IOException {
+	protected final byte[] getKeyBytes() throws IOException {
 		if ( null == sortedList) throw new IOException("Cell is not initialized");
 		return k1Sorter.toBytes(sortedList.keySet());
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
+	public final void valuesUnchecked(final K1 exactValue, final K1 minimumValue,
+		final K1 maximumValue, final Collection foundValues) throws IOException {
 		this.values(exactValue, minimumValue, maximumValue, foundValues );
 	}
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void valuesUnchecked(Collection foundValues) throws IOException {
+	public final void valuesUnchecked(final Collection foundValues) throws IOException {
 		this.values(foundValues );
 	}
 	
@@ -270,13 +271,13 @@ public class Cell9< K1, K2, K3, K4, K5, K6, K7, K8,V> extends CellBase<K1> {
 		public ISortedByte<byte[]> valSorter;
 		Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> rows;
 		
-		public Callback(Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> rows, ISortedByte<byte[]> valSorter ) {
+		public Callback(final Map<K1, Cell8< K2, K3, K4, K5, K6, K7, K8,V>> rows, final ISortedByte<byte[]> valSorter ) {
 			this.rows = rows;
 			this.valSorter = valSorter;
 		}
 		
 		@Override
-		public final boolean add(Integer position) {
+		public final boolean add(final Integer position) {
 			SortedBytesArray sortedArr = (SortedBytesArray) valSorter;
 			Reference valueSectionPoints = new Reference();
 			sortedArr.getValueAtReference(position, valueSectionPoints);

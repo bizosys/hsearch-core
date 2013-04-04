@@ -34,7 +34,7 @@ import org.apache.hadoop.hbase.client.RowLock;
 
 import com.bizosys.hsearch.hbase.NV;
 
-public class ObjectFactory {
+public final class ObjectFactory {
 	
 	private static int MINIMUM_CACHE = 10;
 	private static int MAXIMUM_CACHE = 4096;
@@ -58,14 +58,14 @@ public class ObjectFactory {
 	Stack<List<Integer>> integerLists = new Stack<List<Integer>>();
 	
 
-	public  List<RowLock> getRowLockList() {
+	public  final List<RowLock> getRowLockList() {
 		List<RowLock> locks = null;
 		if (locksLists.size() > MINIMUM_CACHE ) locks = locksLists.pop();
 		if ( null != locks ) return locks;
 		return new ArrayList<RowLock>(256);
 	}
 	
-	public  void putRowLockList(List<RowLock> locks ) {
+	public  final void putRowLockList(final List<RowLock> locks ) {
 		if ( null == locks) return;
 		locks.clear();
 		if (locksLists.size() > MAXIMUM_CACHE ) return;
@@ -73,14 +73,14 @@ public class ObjectFactory {
 		locksLists.push(locks);
 	}	
 	
-	public  List<Put> getPutList() {
+	public  final List<Put> getPutList() {
 		List<Put> puts = null;
 		if (putsLists.size() > MINIMUM_CACHE ) puts = putsLists.pop();
 		if ( null != puts ) return puts;
 		return new ArrayList<Put>(256);
 	}
 	
-	public  void putPutsList(List<Put> puts ) {
+	public final  void putPutsList(final List<Put> puts ) {
 		if ( null == puts) return;
 		puts.clear();
 		if (putsLists.size() > MAXIMUM_CACHE ) return;
@@ -88,14 +88,14 @@ public class ObjectFactory {
 		putsLists.push(puts);
 	}		
 	
-	public  List<byte[]> getByteArrList() {
+	public final  List<byte[]> getByteArrList() {
 		List<byte[]> bytesA = null;
 		if (byteArrLists.size() > MINIMUM_CACHE ) bytesA = byteArrLists.pop();
 		if ( null != bytesA ) return bytesA;
 		return new ArrayList<byte[]>(32);
 	}
 	
-	public  void putByteArrList(List<byte[]> bytesA ) {
+	public final  void putByteArrList(final List<byte[]> bytesA ) {
 		if ( null == bytesA) return;
 		bytesA.clear();
 		if (byteArrLists.size() > MAXIMUM_CACHE ) return;
@@ -103,14 +103,14 @@ public class ObjectFactory {
 		byteArrLists.push(bytesA);
 	}		
 	
-	public  List<NV> getNVList() {
+	public final  List<NV> getNVList() {
 		List<NV> nvs = null;
 		if (nvLists.size() > MINIMUM_CACHE ) nvs = nvLists.pop();
 		if ( null != nvs ) return nvs;
 		return new ArrayList<NV>();
 	}
 	
-	public  void putNVList(List<NV> nvs ) {
+	public final  void putNVList(final List<NV> nvs ) {
 		if ( null == nvs) return;
 		nvs.clear();
 		if (nvLists.size() > MAXIMUM_CACHE ) return;
@@ -118,14 +118,14 @@ public class ObjectFactory {
 		nvLists.push(nvs);
 	}		
 	
-	public  Map<Long, Short> getBytesList() {
+	public final  Map<Long, Short> getBytesList() {
 		Map<Long,Short> lstB = null;
 		if (blockMap.size() > MINIMUM_CACHE ) lstB = blockMap.pop();
 		if ( null != lstB ) return lstB;
 		return new HashMap<Long,Short>();
 	}
 	
-	public  void putBytesList(Map<Long,Short> lstB ) {
+	public final  void putBytesList(final Map<Long,Short> lstB ) {
 		if ( null == lstB) return;
 		lstB.clear();
 		if (blockMap.size() > MAXIMUM_CACHE ) return;
@@ -133,14 +133,14 @@ public class ObjectFactory {
 		blockMap.push(lstB);
 	}		
 	
-	public Map<String,String> getStringMap(){
+	public final Map<String,String> getStringMap(){
 		Map<String, String> obj = null;
 		if (stringMaps.size() > MINIMUM_CACHE  ) obj = stringMaps.pop();
 		if ( null != obj ) return obj;
 		return new HashMap<String, String>();		
 	}
 	
-	public void putStringMap(Map<String,String> item){
+	public final void putStringMap(final Map<String,String> item){
 		if ( null == item) return;
 		item.clear();
 		if (stringMaps.size() > MAXIMUM_CACHE ) return;
@@ -148,14 +148,14 @@ public class ObjectFactory {
 		stringMaps.push(item);
 	}
 	
-	public Map<Integer,byte[]> getByteBlockMap(){
+	public final Map<Integer,byte[]> getByteBlockMap(){
 		Map<Integer,byte[]> obj = null;
 		if (blockMaps.size() > MINIMUM_CACHE ) obj = blockMaps.pop();
 		if ( null != obj ) return obj;
 		return new Hashtable<Integer,byte[]>();		
 	}
 	
-	public void putByteBlockMap(Map<Integer,byte[]> obj){
+	public final  void putByteBlockMap(final Map<Integer, byte[]> obj){
 		if ( null == obj) return;
 		obj.clear();
 		if (blockMaps.size() > MAXIMUM_CACHE ) return;
@@ -163,14 +163,14 @@ public class ObjectFactory {
 		blockMaps.push(obj);
 	}	
 	
-	public Set<String> getStringSet(){
+	public final Set<String> getStringSet(){
 		Set<String> obj = null;
 		if (stringSets.size() > MINIMUM_CACHE ) obj = stringSets.pop();
 		if ( null != obj ) return obj;
 		return new HashSet<String>();		
 	}
 	
-	public void putStringSet(Set<String> obj){
+	public final void putStringSet(final Set<String> obj){
 		if ( null == obj) return;
 		obj.clear();
 		if (stringSets.size() > MAXIMUM_CACHE ) return;
@@ -178,14 +178,14 @@ public class ObjectFactory {
 		stringSets.push(obj);
 	}			
 		
-	public List<String> getStringList(){
+	public final List<String> getStringList(){
 		List<String> obj = null;
 		if (stringLists.size() > MINIMUM_CACHE ) obj = stringLists.pop();
 		if ( null != obj ) return obj;
 		return new ArrayList<String>();		
 	}
 	
-	public void putStringList(List<String> obj){
+	public final void putStringList(final List<String> obj){
 		if ( null == obj) return;
 		obj.clear();
 		if (stringLists.size() > MAXIMUM_CACHE ) return;

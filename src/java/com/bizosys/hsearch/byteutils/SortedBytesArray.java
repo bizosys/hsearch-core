@@ -176,7 +176,7 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		return ref;
 	}
 	
-	public final void getValueAtReference(final int pos, Reference ref) {
+	public final void getValueAtReference(final int pos, final Reference ref) {
 		
 		int collectionSize = Storable.getInt(this.offset, inputBytes);
 		if ( pos >= collectionSize) throw new IndexOutOfBoundsException(
@@ -193,7 +193,7 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	
 	
 	@Override
-	public final int getEqualToIndex(byte[] matchNo) throws IOException {
+	public final int getEqualToIndex(final byte[] matchNo) throws IOException {
 		byte[] inputBytes = this.inputBytes;
 		int readOffset = this.offset;
 
@@ -233,7 +233,7 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	}
 
 	@Override
-	public final void getEqualToIndexes(byte[] matchBytes, Collection<Integer> matchings) throws IOException {
+	public final void getEqualToIndexes(final byte[] matchBytes, final Collection<Integer> matchings) throws IOException {
 		
 		byte[] inputData = this.inputBytes;
 		int readOffset = this.offset;
@@ -261,13 +261,13 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	}
 
 	@Override
-	public final Collection<Integer> getEqualToIndexes(byte[] matchNo) throws IOException {
+	public final Collection<Integer> getEqualToIndexes(final byte[] matchNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getGreaterThanIndexes(byte[] matchingNo,
-			Collection<Integer> matchingPos) throws IOException {
+	public final void getGreaterThanIndexes(final byte[] matchingNo,
+			final Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
@@ -347,7 +347,7 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 	}
 
 	@Override
-	protected final int compare(byte[] inputB, int offset, byte[] compareBytes) {
+	protected final int compare(final byte[] inputB, final int offset, final byte[] compareBytes) {
 
 		if ( null == inputB && null == compareBytes) return 0;
 		if ( null == inputB) return 1;

@@ -75,7 +75,7 @@ public class HWriter {
 	 * @param record	A Table record
 	 * @throws IOException
 	 */
-	public void insertScalar(String tableName, RecordScalar record) throws IOException {
+	public final void insertScalar(final String tableName, final RecordScalar record) throws IOException {
 		if  (DEBUG_ENABLED)  HbaseLog.l.debug("HWriter> insertScalar:record " + tableName);
 		
 		byte[] pk = record.pk;
@@ -105,8 +105,8 @@ public class HWriter {
 	 * @param records	Table records
 	 * @throws IOException
 	 */
-	public void insertScalar(String tableName, 
-			List<RecordScalar> records) throws IOException {
+	public final void insertScalar(final String tableName, 
+			final List<RecordScalar> records) throws IOException {
 		
 		if  (DEBUG_ENABLED) HbaseLog.l.debug("HWriter> insertScalar:records table " + tableName);
 		
@@ -140,7 +140,7 @@ public class HWriter {
 	 * @param record
 	 * @throws IOException
 	 */
-	public void insert(String tableName, Record record) throws IOException {
+	public final void insert(final String tableName, final Record record) throws IOException {
 		if  (DEBUG_ENABLED) HbaseLog.l.debug("HWriter> insert to table " + tableName);
 		
    		HTableWrapper table = null;
@@ -169,7 +169,7 @@ public class HWriter {
 	 * @param records
 	 * @throws IOException
 	 */
-	public void insert(String tableName, List<Record> records) throws IOException {
+	public final void insert(final String tableName, final List<Record> records) throws IOException {
 		if  (DEBUG_ENABLED) HbaseLog.l.debug("HWriter> insert:records to table " + tableName);
 		
 		List<Put> updates = ObjectFactory.getInstance().getPutList();
@@ -207,8 +207,8 @@ public class HWriter {
 	 * @param families
 	 * @throws IOException
 	 */
-	public void update(String tableName, 
-		byte[] pk, IUpdatePipe pipe, byte[][] families) throws IOException {
+	public final void update(final String tableName, 
+		final byte[] pk, final IUpdatePipe pipe, final byte[][] families) throws IOException {
 		
 		if ( null == tableName  || null == pk) return;
 		if  (DEBUG_ENABLED) HbaseLog.l.debug("HWriter> update to table " + tableName);
@@ -331,7 +331,7 @@ public class HWriter {
 	 * @param pk	Serialized primary Key
 	 * @throws IOException
 	 */
-	public void delete(String tableName, byte[] pk) throws IOException {
+	public final void delete(final String tableName, final  byte[] pk) throws IOException {
 		if ( null == pk) return;
 		Delete delete = new Delete(pk);
 
@@ -355,7 +355,7 @@ public class HWriter {
 	 * @param packet	ColumnFamily and ColumnName necessary
 	 * @throws IOException
 	 */
-	public void delete(String tableName, byte[] pk, NV packet) throws IOException {
+	public final void delete(final String tableName, final byte[] pk, final NV packet) throws IOException {
 		
 		Delete delete = new Delete(pk);
 		delete = delete.deleteColumns(packet.family, packet.name);
@@ -380,7 +380,7 @@ public class HWriter {
 	 * @param records	Records
 	 * @throws IOException
 	 */
-	public void mergeScalar(String tableName, List<RecordScalar> records) 
+	public final void mergeScalar(final String tableName, final List<RecordScalar> records) 
 	throws IOException {
 			
 		if ( null == tableName  || null == records) return;
@@ -476,7 +476,7 @@ public class HWriter {
 	 * @param record	A record
 	 * @throws IOException
 	 */
-	public void merge(String tableName, Record record) 
+	public final void merge(final String tableName, final Record record) 
 	throws IOException {
 			
 		if ( null == tableName  || null == record) return;
@@ -562,7 +562,7 @@ public class HWriter {
 		}
 	}
 	
-	private void reportUnlockException(Exception ex) {
+	private final void reportUnlockException(final Exception ex) {
 		Runtime runTime = Runtime.getRuntime();
 		String errorMsg = "Max Mem: " + runTime.maxMemory()/1024; 
 		errorMsg = errorMsg + ", Total Mem: " + runTime.totalMemory()/1024; 
@@ -578,8 +578,8 @@ public class HWriter {
 	 * @param compareBytes	Compare to Bytes
 	 * @return	True if matches
 	 */
-	private boolean compareBytes(int offset, 
-	byte[] inputBytes, byte[] compareBytes) {
+	private final boolean compareBytes(final int offset, 
+			final byte[] inputBytes, final byte[] compareBytes) {
 
 		int inputBytesT = inputBytes.length;
 		int compareBytesT = compareBytes.length;
@@ -659,7 +659,7 @@ public class HWriter {
 	 * @param compareBytes	Compare to Bytes
 	 * @return	True if matches
 	 */
-	private  boolean compareBytes(byte[] inputBytes, byte[] compareBytes) {
+	private  final boolean compareBytes(final byte[] inputBytes, final byte[] compareBytes) {
 		return compareBytes(0,inputBytes,compareBytes);
 	}
 	

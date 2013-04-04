@@ -28,7 +28,7 @@ import java.util.List;
 
 public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 
-	public static ISortedByte<Boolean> getInstance() {
+	public static final ISortedByte<Boolean> getInstance() {
 		return new SortedBytesBoolean();
 	}
 	
@@ -38,7 +38,7 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public byte[] toBytes(Collection<Boolean> sortedCollection) throws IOException {
+	public final byte[] toBytes(final Collection<Boolean> sortedCollection) throws IOException {
 		int available = sortedCollection.size();
 		int packed = available/8;
 		int remaining = available - packed * 8;
@@ -73,7 +73,7 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public int getSize() throws IOException {
+	public final int getSize() throws IOException {
 		if ( null == parsedBooleans ) parse();
 		if ( null == parsedBooleans ) return 0;
 		return this.parsedBooleans.size();
@@ -81,20 +81,20 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public void addAll(Collection<Boolean> vals) throws IOException {
+	public final void addAll(final Collection<Boolean> vals) throws IOException {
 		if ( null != this.parsedBooleans ) parse();
 		if ( null == this.parsedBooleans ) this.parsedBooleans = new ArrayList<Boolean>(); 
 		this.parsedBooleans.addAll(vals);
 	}
 
 	@Override
-	public Boolean getValueAt(int pos) throws IndexOutOfBoundsException {
+	public final Boolean getValueAt(final int pos) throws IndexOutOfBoundsException {
 		initialize();
 		return this.parsedBooleans.get(pos);
 	}
 
 	@Override
-	public int getEqualToIndex(Boolean matchNo) throws IOException {
+	public final int getEqualToIndex(final Boolean matchNo) throws IOException {
 		initialize();
 
 		boolean matchNoL = matchNo.booleanValue();
@@ -107,7 +107,7 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
-	public void getEqualToIndexes(Boolean matchNo, Collection<Integer> matchings) throws IOException {
+	public final void getEqualToIndexes(final Boolean matchNo, final Collection<Integer> matchings) throws IOException {
 
 		initialize();
 
@@ -149,7 +149,7 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 		throw new RuntimeException("Not implemented");
 	}
 	
-	private void parse() throws IndexOutOfBoundsException {
+	private final void parse() throws IndexOutOfBoundsException {
 		if ( null == this.inputBytes) return;
 		
 		int available = Storable.getInt(offset, this.inputBytes);
@@ -169,13 +169,13 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 		}
 	}
 
-	public void initialize() throws IndexOutOfBoundsException {
+	public final void initialize() throws IndexOutOfBoundsException {
 		if ( null == parsedBooleans ) parse();
 		if ( null == parsedBooleans ) throw new IndexOutOfBoundsException("SortedBytesBoolean - No data exists");
 	}
 
 	@Override
-	protected int compare(byte[] inputB, int offset, Boolean matchNo) {
+	protected final int compare(final byte[] inputB, final int offset, final Boolean matchNo) {
 		throw new RuntimeException("Not implemented");
 	}
 

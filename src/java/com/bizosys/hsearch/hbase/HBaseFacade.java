@@ -33,7 +33,7 @@ import org.apache.hadoop.hbase.client.HTablePool;
  * @author Abinasha Karana
  *
  */
-public class HBaseFacade {
+public final class HBaseFacade {
 
 	/**
 	 * Configuration Settings
@@ -60,7 +60,7 @@ public class HBaseFacade {
 	 * @return	HBaseFacade
 	 * @throws IOException
 	 */
-	public static HBaseFacade getInstance() throws IOException
+	public final static HBaseFacade getInstance() throws IOException
 	{
 		if ( null != instance ) return instance;
 		synchronized (HBaseFacade.class) {
@@ -90,7 +90,7 @@ public class HBaseFacade {
 	 * Don't use the admin.shutdown() - This shuts down the hbase instance.
 	 *
 	 */
-	public void stop() {
+	public final void stop() {
 		try {
 			admin.shutdown();
 		} catch (IOException ex) {
@@ -103,12 +103,12 @@ public class HBaseFacade {
 	 * @return	HBase Admin Object
 	 * @throws IOException
 	 */
-	public HBaseAdmin getAdmin() throws IOException {
+	public final HBaseAdmin getAdmin() throws IOException {
 		if ( null == admin) throw new IOException ("HBaseFacade > HBase Service is not initialized");
 		return admin;
 	}
 	
-	public Configuration getHBaseConfig() {
+	public final Configuration getHBaseConfig() {
 		return this.conf;
 	}
 	
@@ -128,7 +128,7 @@ public class HBaseFacade {
      * @return	Wrapped HBase table
      * @throws IOException
      */
-	public HTableWrapper getTable(String tableName) throws IOException {
+	public final HTableWrapper getTable(final String tableName) throws IOException {
 		
 		if ( null == pool ) pool = new HTablePool(this.conf, Integer.MAX_VALUE);
 		//if ( HLog.l.isDebugEnabled() ) HLog.l.debug("HBaseFacade > Live hbase tables : " + liveTables); 
@@ -142,7 +142,7 @@ public class HBaseFacade {
 	 * Returns the wrapped table to the pool for recycling
 	 * @param table	The Wrapped HBase table
 	 */
-	public void putTable(HTableWrapper table) {
+	public final void putTable(final HTableWrapper table) {
 		if ( null == pool ) return;
 		try {
 			/**
@@ -162,7 +162,7 @@ public class HBaseFacade {
 	 * @param table
 	 * @throws IOException
 	 */
-	public void recycleTable(HTableWrapper table) throws IOException {
+	public final void recycleTable(final HTableWrapper table) throws IOException {
 		if ( null == pool ) return;
 		
 		/**
@@ -177,7 +177,7 @@ public class HBaseFacade {
 	 * Monitoring purposes keeps counting active table connections in operation 
 	 * @return	Number of connections made
 	 */
-	public int getLiveTables() {
+	public final int getLiveTables() {
 		return this.liveTables;
 	}
 }

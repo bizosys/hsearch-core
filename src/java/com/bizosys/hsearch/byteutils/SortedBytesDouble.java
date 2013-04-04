@@ -24,7 +24,7 @@ import java.util.Collection;
 public final class SortedBytesDouble extends SortedBytesBase<Double> { 
 
 
-	public static ISortedByte<Double> getInstance() {
+	public final static ISortedByte<Double> getInstance() {
 		return new SortedBytesDouble();
 	}
 	
@@ -34,13 +34,13 @@ public final class SortedBytesDouble extends SortedBytesBase<Double> {
 
 	
 	@Override
-	public Double getValueAt(int pos) {
+	public final Double getValueAt(final int pos) {
 		return Storable.getDouble( this.offset + (pos * this.dataSize) , this.inputBytes);
 	}	
 	
 		
 	@Override
-	public byte[] toBytes(Collection<Double> sortedList) {
+	public final byte[] toBytes(final Collection<Double> sortedList) {
 
 		int sortedListAT = sortedList.size();
 		byte[] inputsB = new byte[sortedListAT * dataSize];
@@ -54,7 +54,7 @@ public final class SortedBytesDouble extends SortedBytesBase<Double> {
 	}
 	
 	@Override
-	protected int compare(byte[] inputB, int offset, Double matchNo) {
+	protected final int compare(final byte[] inputB, final int offset, final Double matchNo) {
 		double val = Double.longBitsToDouble(Storable.getLong(offset, inputB) );
 		if (val == matchNo) return 0;
 		if (val > matchNo) return 1;

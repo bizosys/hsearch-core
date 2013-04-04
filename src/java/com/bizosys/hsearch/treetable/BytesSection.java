@@ -1,6 +1,6 @@
 package com.bizosys.hsearch.treetable;
 
-public class BytesSection {
+public final class BytesSection {
 	public final int offset;
 	public final int length;
 	public final byte[] data;

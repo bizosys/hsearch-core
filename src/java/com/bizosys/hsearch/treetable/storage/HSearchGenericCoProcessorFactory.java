@@ -10,7 +10,7 @@ import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.hbase.HbaseLog;
 
-public class HSearchGenericCoProcessorFactory {
+public final class HSearchGenericCoProcessorFactory {
 	
 	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
 	
@@ -18,7 +18,7 @@ public class HSearchGenericCoProcessorFactory {
 	byte[][] families = null;
 	byte[][] cols = null;
 	
-	public HSearchGenericCoProcessorFactory(List<ColumnFamName> family_cols , HSearchGenericFilter filter) throws IOException {
+	public HSearchGenericCoProcessorFactory(final List<ColumnFamName> family_cols , final HSearchGenericFilter filter) throws IOException {
 		this.filter = filter;
 		
 		if (null == family_cols) throw new IOException("Please provide family details. Scan on all cols are not allowed");
@@ -34,7 +34,7 @@ public class HSearchGenericCoProcessorFactory {
 
 	}
 	
-	public final Map<byte[], byte[]> execCoprocessorRows(HTableWrapper table) throws IOException, Throwable  {
+	public final Map<byte[], byte[]> execCoprocessorRows(final HTableWrapper table) throws IOException, Throwable  {
 
 		Map<byte[], byte[]> output = table.table.coprocessorExec(
                 HSearchGenericCoprocessor.class, null, null,

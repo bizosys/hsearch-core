@@ -38,14 +38,14 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public byte[] toBytes(Collection<Long> sortedCollection) throws IOException {
+	public final byte[] toBytes(final Collection<Long> sortedCollection) throws IOException {
 		ByteArrays.ArrayLong.Builder longBuilder = ByteArrays.ArrayLong.newBuilder();
 		longBuilder.addAllVal(sortedCollection);
 		return longBuilder.build().toByteArray();
 	}
 
 	@Override
-	public int getSize() throws IOException {
+	public final int getSize() throws IOException {
 		if ( null == parsedLongs ) parse();
 		if ( null == parsedLongs ) return 0;
 		return this.parsedLongs.size();
@@ -53,20 +53,20 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public void addAll(Collection<Long> vals) throws IOException {
+	public final void addAll(final Collection<Long> vals) throws IOException {
 		if ( null != this.parsedLongs ) parse();
 		if ( null == this.parsedLongs ) this.parsedLongs = new ArrayList<Long>(); 
 		this.parsedLongs.addAll(vals);
 	}
 
 	@Override
-	public Long getValueAt(int pos) throws IndexOutOfBoundsException {
+	public final Long getValueAt(final int pos) throws IndexOutOfBoundsException {
 		initialize();
 		return this.parsedLongs.get(pos);
 	}
 
 	@Override
-	public int getEqualToIndex(Long matchNo) throws IOException {
+	public final int getEqualToIndex(final Long matchNo) throws IOException {
 		initialize();
 
 		long matchNoL = matchNo.longValue();
@@ -79,7 +79,7 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public void getEqualToIndexes(Long matchNo, Collection<Integer> matchings) throws IOException {
+	public final void getEqualToIndexes(final Long matchNo, final Collection<Integer> matchings) throws IOException {
 
 		initialize();
 
@@ -92,7 +92,7 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public void getGreaterThanIndexes(Long matchingNo, Collection<Integer> matchingPos) throws IOException {
+	public final void getGreaterThanIndexes(final Long matchingNo, final Collection<Integer> matchingPos) throws IOException {
 		initialize();
 
 		long matchNoL = matchingNo.longValue();
@@ -104,7 +104,9 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public void getGreaterThanEqualToIndexes(Long matchingNo, Collection<Integer> matchingPos) throws IOException {
+	public final void getGreaterThanEqualToIndexes(final Long matchingNo, 
+		final Collection<Integer> matchingPos) throws IOException {
+		
 		initialize();
 
 		long matchNoL = matchingNo.longValue();
@@ -116,7 +118,8 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public void getLessThanIndexes(Long matchingNo, Collection<Integer> matchingPos) throws IOException {
+	public final void getLessThanIndexes(final Long matchingNo, 
+		final Collection<Integer> matchingPos) throws IOException {
 		
 		initialize();
 
@@ -129,7 +132,8 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public void getLessThanEqualToIndexes(Long matchingNo, Collection<Integer> matchingPos) throws IOException {
+	public final void getLessThanEqualToIndexes(final Long matchingNo, 
+		final Collection<Integer> matchingPos) throws IOException {
 
 		initialize();
 
@@ -142,7 +146,8 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public void getRangeIndexes(Long matchNoStart, Long matchNoEnd, Collection<Integer> matchings) throws IOException {
+	public final void getRangeIndexes(final Long matchNoStart, final Long matchNoEnd, 
+			final Collection<Integer> matchings) throws IOException {
 
 		initialize();
 
@@ -156,7 +161,8 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
-	public void getRangeIndexesInclusive(Long matchNoStart, Long matchNoEnd, Collection<Integer> matchings) throws IOException {
+	public final void getRangeIndexesInclusive(final Long matchNoStart, 
+		final Long matchNoEnd, final Collection<Integer> matchings) throws IOException {
 		
 		initialize();
 
@@ -169,7 +175,7 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 		}
 	}
 	
-	private void parse() throws IndexOutOfBoundsException {
+	private final void parse() throws IndexOutOfBoundsException {
 		if ( null == this.inputBytes) return;
 		
 		byte[] bytesSubset = null;
@@ -188,13 +194,13 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 		}
 	}
 
-	public void initialize() throws IndexOutOfBoundsException {
+	public final void initialize() throws IndexOutOfBoundsException {
 		if ( null == parsedLongs ) parse();
 		if ( null == parsedLongs ) throw new IndexOutOfBoundsException("SortedBytesLongCompressed - No data exists");
 	}
 
 	@Override
-	protected int compare(byte[] inputB, int offset, Long matchNo) {
+	protected final int compare(final byte[] inputB, final int offset, final Long matchNo) {
 		throw new RuntimeException("Not implemented");
 	}
 

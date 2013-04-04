@@ -22,34 +22,34 @@ public class Cell2<K1, V> {
 	public List<CellKeyValue<K1, V>> sortedList = null;
 	public BytesSection data = null;
 	
-	public Cell2(ISortedByte<K1> k1Sorter, ISortedByte<V> vSorter) {
+	public Cell2(final ISortedByte<K1> k1Sorter, final ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.vSorter = vSorter;
 	}
 
-	public Cell2(ISortedByte<K1> k1Sorter, ISortedByte<V> vSorter, List<CellKeyValue<K1, V>> sortedList) {
+	public Cell2(final ISortedByte<K1> k1Sorter, final ISortedByte<V> vSorter, final List<CellKeyValue<K1, V>> sortedList) {
 		this(k1Sorter, vSorter);
 		this.sortedList = sortedList;
 	}
 
 	
-	public Cell2 (ISortedByte<K1> k1Sorter, ISortedByte<V> vSorter, byte[] data) {
+	public Cell2 (final ISortedByte<K1> k1Sorter, final ISortedByte<V> vSorter, final byte[] data) {
 		this(k1Sorter, vSorter);
 		int dataLen = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, dataLen);
 	}
 	
-	public Cell2 (ISortedByte<K1> k1Sorter, ISortedByte<V> vSorter, BytesSection sectionData) {
+	public Cell2 (final ISortedByte<K1> k1Sorter, final ISortedByte<V> vSorter, final BytesSection sectionData) {
 		this(k1Sorter, vSorter);
 		this.data = sectionData;
 	}
 
-	public void add(K1 k, V v) {
+	public final void add(final K1 k, final V v) {
 		if ( null == sortedList) sortedList = new ArrayList<CellKeyValue<K1,V>>();
 		sortedList.add(new CellKeyValue<K1, V>(k, v) );
 	}
 	
-	public void sort(Comparator<CellKeyValue<K1, V>> comp) {
+	public final void sort(final Comparator<CellKeyValue<K1, V>> comp) {
 		if ( null == sortedList) return;
 		Collections.sort(sortedList, comp);
 	}
@@ -59,8 +59,8 @@ public class Cell2<K1, V> {
 	 * @param visitor
 	 * @throws IOException
 	 */
-	public final void process(Cell2Visitor<K1,V> visitor) throws IOException{
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+	public final void process(final Cell2Visitor<K1,V> visitor) throws IOException{
+		SortedBytesArray kvbytesA = SortedBytesArray.getInstanceArr();
 		kvbytesA.parse(data.data,data.offset, data.length);
 		
 		Reference keyRef = new Reference();
@@ -113,14 +113,14 @@ public class Cell2<K1, V> {
 		}
 	}	
 	
-	public List<CellKeyValue<K1, V>> getMap(byte[] data) throws IOException {
+	public final List<CellKeyValue<K1, V>> getMap(final byte[] data) throws IOException {
 		int dataLen = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, dataLen) ;
 		parseElements();
 		return sortedList;
 	}
 	
-	public List<CellKeyValue<K1, V>> getMap() throws IOException {
+	public final List<CellKeyValue<K1, V>> getMap() throws IOException {
 		if ( null != sortedList) return sortedList;
 		if ( null != this.data) {
 			parseElements();
@@ -129,7 +129,7 @@ public class Cell2<K1, V> {
 		throw new IOException("Cell is not initialized");
 	}
 	
-	public void getMap(List<CellKeyValue<K1, V>> valueContainer) throws IOException {
+	public final void getMap(final List<CellKeyValue<K1, V>> valueContainer) throws IOException {
 		if ( null != sortedList) {
 			valueContainer.addAll(sortedList);
 			return;
@@ -143,13 +143,13 @@ public class Cell2<K1, V> {
 		throw new IOException("Cell is not initialized");
 	}	
 	
-	public void getMap(List<K1> kContainer, List<V> vContainer) throws IOException{
+	public final void getMap(final List<K1> kContainer, final List<V> vContainer) throws IOException{
 		keySet(kContainer);
 		values(vContainer);
 	}
 	
-	public void getMap(V exactValue, V minimumValue, V maximumValue, 
-			List<Integer> reusableFoundPosArray, List<K1> kContainer, List<V> vContainer) throws IOException {
+	public final void getMap(final V exactValue, final V minimumValue, final V maximumValue, 
+			final List<Integer> reusableFoundPosArray, final List<K1> kContainer, final List<V> vContainer) throws IOException {
 		
 		List<Integer> foundPositions = reusableFoundPosArray;
 		byte[] allValsB = findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
@@ -165,7 +165,7 @@ public class Cell2<K1, V> {
 		}
 	}		
 	
-	public void populate(Map<K1,V> map) throws IOException {
+	public final void populate(final Map<K1,V> map) throws IOException {
 		SortedBytesArray kvB = SortedBytesArray.getInstanceArr();
 		kvB.parse(data.data, data.offset, data.length);
 		
@@ -214,7 +214,7 @@ public class Cell2<K1, V> {
 	}	
 	
 	
-	public byte[] toBytesOnSortedData() throws IOException {
+	public final byte[] toBytesOnSortedData() throws IOException {
 
 		if ( null == sortedList) return null;
 		if ( sortedList.size() == 0 ) return null;
@@ -236,7 +236,7 @@ public class Cell2<K1, V> {
 		return cellB;
 	}
 	
-	public byte[] toBytesOnSortedData(Map<K1, V> customMap) throws IOException {
+	public final byte[] toBytesOnSortedData(final Map<K1, V> customMap) throws IOException {
 
 		if ( null == customMap) return null;
 		if ( customMap.size() == 0 ) return null;
@@ -253,7 +253,7 @@ public class Cell2<K1, V> {
 		return cellB;
 	}	
 	
-	public byte[] toBytes(V minValue, V maximumValue, boolean leftInclusize, boolean rightInclusize, Comparator<V> vComp) throws IOException {
+	public final byte[] toBytes(final V minValue, final V maximumValue, final boolean leftInclusize, final boolean rightInclusize, final  Comparator<V> vComp) throws IOException {
 		
 		if ( sortedList.size() == 0 ) return null;
 		Collection<K1> keys = new ArrayList<K1>();
@@ -286,39 +286,39 @@ public class Cell2<K1, V> {
 		return cellB;
 	}		
 	
-	public Collection<Integer> indexOf(V exactValue) throws IOException {
+	public final Collection<Integer> indexOf(final V exactValue) throws IOException {
 		List<Integer> foundPositions = new ArrayList<Integer>();
 		findMatchingPositions(exactValue, null, null, foundPositions);
 		return foundPositions;
 	}
 	
-	public Collection<Integer> indexOf(V minimumValue, V maximumValue) throws IOException {
+	public final Collection<Integer> indexOf(final V minimumValue, final V maximumValue) throws IOException {
 		List<Integer> foundPositions = new ArrayList<Integer>();
 		findMatchingPositions(null, minimumValue, maximumValue, foundPositions);
 		return foundPositions;
 	}
 
-	public Set<K1> keySet(V exactValue) throws IOException {
+	public final Set<K1> keySet(final V exactValue) throws IOException {
 		Set<K1> keys = new HashSet<K1>();
 		keySet(exactValue, null, null, keys);
 		return keys;
 	}
 	
-	public void keySet(V exactValue, Collection<K1> keys) throws IOException {
+	public final void keySet(final V exactValue, final Collection<K1> keys) throws IOException {
 		keySet(exactValue, null, null, keys);
 	}
 
-	public Set<K1> keySet(V minimumValue, V maximumValue) throws IOException {
+	public final Set<K1> keySet(final V minimumValue, final V maximumValue) throws IOException {
 		Set<K1> keys = new HashSet<K1>();
 		keySet(minimumValue, maximumValue, keys);
 		return keys;
 	}
 	
-	public void keySet(V minimumValue, V maximumValue, Collection<K1> keys) throws IOException {
+	public final void keySet(final V minimumValue, final V maximumValue, final Collection<K1> keys) throws IOException {
 		keySet(null, minimumValue, maximumValue, keys);
 	}
 	
-	private void keySet( V exactValue, V minimumValue, V maximumValue, Collection<K1> foundKeys) throws IOException {
+	private final void keySet( final V exactValue, final V minimumValue, final V maximumValue, final Collection<K1> foundKeys) throws IOException {
 		byte[] allKeysB = SortedBytesArray.getInstance().parse(data.data, data.offset, data.length).getValueAt(0);
 		List<Integer> foundPositions = new ArrayList<Integer>();
 		findMatchingPositions(exactValue, minimumValue, maximumValue, foundPositions);
@@ -329,27 +329,27 @@ public class Cell2<K1, V> {
 		}
 	}
 	
-	public Collection<V> values(V exactValue) throws IOException {
+	public final Collection<V> values(final V exactValue) throws IOException {
 		Collection<V> values = new ArrayList<V>();
 		matchValues(exactValue, null, null, values);
 		return values;
 	}
 	
-	public Collection<V> values(V minimumValue, V maximumValue) throws IOException {
+	public final Collection<V> values(final V minimumValue, final V maximumValue) throws IOException {
 		Collection<V> values = new ArrayList<V>();
 		matchValues(null, minimumValue, maximumValue, values);
 		return values;
 	}
 
-	public void values(V exactValue, Collection<V> foundValues) throws IOException {
+	public final void values(final V exactValue, final Collection<V> foundValues) throws IOException {
 		matchValues(exactValue, null, null, foundValues);
 	}
 	
-	public void values(V minimumValue, V maximumValue, Collection<V> foundValues) throws IOException {
+	public final void values(final V minimumValue, final V maximumValue, final Collection<V> foundValues) throws IOException {
 		matchValues(null, minimumValue, maximumValue, foundValues);
 	}	
 	
-	private void matchValues( V exactValue, V minimumValue, V maximumValue, Collection<V> foundValues) throws IOException {
+	private final void matchValues(final  V exactValue, final V minimumValue,final  V maximumValue, final Collection<V> foundValues) throws IOException {
 
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
@@ -369,14 +369,14 @@ public class Cell2<K1, V> {
 		
 	}
 
-	public Collection<V> values() throws IOException {
+	public final Collection<V> values() throws IOException {
 
 		Collection<V> values = new ArrayList<V>();
 		values(values);
 		return values;
 	}
 	
-	public void values( Collection<V> values) throws IOException {
+	public final void values( final Collection<V> values) throws IOException {
 		
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
@@ -396,13 +396,13 @@ public class Cell2<K1, V> {
 		}
 	}
 		
-	public Collection<V> valuesAt(Collection<Integer> foundPositions) throws IOException {
+	public final Collection<V> valuesAt(final Collection<Integer> foundPositions) throws IOException {
 		List<V> foundValues = new ArrayList<V>();
 		valuesAt(foundValues, foundPositions );
 		return foundValues;
 	}
 
-	public void valuesAt(Collection<V> foundValues, Collection<Integer> foundPositions) throws IOException {
+	public final void valuesAt(final Collection<V> foundValues, final Collection<Integer> foundPositions) throws IOException {
 		
 		byte[] allValuesB = SortedBytesArray.getInstance().parse(data.data, data.offset, data.length).getValueAt(1);
 		for (int position : foundPositions) {
@@ -410,7 +410,7 @@ public class Cell2<K1, V> {
 		}
 	}
 	
-	private byte[] findMatchingPositions( V exactValue, V minimumValue, V maximumValue, Collection<Integer> foundPositions) throws IOException {
+	private final byte[] findMatchingPositions( final V exactValue, final V minimumValue, final V maximumValue, final Collection<Integer> foundPositions) throws IOException {
 			
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
@@ -443,13 +443,13 @@ public class Cell2<K1, V> {
 		}
 	}	
 
-	public Collection<K1> keySet() throws IOException {
+	public final Collection<K1> keySet() throws IOException {
 		List<K1> keys = new ArrayList<K1>();
 		keySet(keys);
 		return keys;
 	}
 	
-	public void keySet( Collection<K1> keys) throws IOException {
+	public final void keySet( final Collection<K1> keys) throws IOException {
 		
 		byte[] allKeysB = SortedBytesArray.getInstance().parse(
 			data.data, data.offset, data.length).getValueAt(0);
@@ -461,7 +461,7 @@ public class Cell2<K1, V> {
 		}
 	}
 	
-	public void parseElements() throws IOException {
+	public final void parseElements() throws IOException {
 		if ( null == this.sortedList) this.sortedList = new ArrayList<CellKeyValue<K1, V>>();
 		else this.sortedList.clear();
 		
@@ -480,7 +480,7 @@ public class Cell2<K1, V> {
 		}
 	}
 	
-	public void remove(K1 key) {
+	public final void remove(final K1 key) {
 		if ( null == this.sortedList) return;
 		int elemIndex = this.sortedList.indexOf(key);
 		if ( -1 == elemIndex) return;

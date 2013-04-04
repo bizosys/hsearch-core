@@ -10,11 +10,11 @@ import java.util.StringTokenizer;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 
 
-public class PartitionNumeric implements IPartition<Double> {
+public final class PartitionNumeric implements IPartition<Double> {
 
-	public static class NumericRange {
+	public static final class NumericRange {
 		
-		public NumericRange(double start, double end, String ext) {
+		public NumericRange(final double start, final double end, final String ext) {
 			this.ext = ext;
 			this.start = start;
 			this.end = end;
@@ -33,7 +33,7 @@ public class PartitionNumeric implements IPartition<Double> {
 	
 
 	@Override
-	public void setPartitionsAndRange(String colName, String familyNames, String ranges, int partitionIndex) throws IOException {
+	public final void setPartitionsAndRange(final String colName, final String familyNames, final String ranges, final int partitionIndex) throws IOException {
 
 		this.colName = colName;
 		StringTokenizer tokenFamily = new StringTokenizer(familyNames,",");
@@ -75,7 +75,7 @@ public class PartitionNumeric implements IPartition<Double> {
 	}
 	
 	@Override
-	public void getMatchingFamilies(HSearchQuery query, Set<String> uniqueFamilies) throws IOException {
+	public final void getMatchingFamilies(final HSearchQuery query, final Set<String> uniqueFamilies) throws IOException {
 		
 		if ( query.filterCells[this.partitionIndex]) {
 			if ( null == query.exactValCells[this.partitionIndex]) {
@@ -93,7 +93,7 @@ public class PartitionNumeric implements IPartition<Double> {
 	
 	
 	@Override
-	public void getColumnFamilies(Double startVal, Double endVal, Set<String> families) throws IOException {
+	public final void getColumnFamilies(final Double startVal, final Double endVal, final Set<String> families) throws IOException {
 		
 		if ( this.rangeL.size() == 0 ) {
 			families.add(colName);
@@ -131,7 +131,7 @@ public class PartitionNumeric implements IPartition<Double> {
 	}
 	
 	@Override
-	public String getColumnFamily(Double exactVal) throws IOException  {
+	public final String getColumnFamily(final Double exactVal) throws IOException  {
 
 		if ( rangeL.size() == 0 ) return colName;
 		
@@ -148,7 +148,7 @@ public class PartitionNumeric implements IPartition<Double> {
 	}
 
 	@Override
-	public List<String> getPartitionNames() {
+	public final List<String> getPartitionNames() {
 		return this.partitions;
 	}
 }

@@ -35,7 +35,7 @@ import com.bizosys.hsearch.hbase.HbaseLog;
  *  Final Joiner. 
  * @author abinash
  */
-public class HSearchTableMultiQueryExecutor {
+public final class HSearchTableMultiQueryExecutor {
 
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
@@ -45,13 +45,13 @@ public class HSearchTableMultiQueryExecutor {
 	
 	IHSearchTableMultiQueryProcessor processor = null;
 	
-	public HSearchTableMultiQueryExecutor(IHSearchTableMultiQueryProcessor processor) {
+	public HSearchTableMultiQueryExecutor(final IHSearchTableMultiQueryProcessor processor) {
 		this.processor = processor;
 	}
 	
 	public BitSetOrSet execute (
-		Map<String, HSearchTableParts> tableParts, String multiQueryStmt, 
-			Map<String,QueryPart> multiQueryParts, HSearchProcessingInstruction resultType) throws Exception {
+			final Map<String, HSearchTableParts> tableParts, final String multiQueryStmt, 
+			final Map<String,QueryPart> multiQueryParts, final HSearchProcessingInstruction resultType) throws Exception {
 		
 		long start = 0L;
 		

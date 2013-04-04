@@ -9,11 +9,11 @@ import java.util.StringTokenizer;
 
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 
-public class PartitionByFirstLetter implements IPartition<String> {
+public final class PartitionByFirstLetter implements IPartition<String> {
 	
-	public static class TextRange {
+	public static final class TextRange {
 		
-		public TextRange(char start, char end, String ext) {
+		public TextRange(final char start, final char end, final String ext) {
 			this.ext = ext;
 			this.start = start;
 			this.end = end;
@@ -31,7 +31,8 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	
 
 	@Override
-	public void setPartitionsAndRange(String colName, String familyNames, String ranges, int partitionIndex) throws IOException {
+	public final void setPartitionsAndRange(final String colName, final String familyNames, 
+			final String ranges, final int partitionIndex) throws IOException {
 
 		this.colName = colName;
 		StringTokenizer tokenFamily = new StringTokenizer(familyNames,",");
@@ -76,7 +77,7 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	}
 	
 	@Override
-	public void getMatchingFamilies(HSearchQuery query, Set<String> uniqueFamilies) throws IOException {
+	public final void getMatchingFamilies(final HSearchQuery query, final Set<String> uniqueFamilies) throws IOException {
 
 		if ( -1 == this.partitionIndex) throw new IOException("Partition Index is not set in the schema.");
 		Object keyword = query.exactValCells[this.partitionIndex];
@@ -89,12 +90,12 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	
 	
 	@Override
-	public void getColumnFamilies(String startVal, String endVal, Set<String> families) throws IOException {
+	public final void getColumnFamilies(final String startVal, final String endVal, final Set<String> families) throws IOException {
 		throw new IOException("No matching columns found for value = " + startVal + ":" + endVal +"\n" + families.toString());
 	}
 	
 	@Override
-	public String getColumnFamily(String exactVal) throws IOException  {
+	public final String getColumnFamily(String exactVal) throws IOException  {
 
 		if ( rangesL.size() == 0 ) return colName;
 		
@@ -111,7 +112,7 @@ public class PartitionByFirstLetter implements IPartition<String> {
 	}
 
 	@Override
-	public List<String> getPartitionNames() {
+	public final List<String> getPartitionNames() {
 		return this.partitions;
 	}
 }

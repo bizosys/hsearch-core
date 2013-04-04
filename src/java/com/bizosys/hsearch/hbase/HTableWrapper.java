@@ -39,7 +39,7 @@ import org.apache.hadoop.hbase.client.Scan;
  * @author karan 
  *@see org.apache.hadoop.hbase.client.HTableInterface
  */
-public class HTableWrapper {
+public final class HTableWrapper {
 	
 	private static final boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
 

@@ -13,39 +13,39 @@ import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
 import com.bizosys.hsearch.hbase.ObjectFactory;
 
-public class --CELLN-- extends CellBase<K1> {
+public final class --CELLN-- extends CellBase<K1> {
 
 	--SORTER_DECL--
 	public ISortedByte<V> vSorter = null;
 	
 	public Map<K1, --CELLN-1--> sortedList;
 
-	public --CLASS-- (--SORTERS--, ISortedByte<V> vSorter) {
+	public --CLASS-- (final --SORTERS--, final ISortedByte<V> vSorter) {
 		--SORTER_ASSIGNER--
 		this.vSorter = vSorter;
 	}
 	
-	public --CLASS-- (--SORTERS--, 
-			ISortedByte<V> vSorter, Map<K1, --CELLN-1--> sortedList ) {
+	public --CLASS-- (final --SORTERS--, 
+			final ISortedByte<V> vSorter, final Map<K1, --CELLN-1--> sortedList ) {
 		this(--SORTER_INST--,vSorter);
 		this.sortedList = sortedList;
 	}
 
-	public --CLASS-- (--SORTERS--,
-			ISortedByte<V> vSorter, byte[] data ) {
+	public --CLASS-- (final --SORTERS--,
+			final ISortedByte<V> vSorter, final byte[] data ) {
 		this(--SORTER_INST--,vSorter);
 		int len = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, len);
 	}
 	
-	public --CLASS-- (--SORTERS--,
-			ISortedByte<V> vSorter, BytesSection data ) {
+	public --CLASS-- (final --SORTERS--,
+			final ISortedByte<V> vSorter, final BytesSection data ) {
 		this(--SORTER_INST--,vSorter);
 		this.data = data;
 	}
 
 	//Builder
-	public void put(--PARAM_N--) {
+	public final void put(--PARAM_N--) {
 		if ( null == sortedList) sortedList = new TreeMap<K1, --CELLN-1-- >();
 		
 		--CELLN-1-- val = null;
@@ -57,19 +57,19 @@ public class --CELLN-- extends CellBase<K1> {
 		val.put(--VAL_N-1--);
 	}
 	
-	public void sort(Comparator<CellKeyValue<--LAST_ARG--, V>> comp) {
+	public final void sort(final Comparator<CellKeyValue<--LAST_ARG--, V>> comp) {
 		if ( null == sortedList) return;
 		for (--CELLN-1-- entry : sortedList.values()) {
 			entry.sort(comp);
 		}
 	}	
 	
-	public byte[] toBytes(Comparator<CellKeyValue<--LAST_ARG--, V>> comp) throws IOException {
+	public final byte[] toBytes(final Comparator<CellKeyValue<--LAST_ARG--, V>> comp) throws IOException {
 		this.sort(comp);
 		return toBytes();
 	}	
 	
-	public byte[] toBytes(V minValue, V maximumValue, boolean leftInclusize, boolean rightInclusize, Comparator<V> vComp) throws IOException {
+	public final byte[] toBytes(final V minValue, final V maximumValue, final boolean leftInclusize, final boolean rightInclusize, final Comparator<V> vComp) throws IOException {
 		
 		List<K1> keysL = new ArrayList<K1>(1);
 		List<byte[]> valuesL = new ArrayList<byte[]>(1);
@@ -89,14 +89,14 @@ public class --CELLN-- extends CellBase<K1> {
 		return cellB;
 	}		
 
-	public Map<K1, --CELLN-1--> getMap(byte[] data) throws IOException {
+	public final Map<K1, --CELLN-1--> getMap(final byte[] data) throws IOException {
 		if ( null == data) return null;
 		this.data = new BytesSection(data, 0, data.length);
 		parseElements();
 		return sortedList;
 	}	
 	
-	public Map<K1, --CELLN-1--> getMap() throws IOException {
+	public final Map<K1, --CELLN-1--> getMap() throws IOException {
 		if ( null != sortedList) return sortedList;
 		if ( null != this.data) {
 			parseElements();
@@ -105,7 +105,7 @@ public class --CELLN-- extends CellBase<K1> {
 		throw new IOException("Cell is not initialized");
 	}
 	
-	public void getMap(K1 exactValue, K1 minimumValue, K1 maximumValue, Map<K1, --CELLN-1--> rows) throws IOException 
+	public final void getMap(final K1 exactValue, final K1 minimumValue, final K1 maximumValue, final Map<K1, --CELLN-1--> rows) throws IOException 
 	{
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
@@ -135,28 +135,28 @@ public class --CELLN-- extends CellBase<K1> {
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<--CELLN-1--> values(K1 exactValue) throws IOException {
+	public final Collection<--CELLN-1--> values(final K1 exactValue) throws IOException {
 		Collection<--CELLN-1--> values = new ArrayList<--CELLN-1-->();
 		values(exactValue, null, null, values);
 		return values;
 	}
 
-	public Collection<--CELLN-1--> values(K1 minimumValue, K1 maximumValue) throws IOException {
+	public final Collection<--CELLN-1--> values(final K1 minimumValue, final K1 maximumValue) throws IOException {
 		Collection<--CELLN-1--> values = new ArrayList<--CELLN-1-->();
 		values(null, minimumValue, maximumValue, values);
 		return values;
 	}	
 	
-	public void values(K1 exactValue, Collection<--CELLN-1--> foundValues) throws IOException {
+	public final void values(final K1 exactValue, final Collection<--CELLN-1--> foundValues) throws IOException {
 		values(exactValue, null, null, foundValues);
 	}
 	
-	public void values(K1 minimumValue, K1 maximumValue, Collection<--CELLN-1--> foundValues) throws IOException {
+	public final void values(final K1 minimumValue, final K1 maximumValue, final Collection<--CELLN-1--> foundValues) throws IOException {
 		values(null, minimumValue, maximumValue, foundValues);
 	}
 	
-	private void values(K1 exactValue, K1 minimumValue, K1 maximumValue, 
-			Collection<--CELLN-1--> foundValues) throws IOException {
+	private final void values(final K1 exactValue, final K1 minimumValue, final K1 maximumValue, 
+			final Collection<--CELLN-1--> foundValues) throws IOException {
 
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
@@ -185,13 +185,13 @@ public class --CELLN-- extends CellBase<K1> {
 		ObjectFactory.getInstance().putIntegerList(foundPositions);
 	}
 	
-	public Collection<--CELLN-1--> values() throws IOException {
+	public final Collection<--CELLN-1--> values() throws IOException {
 		Collection<--CELLN-1--> values = new ArrayList<--CELLN-1-->();
 		values(values);
 		return values;
 	}	
 	
-	public void values(Collection<--CELLN-1--> values) throws IOException {
+	public final void values(final Collection<--CELLN-1--> values) throws IOException {
 		if ( null == data) {
 			System.err.println("Null Data - It should be an warning");
 			return;
@@ -215,7 +215,7 @@ public class --CELLN-- extends CellBase<K1> {
 		}
 	}
 	
-	public void parseElements() throws IOException {
+	public final void parseElements() throws IOException {
 		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, --CELLN-1-->();
 		else this.sortedList.clear();
 		
@@ -247,7 +247,7 @@ public class --CELLN-- extends CellBase<K1> {
 	}
 	
 	@Override
-	protected List<byte[]> getEmbeddedCellBytes() throws IOException {
+	protected final List<byte[]> getEmbeddedCellBytes() throws IOException {
 		List<byte[]> values = new ArrayList<byte[]>();
 		for (--CELLN-1-- --CellN-1-- : sortedList.values()) {
 			values.add(--CellN-1--.toBytes());
@@ -256,20 +256,21 @@ public class --CELLN-- extends CellBase<K1> {
 	}
 	
 	@Override
-	protected byte[] getKeyBytes() throws IOException {
+	protected final byte[] getKeyBytes() throws IOException {
 		if ( null == sortedList) throw new IOException("Cell is not initialized");
 		return k1Sorter.toBytes(sortedList.keySet());
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void valuesUnchecked(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection foundValues) throws IOException {
+	public final void valuesUnchecked(final K1 exactValue, final K1 minimumValue,
+		final K1 maximumValue, final Collection foundValues) throws IOException {
 		this.values(exactValue, minimumValue, maximumValue, foundValues );
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void valuesUnchecked(Collection foundValues) throws IOException {
+	public final void valuesUnchecked(final Collection foundValues) throws IOException {
 		this.values(foundValues );
 	}
 	
@@ -279,13 +280,13 @@ public class --CELLN-- extends CellBase<K1> {
 		public ISortedByte<byte[]> valSorter;
 		Map<K1, --CELLN-1--> rows;
 		
-		public Callback(Map<K1, --CELLN-1--> rows, ISortedByte<byte[]> valSorter ) {
+		public Callback(final Map<K1, --CELLN-1--> rows, final ISortedByte<byte[]> valSorter ) {
 			this.rows = rows;
 			this.valSorter = valSorter;
 		}
 		
 		@Override
-		public final boolean add(Integer position) {
+		public final boolean add(final Integer position) {
 
 			SortedBytesArray sortedArr = (SortedBytesArray) valSorter;
 			Reference valueSectionPoints = new Reference();

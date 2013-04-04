@@ -60,6 +60,17 @@
 		    <src path="${src.dir}"/>
 		</javac>
 	</target>
+	
+	<target name="compile-test" depends="init">
+	  	<echo message="Java home: ${java.home} - ${ant.java.version} : javac.version - ${javac.version}"/>
+		<javac encoding="${build.encoding}" 
+			destdir="${build.classes}" debug="${javac.debug}" optimize="${javac.optimize}" 
+			target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}">
+			<classpath refid="classpath" />
+		    <src path="${test.dir}"/>
+		</javac>
+	</target>
+	
 	<!-- ================================================================== -->
 	<!-- Make jar                                                     -->
 	<!-- ================================================================== -->

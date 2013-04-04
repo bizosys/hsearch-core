@@ -17,7 +17,7 @@ import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.functions.HSearchReducer;
 import com.bizosys.hsearch.hbase.HbaseLog;
 
-public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
+public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		implements HSearchGenericCoprocessor {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
@@ -30,7 +30,7 @@ public class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
      * @return
      * @throws IOException
      */
-	public byte[] getRows(byte[][] families, byte[][] cols, HSearchGenericFilter filter) throws IOException {
+	public byte[] getRows(final byte[][] families, final byte[][] cols, final HSearchGenericFilter filter) throws IOException {
 		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
 		InternalScanner scanner = null;
 

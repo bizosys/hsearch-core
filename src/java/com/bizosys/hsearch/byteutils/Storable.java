@@ -385,8 +385,8 @@ public class Storable {
 	 * @param compareBytes	Compare to Bytes
 	 * @return	True if matches
 	 */
-	public static boolean compareBytes(int offset, 
-	byte[] inputBytes, byte[] compareBytes) {
+	public final static boolean compareBytes(final int offset, 
+			final byte[] inputBytes, final byte[] compareBytes) {
 
 		int inputBytesT = inputBytes.length;
 		int compareBytesT = compareBytes.length;
@@ -466,7 +466,7 @@ public class Storable {
 	 * @param compareBytes	Compare to Bytes
 	 * @return	True if matches
 	 */
-	public static boolean compareBytes(byte[] inputBytes, byte[] compareBytes) {
+	public static final boolean compareBytes(final byte[] inputBytes, final byte[] compareBytes) {
 		return compareBytes(0,inputBytes,compareBytes);
 	}
 	
@@ -477,7 +477,7 @@ public class Storable {
 	 * @param compareBytes	Compare to character array
 	 * @return	True if matches
 	 */
-	public static boolean compareBytes(char[] inputBytes, char[] compareBytes) {
+	public static final boolean compareBytes(final char[] inputBytes, final char[] compareBytes) {
 
 		int inputBytesT = inputBytes.length;
 		int compareBytesT = compareBytes.length;
@@ -517,7 +517,7 @@ public class Storable {
 	 * @param inputBytes	Input Bytes
 	 * @return	Short representation
 	 */
-	public static short getShort(int startPos, byte[] inputBytes) {
+	public static final short getShort(int startPos, final byte[] inputBytes) {
 		return (short) (
 			(inputBytes[startPos] << 8 ) + ( inputBytes[++startPos] & 0xff ) );
 	}
@@ -527,7 +527,7 @@ public class Storable {
 	 * @param value	Short data
 	 * @return	2 bytes
 	 */
-	public static byte[] putShort( short value ) {
+	public static final byte[] putShort( final short value ) {
 
 		return new byte[] { 
 			(byte)(value >> 8 & 0xff), 
@@ -563,7 +563,7 @@ public class Storable {
 	 * @param value	Integer data
 	 * @return	4 bytes
 	 */
-	public static byte[] putInt( int value ) {
+	public static final byte[] putInt(final  int value ) {
 		return new byte[] { 
 			(byte)(value >> 24), 
 			(byte)(value >> 16 ), 
@@ -571,7 +571,7 @@ public class Storable {
 			(byte)(value) }; 
 	}
 	
-	public static byte[] putFloat( float valueF ) {
+	public static final byte[] putFloat( final float valueF ) {
 		int value = Float.floatToIntBits(valueF);
 		return new byte[] { 
 			(byte)(value >> 24), 
@@ -586,7 +586,7 @@ public class Storable {
 	 * @param inputBytes	Input Bytes
 	 * @return	Long representation
 	 */
-	public static long getLong(int index, final byte[] inputBytes) {
+	public static final long getLong(int index, final byte[] inputBytes) {
 		
 		if ( 0 == inputBytes.length) return 0;
 		
@@ -601,7 +601,7 @@ public class Storable {
 		return longVal;
 	}
 	
-	public static double getDouble(int index, final byte[] inputBytes) {
+	public static final double getDouble(int index, final byte[] inputBytes) {
 		
 		if ( 0 == inputBytes.length) return 0;
 		
@@ -621,7 +621,7 @@ public class Storable {
 	 * @param value	Long data
 	 * @return	8 bytes
 	 */
-	public static byte[] putLong(long value) {
+	public static final byte[] putLong(final long value) {
 		return new byte[]{
 			(byte)(value >> 56), 
 			(byte)(value >> 48 ), 
@@ -638,7 +638,7 @@ public class Storable {
 	 * @param inputObj	Input String
 	 * @return	bytes representation
 	 */
-	public static byte[] putString( String inputObj) {
+	public static final byte[] putString( final String inputObj) {
 		try {
 			return inputObj.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException ex) {
@@ -652,7 +652,7 @@ public class Storable {
 	 * @param inputBytes	Input bytes array
 	 * @return	A UTF-8 String
 	 */
-	public static String getString(byte[] inputBytes) {
+	public static final String getString(final byte[] inputBytes) {
 		try {
 			return new String( inputBytes , "UTF-8");
 		} catch (UnsupportedEncodingException ex) {
@@ -665,7 +665,7 @@ public class Storable {
 	 * @param type	Data type
 	 * @return	The bytes-array size
 	 */
-	public static int getSize(byte type) {
+	public static final int getSize(final byte type) {
 		int size = -1;
 		switch(type) {
 			case BYTE_SHORT:
@@ -706,7 +706,7 @@ public class Storable {
      * @param b	A byte
      * @return	8 bits
      */
-	public static final boolean[] byteToBits(byte b) {
+	public static final boolean[] byteToBits(final byte b) {
         boolean[] bits = new boolean[8];
         for (int i = 0; i < bits.length; i++) {
             bits[i] = ((b & (1 << i)) != 0);
@@ -714,7 +714,7 @@ public class Storable {
         return bits;
     }
 	
-	public static final void byteToBits(byte b, List<Boolean> output) {
+	public static final void byteToBits(final byte b, final List<Boolean> output) {
         for (int i = 0; i < 8; i++) {
         	output.add(((b & (1 << i)) != 0));
         }
@@ -725,7 +725,7 @@ public class Storable {
 	 * @param bits	Bits array. Reading happens from position 0
 	 * @return	1 Byte
 	 */
-    public static byte bitsToByte(boolean[] bits) {
+    public static final byte bitsToByte(final boolean[] bits) {
 		return bitsToByte(bits, 0);
     }
 	
@@ -735,7 +735,7 @@ public class Storable {
      * @param offset	Read starting position
      * @return	1 Byte
      */
-	public static byte bitsToByte(boolean[] bits, int offset) {
+	public static final byte bitsToByte(final boolean[] bits, final int offset) {
 		int value = 0;
         for (int i = 0; i < 8; i++) {
 			if(bits[i] == true) {

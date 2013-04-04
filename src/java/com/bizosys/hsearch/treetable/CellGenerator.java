@@ -136,9 +136,9 @@ public class CellGenerator {
 		
 		for ( int i=1; i<size; i++) {
 			if ( i != 1) decl = decl + ",";
-			decl = decl + ("K" + i + " k" + i);
+			decl = decl + ("final K" + i + " k" + i);
 		}	
-		decl = decl + ", V v";
+		decl = decl + ", final V v";
 		return clazzText.replaceAll("--PARAM_N--", decl);
 	}	
 		

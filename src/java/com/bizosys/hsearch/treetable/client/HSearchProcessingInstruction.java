@@ -20,13 +20,8 @@
 package com.bizosys.hsearch.treetable.client;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.bizosys.hsearch.functions.FunctionRepos;
-import com.bizosys.hsearch.util.LineReaderUtil;
-
-public class HSearchProcessingInstruction {
+public final class HSearchProcessingInstruction {
 	
 	private static String EMPTY = "";
 	
@@ -49,18 +44,18 @@ public class HSearchProcessingInstruction {
 		
 	}
 
-	public HSearchProcessingInstruction(int callbackCode, int outputCode ) {
+	public HSearchProcessingInstruction(final int callbackCode, final int outputCode ) {
 		this.callbackCode = callbackCode;
 		this.outputCode = outputCode;
 	}
 
-	public HSearchProcessingInstruction(int callbackCode, int outputCode, String processingHint) {
+	public HSearchProcessingInstruction(final int callbackCode, final int outputCode, final String processingHint) {
 		this.callbackCode = callbackCode;
 		this.outputCode = outputCode;
 		this.processingHint = processingHint;
 	}
 
-	public HSearchProcessingInstruction(String code) throws ParseException {
+	public HSearchProcessingInstruction(final String code) throws ParseException {
 		int fDivider = code.indexOf('|');
 		this.callbackCode = new Integer(code.substring(0, fDivider));
 		
@@ -74,18 +69,19 @@ public class HSearchProcessingInstruction {
 		}
 	}
 
-	public int getOutputType() {
+	public final int getOutputType() {
 		return this.outputCode;
 	}
 	
-	public int getCallbackType() {
+	public final int getCallbackType() {
 		return this.callbackCode;
 	}
 	
-	public String getProcessingHint() {
+	public final String getProcessingHint() {
 		return this.processingHint;
 	}
 	
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(32);
 		sb.append(callbackCode);

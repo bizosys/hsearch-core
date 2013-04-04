@@ -55,7 +55,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 		return processor;
 	}
 	
-	private FederatedSearch build() {
+	private final FederatedSearch build() {
 
 		return new FederatedSearch() {
 			

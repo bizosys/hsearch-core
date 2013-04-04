@@ -23,7 +23,7 @@ import java.util.Collection;
 
 public final class SortedBytesChar extends SortedBytesBase<Byte>{
 
-	public static ISortedByte<Byte> getInstance() {
+	public final static ISortedByte<Byte> getInstance() {
 		return new SortedBytesChar();
 	}
 	
@@ -32,12 +32,12 @@ public final class SortedBytesChar extends SortedBytesBase<Byte>{
 	}
 	
 	@Override
-	public Byte getValueAt(int pos) {
+	public final Byte getValueAt(int pos) {
 		return inputBytes[this.offset + pos];
 	}	
 	
 	@Override
-	public byte[] toBytes(Collection<Byte> sortedList) {
+	public final byte[] toBytes(final Collection<Byte> sortedList) {
 		int sortedListAT = sortedList.size();
 		byte[] inputsB = new byte[sortedListAT];
 		
@@ -50,7 +50,7 @@ public final class SortedBytesChar extends SortedBytesBase<Byte>{
 	}
 	
 	@Override
-	protected int compare(byte[] inputB, int offset, Byte matchNo) {
+	protected final int compare(final byte[] inputB, final int offset, final Byte matchNo) {
 		byte val = inputB[offset];
 		if ( val == matchNo.byteValue()) return 0;
 		if (val > matchNo.byteValue()) return 1;

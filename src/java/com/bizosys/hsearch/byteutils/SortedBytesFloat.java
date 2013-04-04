@@ -24,7 +24,7 @@ import java.util.Collection;
 public final class SortedBytesFloat extends SortedBytesBase<Float> { 
 
 
-	public static ISortedByte<Float> getInstance() {
+	public final static ISortedByte<Float> getInstance() {
 		return new SortedBytesFloat();
 	}
 	
@@ -38,7 +38,7 @@ public final class SortedBytesFloat extends SortedBytesBase<Float> {
 	}	
 	
 	@Override
-	public final byte[] toBytes(Collection<Float> sortedList) {
+	public final byte[] toBytes(final Collection<Float> sortedList) {
 
 		int sortedListAT = sortedList.size();
 		byte[] inputsB = new byte[sortedListAT * dataSize];
@@ -52,7 +52,7 @@ public final class SortedBytesFloat extends SortedBytesBase<Float> {
 	}
 	
 	@Override
-	protected final int compare(byte[] inputB, int offset, Float matchNo) {
+	protected final int compare(final byte[] inputB, final int offset, final Float matchNo) {
 		float val = Storable.getFloat(offset, inputB);
 		if (val == matchNo) return 0;
 		if (val > matchNo) return 1;

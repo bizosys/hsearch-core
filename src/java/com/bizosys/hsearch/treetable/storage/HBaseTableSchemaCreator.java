@@ -32,7 +32,7 @@ import org.apache.log4j.Logger;
 
 import com.bizosys.hsearch.hbase.HDML;
 
-public class HBaseTableSchemaCreator {
+public final class HBaseTableSchemaCreator {
 	
 	private static HBaseTableSchemaCreator instance = null;
 	public static Logger l = Logger.getLogger(HBaseTableSchemaCreator.class.getName());
@@ -59,7 +59,7 @@ public class HBaseTableSchemaCreator {
 	/**
 	 * Checks and Creates all necessary tables required for HSearch index.
 	 */
-	public boolean init() {
+	public final boolean init() {
 
 		try {
 			
@@ -100,7 +100,7 @@ public class HBaseTableSchemaCreator {
 	 * @param methodName 
 	 * @return
 	 */
-	public static String resolveCompression(String methodName) {
+	public static final String resolveCompression(final String methodName) {
 		String compClazz =  Compression.Algorithm.GZ.getName();
 		if ("gz".equals(methodName)) {
 			compClazz = Compression.Algorithm.GZ.getName();
@@ -112,7 +112,7 @@ public class HBaseTableSchemaCreator {
 		return compClazz;
 	}
 	
-	public void configColumn(HColumnDescriptor col) {
+	public final void configColumn(final HColumnDescriptor col) {
 		col.setMinVersions(1);
 		col.setMaxVersions(1);
 		col.setKeepDeletedCells(false);
