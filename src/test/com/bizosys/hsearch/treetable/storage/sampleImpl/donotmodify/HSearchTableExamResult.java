@@ -110,8 +110,8 @@ public static final class Cell3Map
 		public Float cellMax4;
 		public Cell2FilterVisitor cell2Visitor;
 		
-		public Cell2Map(HSearchQuery query, Cell2FilterVisitor cell2Visitor,
-			Float matchingCell4, Float cellMin4, Float cellMax4) {
+		public Cell2Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor,
+				final Float matchingCell4, final Float cellMin4, final Float cellMax4) {
 			this.query = query;
 			this.cell2Visitor = cell2Visitor;
 
@@ -121,7 +121,7 @@ public static final class Cell3Map
 		}
 		
 		@Override
-		public Cell2<Integer, Float> put(String key, Cell2<Integer, Float> value) {
+		public final Cell2<Integer, Float> put(final String key, final Cell2<Integer, Float> value) {
 			
 			try {
 				cell2Visitor.cell2Key = key;
@@ -165,7 +165,7 @@ public static final class Cell3Map
 
         }
 		
-		public void set(Integer matchingCell3, Integer cellMin3, Integer cellMax3) {
+		public final void set(Integer matchingCell3, Integer cellMin3, Integer cellMax3) {
 			this.matchingCell3 = matchingCell3;
 			this.cellMin3 = cellMin3;
 			this.cellMax3 = cellMax3;
@@ -210,7 +210,7 @@ public static final class Cell3Map
 	public HSearchTableExamResult() {
 	}
 	
-	public Cell5<Integer,String, String, Integer, Float> createBlankTable() {
+	public final Cell5<Integer,String, String, Integer, Float> createBlankTable() {
 		return new Cell5<Integer,String, String, Integer, Float>
 			(
 				SortedBytesInteger.getInstance(),
@@ -221,34 +221,34 @@ public static final class Cell3Map
 			);
 	}
 
-	public byte[] toBytes() throws IOException {
+	public final byte[] toBytes() throws IOException {
 		if ( null == table) return null;
 		return table.toBytes(new FloatComparator<Integer>());
 	}
 
-	public void put (Integer age, String role, String location, Integer empid, Float mark) {
+	public final void put (final Integer age, final String role, final String location, final Integer empid, final Float mark) {
 		table.put( age, role, location, empid, mark );
 	}
 	
     @Override
-    public void get(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException, NumberFormatException {
+    public final void get(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI) throws IOException, NumberFormatException {
     	iterate(input, query, pluginI, MODE_COLS);
     }
 
     @Override
-    public void keySet(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    public final void keySet(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI) throws IOException {
     	iterate(input, query, pluginI, MODE_KEY);
     }
 
-    public void values(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    public final void values(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI) throws IOException {
     	iterate(input, query, pluginI, MODE_VAL);
     }
 
-    public void keyValues(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    public final void keyValues(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI) throws IOException {
     	iterate(input, query, pluginI, MODE_KEYVAL);
     }
     
-    private void iterate(byte[] input, HSearchQuery query, IHSearchPlugin pluginI, int mode) throws IOException, NumberFormatException {
+    private final void iterate(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI, final int mode) throws IOException, NumberFormatException {
     	
         PluginExamResultBase plugin = castPlugin(pluginI);
         PluginExamResultBase.TablePartsCallback callback = plugin.getPart();
@@ -292,7 +292,7 @@ public static final class Cell3Map
         if (null != plugin) plugin.onReadComplete();
     }
 
-    public PluginExamResultBase castPlugin(IHSearchPlugin pluginI)
+    public final PluginExamResultBase castPlugin(final IHSearchPlugin pluginI)
             throws IOException {
         PluginExamResultBase plugin = null;
         if (null != pluginI) {
@@ -309,7 +309,7 @@ public static final class Cell3Map
     /**
      * Free the cube data
      */
-    public void clear() throws IOException {
+    public final void clear() throws IOException {
         table.getMap().clear();
     }
 

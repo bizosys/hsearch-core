@@ -15,7 +15,7 @@ import com.bizosys.hsearch.treetable.Cell2;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.storage.sampleImpl.donotmodify.PluginExamResultBase;
 
-public class MapperExamResult extends PluginExamResultBase {
+public final class MapperExamResult extends PluginExamResultBase {
 
     public static String EMPTY = "";
     static boolean DEBUG_ENABLED = false;
@@ -26,7 +26,7 @@ public class MapperExamResult extends PluginExamResultBase {
     Map<Integer, String> rows = new HashMap<Integer, String>();
 
     @Override
-    public void setOutputType(HSearchProcessingInstruction outputTypeCode) {
+    public final void setOutputType(final HSearchProcessingInstruction outputTypeCode) {
         this.instruction = outputTypeCode;
     }
 
@@ -36,7 +36,7 @@ public class MapperExamResult extends PluginExamResultBase {
      * Maintain thread concurrency in the code.
      * Don't remove <code>this.parts.remove();</code> as after merging, it clears the ThreadLocal object. 
      */
-    protected void merge(Map<Integer, String> rows) {
+    protected final void merge(final Map<Integer, String> rows) {
         synchronized (this) {
             this.rows.putAll(rows);
         }

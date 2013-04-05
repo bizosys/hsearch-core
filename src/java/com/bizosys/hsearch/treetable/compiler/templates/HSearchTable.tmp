@@ -46,7 +46,7 @@ import com.bizosys.hsearch.treetable.CellComparator.StringComparator;
 import com.bizosys.hsearch.treetable.ValueComparator;
 import com.bizosys.hsearch.util.EmptyMap;
 
-public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
+public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 	
 	public static boolean DEBUG_ENABLED = false;
 	
@@ -66,8 +66,8 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		public --CELLMAX_MINUS_1-SIGN-- cellMax--CELL-MAX-MINUS-1--;
 		public Cell2FilterVisitor cell2Visitor;
 		
-		public Cell2Map(HSearchQuery query, Cell2FilterVisitor cell2Visitor,
-			--CELLMAX_MINUS_1-SIGN-- matchingCell--CELL-MAX-MINUS-1--, --CELLMAX_MINUS_1-SIGN-- cellMin--CELL-MAX-MINUS-1--, --CELLMAX_MINUS_1-SIGN-- cellMax--CELL-MAX-MINUS-1--) {
+		public Cell2Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor,
+			final --CELLMAX_MINUS_1-SIGN-- matchingCell--CELL-MAX-MINUS-1--, final --CELLMAX_MINUS_1-SIGN-- cellMin--CELL-MAX-MINUS-1--, final --CELLMAX_MINUS_1-SIGN-- cellMax--CELL-MAX-MINUS-1--) {
 			this.query = query;
 			this.cell2Visitor = cell2Visitor;
 
@@ -77,7 +77,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		}
 		
 		@Override
-		public Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> put(--VAL-PARENT-DATATYPE-- key, Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> value) {
+		public final Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> put(final --VAL-PARENT-DATATYPE-- key, final Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> value) {
 			
 			try {
 				cell2Visitor.cell2Key = key;
@@ -109,7 +109,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
 		--TREE-NODE-KEY-SIGN--
 		public int mode = MODE_COLS;
-        public Cell2FilterVisitor(HSearchQuery query,IHSearchPlugin plugin, Plugin--COLUMN-NAME--Base.TablePartsCallback tablePartsCallback, int mode) {
+        public Cell2FilterVisitor(final HSearchQuery query, final IHSearchPlugin plugin, final Plugin--COLUMN-NAME--Base.TablePartsCallback tablePartsCallback, final int mode) {
 			
             this.query = query;
             this.plugin = plugin;
@@ -118,7 +118,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
         }
 		
-		public void set(--CELLMAX_MINUS_2-SIGN-- matchingCell--CELL-MAX-MINUS-2--, --CELLMAX_MINUS_2-SIGN-- cellMin--CELL-MAX-MINUS-2--, --CELLMAX_MINUS_2-SIGN-- cellMax--CELL-MAX-MINUS-2--) {
+		public final void set(final --CELLMAX_MINUS_2-SIGN-- matchingCell--CELL-MAX-MINUS-2--, final --CELLMAX_MINUS_2-SIGN-- cellMin--CELL-MAX-MINUS-2--, final --CELLMAX_MINUS_2-SIGN-- cellMax--CELL-MAX-MINUS-2--) {
 			this.matchingCell--CELL-MAX-MINUS-2-- = matchingCell--CELL-MAX-MINUS-2--;
 			this.cellMin--CELL-MAX-MINUS-2-- = cellMin--CELL-MAX-MINUS-2--;
 			this.cellMax--CELL-MAX-MINUS-2-- = cellMax--CELL-MAX-MINUS-2--;
@@ -127,7 +127,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		
 		
 		@Override
-		public final void visit(--KEY_DATATYPE-- cell1Key, --VAL_DATATYPE-- cell1Val) {
+		public final void visit(final --KEY_DATATYPE-- cell1Key, final --VAL_DATATYPE-- cell1Val) {
 			if (query.filterCells[--CELL-MAX-MINUS-2--]) {
 				if (null != matchingCell--CELL-MAX-MINUS-2--) {
 					if (matchingCell--CELL-MAX-MINUS-2--.intValue() != cell1Key.intValue()) return;
@@ -163,41 +163,41 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 	public HSearchTable--COLUMN-NAME--() {
 	}
 	
-	public --CELLMAX-SIGN-- createBlankTable() {
+	public final --CELLMAX-SIGN-- createBlankTable() {
 		return new --CELLMAX-SIGN--
 			(
 				--CELL-SORTERS--
 			);
 	}
 
-	public byte[] toBytes() throws IOException {
+	public final byte[] toBytes() throws IOException {
 		if ( null == table) return null;
 		return table.toBytes(new --VAL-COMPARATOR--<--KEY_DATATYPE-->());
 	}
 
-	public void put (--PUT-PARAMS-SIGNS--) {
+	public final void put (--PUT-PARAMS-SIGNS--) {
 		table.put( --PUT-PARAMS-- );
 	}
 	
     @Override
-    public void get(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException, NumberFormatException {
+    public final void get(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI) throws IOException, NumberFormatException {
     	iterate(input, query, pluginI, MODE_COLS);
     }
 
     @Override
-    public void keySet(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    public final void keySet(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI) throws IOException {
     	iterate(input, query, pluginI, MODE_KEY);
     }
 
-    public void values(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    public final void values(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI) throws IOException {
     	iterate(input, query, pluginI, MODE_VAL);
     }
 
-    public void keyValues(byte[] input, HSearchQuery query, IHSearchPlugin pluginI) throws IOException {
+    public final void keyValues(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI) throws IOException {
     	iterate(input, query, pluginI, MODE_KEYVAL);
     }
     
-    private void iterate(byte[] input, HSearchQuery query, IHSearchPlugin pluginI, int mode) throws IOException, NumberFormatException {
+    private final void iterate(final byte[] input, final HSearchQuery query, final IHSearchPlugin pluginI, final int mode) throws IOException, NumberFormatException {
     	
         Plugin--COLUMN-NAME--Base plugin = castPlugin(pluginI);
         Plugin--COLUMN-NAME--Base.TablePartsCallback callback = plugin.getPart();
@@ -226,7 +226,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
         if (null != plugin) plugin.onReadComplete();
     }
 
-    public Plugin--COLUMN-NAME--Base castPlugin(IHSearchPlugin pluginI)
+    public final Plugin--COLUMN-NAME--Base castPlugin(final IHSearchPlugin pluginI)
             throws IOException {
         Plugin--COLUMN-NAME--Base plugin = null;
         if (null != pluginI) {
@@ -243,7 +243,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
     /**
      * Free the cube data
      */
-    public void clear() throws IOException {
+    public final void clear() throws IOException {
         if ( null !=  table.sortedList) table.sortedList.clear();
     }
 
