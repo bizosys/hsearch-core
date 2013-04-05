@@ -296,7 +296,8 @@ public class HSearchCompiler {
 				System.exit(1);
 			}
 			String type = CodePartGenerator.getPrimitive(fld.datatype);
-			allParams = allParams + type + " cell" + seq;
+			String name = toCamelCase(fld.name);
+			allParams = allParams + " final " + type + " " + name;
 			seq++;
 		}
 		return allParams;
@@ -455,5 +456,26 @@ public class HSearchCompiler {
 
 			throw new RuntimeException("FileResourceUtil > File does not exist :" + fileName);
 		}
+	   
+	   public static String toCamelCase(String value) {
+		    StringBuilder sb = new StringBuilder();
+
+		    final char delimChar = '_';
+		    boolean lower = false;
+		    for (int charInd = 0; charInd < value.length(); ++charInd) {
+		      final char valueChar = value.charAt(charInd);
+		      if (valueChar == delimChar) {
+		        lower = false;
+		      } else if (lower) {
+		        sb.append(Character.toLowerCase(valueChar));
+		      } else {
+		    	  if ( charInd == 0 ) sb.append(Character.toLowerCase(valueChar));
+		    	  else sb.append(Character.toUpperCase(valueChar));
+		        lower = true;
+		      }
+		    }
+
+		    return sb.toString();
+		  }	   
 	    		
 }

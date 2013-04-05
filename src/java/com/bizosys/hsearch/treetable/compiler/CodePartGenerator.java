@@ -387,7 +387,7 @@ public class CodePartGenerator {
 		code.append("\tpublic Map<" + theRemainingValueCellSignature + "> cell"
 				+ remainingCellsValueIndex + "L = null;\n\n");
 		code.append("\tpublic Cell" + remainingCells
-				+ "Map(HSearchQuery query, Cell2FilterVisitor cell2Visitor"
+				+ "Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor"
 				+ getParams(fields, cellNo, true) + ") {");
 		code.append("\n\t\tthis.query = query; \n\t\tthis.cell2Visitor = cell2Visitor;");
 		code.append("\n\t\tthis.matchingCell" + cellNo + " = matchingCell"
@@ -403,8 +403,8 @@ public class CodePartGenerator {
 		String completeCellSign = theValueCellSignature;
 		String currentCellSign = completeCellSign.replaceFirst(cellSignatureKey + ", ", ""); 
 
-		code.append("\tpublic " + currentCellSign + " put(" + cellSignatureKey
-				+ " key, " + currentCellSign + " value) {");
+		code.append("\tpublic final " + currentCellSign + " put( final " + cellSignatureKey
+				+ " key, final " + currentCellSign + " value) {");
 		code.append("\n\ttry {\n\t\tcell2Visitor.cell" + remainingCells
 				+ "Key = key;");
 		code.append("\n\t\tif (query.filterCells[" + cellNo + "]) {");
@@ -431,8 +431,8 @@ public class CodePartGenerator {
 				if(i == keyCellIndex)continue;
 				dataType = fields.get(i).datatype;
 				if ( dataType.equals("Short")) dataType = "Integer";
-				params = params + "," + dataType + " matchingCell" + i + ", "
-						+ dataType + " cellMin" + i + ", " + dataType
+				params = params + ", final " + dataType + " matchingCell" + i + ", final "
+						+ dataType + " cellMin" + i + ", final " + dataType
 						+ " cellMax" + i;
 			}
 		}

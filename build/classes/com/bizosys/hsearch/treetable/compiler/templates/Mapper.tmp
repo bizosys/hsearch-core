@@ -10,7 +10,7 @@ import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 
 import --PACKAGE--.donotmodify.Plugin--COLUMN-NAME--Base;
 
-public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
+public final class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
 
     public static String EMPTY = "";
     static boolean DEBUG_ENABLED = false;
@@ -19,7 +19,7 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
     HSearchProcessingInstruction instruction = null;
 
     @Override
-    public void setOutputType(HSearchProcessingInstruction outputTypeCode) {
+    public final void setOutputType(final HSearchProcessingInstruction outputTypeCode) {
         this.instruction = outputTypeCode;
     }
 
@@ -29,7 +29,7 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
      * Maintain thread concurrency in the code.
      * Don't remove <code>this.parts.remove();</code> as after merging, it clears the ThreadLocal object. 
      */
-    protected void merge(/** attributes as needed */) {
+    protected final void merge(/** attributes as needed */) {
         synchronized (this) {
             //Computation goes here
         }
@@ -42,7 +42,7 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
      * 
      */
     @Override
-    public void onReadComplete() {
+    public final void onReadComplete() {
     }
 
 
@@ -54,7 +54,7 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
      *      Set Document Positions. 
      */
     @Override
-    public BitSetOrSet getUniqueMatchingDocumentIds() throws IOException {
+    public final BitSetOrSet getUniqueMatchingDocumentIds() throws IOException {
         return null;
     }
 
@@ -62,14 +62,14 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
      * Collects the results for rows level aggregation.
      */
     @Override
-    public void getResultSingleQuery(Collection<byte[]> container) throws IOException {
+    public final void getResultSingleQuery(final Collection<byte[]> container) throws IOException {
     }
 
     /**
      * Collects the results for rows level aggregation.
      */
     @Override
-    public void getResultMultiQuery(BitSetOrSet matchedIds, Collection<byte[]> container) throws IOException {
+    public final void getResultMultiQuery(final BitSetOrSet matchedIds, final Collection<byte[]> container) throws IOException {
     }
 
     /**
@@ -77,7 +77,7 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
      * If not cleaned up the results will be contaminated
      */
     @Override
-    public void clear() {
+    public final void clear() {
     }
 
     /**
@@ -89,15 +89,15 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
      * @author abinash
      *
      */
-    public static class RowReader implements TablePartsCallback {
+    public static final class RowReader implements TablePartsCallback {
 
         public Mapper--COLUMN-NAME-- whole = null;
 
-        public RowReader(Mapper--COLUMN-NAME-- whole) {
+        public RowReader(final Mapper--COLUMN-NAME-- whole) {
             this.whole = whole;
         }
 
-        public final boolean onRowKey(--KEY_DATATYPE-- id) {
+        public final boolean onRowKey(final --KEY_DATATYPE-- id) {
             return true;
         }
 
@@ -107,17 +107,17 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
         }
 
         @Override
-        public final boolean onRowKeyValue(--KEY_DATATYPE-- key, --VAL_DATATYPE-- value) {
+        public final boolean onRowKeyValue(final --KEY_DATATYPE-- key, final --VAL_DATATYPE-- value) {
             return true;
         }
 
         @Override
-        public final boolean onRowValue(--VAL_DATATYPE-- value) {
+        public final boolean onRowValue(final --VAL_DATATYPE-- value) {
             return true;
         }
 
         @Override
-        public void onReadComplete() {
+        public final void onReadComplete() {
             this.whole.merge( /** attributes as needed */ );
             /**
              * Clean up resources for reuse.
@@ -131,10 +131,10 @@ public class Mapper--COLUMN-NAME-- extends Plugin--COLUMN-NAME--Base {
     /**
      * Do not modify this section as we need to create indivisual instances per thread.
      */
-    public ThreadLocal<Plugin--COLUMN-NAME--Base.TablePartsCallback> parts = 
+    public final ThreadLocal<Plugin--COLUMN-NAME--Base.TablePartsCallback> parts = 
         	new ThreadLocal<Plugin--COLUMN-NAME--Base.TablePartsCallback>();
     @Override
-    public Plugin--COLUMN-NAME--Base.TablePartsCallback getPart() {
+    public final Plugin--COLUMN-NAME--Base.TablePartsCallback getPart() {
         Plugin--COLUMN-NAME--Base.TablePartsCallback part = parts.get();
         if (null == part) {
             parts.set(new RowReader(this));
