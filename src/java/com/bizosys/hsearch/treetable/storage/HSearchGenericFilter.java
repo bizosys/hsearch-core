@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -57,9 +58,15 @@ public abstract class HSearchGenericFilter implements Filter {
 	Map<String, String> queryFilters = null;
 	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>(3);
 	Map<String, String> colIdWithType = new HashMap<String, String>(3);
+	
 	boolean hasMatchingIds = false;
 	
+	
 	HSearchProcessingInstruction processingInstructions = new HSearchProcessingInstruction();
+	Map<String, HSearchTableParts> queryData = new HashMap<String, HSearchTableParts>();
+	Map<String, HSearchTableParts> colNamesWithPartitionBytes = new HashMap<String, HSearchTableParts>();
+	List<byte[]> merged = new ArrayList<byte[]>();	
+	List<Collection<byte[]>> outputCache = new LinkedList<Collection<byte[]>>();
 
 	public HSearchGenericFilter(){
 	}
@@ -138,7 +145,6 @@ public abstract class HSearchGenericFilter implements Filter {
 						
 					case 1:
 						this.multiQuery = stk.nextToken();
-						this.queryPayload = new HashMap<String, QueryPart>();
 
 						if ( DEBUG_ENABLED ) {
 							HbaseLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
@@ -181,6 +187,11 @@ public abstract class HSearchGenericFilter implements Filter {
 						break;
 				}
 			}
+			for (int i=0; i<this.queryPayload.size(); i++) {
+				this.outputCache.add( new ArrayList<byte[]>() );
+			}
+			
+			
 		} catch (Exception ex) {
 			L.getInstance().flush();
 		} finally {
@@ -211,13 +222,14 @@ public abstract class HSearchGenericFilter implements Filter {
 			byte[] firstCol = null;
 
 			//colParts.put("structured:A", bytes);
-			Map<String, HSearchTableParts> colNamesWithPartitionBytes = new HashMap<String, HSearchTableParts>();
+			colNamesWithPartitionBytes.clear();
 			
 			HSearchTableMultiQueryExecutor intersector = createExecutor();
 
 			//HBase Family Name = schema column name + "_" + partition
 			String columnNameWithParition = null;
 			String colName = null;
+
 			for (KeyValue kv : kvL) {
 				if ( null == kv) continue;
 
@@ -249,7 +261,7 @@ public abstract class HSearchGenericFilter implements Filter {
 				HbaseLog.l.debug("queryData HSearchTableParts creation. ");
 			}
 			
-			Map<String, HSearchTableParts> queryData = new HashMap<String, HSearchTableParts>();
+			queryData.clear();
 			
 			for (String queryId : colIdWithType.keySet()) { //A
 				String queryType = colIdWithType.get(queryId); //structured
@@ -377,7 +389,7 @@ public abstract class HSearchGenericFilter implements Filter {
 		HSearchReducer reducer = getReducer();
 		int totalQueries = queryPayload.size();
 		
-		Collection<byte[]> merged = new ArrayList<byte[]>(1);
+		merged.clear();
 
 		if ( totalQueries == 1) {
 			Object pluginO = queryPayload.values().iterator().next().getParams().get(
@@ -388,11 +400,12 @@ public abstract class HSearchGenericFilter implements Filter {
 			StatementWithOutput[] stmtWithOutputs = new StatementWithOutput[totalQueries];
 			int seq = 0;
 			for (QueryPart part : queryPayload.values()) {
-				Collection<byte[]> append = new ArrayList<byte[]>(1);
+				Collection<byte[]> queryOutput = this.outputCache.get(seq);
+				queryOutput.clear();
 				Object pluginO = part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
 				IHSearchPlugin plugin = (IHSearchPlugin) pluginO;
-				plugin.getResultMultiQuery(matchedIds, append);
-				stmtWithOutputs[seq] = new StatementWithOutput(part.aStmtOrValue, append);
+				plugin.getResultMultiQuery(matchedIds, queryOutput);
+				stmtWithOutputs[seq] = new StatementWithOutput(part.aStmtOrValue, queryOutput);
 				seq++;
 			}
 			reducer.appendCols(stmtWithOutputs, merged);
@@ -402,7 +415,10 @@ public abstract class HSearchGenericFilter implements Filter {
 		}
 
 		//Put it to Bytes
-		return SortedBytesArray.getInstance().toBytes(merged);
+		byte[] mergedB = SortedBytesArray.getInstance().toBytes(merged);
+		merged.clear();
+		
+		return mergedB;
 	}
 
 	public void deserialize(byte[] input, Collection<byte[]> output) throws IOException {

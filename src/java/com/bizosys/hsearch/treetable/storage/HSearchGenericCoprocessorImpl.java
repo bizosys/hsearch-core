@@ -61,14 +61,14 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			List<KeyValue> curVals = new ArrayList<KeyValue>();
 			boolean done = false;
 			
-			Collection<byte[]> merged = new ArrayList<byte[]>();
-			Collection<byte[]> append = new ArrayList<byte[]>();
+			Collection<byte[]> finalOutput = new ArrayList<byte[]>();
+			Collection<byte[]> partOutput = new ArrayList<byte[]>();
 			
 			HSearchReducer reducer = filter.getReducer();
 			filter.configure();
 			do {
 				curVals.clear();
-				append.clear();
+				partOutput.clear();
 				
 				done = scanner.next(curVals);
 				for (KeyValue kv : curVals) {
@@ -76,15 +76,15 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					if ( null == input) continue;
 					
 					if ( null != reducer) {
-						filter.deserialize(input, append);
-						reducer.appendRows(merged, kv.getRow(), append);
+						filter.deserialize(input, partOutput);
+						reducer.appendRows(finalOutput, kv.getRow(), partOutput);
 					}
 				}
 				
 			} while (done);
 			
-			if ( INFO_ENABLED ) HbaseLog.l.info("Total merged row Length:" + merged.size());
-			byte[] data = SortedBytesArray.getInstance().toBytes(merged);
+			if ( INFO_ENABLED ) HbaseLog.l.info("Total merged row Length:" + finalOutput.size());
+			byte[] data = SortedBytesArray.getInstance().toBytes(finalOutput);
 			
         	return data;
 			
