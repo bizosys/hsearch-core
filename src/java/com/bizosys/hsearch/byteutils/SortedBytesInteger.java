@@ -51,8 +51,8 @@ public final class SortedBytesInteger extends SortedBytesBase<Integer>{
 		return inputsB;
 	}
 	
-	public final byte[] toBytes(final BitSet sortedList) {
-
+	public static final byte[] toBytes(final BitSet sortedList) {
+		int dataSize = 4;
 		int sortedListAT = sortedList.cardinality();
 		byte[] inputsB = new byte[sortedListAT * dataSize];
 		
