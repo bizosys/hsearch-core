@@ -116,7 +116,7 @@ public final class HBaseTableSchemaCreator {
 		col.setMinVersions(1);
 		col.setMaxVersions(1);
 		col.setKeepDeletedCells(false);
-		col.setCompressionType(Compression.Algorithm.NONE);
+		col.setCompressionType(Compression.Algorithm.SNAPPY);
 		col.setEncodeOnDisk(false);
 		col.setDataBlockEncoding(DataBlockEncoding.NONE);
 		col.setInMemory(false);
