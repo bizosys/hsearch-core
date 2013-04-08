@@ -277,7 +277,6 @@ public abstract class HSearchGenericFilter implements Filter {
 				queryData.put(queryTypeWithId, parts);
 			}
 			colNamesWithPartitionBytes.clear();
-			colNamesWithPartitionBytes = null;
 
 			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchGenericFilter: Filteration Starts");
 			BitSetOrSet intersectedIds = federatedQueryExec(row, intersector, queryData);
