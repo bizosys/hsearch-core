@@ -30,7 +30,8 @@ import com.bizosys.hsearch.hbase.HbaseLog;
 public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	
+	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+
 	@Override
 	public final void concurrentDeser(final String aStmtOrValue, final HSearchProcessingInstruction outputType,
 		final Map<String, Object> stmtParams, final String tableType) throws Exception {
@@ -72,6 +73,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 			TableDeserExecutor deserTask = new TableDeserExecutor(t, tableSer, plugin, hQuery, outputType);
 			tasks.add(deserTask);
 		}
+		
 		if ( tasks.size() > 1 ) {
 			if ( DEBUG_ENABLED ) HbaseLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in parallel.");
 			HSearchTableResourcesDefault.getInstance().cpuIntensiveJobExecutor.invokeAll(tasks);
@@ -81,6 +83,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 				deserExec.call(); 
 			}
 		}
+		
 	}
 	
 	public static final class TableDeserExecutor implements Callable<Integer> {

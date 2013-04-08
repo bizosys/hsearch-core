@@ -33,6 +33,7 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 	public byte[] getRows(final byte[][] families, final byte[][] cols, final HSearchGenericFilter filter) throws IOException {
 		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
 		InternalScanner scanner = null;
+		long monitorStartTime = 0L; 
 
 		try {
 			Scan scan = new Scan();
@@ -77,25 +78,31 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 					
 					if ( null != reducer) {
 						filter.deserialize(input, partOutput);
+						
+						if ( INFO_ENABLED ) {
+							monitorStartTime = System.currentTimeMillis();
+						}	
+						
 						reducer.appendRows(finalOutput, kv.getRow(), partOutput);
+						
+						if ( INFO_ENABLED ) {
+							filter.pluginExecutionTime += System.currentTimeMillis() - monitorStartTime;
+						}
+						
 					}
 				}
 				
 			} while (done);
 			
-			if ( INFO_ENABLED ) HbaseLog.l.info("Total merged row Length:" + finalOutput.size());
+			if ( INFO_ENABLED ) HbaseLog.l.info("\n\n\n **** Time spent on Plugin Code Mapper : ( in ms ) " + 
+					filter.pluginExecutionTime + " \n\n\n\n ");
+			
 			byte[] data = SortedBytesArray.getInstance().toBytes(finalOutput);
 			
         	return data;
 			
 		} finally {
-			if ( null != scanner) {
-				try {
-					filter.close();
-				} catch (Exception ex) {
-					ex.printStackTrace(System.err);
-				}
-			}
+			if ( null != filter) filter.close();
 			
 			if ( null != scanner) {
 				try {
