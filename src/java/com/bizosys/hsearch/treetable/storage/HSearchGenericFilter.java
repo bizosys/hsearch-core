@@ -72,6 +72,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	SortedBytesArray sbaFortoBytesOnly = SortedBytesArray.getInstanceArr();
 
 	public HSearchGenericFilter(){
+		System.out.println("HSearchGenericFilter:" + Thread.currentThread().getName() + "\t\t\t" + this.hashCode() );
 	}
 	
 	public HSearchGenericFilter(final HSearchProcessingInstruction outputType, final String query, final  Map<String, String> details){
@@ -210,7 +211,6 @@ public abstract class HSearchGenericFilter implements Filter {
 	 */
 	@Override
 	public final  void filterRow(final List<KeyValue> kvL) {
-		System.out.println("HSearchGenericFilter:" + Thread.currentThread().getName());
 		if ( null == kvL) return;
 		int kvT = kvL.size();
 		if ( 0 == kvT) return;
