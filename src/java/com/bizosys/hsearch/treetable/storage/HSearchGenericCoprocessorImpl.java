@@ -94,8 +94,8 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 				
 			} while (done);
 			
-			if ( INFO_ENABLED ) HbaseLog.l.info("\n\n\n **** Time spent on Plugin Code Mapper : ( in ms ) " + 
-					filter.pluginExecutionTime + " \n\n\n\n ");
+			if ( INFO_ENABLED ) HbaseLog.l.info(
+					"**** Time spent on Plugin Code : " + filter.pluginExecutionTime + " ms. \n");
 			
 			byte[] data = SortedBytesArray.getInstance().toBytes(finalOutput);
 			
