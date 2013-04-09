@@ -44,6 +44,7 @@ public final class HSearchTableMultiQueryExecutor {
 	public static final String TABLE_PARTS = "ranges";
 	
 	IHSearchTableMultiQueryProcessor processor = null;
+	FederatedSearch ff = null;
 	
 	public HSearchTableMultiQueryExecutor(final IHSearchTableMultiQueryProcessor processor) {
 		this.processor = processor;
@@ -79,14 +80,17 @@ public final class HSearchTableMultiQueryExecutor {
 			HbaseLog.l.debug("HSearchTestMultiQuery : getProcessor ENTER ");
 		}
 		
-		FederatedSearch ff = processor.getProcessor();
+		if ( null == ff) {
+			ff = processor.getProcessor();
+			ff.initialize(multiQueryStmt);
+		} 
 		
 		if ( DEBUG_ENABLED ) {
 			HbaseLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");
 			start = System.currentTimeMillis();
 		}
 		
-		BitSetOrSet matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
+		BitSetOrSet matchingIds = ff.execute(multiQueryParts);
 
 		if  ( DEBUG_ENABLED ) {
 			long end = System.currentTimeMillis();
