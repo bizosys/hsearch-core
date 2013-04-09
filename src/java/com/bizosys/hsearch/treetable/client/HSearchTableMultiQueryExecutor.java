@@ -91,7 +91,6 @@ public final class HSearchTableMultiQueryExecutor {
 		}
 		
 		BitSetOrSet matchingIds = ff.execute(multiQueryParts);
-		//BitSetOrSet matchingIds = ff.execute(multiQueryStmt, multiQueryParts);
 
 		if  ( DEBUG_ENABLED ) {
 			long end = System.currentTimeMillis();

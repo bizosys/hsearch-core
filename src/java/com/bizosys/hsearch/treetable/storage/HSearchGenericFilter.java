@@ -70,6 +70,9 @@ public abstract class HSearchGenericFilter implements Filter {
 	List<byte[]> merged = new ArrayList<byte[]>();	
 	List<Collection<byte[]>> outputCache = new LinkedList<Collection<byte[]>>();
 	SortedBytesArray sbaFortoBytesOnly = SortedBytesArray.getInstanceArr();
+	
+	HSearchTableMultiQueryExecutor intersector = null;
+	
 
 	public HSearchGenericFilter(){
 	}
@@ -226,8 +229,6 @@ public abstract class HSearchGenericFilter implements Filter {
 			//colParts.put("structured:A", bytes);
 			colNamesWithPartitionBytes.clear();
 			
-			HSearchTableMultiQueryExecutor intersector = createExecutor();
-
 			//HBase Family Name = schema column name + "_" + partition
 			String columnNameWithParition = null;
 			String colName = null;
@@ -286,6 +287,8 @@ public abstract class HSearchGenericFilter implements Filter {
 			if ( INFO_ENABLED ) {
 				monitorStartTime = System.currentTimeMillis();
 			}	
+			
+			if ( null == intersector ) intersector = createExecutor();
 			
 			BitSetOrSet intersectedIds = federatedQueryExec(row, intersector, queryData);
 			
