@@ -72,7 +72,6 @@ public abstract class HSearchGenericFilter implements Filter {
 	SortedBytesArray sbaFortoBytesOnly = SortedBytesArray.getInstanceArr();
 
 	public HSearchGenericFilter(){
-		System.out.println("HSearchGenericFilter:" + Thread.currentThread().getName() + "\t\t\t" + this.hashCode() );
 	}
 	
 	public HSearchGenericFilter(final HSearchProcessingInstruction outputType, final String query, final  Map<String, String> details){

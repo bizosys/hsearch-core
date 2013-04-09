@@ -40,19 +40,12 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 	
 	public abstract IHSearchTableCombiner getCombiner();
 	
-	public static FederatedSearch processor = null;
-	
 	public HSearchTableMultiQueryProcessor() {
-		if ( null == processor) {
-			synchronized (HSearchTableMultiQueryProcessor.class) {
-				if ( null == processor ) processor = build();
-			}
-		}
 	}
 	
 	@Override
 	public FederatedSearch getProcessor() { 
-		return processor;
+		return build();
 	}
 	
 	private final FederatedSearch build() {
