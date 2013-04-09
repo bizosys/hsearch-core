@@ -210,6 +210,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	 */
 	@Override
 	public final  void filterRow(final List<KeyValue> kvL) {
+		System.out.println("HSearchGenericFilter:" + Thread.currentThread().getName());
 		if ( null == kvL) return;
 		int kvT = kvL.size();
 		if ( 0 == kvT) return;
