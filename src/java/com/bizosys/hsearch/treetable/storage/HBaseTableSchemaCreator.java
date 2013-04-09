@@ -37,6 +37,14 @@ public final class HBaseTableSchemaCreator {
 	private static HBaseTableSchemaCreator instance = null;
 	public static Logger l = Logger.getLogger(HBaseTableSchemaCreator.class.getName());
 	
+	public Compression.Algorithm compression = Compression.Algorithm.NONE;
+	public int partitionBlockSize = 13035596;	
+	public int partitionRepMode = HConstants.REPLICATION_SCOPE_GLOBAL;
+	public  DataBlockEncoding dataBlockEncoding = DataBlockEncoding.NONE;
+	public BloomType bloomType = BloomType.NONE;
+	public boolean inMemory = false;
+	public boolean blockCacheEnabled = true;
+	
 	public static final HBaseTableSchemaCreator getInstance() {
 		if ( null != instance) return instance;
 		synchronized (HBaseTableSchemaCreator.class) {
@@ -53,9 +61,6 @@ public final class HBaseTableSchemaCreator {
 	public HBaseTableSchemaCreator(){
 	}
 	
-	private int partitionBlockSize = 13035596;	
-	private int partitionRepMode = HConstants.REPLICATION_SCOPE_GLOBAL;;	
-
 	/**
 	 * Checks and Creates all necessary tables required for HSearch index.
 	 */
@@ -116,14 +121,14 @@ public final class HBaseTableSchemaCreator {
 		col.setMinVersions(1);
 		col.setMaxVersions(1);
 		col.setKeepDeletedCells(false);
-		col.setCompressionType(Compression.Algorithm.SNAPPY);
+		col.setCompressionType(compression);
 		col.setEncodeOnDisk(false);
-		col.setDataBlockEncoding(DataBlockEncoding.NONE);
-		col.setInMemory(false);
-		col.setBlockCacheEnabled(true);
+		col.setDataBlockEncoding(dataBlockEncoding);
+		col.setInMemory(inMemory);
+		col.setBlockCacheEnabled(blockCacheEnabled);
 		col.setBlocksize(partitionBlockSize);
 		col.setTimeToLive(HConstants.FOREVER);
-		col.setBloomFilterType(BloomType.NONE);
+		col.setBloomFilterType(bloomType);
 		col.setScope(partitionRepMode);
 	}
 }
