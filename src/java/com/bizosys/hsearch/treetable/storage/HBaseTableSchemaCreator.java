@@ -27,6 +27,7 @@ import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.io.encoding.DataBlockEncoding;
 import org.apache.hadoop.hbase.io.hfile.Compression;
+import org.apache.hadoop.hbase.io.hfile.Compression.Algorithm;
 import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.apache.log4j.Logger;
 
@@ -37,7 +38,7 @@ public final class HBaseTableSchemaCreator {
 	private static HBaseTableSchemaCreator instance = null;
 	public static Logger l = Logger.getLogger(HBaseTableSchemaCreator.class.getName());
 	
-	public Compression.Algorithm compression = Compression.Algorithm.NONE;
+	public Algorithm compression = Compression.Algorithm.NONE;
 	public int partitionBlockSize = 13035596;	
 	public int partitionRepMode = HConstants.REPLICATION_SCOPE_GLOBAL;
 	public  DataBlockEncoding dataBlockEncoding = DataBlockEncoding.NONE;
@@ -71,6 +72,15 @@ public final class HBaseTableSchemaCreator {
 			List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
 			
 			HBaseTableSchemaDefn def = HBaseTableSchemaDefn.getInstance();
+			
+			System.out.println("Compression : " + this.compression.getName());
+			System.out.println("Partition Block Size : " + this.partitionBlockSize);
+			System.out.println("Partition Rep Mode : " + this.partitionRepMode);
+			System.out.println("Partition Block Size : " + this.partitionBlockSize);
+			System.out.println("Partition Block Encoding : " + this.dataBlockEncoding.name());
+			System.out.println("Bloom Type : " + this.bloomType.name());
+			System.out.println("In Memory Table: " + this.inMemory);
+			System.out.println("Block Caching: " + this.blockCacheEnabled);
 			
 			for (String familyName : def.columnPartions.keySet()) {
 				
