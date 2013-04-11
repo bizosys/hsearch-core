@@ -90,16 +90,10 @@ public class Facet<T> {
 		ser.add("karan");
 
 		ser.add("bizosys");
-		
 		byte[] data = ser.toBytes();
-		
 		Map<String, Integer> deser = Facet.fromBytes(data);
 		System.out.println(deser);
 		
-		
-		
-		
-
 	}
 
 }

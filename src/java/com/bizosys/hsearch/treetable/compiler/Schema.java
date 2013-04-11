@@ -50,11 +50,11 @@ public class Schema {
 	public static class Partitions {
 		public String names = "";
 		public String ranges = "";
-		public int column = -1;
+		public String column = "";
 		public String type = "numeric";
 		
 		public Partitions() {}
-		public Partitions(String family, String ranges, int column, String type ) {
+		public Partitions(String family, String ranges, String column, String type ) {
 			this.names = family;
 			this.ranges = ranges;
 			this.column = column;
