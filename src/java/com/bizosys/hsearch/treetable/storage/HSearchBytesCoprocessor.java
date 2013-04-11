@@ -22,7 +22,6 @@ package com.bizosys.hsearch.treetable.storage;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.apache.hadoop.hbase.KeyValue;
@@ -33,16 +32,12 @@ import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 
 import com.bizosys.hsearch.PerformanceLogger;
-import com.bizosys.hsearch.byteutils.SortedBytesArray;
-import com.bizosys.hsearch.functions.HSearchReducer;
 import com.bizosys.hsearch.hbase.HbaseLog;
 
-public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
-		implements HSearchGenericCoprocessor {
+public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	public static boolean INFO_ENABLED = PerformanceLogger.l.isInfoEnabled(); 
-	
 	
     /**
      * Get Matching rows 
@@ -50,10 +45,9 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
      * @return
      * @throws IOException
      */
-	public byte[] getRows(final byte[][] families, final byte[][] cols, final HSearchGenericFilter filter) throws IOException {
+	public byte[] getRows(final byte[][] families, final byte[][] cols, final HSearchBytesFilter filter) throws IOException {
 		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
 		InternalScanner scanner = null;
-		long monitorStartTime = 0L; 
 
 		try {
 			Scan scan = new Scan();
@@ -65,8 +59,7 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			for (int i=0; i<familiesT; i++) {
 				if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
 					" @ adding family " + new String(families[i]) + "_" + new String(cols[i]));
-				//scan = scan.addColumn(families[i], cols[i]);
-				scan = scan.addFamily(families[i]);
+				scan = scan.addColumn(families[i], cols[i]);
 			}
 			
 			if ( null != filter) {
@@ -81,49 +74,14 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			
 			List<KeyValue> curVals = new ArrayList<KeyValue>();
 			boolean done = false;
-			
-			Collection<byte[]> finalOutput = new ArrayList<byte[]>();
-			Collection<byte[]> partOutput = new ArrayList<byte[]>();
-			
-			HSearchReducer reducer = filter.getReducer();
-			filter.configure();
 			do {
-				curVals.clear();
-				partOutput.clear();
-				
 				done = scanner.next(curVals);
-				for (KeyValue kv : curVals) {
-					byte[] input = kv.getValue();
-					if ( null == input) continue;
-					
-					if ( null != reducer) {
-						filter.deserialize(input, partOutput);
-						
-						if ( INFO_ENABLED ) {
-							monitorStartTime = System.currentTimeMillis();
-						}	
-						
-						reducer.appendRows(finalOutput, kv.getRow(), partOutput);
-						
-						if ( INFO_ENABLED ) {
-							filter.pluginExecutionTime += System.currentTimeMillis() - monitorStartTime;
-						}
-						
-					}
-				}
-				
 			} while (done);
 			
-			if ( INFO_ENABLED ) HbaseLog.l.info(
-					"**** Time spent on Plugin Code : " + filter.pluginExecutionTime + " ms. \n");
-			
-			byte[] data = SortedBytesArray.getInstance().toBytes(finalOutput);
-			
+			byte[] data = filter.processRows();
         	return data;
 			
 		} finally {
-			if ( null != filter) filter.close();
-			
 			if ( null != scanner) {
 				try {
 					scanner.close();

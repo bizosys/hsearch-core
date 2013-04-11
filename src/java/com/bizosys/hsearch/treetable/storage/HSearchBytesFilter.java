@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.FilterList;
 
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.L;
@@ -98,6 +99,7 @@ public abstract class HSearchBytesFilter implements Filter {
 
 	public abstract void processColumn(KeyValue cell) throws IOException;
 	public abstract void processRow(List<KeyValue> row) throws IOException;
+	public abstract byte[] processRows() throws IOException;
 	
 
 	@Override
@@ -140,5 +142,9 @@ public abstract class HSearchBytesFilter implements Filter {
 	@Override
 	public KeyValue transform(final KeyValue arg0) {
 		return arg0;
+	}
+	
+	public FilterList getFilters() {
+		return null;
 	}
 }
