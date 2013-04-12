@@ -27,7 +27,7 @@ public class L {
 	
 	private static L singleton = null;
 	
-	public static L getInstance() {
+	public static final L getInstance() {
 		if ( null != singleton ) return singleton;
 		synchronized (L.class) {
 			if ( null != singleton ) return singleton;
@@ -36,9 +36,9 @@ public class L {
 		return singleton;
 	}
 	
-	Map<String, StringBuilder> loggings = new ConcurrentHashMap<String, StringBuilder>();
+	final Map<String, StringBuilder> loggings = new ConcurrentHashMap<String, StringBuilder>();
 	
-	public void logDebug(String msg) {
+	public final void logDebug(final String msg) {
 		String threadName = Thread.currentThread().getName();
 		if (loggings.containsKey(threadName)) {
 			loggings.get(threadName).append(msg).append('\n');
@@ -49,23 +49,23 @@ public class L {
 		}
 	}
 	
-	public void logWarning(String msg) {
+	public final void logWarning(final String msg) {
 		logError(msg, "Warning", null);
 	}
 
-	public void logWarning(String msg, Exception ex) {
+	public final void logWarning(final String msg, final Exception ex) {
 		logError(msg, "Warning", ex);
 	}
 
-	public void logError(String msg) {
+	public final void logError(final String msg) {
 		logError(msg, "Error", null);
 	}
 	
-	public void logError(String msg, Exception ex) {
+	public final void logError(final String msg, final Exception ex) {
 		logError(msg, "Error", ex);
 	}
 
-	private void logError(String msg, String level, Exception ex) {
+	private final void logError(final String msg, final String level, final Exception ex) {
 		String threadName = Thread.currentThread().getName();
 		
 		System.err.println(threadName + " > " + level + " > " +  msg );
@@ -80,7 +80,7 @@ public class L {
 		}
 	}
 
-	public void flush() {
+	public final void flush() {
 		for (String threadName : loggings.keySet()) {
 			StringBuilder sb = loggings.get(threadName);
 			System.out.println("****** Thread :" + threadName + "\n" + loggings.get(threadName).toString());
@@ -89,11 +89,11 @@ public class L {
 		loggings.clear();
 	}
 
-	public void clear() {
+	public final void clear() {
 		loggings.clear();
 	}
 
-	public void flush(Exception ex) {
+	public final void flush(final Exception ex) {
 		for (String threadName : loggings.keySet()) {
 			StringBuilder sb = loggings.get(threadName);
 			System.out.println("****** Thread :" + threadName + "\n" + loggings.get(threadName).toString());

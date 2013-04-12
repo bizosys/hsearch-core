@@ -62,6 +62,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	
 	boolean hasMatchingIds = false;
 	public long pluginExecutionTime = 0L;
+	public long overallExecutionTime = 0L;
 	
 	
 	HSearchProcessingInstruction processingInstructions = new HSearchProcessingInstruction();
@@ -221,7 +222,9 @@ public abstract class HSearchGenericFilter implements Filter {
 			HbaseLog.l.debug("Processing @ Region Server : filterRow" );
 		}
 		
+		long startTime = System.currentTimeMillis();
 		try {
+			
 			byte[] row = null;
 			byte[] firstFamily = null;
 			byte[] firstCol = null;
@@ -305,6 +308,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			ex.printStackTrace(System.err);
 		
 		} finally {
+			if ( INFO_ENABLED) this.overallExecutionTime += System.currentTimeMillis() - startTime;
 			L.getInstance().flush();
 		}
 	}
