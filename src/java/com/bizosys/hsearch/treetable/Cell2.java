@@ -97,7 +97,6 @@ public class Cell2<K1, V> {
 		}		
 	}	
 		
-	
 	/**
 	 * Visits only matching rows
 	 * @param exactValue
@@ -131,6 +130,28 @@ public class Cell2<K1, V> {
 			}
 		}
 	}	
+	
+	public final void processNot(final V exactValue, final Cell2Visitor<K1,V> visitor) throws IOException {
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data,data.offset, data.length);
+		
+		Reference keyRef = new Reference();
+		kvbytesA.getValueAtReference(0, keyRef);
+		
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
+		
+		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
+		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
+		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
+		if ( null != exactValue ) {
+			findNonMatchingPositionsVsorterInitialized( exactValue, 
+				new Cell2FoundIndex<K1, V>(k1Sorter, vSorter, visitor) );
+		} else {
+			throw new IOException("Not queries are not yet supported for ranges.");
+		}		
+	}
+	
 	
 	public final List<CellKeyValue<K1, V>> getMap(final byte[] data) throws IOException {
 		int dataLen = ( null == data) ? 0 : data.length;
@@ -461,6 +482,14 @@ public class Cell2<K1, V> {
 			}
 		}
 	}	
+	
+	private final void findNonMatchingPositionsVsorterInitialized( final V exactValue,
+		final Collection<Integer> foundPositions) throws IOException {
+			
+		if ( null != exactValue) {
+			vSorter.getNotEqualToIndexes(exactValue, foundPositions);
+		}
+	}
 
 	public final Collection<K1> keySet() throws IOException {
 		List<K1> keys = new ArrayList<K1>();

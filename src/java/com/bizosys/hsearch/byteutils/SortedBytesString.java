@@ -221,15 +221,23 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 		return -1;
 	}
 
+	@Override
+	public final void getEqualToIndexes(final String matchVal, final Collection<Integer> matchings) throws IOException {
+		getEqualOrNorEqualToIndexes(false, matchVal, matchings);
+	}
+	
+	@Override
+	public final void getNotEqualToIndexes(final String matchVal, final Collection<Integer> matchings) throws IOException {
+		getEqualOrNorEqualToIndexes(true, matchVal, matchings);
+	}
+	
 	/**
 	 * Find total entieis - 4 bytes
 	 * Find the end bytes position to read
 	 * Iterate to find String positions
 	 * Read each string
 	 */
-	
-	@Override
-	public final void getEqualToIndexes(final String matchVal, 
+	private final void getEqualOrNorEqualToIndexes(final boolean isNot, final String matchVal, 
 		final Collection<Integer> matchings) throws IOException {
 		
 		int collectionSize = getSize();
@@ -269,7 +277,7 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 			int elemLen = nextElemOffset - thisElemOffset;
 			
 			boolean isSame = ByteUtil.compareBytes(inputBytes, elemOffset, elemLen,  matchBytes);
-			if ( isSame ) matchings.add(i);
+			if ( isSame ^ isNot) matchings.add(i);
 		}
 		
 		ObjectFactory.getInstance().putIntegerList(seeks);

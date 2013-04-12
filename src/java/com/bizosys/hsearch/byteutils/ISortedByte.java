@@ -39,6 +39,7 @@ public interface ISortedByte<T> {
 
 	int getEqualToIndex(T matchNo) throws IOException;
 	void getEqualToIndexes(T matchNo, Collection<Integer> matchings) throws IOException;
+	void getNotEqualToIndexes(T matchNo, Collection<Integer> matchings) throws IOException;
 	Collection<Integer> getEqualToIndexes(T matchNo) throws IOException;
 	
 	void getGreaterThanIndexes(T matchingNo, Collection<Integer> matchingPos) throws IOException;

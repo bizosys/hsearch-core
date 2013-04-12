@@ -37,13 +37,13 @@ public abstract class CellBase<K1>  {
 	
 	public abstract void parseElements() throws IOException;
 	
-	public void parseElements(byte[] data) throws IOException {
+	public final void parseElements(final byte[] data) throws IOException {
 		int len = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, len);
 		if ( len > 0 ) parseElements();
 	}
 	
-	public int indexOfKey(K1 exactKey) throws IOException{
+	public final int indexOfKey(final K1 exactKey) throws IOException{
 		if ( null == this.data) return -1;
 		if ( null == exactKey ) return -1; //Nulls not allowed
 
@@ -64,13 +64,14 @@ public abstract class CellBase<K1>  {
 	 * @return
 	 * @throws IOException
 	 */
-	public Collection<Integer> indexOf(K1 keyMinimum, K1 keyMaximum) throws IOException{
+	public final Collection<Integer> indexOf(final K1 keyMinimum, final K1 keyMaximum) throws IOException{
 		Collection<Integer> indexes = new ArrayList<Integer>();
 		findMatchingPositions(null, keyMinimum, keyMaximum, indexes);
 		return indexes;
 	}
 	
-	protected Reference findMatchingPositions(K1 exactValue, K1 minimumValue, K1 maximumValue, Collection<Integer> foundPositions) throws IOException {
+	protected final Reference findMatchingPositions(final K1 exactValue, 
+			final K1 minimumValue, final K1 maximumValue, final Collection<Integer> foundPositions) throws IOException {
 		
 		if ( null == this.data) return null;
 		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
@@ -98,28 +99,47 @@ public abstract class CellBase<K1>  {
 		return keyRef;
 	}
 	
-	public Collection<K1> get(K1 exactValue) throws IOException {
+	protected final Reference findNotMatchingPositions(final K1 exactValue, final Collection<Integer> foundPositions) throws IOException {
+		
+		if ( null == this.data) return null;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
+		
+		Reference keyRef = kvbytesA.getValueAtReference(0);
+		if ( null == keyRef ) return null;
+		
+		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
+		
+		if ( null != exactValue ) {
+			k1Sorter.getEqualToIndexes(exactValue, foundPositions);
+		} else {
+			throw new IOException("Not is not implemented for range queries.");
+		}
+		return keyRef;
+	}	
+	
+	public final Collection<K1> get(final K1 exactValue) throws IOException {
 		List<K1> foundKeys = new ArrayList<K1>();
 		get(exactValue, null ,null, foundKeys);
 		return foundKeys;
 	}
 
-	public void get(K1 exactValue, Collection<K1> foundKeys ) throws IOException {
+	public final void get(final K1 exactValue, final Collection<K1> foundKeys ) throws IOException {
 		get(exactValue, null ,null, foundKeys);
 	}
 	
-	public Collection<K1> get(K1 minimumValue, K1 maximumValue) throws IOException {
+	public final Collection<K1> get(final K1 minimumValue, final K1 maximumValue) throws IOException {
 		List<K1> foundKeys = new ArrayList<K1>();
 		get(null, minimumValue ,maximumValue, foundKeys);
 		return foundKeys;
 	}
 	
-	public void get(K1 minimumValue, K1 maximumValue, Collection<K1> foundKeys) throws IOException {
+	public final void get(final K1 minimumValue, final K1 maximumValue, final Collection<K1> foundKeys) throws IOException {
 		get(null, minimumValue ,maximumValue, foundKeys);
 	}
 
-	private void get(K1 exactValue, K1 minimumValue,
-			K1 maximumValue, Collection<K1> foundKeys) throws IOException {
+	private final void get(final K1 exactValue, final K1 minimumValue,
+			final K1 maximumValue, final Collection<K1> foundKeys) throws IOException {
 
 		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
 		kvbytesA.parse(data.data, data.offset, data.length);
@@ -133,13 +153,13 @@ public abstract class CellBase<K1>  {
 			new CellBaseFoundKeyIndex<K1>(k1Sorter, foundKeys));
 	}
 
-	public Set<K1> keySet() throws IOException {
+	public final Set<K1> keySet() throws IOException {
 		Set<K1> keys = new HashSet<K1>();
 		keySet(keys);
 		return keys;
 	}
 	
-	public void keySet(Collection<K1> keys) throws IOException {
+	public final void keySet(final Collection<K1> keys) throws IOException {
 		
 		if ( null == data) {
 			throw new IOException("Null Data - Use sortedList to get Keys directly");
@@ -161,7 +181,7 @@ public abstract class CellBase<K1>  {
 	protected abstract Collection<byte[]> getEmbeddedCellBytes() throws IOException;
 	protected abstract byte[] getKeyBytes() throws IOException;
 	
-	public byte[] toBytes() throws IOException {
+	public final byte[] toBytes() throws IOException {
 
 		List<byte[]> bytesElems = new ArrayList<byte[]>();
 
@@ -174,15 +194,15 @@ public abstract class CellBase<K1>  {
 		return cellB;
 	}
 	
-	public byte[] remove(K1 exactKey) throws IOException {
+	public final byte[] remove(final K1 exactKey) throws IOException {
 		return remove(exactKey, null, null);
 	}
 	
-	public byte[] remove(K1 minimumValue, K1 maximumValue) throws IOException {
+	public final byte[] remove(final K1 minimumValue, final K1 maximumValue) throws IOException {
 		return remove(null, minimumValue, maximumValue);
 	}
 
-	private byte[] remove(K1 exactValue, K1 minimumValue, K1 maximumValue) throws IOException {
+	private final byte[] remove(final K1 exactValue, final K1 minimumValue, final  K1 maximumValue) throws IOException {
 
 		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
 		kvbytesA.parse(data.data, data.offset, data.length);
@@ -217,7 +237,7 @@ public abstract class CellBase<K1>  {
 		return cellB;
 	}
 	
-	public static byte[] serializeKV(byte[] keys, byte[] values) throws IOException {
+	public final static byte[] serializeKV(final byte[] keys, final byte[] values) throws IOException {
 		List<byte[]> bytesElems = new ArrayList<byte[]>();
 		bytesElems.add(keys);
 		bytesElems.add(values);

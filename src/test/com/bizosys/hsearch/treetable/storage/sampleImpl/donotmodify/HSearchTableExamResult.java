@@ -52,6 +52,7 @@ public final class HSearchTableExamResult implements IHSearchTable {
 		cell2Visitor.cell4Key = key;
 		if (query.filterCells[1]) {
 			value.getMap(matchingCell1, cellMin1, cellMax1, cell3L);
+			//VER value.getNotMap(matchingCell1, cell3L);
 		 } else {
 			value.sortedList = cell3L;
 			value.parseElements();
@@ -88,6 +89,7 @@ public static final class Cell3Map
 		cell2Visitor.cell3Key = key;
 		if (query.filterCells[2]) {
 			value.getMap(matchingCell2, cellMin2, cellMax2, cell2L);
+			//VER value.getNotMap
 		 } else {
 			value.sortedList = cell2L;
 			value.parseElements();
@@ -129,6 +131,7 @@ public static final class Cell3Map
 
 				if (query.filterCells[4]) {
 					cell2Val.process(matchingCell4, cellMin4, cellMax4,cell2Visitor);
+					////VER cell2Val.processNot(exactValue, visitor);
 				} else {
 					cell2Val.process(cell2Visitor);
 				}
@@ -177,9 +180,19 @@ public static final class Cell3Map
 		public final void visit(Integer cell1Key, Float cell1Val) {
 			if (query.filterCells[3]) {
 				if (null != matchingCell3) {
-					if (matchingCell3.intValue() != cell1Key.intValue()) return;
+					if ( query.notValCells[3] ) {
+						if (matchingCell3.intValue() == cell1Key.intValue()) return;
+					} else {
+						if (matchingCell3.intValue() != cell1Key.intValue()) return;
+					}
 				} else {
-					if (cell1Key.intValue() < cellMin3.intValue() || cell1Key.intValue() > cellMax3.intValue()) return;
+					boolean isMatched = cell1Key.intValue() < cellMin3.intValue() || cell1Key.intValue() > cellMax3.intValue();
+					if ( query.notValCells[3] ) {
+						if (!isMatched ) return;
+					} else {
+						if (isMatched ) return;
+					}
+					
 				}
 			}
 

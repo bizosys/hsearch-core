@@ -54,6 +54,7 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
 		InternalScanner scanner = null;
 		long monitorStartTime = 0L; 
+		long overallStartTime = System.currentTimeMillis(); 
 
 		try {
 			Scan scan = new Scan();
@@ -115,7 +116,9 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			} while (done);
 			
 			if ( INFO_ENABLED ) HbaseLog.l.info(
-					"**** Time spent on Plugin Code : " + filter.pluginExecutionTime + " ms. \n");
+				"**** Time spent on Overall : Plugin Code = " + 
+					( System.currentTimeMillis() - overallStartTime) + ":" + 
+					filter.pluginExecutionTime  + " in ms.");
 			
 			byte[] data = SortedBytesArray.getInstance().toBytes(finalOutput);
 			

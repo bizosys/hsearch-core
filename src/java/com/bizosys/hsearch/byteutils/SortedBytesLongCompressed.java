@@ -92,6 +92,19 @@ public final class SortedBytesLongCompressed extends SortedBytesBase<Long>{
 	}
 
 	@Override
+	public final void getNotEqualToIndexes(final Long matchNo, final Collection<Integer> matchings) throws IOException {
+
+		initialize();
+
+		long matchNoL = matchNo.longValue();
+		int pos = -1;
+		for (long entity : this.parsedLongs) {
+			pos++;
+			if ( matchNoL != entity) matchings.add(pos);
+		}
+	}
+
+	@Override
 	public final void getGreaterThanIndexes(final Long matchingNo, final Collection<Integer> matchingPos) throws IOException {
 		initialize();
 

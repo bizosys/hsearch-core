@@ -10,6 +10,7 @@ import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
 import com.bizosys.hsearch.hbase.ObjectFactory;
+import com.bizosys.hsearch.treetable.Cell3.Callback;
 public final class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 	public ISortedByte<K2> k2Sorter = null;
 	public ISortedByte<K3> k3Sorter = null;
@@ -122,6 +123,29 @@ public final class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 		Callback callback = new Callback(rows, valSorter);
 		findMatchingPositions(exactValue, minimumValue, maximumValue, callback);
 	}
+	
+	public final void getNotMap(final K1 exactValue, final Map<K1, Cell3< K2, K3,V>> rows) throws IOException 
+	{
+		if ( null == data) {
+			System.err.println("Null Data - It should be an warning");
+			return;
+		}
+		
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
+
+		Reference keyRef = new Reference();
+		kvbytesA.getValueAtReference(0, keyRef);
+		
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
+		
+		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
+		valSorter.parse(data.data, valRef.offset, valRef.length);
+		
+		Callback callback = new Callback(rows, valSorter);
+		findNotMatchingPositions(exactValue, callback);
+	}		
 				
 	
 	/**

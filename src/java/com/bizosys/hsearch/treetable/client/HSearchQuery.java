@@ -42,6 +42,7 @@ public class HSearchQuery {
 	  
 	public boolean filterCells[] = null;
 	public String exactValCells[] = null;
+	public boolean notValCells[] = null;
 	public Object[] exactValCellsO = null;
 	public double minValCells[] = null;
 	public double maxValCells[] = null;
@@ -89,6 +90,15 @@ public class HSearchQuery {
 				  cellData = exactValCells[i];
 				  if ( null == cellData) continue;
 				  char firstchar = dataTypes[i].charAt(0);
+				  
+				  if ( cellData.length() >= 1 ) {
+					  char notChar = cellData.charAt(0);
+					  if ( '!' == notChar ) {
+						  notValCells[i] = true;
+						  cellData = cellData.substring(1);
+					  }
+				  }
+				  
 				  switch ( firstchar) {
 					  	case '*':
 					  		break;
@@ -160,6 +170,9 @@ public class HSearchQuery {
 		  exactValCells = new String[size];
 		  Arrays.fill(exactValCells, null);
 		  
+		  notValCells = new boolean[size];
+		  Arrays.fill(notValCells, false);
+		  
 		  minValCells = new double[size];
 		  Arrays.fill(minValCells, DOUBLE_MIN_VALUE);
 
@@ -175,9 +188,13 @@ public class HSearchQuery {
 				  filterCells[seq] = false;
 				  continue;
 			  }
-			  
 			  filterCells[seq] = true;
 			  
+			  if ( firstChar == '!') {
+				  notValCells[seq] = true;
+				  res = res.substring(1);
+			  }
+
 			  if ( firstChar == '[') {
 				  if ( res.indexOf(']') == -1) {
 					  throw new ParseException("Missing Enclosure ] " + res, seq);

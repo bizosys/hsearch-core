@@ -24,7 +24,7 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testLessthan();
+				t.testNotEqual();
 				t.tearDown();
 			}
 		}
@@ -62,6 +62,25 @@ public class SortedBytesUnsignedShortTest extends TestCase {
 				assertEquals(10 , SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos).intValue());
 			}
 		}
+		
+		public void testNotEqual() throws Exception {	
+			List<Integer> sortedList = new ArrayList<Integer>();
+			for ( int i=0; i<10; i++) {
+				sortedList.add(i);
+			}
+			Collections.sort(sortedList);
+			
+			byte[] bytes = SortedBytesUnsignedShort.getInstance().toBytes(sortedList);
+			List<Integer> positions = new ArrayList<Integer>();   
+			
+			SortedBytesUnsignedShort.getInstance().parse(bytes).getNotEqualToIndexes(0, positions);
+
+			assertNotNull(positions);
+			assertEquals(9, positions.size());
+			for (int pos : positions) {
+				assertTrue(SortedBytesUnsignedShort.getInstance().parse(bytes).getValueAt(pos).intValue() != 0);
+			}
+		}		
 		
 		public void testLessthan() throws Exception {	
 			List<Integer> sortedList = new ArrayList<Integer>();

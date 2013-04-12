@@ -137,6 +137,29 @@ public final class Cell3<K1, K2, V> extends CellBase<K1> {
 		findMatchingPositions(exactValue, minimumValue, maximumValue, callback);
 	}
 	
+	public final void getNotMap(final K1 exactValue, final Map<K1, Cell2<K2, V>> rows) throws IOException 
+	{
+		if ( null == data) {
+			System.err.println("Null Data - It should be an warning");
+			return;
+		}
+		
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
+
+		Reference keyRef = new Reference();
+		kvbytesA.getValueAtReference(0, keyRef);
+		
+		Reference valRef = new Reference();
+		kvbytesA.getValueAtReference(1, valRef);
+		
+		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
+		valSorter.parse(data.data, valRef.offset, valRef.length);
+		
+		Callback callback = new Callback(rows, valSorter);
+		findNotMatchingPositions(exactValue, callback);
+	}	
+	
 
 	public final Map<K1, Cell2<K2, V>> getMap(final byte[] data) throws IOException {
 		if ( null == data) return null;

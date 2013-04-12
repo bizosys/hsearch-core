@@ -191,6 +191,32 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	}			
 
 	@Override
+	public void getNotEqualToIndexes(final T matchingNo, final Collection<Integer> matchings) throws IOException {
+		
+		int index = getEqualToIndex(matchingNo);
+
+		int intBT = getSize();
+		if ( index == -1) {
+			for ( int i=0; i<intBT; i++) matchings.add(i);
+			return;
+		}
+
+		//Skip all matching indexes from left
+		int i=index-1;
+		for ( ; i>=0; i--) {
+			if ( compare(inputBytes, this.offset + i * dataSize, matchingNo) != 0 )  break;
+		}
+		for ( int start=0; start<=i; start++) matchings.add(i);
+		
+		//Include all matching indexes from right
+		i=index+1;
+		for ( ; i<intBT; i++) {
+			if ( compare(inputBytes, this.offset + i * dataSize, matchingNo) != 0 )  break;			
+		}
+		for ( int start=i; start<intBT; start++) matchings.add(i);		
+	}
+
+	@Override
 	public Collection<Integer> getGreaterThanIndexes(T matchNo) throws IOException {
 		Collection<Integer> matchingPos = new ArrayList<Integer>();
 		getGreaterThanIndexes(matchNo, matchingPos);

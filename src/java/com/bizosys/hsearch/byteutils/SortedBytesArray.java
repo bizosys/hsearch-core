@@ -232,9 +232,19 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		return -1;
 	}
 
+	
 	@Override
 	public final void getEqualToIndexes(final byte[] matchBytes, final Collection<Integer> matchings) throws IOException {
-		
+		getEqualOrNotEqualToIndexes(false, matchBytes, matchings);
+	}
+
+	
+	@Override
+	public final void getNotEqualToIndexes(final byte[] matchBytes, final Collection<Integer> matchings) throws IOException {
+		getEqualOrNotEqualToIndexes(true, matchBytes, matchings);
+	}
+	
+	private final void getEqualOrNotEqualToIndexes(final boolean isNot, final byte[] matchBytes, final Collection<Integer> matchings) {
 		byte[] inputData = this.inputBytes;
 		int readOffset = this.offset;
 
@@ -256,7 +266,7 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 			thisElemOffset = offsets.get(i);
 			
 			boolean isSame = ByteUtil.compareBytes(inputData, headerOffset + thisElemOffset, matchBytes);
-			if ( isSame ) matchings.add(i);
+			if ( isNot ^ isSame ) matchings.add(i);
 		}		
 	}
 

@@ -133,6 +133,41 @@ public final class SortedBytesUnsignedShort extends SortedBytesBase<Integer>{
 		}
 	}	
 
+	@Override
+	public final void getNotEqualToIndexes(final Integer aVal, final Collection<Integer> matchings) throws IOException {
+		
+		if ( null == this.inputBytes) return;
+
+		short matchingNo = getShort(aVal);
+		byte[] matchingNoB = Storable.putShort(matchingNo);
+
+		int index = super.getEqualToIndex((int) matchingNo);
+		int intBT = this.inputBytes.length / 2;
+
+		//Add all
+		if ( index == -1) {
+			for ( int i=0; i<intBT; i++) matchings.add(i);
+			return;
+		}
+		
+		//Skip all matching indexes from left
+		int i=index-1;
+		for ( ; i>=0; i--) {
+			int pos = i * 2;
+			if ( this.inputBytes[pos] !=  matchingNoB[0]) break;
+			if ( this.inputBytes[pos+1] !=  matchingNoB[1]) break;
+		}
+		for ( int start=0; start<=i; start++) matchings.add(i);
+		
+		//Include all matching indexes from right
+		i=index+1;
+		for ( ;i<intBT; i++) {
+			int pos = i * 2;
+			if ( this.inputBytes[pos] !=  matchingNoB[0]) break;
+			if ( this.inputBytes[pos+1] !=  matchingNoB[1]) break;
+		}
+		for ( int start=i; start<intBT; start++) matchings.add(i);
+	}	
 
 	@Override
 	public final Collection<Integer> getGreaterThanIndexes(final Integer matchNo) throws IOException {

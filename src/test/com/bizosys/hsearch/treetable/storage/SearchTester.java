@@ -13,7 +13,7 @@ import com.oneline.ferrari.TestAll;
 public class SearchTester extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-	public static String mode = modes[1];  
+	public static String mode = modes[2];  
 	
 	public static void main(String[] args) throws Exception {
 		SearchTester t = new SearchTester();
@@ -25,7 +25,7 @@ public class SearchTester extends TestCase {
 	        
 		} else if  ( modes[2].equals(mode) ) {
 			t.setUp();
-			t.threeQuery3PartMultiOrTest();
+			t.notQueryTest();
 			t.tearDown();
 		}
 	}
@@ -249,6 +249,18 @@ public class SearchTester extends TestCase {
         multiQueryParts.put("ExamResult:3", "*|*|*|*|10.0");
         ht.execute("ExamResult:1 OR ExamResult:2 OR ExamResult:3", multiQueryParts);
         System.out.println(ht.finalOutput.toString());
+	}
+
+	public void notQueryTest() throws Exception {
+		Client ht = new Client();
+		
+  		ht.finalOutput.clear();
+    	Map<String, String> multiQueryParts = new HashMap<String, String>();
+        multiQueryParts.put("ExamResult:1", "*|*|*|!0|*");
+        ht.execute("ExamResult:1", multiQueryParts);
+        for (String key : ht.finalOutput.keySet()) {
+            System.out.println(key + "-" + ht.finalOutput.get(key));
+		}
 	}
 
 	public void threeQuery3PartTest() throws Exception {

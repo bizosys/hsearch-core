@@ -120,6 +120,19 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	}
 
 	@Override
+	public final void getNotEqualToIndexes(final Boolean matchNo, final Collection<Integer> matchings) throws IOException {
+
+		initialize();
+
+		boolean matchNoL = matchNo.booleanValue();
+		int pos = -1;
+		for (boolean entity : this.parsedBooleans) {
+			pos++;
+			if ( matchNoL != entity) matchings.add(pos);
+		}
+	}
+
+	@Override
 	public void getGreaterThanIndexes(Boolean matchingNo, Collection<Integer> matchingPos) throws IOException {
 		throw new RuntimeException("Not implemented");
 	}
