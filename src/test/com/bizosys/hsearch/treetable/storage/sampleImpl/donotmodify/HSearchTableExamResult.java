@@ -299,6 +299,7 @@ public static final class Cell3Map
         } else {
             this.table.sortedList = cell4L;
             this.table.parseElements();
+            
         }
 
         if (null != callback) callback.onReadComplete();
