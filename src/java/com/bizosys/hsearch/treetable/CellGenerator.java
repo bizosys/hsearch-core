@@ -35,7 +35,7 @@ public class CellGenerator {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		int cells = 13;
+		int cells = 12;
 		String template = fileToString("com\\bizosys\\hsearch\\treetable\\CellN.txt");
 		template = replaceClassNMinus1(template, cells);
 		template = replaceClass(template, cells);
@@ -107,7 +107,7 @@ public class CellGenerator {
 		
 		for ( int i=1; i<size; i++) {
 			if ( i != 1) decl = decl + ",";
-			decl = decl + "ISortedByte<K" + i + "> k" + i + "Sorter";
+			decl = decl + " final ISortedByte<K" + i + "> k" + i + "Sorter";
 		}	
 		return clazzText.replaceAll("--SORTERS--", decl);
 	}	

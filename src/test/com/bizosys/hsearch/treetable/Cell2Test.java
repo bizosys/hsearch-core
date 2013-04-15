@@ -14,6 +14,7 @@ import junit.framework.TestFerrari;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
+import com.bizosys.hsearch.byteutils.SortedBytesChar;
 import com.bizosys.hsearch.byteutils.SortedBytesDouble;
 import com.bizosys.hsearch.byteutils.SortedBytesFloat;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
@@ -39,7 +40,7 @@ public class Cell2Test extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testMultiRow();
+				t.testNonUnique();
 				t.tearDown();
 			}
 		}
@@ -52,11 +53,38 @@ public class Cell2Test extends TestCase {
 		protected void tearDown() throws Exception {
 		}
 		
+		public void testNonUnique() throws Exception {
+	    	Cell2<Boolean, Float> ser = new Cell2<Boolean, Float>(
+	        		SortedBytesBoolean.getInstance(), SortedBytesFloat.getInstance());
+	    	for ( float i=0; i<10; i++) {
+		    	ser.add(false, i);
+	    	}
+	    	ser.sort(new CellComparator.FloatComparator<Boolean>());
+
+	    	Cell2<Boolean, Float> deser = new Cell2<Boolean, Float>(
+	        		SortedBytesBoolean.getInstance(), SortedBytesFloat.getInstance(),
+	        		ser.toBytesOnSortedData());
+	    	
+	    	final Cell2Visitor<Boolean, Float> visitor = new Cell2Visitor<Boolean, Float>() {
+				@Override
+				public final void visit(final Boolean k, final Float v) {
+					//System.out.println(k + "-" +  v);
+				}
+			};
+	    	
+			long start = System.currentTimeMillis();
+	    	deser.process(visitor);
+			long end = System.currentTimeMillis();
+			System.out.println(end - start);
+		}
+		
+		
 		public void testOneRow() throws Exception {
 	    	Cell2<Integer, String> ser = new Cell2<Integer, String>(
 	        		SortedBytesInteger.getInstance(), SortedBytesString.getInstance());
 	    	ser.add(100, "AAAAAAAAAA");
 
+	    	
 	    	Cell2<Integer, String> deser = new Cell2<Integer, String>(
 	        		SortedBytesInteger.getInstance(), SortedBytesString.getInstance(),
 	        		ser.toBytesOnSortedData());

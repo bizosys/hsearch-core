@@ -189,6 +189,28 @@ public final class SortedBytesArray extends SortedBytesBase<byte[]>{
 		
 		int headerOffset = (this.offset + 8 + collectionSize * 4);
 		ref.set(headerOffset + elemStartOffset, elemLen);
+	}
+	
+	public static final void getKeyValueAtReference(final Reference keyRef, 
+			final Reference valRef, final byte[] inputBytes , final int offset, final int length) {
+		
+		int collectionSize = Storable.getInt(offset, inputBytes);
+		if ( collectionSize != 2 ) throw new IndexOutOfBoundsException(
+			"Expected Key Value, But found " + collectionSize);
+		
+		int headerOffset = (offset + 16);
+		int keySizeOffset = (offset + 4);
+		int valSizeOffset = (offset + 8);
+		
+		int keyElemStartOffset = Storable.getInt( keySizeOffset, inputBytes);
+		int keyElemEndOffset = Storable.getInt( keySizeOffset + 4, inputBytes);
+		int elemLen = keyElemEndOffset - keyElemStartOffset;
+		keyRef.set(headerOffset + keyElemStartOffset, elemLen);
+
+		int valElemStartOffset = Storable.getInt( valSizeOffset, inputBytes);
+		int valElemEndOffset = Storable.getInt( valSizeOffset + 4, inputBytes);
+		elemLen = valElemEndOffset - valElemStartOffset;
+		valRef.set(headerOffset + valElemStartOffset, elemLen);
 	}	
 	
 	

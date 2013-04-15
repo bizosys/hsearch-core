@@ -121,14 +121,9 @@ public final class Cell3<K1, K2, V> extends CellBase<K1> {
 			return;
 		}
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
-
 		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
 		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		
 		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
 		valSorter.parse(data.data, valRef.offset, valRef.length);
@@ -144,14 +139,9 @@ public final class Cell3<K1, K2, V> extends CellBase<K1> {
 			return;
 		}
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
-
 		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
 		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		
 		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
 		valSorter.parse(data.data, valRef.offset, valRef.length);
@@ -263,11 +253,9 @@ public final class Cell3<K1, K2, V> extends CellBase<K1> {
 		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, Cell2<K2, V>>();
 		else this.sortedList.clear();
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
-		
-		Reference keyRef = kvbytesA.getValueAtReference(0);
-		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference keyRef = new Reference();
+		Reference valRef = new Reference();
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		
 		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		int sizeK = k1Sorter.getSize();

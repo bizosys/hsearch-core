@@ -31,13 +31,22 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 
-import com.bizosys.hsearch.PerformanceLogger;
 import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.util.HSearchConfig;
+import com.bizosys.hsearch.util.conf.Configuration;
 
 public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	public static boolean INFO_ENABLED = PerformanceLogger.l.isInfoEnabled(); 
+	
+	public boolean scannerBlockCaching = true;
+	public int scannerBlockCachingLimit = 1;
+	
+	public HSearchBytesCoprocessor() {
+		Configuration config = HSearchConfig.getInstance().getConfiguration(); 
+		this.scannerBlockCaching = config.getBoolean("scanner.block.caching", true);
+		this.scannerBlockCachingLimit = config.getInt("scanner.block.caching.amount", 1);
+	}
 	
     /**
      * Get Matching rows 
@@ -51,8 +60,8 @@ public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor {
 
 		try {
 			Scan scan = new Scan();
-			scan.setCacheBlocks(true);
-			scan.setCaching(1);
+			scan.setCacheBlocks(scannerBlockCaching);
+			scan.setCaching(scannerBlockCachingLimit);
 			scan.setMaxVersions(1);
 			int familiesT = families.length;
 			

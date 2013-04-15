@@ -34,7 +34,12 @@ public final class SortedBytesFloat extends SortedBytesBase<Float> {
 	
 	@Override
 	public final Float getValueAt(final int pos) {
-		return Storable.getFloat(this.offset + pos*dataSize, this.inputBytes);
+		int index = this.offset + pos*dataSize;
+		int intVal = (inputBytes[index] << 24 ) + 
+		( (inputBytes[++index] & 0xff ) << 16 ) + 
+		(  ( inputBytes[++index] & 0xff ) << 8 ) + 
+		( inputBytes[++index] & 0xff );
+		return Float.intBitsToFloat(intVal);
 	}	
 	
 	@Override

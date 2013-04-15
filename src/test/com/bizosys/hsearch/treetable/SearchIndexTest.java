@@ -40,7 +40,7 @@ public class SearchIndexTest extends TestCase {
 		@Override
 		protected void tearDown() throws Exception {
 		}
-		
+
 		public void testAddOnEmptySet() throws Exception {
 			
 			//_hashCode + "|" + _term + "|" + _doc + "|" + _wordtype + "|" + _word.getKey() + "|" + _word.getValue() + "\n");

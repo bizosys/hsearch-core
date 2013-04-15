@@ -76,7 +76,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		
 		if ( tasks.size() > 1 ) {
 			if ( DEBUG_ENABLED ) HbaseLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in parallel.");
-			HSearchTableResourcesDefault.getInstance().cpuIntensiveJobExecutor.invokeAll(tasks);
+			HSearchTableResourcesDefault.getInstance().multiPartsThreadExecutor.invokeAll(tasks);
 		} else {
 			if ( DEBUG_ENABLED ) HbaseLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in sequence.");
 			for ( TableDeserExecutor deserExec : tasks) {

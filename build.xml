@@ -80,6 +80,7 @@
 		<copy todir="${build.classes}" verbose="true">
 			<fileset dir="${src.dir}" includes="**/*.tmp" />
 			<fileset dir="${src.dir}" includes="**/schema-*.json" />
+			<fileset dir="${conf.dir}" includes="hsearch-default.xml" />
 		</copy>
 		<jar jarfile="${name}.jar" basedir="${build.classes}">
 			<manifest>

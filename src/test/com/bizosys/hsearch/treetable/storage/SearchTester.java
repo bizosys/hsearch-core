@@ -13,7 +13,7 @@ import com.oneline.ferrari.TestAll;
 public class SearchTester extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-	public static String mode = modes[2];  
+	public static String mode = modes[1];  
 	
 	public static void main(String[] args) throws Exception {
 		SearchTester t = new SearchTester();
@@ -252,6 +252,7 @@ public class SearchTester extends TestCase {
 	}
 
 	public void notQueryTest() throws Exception {
+		/**
 		Client ht = new Client();
 		
   		ht.finalOutput.clear();
@@ -261,6 +262,7 @@ public class SearchTester extends TestCase {
         for (String key : ht.finalOutput.keySet()) {
             System.out.println(key + "-" + ht.finalOutput.get(key));
 		}
+		*/
 	}
 
 	public void threeQuery3PartTest() throws Exception {

@@ -32,19 +32,23 @@ import org.apache.hadoop.hbase.regionserver.StoreFile.BloomType;
 import org.apache.log4j.Logger;
 
 import com.bizosys.hsearch.hbase.HDML;
+import com.bizosys.hsearch.util.HSearchConfig;
+import com.bizosys.hsearch.util.conf.Configuration;
 
 public final class HBaseTableSchemaCreator {
 	
 	private static HBaseTableSchemaCreator instance = null;
 	public static Logger l = Logger.getLogger(HBaseTableSchemaCreator.class.getName());
 	
+	Configuration config = HSearchConfig.getInstance().getConfiguration(); 
+	
 	public Algorithm compression = Compression.Algorithm.NONE;
-	public int partitionBlockSize = 13035596;	
+	public int partitionBlockSize = config.getInt("partition.block.size", 13035596);	
 	public int partitionRepMode = HConstants.REPLICATION_SCOPE_GLOBAL;
 	public  DataBlockEncoding dataBlockEncoding = DataBlockEncoding.NONE;
 	public BloomType bloomType = BloomType.NONE;
 	public boolean inMemory = false;
-	public boolean blockCacheEnabled = true;
+	public boolean blockCacheEnabled = config.getBoolean("block.cache.enabled", true);;
 	
 	public static final HBaseTableSchemaCreator getInstance() {
 		if ( null != instance) return instance;

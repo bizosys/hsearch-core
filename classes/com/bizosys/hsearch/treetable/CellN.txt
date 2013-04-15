@@ -20,25 +20,25 @@ public final class --CELLN-- extends CellBase<K1> {
 	
 	public Map<K1, --CELLN-1--> sortedList;
 
-	public --CLASS-- (final --SORTERS--, final ISortedByte<V> vSorter) {
+	public --CLASS-- ( --SORTERS--, final ISortedByte<V> vSorter) {
 		--SORTER_ASSIGNER--
 		this.vSorter = vSorter;
 	}
 	
-	public --CLASS-- (final --SORTERS--, 
+	public --CLASS-- ( --SORTERS--, 
 			final ISortedByte<V> vSorter, final Map<K1, --CELLN-1--> sortedList ) {
 		this(--SORTER_INST--,vSorter);
 		this.sortedList = sortedList;
 	}
 
-	public --CLASS-- (final --SORTERS--,
+	public --CLASS-- ( --SORTERS--,
 			final ISortedByte<V> vSorter, final byte[] data ) {
 		this(--SORTER_INST--,vSorter);
 		int len = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, len);
 	}
 	
-	public --CLASS-- (final --SORTERS--,
+	public --CLASS-- ( --SORTERS--,
 			final ISortedByte<V> vSorter, final BytesSection data ) {
 		this(--SORTER_INST--,vSorter);
 		this.data = data;
@@ -112,15 +112,10 @@ public final class --CELLN-- extends CellBase<K1> {
 			return;
 		}
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
-
 		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
 		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
-		
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
+
 		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
 		valSorter.parse(data.data, valRef.offset, valRef.length);
 		
@@ -219,11 +214,9 @@ public final class --CELLN-- extends CellBase<K1> {
 		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, --CELLN-1-->();
 		else this.sortedList.clear();
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
-
-		Reference keyRef = kvbytesA.getValueAtReference(0);
-		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference keyRef = new Reference();
+		Reference valRef = new Reference();
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 
 		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		int sizeK = k1Sorter.getSize();

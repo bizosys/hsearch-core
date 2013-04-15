@@ -74,9 +74,8 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 
 	@Override
 	public final int getSize() throws IOException {
-		if ( null == parsedBooleans ) parse();
-		if ( null == parsedBooleans ) return 0;
-		return this.parsedBooleans.size();
+		if ( null == this.inputBytes ) return 0;
+		return Storable.getInt(this.offset, this.inputBytes);
 		
 	}
 
@@ -170,13 +169,20 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 		int remaining = available - packed * 8;
 		
 		this.parsedBooleans = new ArrayList<Boolean>(available);
+		int seq = 0;
 		for (int i=0; i<packed; i++) {
-			Storable.byteToBits(this.inputBytes[4 + i]);
+			for (boolean val : Storable.byteToBits(this.inputBytes[offset + 4 + i])) {
+				seq++;
+				if ( available < seq) break;
+				this.parsedBooleans.add(val);
+			}
 		}
 		
 		if ( remaining > 0 ) {
-			boolean[] x = Storable.byteToBits(this.inputBytes[4 + packed]);
+			boolean[] x = Storable.byteToBits(this.inputBytes[offset + 4 + packed]);
 			for ( int i=0; i<remaining; i++) {
+				seq++;
+				if ( available < seq) break;
 				parsedBooleans.add(x[i]);
  			}
 		}

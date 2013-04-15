@@ -23,7 +23,7 @@ public final class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBas
 	public ISortedByte<V> vSorter = null;
 	
 	public Map<K1, Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> sortedList;
-	public Cell10 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,ISortedByte<K9> k9Sorter, final ISortedByte<V> vSorter) {
+	public Cell10 (  final ISortedByte<K1> k1Sorter, final ISortedByte<K2> k2Sorter, final ISortedByte<K3> k3Sorter, final ISortedByte<K4> k4Sorter, final ISortedByte<K5> k5Sorter, final ISortedByte<K6> k6Sorter, final ISortedByte<K7> k7Sorter, final ISortedByte<K8> k8Sorter, final ISortedByte<K9> k9Sorter, final ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.k2Sorter = k2Sorter;
 		this.k3Sorter = k3Sorter;
@@ -37,19 +37,19 @@ public final class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBas
 		this.vSorter = vSorter;
 	}
 	
-	public Cell10 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,ISortedByte<K9> k9Sorter, 
+	public Cell10 (  final ISortedByte<K1> k1Sorter, final ISortedByte<K2> k2Sorter, final ISortedByte<K3> k3Sorter, final ISortedByte<K4> k4Sorter, final ISortedByte<K5> k5Sorter, final ISortedByte<K6> k6Sorter, final ISortedByte<K7> k7Sorter, final ISortedByte<K8> k8Sorter, final ISortedByte<K9> k9Sorter, 
 			final ISortedByte<V> vSorter, final Map<K1, Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> sortedList ) {
 		this(k1Sorter,k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,k7Sorter,k8Sorter,k9Sorter,vSorter);
 		this.sortedList = sortedList;
 	}
-	public Cell10 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,ISortedByte<K9> k9Sorter,
+	public Cell10 (  final ISortedByte<K1> k1Sorter, final ISortedByte<K2> k2Sorter, final ISortedByte<K3> k3Sorter, final ISortedByte<K4> k4Sorter, final ISortedByte<K5> k5Sorter, final ISortedByte<K6> k6Sorter, final ISortedByte<K7> k7Sorter, final ISortedByte<K8> k8Sorter, final ISortedByte<K9> k9Sorter,
 			final ISortedByte<V> vSorter, final byte[] data ) {
 		this(k1Sorter,k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,k7Sorter,k8Sorter,k9Sorter,vSorter);
 		int len = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, len);
 	}
 	
-	public Cell10 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,ISortedByte<K4> k4Sorter,ISortedByte<K5> k5Sorter,ISortedByte<K6> k6Sorter,ISortedByte<K7> k7Sorter,ISortedByte<K8> k8Sorter,ISortedByte<K9> k9Sorter,
+	public Cell10 (  final ISortedByte<K1> k1Sorter, final ISortedByte<K2> k2Sorter, final ISortedByte<K3> k3Sorter, final ISortedByte<K4> k4Sorter, final ISortedByte<K5> k5Sorter, final ISortedByte<K6> k6Sorter, final ISortedByte<K7> k7Sorter, final ISortedByte<K8> k8Sorter, final ISortedByte<K9> k9Sorter,
 			final ISortedByte<V> vSorter, final BytesSection data ) {
 		this(k1Sorter,k2Sorter,k3Sorter,k4Sorter,k5Sorter,k6Sorter,k7Sorter,k8Sorter,k9Sorter,vSorter);
 		this.data = data;
@@ -120,14 +120,9 @@ public final class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBas
 			return;
 		}
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
 		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
 		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
-		
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
 		valSorter.parse(data.data, valRef.offset, valRef.length);
 		
@@ -217,10 +212,9 @@ public final class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBas
 		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>>();
 		else this.sortedList.clear();
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
-		Reference keyRef = kvbytesA.getValueAtReference(0);
-		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference keyRef = new Reference();
+		Reference valRef = new Reference();
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		int sizeK = k1Sorter.getSize();
 		SortedBytesArray valSorter = SortedBytesArray.getInstanceArr();

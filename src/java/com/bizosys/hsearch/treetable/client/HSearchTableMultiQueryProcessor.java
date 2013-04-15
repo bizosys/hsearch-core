@@ -50,7 +50,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 	
 	private final FederatedSearch build() {
 
-		return new FederatedSearch() {
+		return new FederatedSearch(HSearchTableResourcesDefault.getInstance().multiQueryThreadsLimit) {
 			
 			@Override
 			public BitSetOrSet populate(
@@ -58,6 +58,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 
 				if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "HSearchTableMultiQuery.populate ENTER.");
 				long startTime = System.currentTimeMillis();
+				
 				try {
 					IHSearchTableCombiner combiner = getCombiner();
 					HSearchProcessingInstruction outputType = (HSearchProcessingInstruction) stmtParams.get(HSearchTableMultiQueryExecutor.OUTPUT_TYPE);
@@ -66,6 +67,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 						startTime = System.currentTimeMillis();
 						HbaseLog.l.debug("Concurrent derer ENTER");
 					}
+
 					combiner.concurrentDeser(aStmtOrValue, outputType, stmtParams, type);
 
 					if ( DEBUG_ENABLED ) {
@@ -80,9 +82,6 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 					
 					if ( DEBUG_ENABLED ) {
 						startTime = System.currentTimeMillis();
-					}
-	
-					if ( DEBUG_ENABLED ) {
 						HbaseLog.l.debug("IRowId Collection EXIT in ms > " + ( System.currentTimeMillis() - startTime ) );
 					}
 					return keys;

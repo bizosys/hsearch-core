@@ -32,17 +32,27 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 
-import com.bizosys.hsearch.PerformanceLogger;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.functions.HSearchReducer;
 import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.util.HSearchConfig;
+import com.bizosys.hsearch.util.conf.Configuration;
 
 public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		implements HSearchGenericCoprocessor {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	public static boolean INFO_ENABLED = PerformanceLogger.l.isInfoEnabled(); 
+	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
 	
+	private Configuration config = HSearchConfig.getInstance().getConfiguration(); 
+
+	private boolean internalScannerBlockCaching = true;
+	private int internalScannerBlockCachingAmount = 1;
+	
+	public HSearchGenericCoprocessorImpl() {
+		this.internalScannerBlockCaching = config.getBoolean("internal.scanner.block.caching", true); 
+		this.internalScannerBlockCachingAmount = config.getInt("internal.scanner.block.caching.amount", 1); 
+	}
 	
     /**
      * Get Matching rows 
@@ -58,8 +68,8 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 
 		try {
 			Scan scan = new Scan();
-			scan.setCacheBlocks(true);
-			scan.setCaching(1);
+			scan.setCacheBlocks(internalScannerBlockCaching);
+			scan.setCaching(internalScannerBlockCachingAmount);
 			scan.setMaxVersions(1);
 			int familiesT = families.length;
 			

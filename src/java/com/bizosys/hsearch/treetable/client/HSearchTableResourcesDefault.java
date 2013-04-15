@@ -22,6 +22,9 @@ package com.bizosys.hsearch.treetable.client;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.bizosys.hsearch.util.HSearchConfig;
+import com.bizosys.hsearch.util.conf.Configuration;
+
 public class HSearchTableResourcesDefault {
 
 	private static HSearchTableResourcesDefault singleton = null;
@@ -34,17 +37,26 @@ public class HSearchTableResourcesDefault {
 		}
 		return singleton;
 	}
-	
-	private HSearchTableResourcesDefault() {}
-	
-	public int multiQueryIdObjectInitialCache = 1000;
-	public int multiQueryPartsThreads = 8;
-	
-	public int cpuIntensiveJobExecutorSize = Runtime.getRuntime().availableProcessors();
+
+	public int multiPartsThreadLimit = Runtime.getRuntime().availableProcessors();
+	public int multiQueryThreadsLimit = -1;
 
 	/**
 	 * Processing threads.. No I/O wait. Please never make it more than the # of CPUs 
 	 */
-	public ExecutorService cpuIntensiveJobExecutor = Executors.newFixedThreadPool(cpuIntensiveJobExecutorSize);
+	public ExecutorService multiPartsThreadExecutor = null;
+	
+	private HSearchTableResourcesDefault() {
+		Configuration config = HSearchConfig.getInstance().getConfiguration(); 
+		
+		this.multiPartsThreadLimit = config.getInt("query.parts.threads.limit", -1);
+		if ( -1 == this.multiPartsThreadLimit) 
+			multiPartsThreadLimit = Runtime.getRuntime().availableProcessors();
+		this.multiPartsThreadExecutor = Executors.newFixedThreadPool(multiPartsThreadLimit);
+		
+		this.multiQueryThreadsLimit = config.getInt("query.multi.threads.limit", -1);
+		if ( -1 == this.multiQueryThreadsLimit) 
+			multiQueryThreadsLimit = Runtime.getRuntime().availableProcessors();
+	}
 	
 }

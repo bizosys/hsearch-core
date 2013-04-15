@@ -79,18 +79,13 @@ public class Cell2<K1, V> {
 	 * @throws IOException
 	 */
 	public final void process(final Cell2Visitor<K1,V> visitor) throws IOException{
-		SortedBytesArray kvbytesA = SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data,data.offset, data.length);
-		
 		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
 		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
-		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
+		if ( sizeK != sizeV ) throw new IOException("Not a unique Key " + sizeK + " != " + sizeV);
 		
 		for ( int i=0; i<sizeK; i++) {
 			visitor.visit(k1Sorter.getValueAt(i), vSorter.getValueAt(i));
@@ -108,18 +103,14 @@ public class Cell2<K1, V> {
 	 */
 	public final void process(final V exactValue, final V minimumValue, final V maximumValue, final Cell2Visitor<K1,V> visitor) throws IOException {
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data,data.offset, data.length);
-		
 		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
 		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
+
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
-		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
+		if ( sizeK != sizeV ) throw new IOException("Not a unique Key " + sizeK + " != " + sizeV);
 		if ( null != exactValue || null != minimumValue || null != maximumValue) {
 			findMatchingPositionsVsorterInitialized(
 					exactValue, minimumValue, maximumValue, 
@@ -132,15 +123,10 @@ public class Cell2<K1, V> {
 	}	
 	
 	public final void processNot(final V exactValue, final Cell2Visitor<K1,V> visitor) throws IOException {
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data,data.offset, data.length);
-		
 		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
 		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
-		
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
+
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
 		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
@@ -206,24 +192,9 @@ public class Cell2<K1, V> {
 	}		
 	
 	public final void populate(final Map<K1,V> map) throws IOException {
-		SortedBytesArray kvB = SortedBytesArray.getInstanceArr();
-		kvB.parse(data.data, data.offset, data.length);
-		
-		int kvBT = kvB.getSize();
-		if ( kvBT == 0 ) {
-			System.err.println("Null Values to pipulate in Cell2");
-			return;
-		}
-		
-		if ( kvBT != 2 ) {
-			throw new IOException("The data signature does not look like cell2 - " + kvBT);
-		}
-
 		Reference keyRef = new Reference();
-		kvB.getValueAtReference(0, keyRef);
-
 		Reference valRef = new Reference();
-		kvB.getValueAtReference(1, valRef);
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 
 		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		vSorter.parse(data.data, valRef.offset, valRef.length);
@@ -268,6 +239,7 @@ public class Cell2<K1, V> {
 		}
 
 		List<byte[]> bytesElems = new ArrayList<byte[]>();
+		System.out.println(k1Sorter.toBytes(keys).length + "-" + vSorter.toBytes(values).length);
 		bytesElems.add(k1Sorter.toBytes(keys)); keys.clear();
 		bytesElems.add(vSorter.toBytes(values)); values.clear();
 		

@@ -10,7 +10,6 @@ import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
 import com.bizosys.hsearch.hbase.ObjectFactory;
-import com.bizosys.hsearch.treetable.Cell3.Callback;
 public final class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 	public ISortedByte<K2> k2Sorter = null;
 	public ISortedByte<K3> k3Sorter = null;
@@ -18,7 +17,7 @@ public final class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 	public ISortedByte<V> vSorter = null;
 	
 	public Map<K1, Cell3< K2, K3,V>> sortedList;
-	public Cell4 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter, final ISortedByte<V> vSorter) {
+	public Cell4 (  final ISortedByte<K1> k1Sorter, final ISortedByte<K2> k2Sorter, final ISortedByte<K3> k3Sorter, final ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
 		this.k2Sorter = k2Sorter;
 		this.k3Sorter = k3Sorter;
@@ -26,19 +25,19 @@ public final class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 		this.vSorter = vSorter;
 	}
 	
-	public Cell4 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter, 
+	public Cell4 (  final ISortedByte<K1> k1Sorter, final ISortedByte<K2> k2Sorter, final ISortedByte<K3> k3Sorter, 
 			final ISortedByte<V> vSorter, final Map<K1, Cell3< K2, K3,V>> sortedList ) {
 		this(k1Sorter,k2Sorter,k3Sorter,vSorter);
 		this.sortedList = sortedList;
 	}
-	public Cell4 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,
+	public Cell4 (  final ISortedByte<K1> k1Sorter, final ISortedByte<K2> k2Sorter, final ISortedByte<K3> k3Sorter,
 			final ISortedByte<V> vSorter, final byte[] data ) {
 		this(k1Sorter,k2Sorter,k3Sorter,vSorter);
 		int len = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, len);
 	}
 	
-	public Cell4 (final ISortedByte<K1> k1Sorter,ISortedByte<K2> k2Sorter,ISortedByte<K3> k3Sorter,
+	public Cell4 (  final ISortedByte<K1> k1Sorter, final ISortedByte<K2> k2Sorter, final ISortedByte<K3> k3Sorter,
 			final ISortedByte<V> vSorter, final BytesSection data ) {
 		this(k1Sorter,k2Sorter,k3Sorter,vSorter);
 		this.data = data;
@@ -109,43 +108,15 @@ public final class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 			return;
 		}
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
 		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
 		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
-		
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
 		valSorter.parse(data.data, valRef.offset, valRef.length);
 		
 		Callback callback = new Callback(rows, valSorter);
 		findMatchingPositions(exactValue, minimumValue, maximumValue, callback);
 	}
-	
-	public final void getNotMap(final K1 exactValue, final Map<K1, Cell3< K2, K3,V>> rows) throws IOException 
-	{
-		if ( null == data) {
-			System.err.println("Null Data - It should be an warning");
-			return;
-		}
-		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
-
-		Reference keyRef = new Reference();
-		kvbytesA.getValueAtReference(0, keyRef);
-		
-		Reference valRef = new Reference();
-		kvbytesA.getValueAtReference(1, valRef);
-		
-		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
-		valSorter.parse(data.data, valRef.offset, valRef.length);
-		
-		Callback callback = new Callback(rows, valSorter);
-		findNotMatchingPositions(exactValue, callback);
-	}		
 				
 	
 	/**
@@ -229,10 +200,9 @@ public final class Cell4< K1, K2, K3,V> extends CellBase<K1> {
 		if ( null == this.sortedList) this.sortedList = new TreeMap<K1, Cell3< K2, K3,V>>();
 		else this.sortedList.clear();
 		
-		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
-		kvbytesA.parse(data.data, data.offset, data.length);
-		Reference keyRef = kvbytesA.getValueAtReference(0);
-		Reference valRef = kvbytesA.getValueAtReference(1);
+		Reference keyRef = new Reference();
+		Reference valRef = new Reference();
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		int sizeK = k1Sorter.getSize();
 		SortedBytesArray valSorter = SortedBytesArray.getInstanceArr();
