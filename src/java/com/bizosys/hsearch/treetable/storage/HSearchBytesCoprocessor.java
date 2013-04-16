@@ -35,7 +35,7 @@ import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.util.HSearchConfig;
 import com.bizosys.hsearch.util.conf.Configuration;
 
-public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor {
+public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor implements HSearchBytesCoprocessorI {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
@@ -54,6 +54,7 @@ public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor {
      * @return
      * @throws IOException
      */
+	@Override
 	public byte[] getRows(final byte[][] families, final byte[][] cols, final HSearchBytesFilter filter) throws IOException {
 		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
 		InternalScanner scanner = null;
