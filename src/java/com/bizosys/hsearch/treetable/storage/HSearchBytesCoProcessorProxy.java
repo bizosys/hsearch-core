@@ -57,12 +57,12 @@ public final class HSearchBytesCoProcessorProxy {
 	public final Map<byte[], byte[]> execCoprocessorRows(final HTableWrapper table) throws IOException, Throwable  {
 
 		Map<byte[], byte[]> output = table.table.coprocessorExec(
-                HSearchBytesCoprocessor.class, null, null,
+                HSearchBytesCoprocessorI.class, null, null,
                 
                 
-                new Batch.Call<HSearchBytesCoprocessor, byte[]>() {
+                new Batch.Call<HSearchBytesCoprocessorI, byte[]>() {
                     @Override
-                    public final byte[] call(HSearchBytesCoprocessor counter) throws IOException {
+                    public final byte[] call(HSearchBytesCoprocessorI counter) throws IOException {
                         return counter.getRows(families, cols, filter);
                  }
          } );
