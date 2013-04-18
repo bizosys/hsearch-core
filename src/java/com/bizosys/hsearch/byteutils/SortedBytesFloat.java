@@ -57,8 +57,14 @@ public final class SortedBytesFloat extends SortedBytesBase<Float> {
 	}
 	
 	@Override
-	protected final int compare(final byte[] inputB, final int offset, final Float matchNo) {
-		float val = Storable.getFloat(offset, inputB);
+	protected final int compare(final byte[] inputB, int offset, final Float matchNo) {
+		
+		int intVal = (inputB[offset] << 24 ) + 
+		( (inputB[++offset] & 0xff ) << 16 ) + 
+		(  ( inputB[++offset] & 0xff ) << 8 ) + 
+		( inputB[++offset] & 0xff );
+
+		float val = Float.intBitsToFloat(intVal);
 		if (val == matchNo) return 0;
 		if (val > matchNo) return 1;
 		return -1;

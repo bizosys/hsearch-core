@@ -33,7 +33,10 @@ public final class SortedBytesShort extends SortedBytesBase<Short>{
 	
 	@Override
 	public final Short getValueAt(final int pos) {
-		return Storable.getShort(this.offset + pos*dataSize, inputBytes);
+		
+		int startPos = this.offset + pos*dataSize;
+		return (short) (
+				(inputBytes[startPos] << 8 ) + ( inputBytes[++startPos] & 0xff ) );
 	}	
 	
 	@Override

@@ -22,6 +22,7 @@ package com.bizosys.hsearch.treetable.compiler;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
@@ -130,6 +131,9 @@ public class HSearchCompiler {
 			template = template.replace("implements IHSearchTable", "implements " + indexType);
 		}
 		
+		template = CodePartGenerator.setKeyComparision(template, fldKey.datatype);
+		template = CodePartGenerator.setAbsValue(template, fldKey.datatype);
+		
 		//Required Cells
 		String reqCells = "";
 		for ( int i=2; i<=allFields.size(); i++) {
@@ -216,7 +220,8 @@ public class HSearchCompiler {
 			keys = keys + "cell" + i + "Key";
 		}
 		if(0 != keys.length())keys= keys + ", ";
-		template = 	template.replace("--TREE-NODE-KEYS--", keys);		
+		template = 	template.replace("--TREE-NODE-KEYS--", keys);
+		
 		
 		return template;
 	}

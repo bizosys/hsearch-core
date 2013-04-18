@@ -19,6 +19,7 @@
 */
 package com.bizosys.hsearch.treetable.compiler;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,57 @@ public class CodePartGenerator {
 	public CodePartGenerator(){
 		
 	}
+	
+	public static String setKeyComparision(String template, String keyDataType)
+			throws IOException {
+		if (keyDataType.equals("Short")) {
+			template = template.replace("--COMPARE-BY-VALUE--", ".shortValue() != cell1Key.shortValue()");
+		} else if ( keyDataType.equals("Integer")) {
+			template = template.replace("--COMPARE-BY-VALUE--", ".intValue() != cell1Key.intValue()");
+		} else if ( keyDataType.equals("Float")) {
+			template = template.replace("--COMPARE-BY-VALUE--", ".floatValue() != cell1Key.floatValue()");
+		} else if ( keyDataType.equals("Double")) {
+			template = template.replace("--COMPARE-BY-VALUE--", ".doubleValue() != cell1Key.doubleValue()");
+		} else if ( keyDataType.equals("Boolean")) {
+			template = template.replace("--COMPARE-BY-VALUE--", ".booleanValue() != cell1Key.booleanValue()");
+		} else if ( keyDataType.equals("Byte")) {
+			template = template.replace("--COMPARE-BY-VALUE--", ".byteValue() != cell1Key.byteValue()");
+		} else if ( keyDataType.equals("String")) {
+			template = template.replace("--COMPARE-BY-VALUE--", ".equals(cell1Key)");
+		} else if ( keyDataType.equals("byte[]")) {
+			template = template.replace("matchingCell--CELL-MAX-MINUS-2-- --COMPARE-BY-VALUE--", "Storable.compareBytes(matchingCell--CELL-MAX-MINUS-2--, cell1Key)");
+		} else {
+			throw new IOException("Unknown Data type");
+		}
+		return template;
+	}
+
+	public static String setAbsValue(String template, String keyDataType)
+			throws IOException {
+		if (keyDataType.equals("Short")) {
+			template = template.replace("--ABS-VALUE--", "shortValue()");
+		} else if ( keyDataType.equals("Integer")) {
+			template = template.replace("--ABS-VALUE--", "intValue()");
+		} else if ( keyDataType.equals("Float")) {
+			template = template.replace("--ABS-VALUE--", "floatValue()");
+		} else if ( keyDataType.equals("Double")) {
+			template = template.replace("--ABS-VALUE--", "doubleValue()");
+		} else if ( keyDataType.equals("Boolean")) {
+			template = template.replace("--ABS-VALUE--", "hashCode()");
+		} else if ( keyDataType.equals("Byte")) {
+			template = template.replace("--ABS-VALUE--", "byteValue()");
+		} else if ( keyDataType.equals("String")) {
+			template = template.replace("--ABS-VALUE--", "length()");
+		} else if ( keyDataType.equals("byte[]")) {
+			System.out.println("\n\n\n\nABS for bytes \n\n\n");
+			template = template.replace("--ABS-VALUE--", "length");
+		} else {
+			throw new IOException("Unknown Data type");
+		}
+		return template;
+	}
+
+	
 
 	public CodePartGenerator(List<Field> fields){
 		int totalFields = fields.size();

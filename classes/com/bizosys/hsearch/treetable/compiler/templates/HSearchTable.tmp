@@ -17,6 +17,7 @@ import com.bizosys.hsearch.byteutils.SortedBytesUnsignedShort;
 import com.bizosys.hsearch.byteutils.SortedBytesChar;
 import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
+import com.bizosys.hsearch.byteutils.Storable;
 
 import --PACKAGE--.*;
 
@@ -130,9 +131,10 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		public final void visit(final --KEY_DATATYPE-- cell1Key, final --VAL_DATATYPE-- cell1Val) {
 			if (query.filterCells[--CELL-MAX-MINUS-2--]) {
 				if (null != matchingCell--CELL-MAX-MINUS-2--) {
-					if (matchingCell--CELL-MAX-MINUS-2--.intValue() != cell1Key.intValue()) return;
+					if (matchingCell--CELL-MAX-MINUS-2-- --COMPARE-BY-VALUE--) return;
 				} else {
-					if (cell1Key.intValue() < cellMin--CELL-MAX-MINUS-2--.intValue() || cell1Key.intValue() > cellMax--CELL-MAX-MINUS-2--.intValue()) return;
+					if (cell1Key.--ABS-VALUE-- < cellMin--CELL-MAX-MINUS-2--.--ABS-VALUE-- ||
+						cell1Key.--ABS-VALUE-- > cellMax--CELL-MAX-MINUS-2--.--ABS-VALUE--) return;
 				}
 			}
 
