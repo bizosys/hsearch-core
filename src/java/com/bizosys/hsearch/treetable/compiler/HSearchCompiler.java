@@ -360,23 +360,32 @@ public class HSearchCompiler {
 			families.append("\t\t\t\"").append(column.partitions.ranges).append("\",\n");
 			
 			int seq = 0;
+			boolean hasModified = false;
 			for ( Field fld : column.indexes) {
 				if ( fld.name.equals(column.partitions.column) ) {
-					families.append("\t\t\t").append(seq).append(");");
+					families.append("\t\t\t").append(seq).append(");\n");
+					hasModified = true;
 					break;
 				}
 				seq++;
 			}
 			
 			if ( column.key.name.equals(column.partitions.column) ) {
-				families.append("\t\t\t").append(seq).append(");");
+				families.append("\t\t\t").append(seq).append(");\n");
+				hasModified = true;
 			}
 			seq++;
 			
 			if ( column.value.name.equals(column.partitions.column) ) {
-				families.append("\t\t\t").append(seq).append(");");
+				families.append("\t\t\t").append(seq).append(");\n");
+				hasModified = true;
 			}
 			seq++;
+			
+			if ( !hasModified) {
+				families.append("\t\t\t").append(-1).append(");\n");
+			}
+			
 		}
 
 		template = template.replace("--CREATE-COL-FAMILIES--", families.toString());

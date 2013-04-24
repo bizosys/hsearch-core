@@ -12,7 +12,7 @@
                 },
                 {
                     "name": "role",
-                    "datatype": "String"
+                    "datatype": "byte"
                 },
                 {
                     "name": "location",
