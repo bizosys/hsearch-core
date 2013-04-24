@@ -62,9 +62,9 @@ public class CodePartGenerator {
 		} else if ( keyDataType.equals("Byte")) {
 			template = template.replace("--COMPARE-BY-VALUE--", ".byteValue() != cell1Key.byteValue()");
 		} else if ( keyDataType.equals("String")) {
-			template = template.replace("--COMPARE-BY-VALUE--", ".equals(cell1Key)");
+			template = template.replace("matchingCell--CELL-MAX-MINUS-2-- --COMPARE-BY-VALUE--", "! matchingCell--CELL-MAX-MINUS-2-- .equals(cell1Key)");
 		} else if ( keyDataType.equals("byte[]")) {
-			template = template.replace("matchingCell--CELL-MAX-MINUS-2-- --COMPARE-BY-VALUE--", "Storable.compareBytes(matchingCell--CELL-MAX-MINUS-2--, cell1Key)");
+			template = template.replace("matchingCell--CELL-MAX-MINUS-2-- --COMPARE-BY-VALUE--", "! Storable.compareBytes(matchingCell--CELL-MAX-MINUS-2--, cell1Key)");
 		} else {
 			throw new IOException("Unknown Data type");
 		}
