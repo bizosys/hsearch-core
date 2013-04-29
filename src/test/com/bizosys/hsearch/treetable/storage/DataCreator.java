@@ -17,7 +17,6 @@ import com.bizosys.hsearch.treetable.storage.sampleImpl.donotmodify.*;
 
 public class DataCreator {
 	/**
-	 *   m|1|[1:7432]|[1:4]|*|[1:758320]|*
 	 *  Range Query - [1:7432]
 	 *  Match All - *
 	 *  Exact match - m

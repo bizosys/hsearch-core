@@ -239,7 +239,6 @@ public class Cell2<K1, V> {
 		}
 
 		List<byte[]> bytesElems = new ArrayList<byte[]>();
-		System.out.println(k1Sorter.toBytes(keys).length + "-" + vSorter.toBytes(values).length);
 		bytesElems.add(k1Sorter.toBytes(keys)); keys.clear();
 		bytesElems.add(vSorter.toBytes(values)); values.clear();
 		

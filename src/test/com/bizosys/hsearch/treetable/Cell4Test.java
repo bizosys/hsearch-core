@@ -20,7 +20,7 @@ import com.oneline.ferrari.TestAll;
 public class Cell4Test extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+		public static String mode = modes[2];  
 		
 		public static void main(String[] args) throws Exception {
 			Cell4Test t = new Cell4Test();
@@ -32,7 +32,7 @@ public class Cell4Test extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testBytesSectionConstructor();
+				t.testSort();
 				t.tearDown();
 			}
 		}
@@ -99,5 +99,41 @@ public class Cell4Test extends TestCase {
 
 			System.out.println( deser.getMap().toString());
 		}
+		
+		public void testSort() throws Exception {
+			
+			Cell4<String, String, String, Integer> ser = new Cell4<String, String, String, Integer>(
+					SortedBytesString.getInstance(), SortedBytesString.getInstance(), 
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance());
+
+			for ( int i=0;i<250000; i++) {
+				ser.put("bangalore", "jayanagar", "560083", 523);
+				ser.put("mumbai", "vasai", "560083", 123);
+				ser.put("bangalore", "koramangala", "0000", -23);
+				ser.put("bangalore", "indiranagar", "560086", 18);
+			}
+			
+			ser.sort (new CellComparator.IntegerComparator<String>());
+			
+			byte[] data = ser.toBytes();
+			byte[] appendedData = new byte[12 + data.length + 12];
+			Arrays.fill(appendedData, (byte) 0);
+			System.arraycopy(data, 0, appendedData, 12, data.length);
+			BytesSection dataSection = new BytesSection(appendedData, 12, data.length);
+
+			//Test Parsing
+			Cell4<String, String, String, Integer> deser = new Cell4<String, String, String, Integer>(
+					SortedBytesString.getInstance(), SortedBytesString.getInstance(), 
+					SortedBytesString.getInstance(), SortedBytesInteger.getInstance(), dataSection);
+
+			deser.parseElements();
+			for (String lst : deser.sortedList.keySet()) {
+				deser.sortedList.get(lst).parseElements();
+				for (String m : deser.sortedList.get(lst).sortedList.keySet()) {
+					System.out.println(lst + "-" + m);
+				}
+				
+			}
+		}		
 		
 }
