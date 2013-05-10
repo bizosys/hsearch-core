@@ -1,1 +1,1 @@
-java -classpath lib\gson-2.2.2.jar;hsearch-core.jar com.bizosys.hsearch.treetable.compiler.HSearchCompiler D:\work\hsearch-core\src\test\com\bizosys\hsearch\treetable\storage\examresult.json D:\work\hsearch-pointcross\src
+java -classpath lib\gson-2.2.2.jar;hsearch-core.jar com.bizosys.hsearch.treetable.compiler.HSearchCompiler D:\work\hsearch-embedded\conf\embedded.json D:\work\hsearch-embedded\src\java

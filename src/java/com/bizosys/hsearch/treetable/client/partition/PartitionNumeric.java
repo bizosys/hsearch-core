@@ -98,12 +98,24 @@ public final class PartitionNumeric implements IPartition<Double> {
 	public final void getMatchingFamilies(final HSearchQuery query, final Set<String> uniqueFamilies) throws IOException {
 		
 		if ( query.filterCells[this.partitionIndex]) {
-			if ( null == query.exactValCells[this.partitionIndex]) {
-				double min = query.minValCells[this.partitionIndex];
-				double max = query.maxValCells[this.partitionIndex];
-				getColumnFamilies(min, max, uniqueFamilies);
+			
+			if(query.inValCells[this.partitionIndex]){
+				for (String inValue : query.inValuesA[this.partitionIndex]) {
+					uniqueFamilies.add(getColumnFamily(new Double(inValue) ));					
+				}
 			} else {
-				uniqueFamilies.add(getColumnFamily(new Double(query.exactValCells[this.partitionIndex]) ));
+				if(query.notValCells[this.partitionIndex]){
+					getColumnFamilies(HSearchQuery.DOUBLE_MIN_VALUE, HSearchQuery.DOUBLE_MAX_VALUE, uniqueFamilies);
+				} else {
+					if ( null == query.exactValCells[this.partitionIndex]) {
+						double min = query.minValCells[this.partitionIndex];
+						double max = query.maxValCells[this.partitionIndex];
+						getColumnFamilies(min, max, uniqueFamilies);
+					} else {
+						uniqueFamilies.add(getColumnFamily(new Double(query.exactValCells[this.partitionIndex]) ));
+					}				
+				}
+				
 			}
 		} else {
 			getColumnFamilies(HSearchQuery.DOUBLE_MIN_VALUE, HSearchQuery.DOUBLE_MAX_VALUE, uniqueFamilies);
@@ -137,7 +149,6 @@ public final class PartitionNumeric implements IPartition<Double> {
 					families.add(colName + "_" + aRange.ext);
 				}
 			}
-
 		}
 		
 		if ( !isStart ) {

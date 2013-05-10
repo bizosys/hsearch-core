@@ -1,3 +1,22 @@
+/*
+* Copyright 2010 Bizosys Technologies Limited
+*
+* Licensed to the Bizosys Technologies Limited (Bizosys) under one
+* or more contributor license agreements.  See the NOTICE file
+* distributed with this work for additional information
+* regarding copyright ownership.  The Bizosys licenses this file
+* to you under the Apache License, Version 2.0 (the
+* "License"); you may not use this file except in compliance
+* with the License.  You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.bizosys.hsearch.treetable;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -129,8 +148,48 @@ public final class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBas
 		Callback callback = new Callback(rows, valSorter);
 		findMatchingPositions(exactValue, minimumValue, maximumValue, callback);
 	}
-				
 	
+	public final void getNotMap(final K1 exactValue, final Map<K1, Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> rows) throws IOException 
+	{
+		if ( null == data) {
+			System.err.println("Null Data - It should be an warning");
+			return;
+		}
+		
+		Reference keyRef = new Reference();
+		Reference valRef = new Reference();
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
+		
+		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
+		valSorter.parse(data.data, valRef.offset, valRef.length);
+		
+		Callback callback = new Callback(rows, valSorter);
+		findNotMatchingPositions(exactValue, callback);
+	}				
+	
+	public final void getInMap(final K1[] inValues, final Map<K1, Cell9< K2, K3, K4, K5, K6, K7, K8, K9,V>> rows) throws IOException 
+	{
+		if ( null == data) {
+			System.err.println("Null Data - It should be an warning");
+			return;
+		}
+		
+		Reference keyRef = new Reference();
+		Reference valRef = new Reference();
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
+		
+		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
+		valSorter.parse(data.data, valRef.offset, valRef.length);
+		
+		Callback callback = new Callback(rows, valSorter);
+		int size = inValues.length;	
+		if ( 0 !=  size) {
+			findInMatchingPositions(inValues, callback);
+		}
+		else {
+			throw new IOException("Size for the in elemnts are zero.");
+		}
+	}
 	/**
 	 * Find matching exact value
 	 * @param exactValue
@@ -296,4 +355,3 @@ public final class Cell10< K1, K2, K3, K4, K5, K6, K7, K8, K9,V> extends CellBas
 	
 	
 }
-

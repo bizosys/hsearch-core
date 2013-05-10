@@ -206,14 +206,14 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 		for ( ; i>=0; i--) {
 			if ( compare(inputBytes, this.offset + i * dataSize, matchingNo) != 0 )  break;
 		}
-		for ( int start=0; start<=i; start++) matchings.add(i);
+		for ( int start=0; start<=i; start++) matchings.add(start);
 		
 		//Include all matching indexes from right
 		i=index+1;
 		for ( ; i<intBT; i++) {
 			if ( compare(inputBytes, this.offset + i * dataSize, matchingNo) != 0 )  break;			
 		}
-		for ( int start=i; start<intBT; start++) matchings.add(i);		
+		for ( int start=i; start<intBT; start++) matchings.add(start);		
 	}
 
 	@Override

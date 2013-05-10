@@ -126,7 +126,6 @@ public class Cell2<K1, V> {
 		Reference keyRef = new Reference();
 		Reference valRef = new Reference();
 		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
-
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
 		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
@@ -459,6 +458,33 @@ public class Cell2<K1, V> {
 			
 		if ( null != exactValue) {
 			vSorter.getNotEqualToIndexes(exactValue, foundPositions);
+		}
+	}
+	
+	public final void processIn(final V[] inValues, final Cell2Visitor<K1,V> visitor) throws IOException {
+		Reference keyRef = new Reference();
+		Reference valRef = new Reference();
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
+
+		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
+		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
+		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
+		int size = inValues.length;	
+		if ( 0 !=  size) {
+			findInMatchingPositionsVsorterInitialized( inValues, 
+				new Cell2FoundIndex<K1, V>(k1Sorter, vSorter, visitor) );
+		} else {
+			throw new IOException("Size for the in elemnts are zero.");
+		}		
+	}
+
+	private final void findInMatchingPositionsVsorterInitialized( final V[] inValues,
+		final Collection<Integer> foundPositions) throws IOException {
+		int size = inValues.length;	
+		if ( 0 !=  size) {
+			for(int i = 0; i < size; i++){
+				vSorter.getEqualToIndexes(inValues[i], foundPositions);
+			}
 		}
 	}
 

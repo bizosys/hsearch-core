@@ -150,6 +150,29 @@ public final class Cell3<K1, K2, V> extends CellBase<K1> {
 		findNotMatchingPositions(exactValue, callback);
 	}	
 	
+	public final void getInMap(final K1[] inValues, final Map<K1, Cell2<K2, V>> rows) throws IOException 
+	{
+		if ( null == data) {
+			System.err.println("Null Data - It should be an warning");
+			return;
+		}
+		
+		Reference keyRef = new Reference();
+		Reference valRef = new Reference();
+		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
+		
+		ISortedByte<byte[]> valSorter = SortedBytesArray.getInstance();
+		valSorter.parse(data.data, valRef.offset, valRef.length);
+		
+		Callback callback = new Callback(rows, valSorter);
+		int size = inValues.length;	
+		if ( 0 !=  size) {
+			findInMatchingPositions(inValues, callback);
+		}
+		else {
+			throw new IOException("Size for the in elemnts are zero.");
+		}
+	}	
 
 	public final Map<K1, Cell2<K2, V>> getMap(final byte[] data) throws IOException {
 		if ( null == data) return null;
@@ -266,8 +289,7 @@ public final class Cell3<K1, K2, V> extends CellBase<K1> {
 		
 		if ( sizeK != sizeV ) {
 			throw new IOException(
-				"Keys and Values tally mismatched : keys(" + sizeK + 
-				") , values(" + sizeV + ")");					
+				"Keys and Values tally mismatched : keys(" + sizeK + ") , values(" + sizeV + ")");					
 		}
 		
 		Reference ref = new Reference();

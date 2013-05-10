@@ -71,6 +71,30 @@ public class CodePartGenerator {
 		return template;
 	}
 
+	public static String setEqualKeyComparision(String template, String keyDataType)
+			throws IOException {
+		if (keyDataType.equals("Short")) {
+			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".shortValue() == cell1Key.shortValue()");
+		} else if ( keyDataType.equals("Integer")) {
+			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".intValue() == cell1Key.intValue()");
+		} else if ( keyDataType.equals("Float")) {
+			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".floatValue() == cell1Key.floatValue()");
+		} else if ( keyDataType.equals("Double")) {
+			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".doubleValue() == cell1Key.doubleValue()");
+		} else if ( keyDataType.equals("Boolean")) {
+			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".booleanValue() == cell1Key.booleanValue()");
+		} else if ( keyDataType.equals("Byte")) {
+			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".byteValue() == cell1Key.byteValue()");
+		} else if ( keyDataType.equals("String")) {
+			template = template.replace("matchingCell--CELL-MAX-MINUS-2-- --COMPARE-BY-VALUE-EQUAL--", " matchingCell--CELL-MAX-MINUS-2-- .equals(cell1Key)");
+		} else if ( keyDataType.equals("byte[]")) {
+			template = template.replace("matchingCell--CELL-MAX-MINUS-2-- --COMPARE-BY-VALUE-EQUAL--", " Storable.compareBytes(matchingCell--CELL-MAX-MINUS-2--, cell1Key)");
+		} else {
+			throw new IOException("Unknown Data type");
+		}
+		return template;
+	}
+	
 	public static String setAbsValue(String template, String keyDataType)
 			throws IOException {
 		if (keyDataType.equals("Short")) {
@@ -260,6 +284,10 @@ public class CodePartGenerator {
 						  		text = text +  ("\t\tInteger cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).intValue();\n");
 						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tInteger[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (Integer[])query.inValuesAO[" + seq + "]: null;\n");
+						  		break;
 				  		}
 				  		break;
 				  	case 'f':
@@ -275,6 +303,10 @@ public class CodePartGenerator {
 				  			case 3:
 						  		text = text +  ("\t\tFloat cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).floatValue();\n");
+						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tFloat[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (Float[])query.inValuesAO[" + seq + "]: null;\n");
 						  		break;
 				  		}
 				  		break;
@@ -292,6 +324,10 @@ public class CodePartGenerator {
 						  		text = text +  ("\t\tDouble cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : query.maxValCells[" + seq + "];\n");
 						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tDouble[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (Double[])query.inValuesAO[" + seq + "]: null;\n");
+						  		break;
 				  		}
 				  		break;
 				  	case 'l':
@@ -307,6 +343,10 @@ public class CodePartGenerator {
 				  			case 3:
 						  		text = text +  ("\t\tLong cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).longValue();\n");
+						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tLong[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (Long[])query.inValuesAO[" + seq + "]: null;\n");
 						  		break;
 				  		}
 				  		break;
@@ -324,6 +364,10 @@ public class CodePartGenerator {
 						  		text = text +  ("\t\tInteger cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).intValue();\n");
 						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tInteger[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (Integer[])query.inValuesAO[" + seq + "]: null;\n");
+						  		break;
 				  		}
 				  		break;
 				  	case 't':
@@ -337,6 +381,10 @@ public class CodePartGenerator {
 						  		break;
 				  			case 3:
 						  		text = text +  ("\t\tString cellMax" + seq + " = null;\n");
+						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tString[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (String[])query.inValuesAO[" + seq + "]: null;\n");
 						  		break;
 				  		}
 				  		break;
@@ -354,6 +402,10 @@ public class CodePartGenerator {
 						  		text = text +  ("\t\tByte cellMax" + seq + " =  (query.maxValCells[" + seq + 
 						  				"] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[" + seq + "]).byteValue();\n");
 						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tByte[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (Byte[])query.inValuesAO[" + seq + "]: null;\n");
+						  		break;
 				  		}
 				  		break;
 				  	case 'b':
@@ -367,6 +419,10 @@ public class CodePartGenerator {
 						  		break;
 				  			case 3:
 						  		text = text +  ("\t\tBoolean cellMax" + seq + " = null;\n");
+						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tBoolean[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (Boolean[])query.inValuesAO[" + seq + "]: null;\n");
 						  		break;
 				  		}
 				  		break;
@@ -382,6 +438,10 @@ public class CodePartGenerator {
 				  			case 3:
 						  		text = text +  ("\t\t byte[] cellMax" + seq + " = null;\n");
 						  		break;
+				  			case 4:
+						  		text = text +  ("\t\tbyte[] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (byte[])query.inValuesAO[" + seq + "]: null;\n");
+						  		break;
 				  		}
 				  		break;
 
@@ -392,11 +452,15 @@ public class CodePartGenerator {
 				String result = "";
 				int CELLMAX = fields.size();
 				String keyCell = "";
+				String target = "";
 				if(castType == 1)keyCell = "matchingCell"+(CELLMAX - 2);
 				else if(castType == 2)keyCell = "cellMin"+(CELLMAX - 2);
 				else if(castType == 3)keyCell = "cellMax"+(CELLMAX - 2);
+				else if(castType == 4)keyCell = "inValues"+(CELLMAX - 2);
 				
-				String target = fields.get(CELLMAX - 2).datatype +" "+keyCell;
+				if(castType == 4)target = fields.get(CELLMAX - 2).datatype +"[] "+keyCell;
+				else target = fields.get(CELLMAX - 2).datatype +" "+keyCell;
+				
 				int index = text.indexOf(target);
 				result = text.replace(text.substring(index, index + target.length()), "cell2Visitor."+keyCell); 
 				return result;
@@ -426,7 +490,7 @@ public class CodePartGenerator {
 		
 		String theRemainingValueCellSignature = cellSignatures.get(new Integer(remainingCellsValueIndex).toString());
 		theRemainingValueCellSignature = theRemainingValueCellSignature.replace("Short", "Integer");
-	
+
 		StringBuilder code = new StringBuilder();
 		code.append("public static final class Cell" + remainingCells
 				+ "Map\n\t\t extends EmptyMap<" + theValueCellSignature
@@ -435,17 +499,21 @@ public class CodePartGenerator {
 		
 		code.append("\tpublic " + parentKeySignature + " matchingCell" + cellNo
 				+ ";\n\tpublic " + parentKeySignature + " cellMin" + cellNo
-				+ "; \n\tpublic " + parentKeySignature + " cellMax" + cellNo + ";\n");
+				+ "; \n\tpublic " + parentKeySignature + " cellMax" + cellNo
+				+ ";\n\tpublic " + parentKeySignature + "[] inValues" + cellNo+ ";\n");
 		code.append("\tpublic Map<" + theRemainingValueCellSignature + "> cell"
 				+ remainingCellsValueIndex + "L = null;\n\n");
+
 		code.append("\tpublic Cell" + remainingCells
 				+ "Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor"
 				+ getParams(fields, cellNo, true) + ") {");
 		code.append("\n\t\tthis.query = query; \n\t\tthis.cell2Visitor = cell2Visitor;");
-		code.append("\n\t\tthis.matchingCell" + cellNo + " = matchingCell"
-				+ cellNo + ";\n\t\tthis.cellMin" + cellNo + " = cellMin"
-				+ cellNo + ";\n\t\tthis.cellMax" + cellNo + " = cellMax"
-				+ cellNo + ";");
+		code.append("\n\t\tthis.matchingCell" + cellNo + " = matchingCell"+ cellNo 
+				  + ";\n\t\tthis.cellMin" + cellNo + " = cellMin" + cellNo 
+				  + ";\n\t\tthis.cellMax" + cellNo + " = cellMax"+ cellNo 
+				  + ";\n\t\tthis.inValues" + cellNo + " = inValues"+ cellNo
+				  + ";");
+		
 		code.append("\n\t\tthis.cell" + remainingCellsValueIndex
 				+ "L = new Cell" + remainingCellsValueIndex
 				+ "Map(query, cell2Visitor"
@@ -460,6 +528,11 @@ public class CodePartGenerator {
 		code.append("\n\ttry {\n\t\tcell2Visitor.cell" + remainingCells
 				+ "Key = key;");
 		code.append("\n\t\tif (query.filterCells[" + cellNo + "]) {");
+		code.append("\n\t\t\tif (query.notValCells[" + cellNo + "])");
+		code.append("\n\t\t\t\tvalue.getNotMap(matchingCell" + cellNo + ", cell"+ remainingCellsValueIndex + "L);");
+		code.append("\n\t\t\telse if (query.inValCells[" + cellNo + "])");
+		code.append("\n\t\t\t\tvalue.getInMap(inValues" + cellNo + ", cell"+ remainingCellsValueIndex + "L);");
+		code.append("\n\t\t\telse");
 		code.append("\n\t\t\tvalue.getMap(matchingCell" + cellNo + ", cellMin"
 				+ cellNo + ", cellMax" + cellNo + ", cell"
 				+ remainingCellsValueIndex + "L);");
@@ -485,13 +558,14 @@ public class CodePartGenerator {
 				if ( dataType.equals("Short")) dataType = "Integer";
 				params = params + ", final " + dataType + " matchingCell" + i + ", final "
 						+ dataType + " cellMin" + i + ", final " + dataType
-						+ " cellMax" + i;
+						+ " cellMax" + i + ", final " + dataType
+						+ "[] inValues" + i;
 			}
 		}
 		else {
 			for ( int i = startIndex; i >= endIndex ; i-- ) {	
 				if(i == keyCellIndex)continue;
-				params = params + ",matchingCell"+i+", cellMin"+i+", cellMax"+i;
+				params = params + ",matchingCell"+i+", cellMin"+i+", cellMax"+i+", inValues"+i;
 			}
 			
 		}

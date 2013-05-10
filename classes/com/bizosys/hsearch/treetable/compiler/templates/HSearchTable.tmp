@@ -65,16 +65,18 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		public --CELLMAX_MINUS_1-SIGN-- matchingCell--CELL-MAX-MINUS-1--;
 		public --CELLMAX_MINUS_1-SIGN-- cellMin--CELL-MAX-MINUS-1--;
 		public --CELLMAX_MINUS_1-SIGN-- cellMax--CELL-MAX-MINUS-1--;
+		public --CELLMAX_MINUS_1-SIGN--[] inValues--CELL-MAX-MINUS-1--;
 		public Cell2FilterVisitor cell2Visitor;
 		
 		public Cell2Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor,
-			final --CELLMAX_MINUS_1-SIGN-- matchingCell--CELL-MAX-MINUS-1--, final --CELLMAX_MINUS_1-SIGN-- cellMin--CELL-MAX-MINUS-1--, final --CELLMAX_MINUS_1-SIGN-- cellMax--CELL-MAX-MINUS-1--) {
+			final --CELLMAX_MINUS_1-SIGN-- matchingCell--CELL-MAX-MINUS-1--, final --CELLMAX_MINUS_1-SIGN-- cellMin--CELL-MAX-MINUS-1--, final --CELLMAX_MINUS_1-SIGN-- cellMax--CELL-MAX-MINUS-1--, final --CELLMAX_MINUS_1-SIGN--[] inValues--CELL-MAX-MINUS-1--) {
 			this.query = query;
 			this.cell2Visitor = cell2Visitor;
 
 			this.matchingCell--CELL-MAX-MINUS-1-- = matchingCell--CELL-MAX-MINUS-1--;
 			this.cellMin--CELL-MAX-MINUS-1-- = cellMin--CELL-MAX-MINUS-1--;
 			this.cellMax--CELL-MAX-MINUS-1-- = cellMax--CELL-MAX-MINUS-1--;
+			this.inValues--CELL-MAX-MINUS-1-- = inValues--CELL-MAX-MINUS-1--;
 		}
 		
 		@Override
@@ -85,7 +87,12 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 				Cell2<--KEY_DATATYPE--, --VAL_DATATYPE--> cell2Val = value;
 
 				if (query.filterCells[--CELL-MAX-MINUS-1--]) {
-					cell2Val.process(matchingCell--CELL-MAX-MINUS-1--, cellMin--CELL-MAX-MINUS-1--, cellMax--CELL-MAX-MINUS-1--,cell2Visitor);
+					if(query.notValCells[--CELL-MAX-MINUS-1--])
+						cell2Val.processNot(matchingCell--CELL-MAX-MINUS-1--, cell2Visitor);
+					else if(query.inValCells[--CELL-MAX-MINUS-1--])
+						cell2Val.processIn(inValues--CELL-MAX-MINUS-1--, cell2Visitor);
+					else 
+						cell2Val.process(matchingCell--CELL-MAX-MINUS-1--, cellMin--CELL-MAX-MINUS-1--, cellMax--CELL-MAX-MINUS-1--,cell2Visitor);
 				} else {
 					cell2Val.process(cell2Visitor);
 				}
@@ -107,6 +114,7 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 		public --CELLMAX_MINUS_2-SIGN-- matchingCell--CELL-MAX-MINUS-2--;
 		public --CELLMAX_MINUS_2-SIGN-- cellMin--CELL-MAX-MINUS-2--;
 		public --CELLMAX_MINUS_2-SIGN-- cellMax--CELL-MAX-MINUS-2--;
+		public --CELLMAX_MINUS_2-SIGN--[] inValues--CELL-MAX-MINUS-2--;
 
 		--TREE-NODE-KEY-SIGN--
 		public int mode = MODE_COLS;
@@ -119,22 +127,61 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
         }
 		
-		public final void set(final --CELLMAX_MINUS_2-SIGN-- matchingCell--CELL-MAX-MINUS-2--, final --CELLMAX_MINUS_2-SIGN-- cellMin--CELL-MAX-MINUS-2--, final --CELLMAX_MINUS_2-SIGN-- cellMax--CELL-MAX-MINUS-2--) {
+		public final void set(final --CELLMAX_MINUS_2-SIGN-- matchingCell--CELL-MAX-MINUS-2--, final --CELLMAX_MINUS_2-SIGN-- cellMin--CELL-MAX-MINUS-2--, final --CELLMAX_MINUS_2-SIGN-- cellMax--CELL-MAX-MINUS-2--, final --CELLMAX_MINUS_2-SIGN--[] inValues--CELL-MAX-MINUS-2--) {
 			this.matchingCell--CELL-MAX-MINUS-2-- = matchingCell--CELL-MAX-MINUS-2--;
 			this.cellMin--CELL-MAX-MINUS-2-- = cellMin--CELL-MAX-MINUS-2--;
 			this.cellMax--CELL-MAX-MINUS-2-- = cellMax--CELL-MAX-MINUS-2--;
+			this.inValues--CELL-MAX-MINUS-2-- = inValues--CELL-MAX-MINUS-2--;
 		}
 		
 		
 		
 		@Override
 		public final void visit(final --KEY_DATATYPE-- cell1Key, final --VAL_DATATYPE-- cell1Val) {
+
+			//Is it all or not.
 			if (query.filterCells[--CELL-MAX-MINUS-2--]) {
+				
+				//IS it exact or not
 				if (null != matchingCell--CELL-MAX-MINUS-2--) {
-					if (matchingCell--CELL-MAX-MINUS-2-- --COMPARE-BY-VALUE--) return;
+					if ( query.notValCells[--CELL-MAX-MINUS-2--] ) {
+						//Exact val match
+						if (matchingCell--CELL-MAX-MINUS-2----COMPARE-BY-VALUE-EQUAL--) return;
+					} else {
+						//Not Exact val 
+						if (matchingCell--CELL-MAX-MINUS-2----COMPARE-BY-VALUE--) return;
+					}
 				} else {
-					if (cell1Key.--ABS-VALUE-- < cellMin--CELL-MAX-MINUS-2--.--ABS-VALUE-- ||
-						cell1Key.--ABS-VALUE-- > cellMax--CELL-MAX-MINUS-2--.--ABS-VALUE--) return;
+					//Either range or IN
+					if ( query.inValCells[--CELL-MAX-MINUS-2--]) {
+						//IN
+						boolean isMatched = false;
+						//LOOKING FOR ONE MATCHING
+						for ( Object obj : query.inValuesAO[--CELL-MAX-MINUS-2--]) {
+							--CELLMAX_MINUS_2-SIGN-- objI = (--CELLMAX_MINUS_2-SIGN--) obj;
+							isMatched = cell1Key.--ABS-VALUE-- == objI.--ABS-VALUE--;
+							
+							//ONE MATCHED, NO NEED TO PROCESS
+							if ( query.notValCells[--CELL-MAX-MINUS-2--] ) { 
+								if (!isMatched ) break; 
+							} else {
+								if (isMatched ) break;
+							}
+						}
+						if ( !isMatched ) return; //NONE MATCHED
+						
+					} else {
+						//RANGE
+						boolean isMatched = cell1Key.--ABS-VALUE-- < cellMin--CELL-MAX-MINUS-2--.--ABS-VALUE-- || 
+											cell1Key.--ABS-VALUE-- > cellMax--CELL-MAX-MINUS-2--.--ABS-VALUE--;
+						if ( query.notValCells[--CELL-MAX-MINUS-2--] ) {
+							//Not Exact Range
+							if (!isMatched ) return;
+						} else {
+							//Exact Range
+							if (isMatched ) return;
+						}
+					}
 				}
 			}
 
@@ -214,11 +261,18 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
 --DEFINE-MAX-FIRST--
 
+--DEFINE-INVAL-FIRST--
+
 		Cell--CELL-MAX-MINUS-1--Map cell--CELL-MAX-MINUS-1--L = new Cell--CELL-MAX-MINUS-1--Map(query, cell2Visitor--CELL-MAX-MINUS_1-PARAMS--);
 
         this.table.data = new BytesSection(input);
         if (query.filterCells[0]) {
-            this.table.getMap(matchingCell0, cellMin0, cellMax0, cell--CELL-MAX-MINUS-1--L);
+			if(query.notValCells[0])
+				this.table.getNotMap(matchingCell0, cell--CELL-MAX-MINUS-1--L);
+			else if(query.inValCells[0])
+				this.table.getInMap(inValues0, cell--CELL-MAX-MINUS-1--L);
+			else	
+				this.table.getMap(matchingCell0, cellMin0, cellMax0, cell--CELL-MAX-MINUS-1--L);
         } else {
             this.table.sortedList = cell--CELL-MAX-MINUS-1--L;
             this.table.parseElements();

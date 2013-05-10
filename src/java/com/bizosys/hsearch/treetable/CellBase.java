@@ -111,12 +111,36 @@ public abstract class CellBase<K1>  {
 		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
 		
 		if ( null != exactValue ) {
-			k1Sorter.getEqualToIndexes(exactValue, foundPositions);
+			k1Sorter.getNotEqualToIndexes(exactValue, foundPositions);
 		} else {
 			throw new IOException("Not is not implemented for range queries.");
 		}
 		return keyRef;
 	}	
+
+	protected final Reference findInMatchingPositions(final K1[] inValues, final Collection<Integer> foundPositions) throws IOException {
+		
+		if ( null == this.data) return null;
+		SortedBytesArray kvbytesA =  SortedBytesArray.getInstanceArr();
+		kvbytesA.parse(data.data, data.offset, data.length);
+		
+		Reference keyRef = kvbytesA.getValueAtReference(0);
+		if ( null == keyRef ) return null;
+		
+		k1Sorter.parse(data.data, keyRef.offset, keyRef.length);
+		
+		int size = inValues.length;	
+		if ( 0 !=  size) {
+			for(int i = 0; i < size; i++){
+				k1Sorter.getEqualToIndexes(inValues[i], foundPositions);
+			}
+		}
+		else {
+			throw new IOException("Size for the in elemnts are zero.");
+		}
+		return keyRef;
+	}	
+
 	
 	public final Collection<K1> get(final K1 exactValue) throws IOException {
 		List<K1> foundKeys = new ArrayList<K1>();

@@ -103,11 +103,36 @@ public final class PartitionByFirstLetter implements IPartition<String> {
 		Object keyword = query.exactValCells[this.partitionIndex];
 		if ( null == keyword) return;
 	
-		String keywordStr = keyword.toString();
-		String familyName = getColumnFamily(keywordStr);
-		uniqueFamilies.add(familyName);
+		if ( query.filterCells[this.partitionIndex]) {
+			
+			if(query.inValCells[this.partitionIndex]){
+				
+				for (String inValue : query.inValuesA[this.partitionIndex]) {
+					String familyName = getColumnFamily(inValue);
+					uniqueFamilies.add( familyName );
+				}
+			
+			} else {
+				
+				if(query.notValCells[this.partitionIndex]){
+					String keywordStr = keyword.toString();
+					for (TextRange aRange : rangesL) {
+						if ( aRange.start != keywordStr.charAt(0)) 
+							uniqueFamilies.add( colName + "_" + aRange.ext);
+					}
+				} else {
+					String keywordStr = keyword.toString();
+					String familyName = getColumnFamily(keywordStr);
+					uniqueFamilies.add(familyName);
+				}
+				
+			}
+		} else {
+			for (TextRange aRange : rangesL) {
+				uniqueFamilies.add( colName + "_" + aRange.ext);
+			}
+		}
 	}
-	
 	
 	@Override
 	public final void getColumnFamilies(final String startVal, final String endVal, final Set<String> families) throws IOException {
