@@ -1,4 +1,4 @@
-package com.bizosys.hsearch.treetable.storage;
+package com.bizosys.hsearch.treetable.example;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -7,7 +7,7 @@ import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
 import com.bizosys.hsearch.treetable.Cell2Test;
-import com.bizosys.hsearch.treetable.storage.sampleImpl.Client;
+import com.bizosys.hsearch.treetable.example.impl.Client;
 import com.oneline.ferrari.TestAll;
 
 public class SearchTester extends TestCase {

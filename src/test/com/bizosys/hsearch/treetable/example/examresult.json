@@ -1,5 +1,5 @@
 {
-    "module" : "com.bizosys.hsearch.treetable.storage.sampleImpl",
+    "module" : "com.bizosys.hsearch.treetable.example.impl",
     "table": "htable-test",
     "columns": [
 		{
@@ -12,7 +12,7 @@
                 },
                 {
                     "name": "role",
-                    "datatype": "byte"
+                    "datatype": "String"
                 },
                 {
                     "name": "location",

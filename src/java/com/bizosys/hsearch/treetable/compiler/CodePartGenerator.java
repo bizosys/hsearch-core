@@ -574,7 +574,13 @@ public class CodePartGenerator {
 	
 	public static String getPrimitive(String str){
 		String result = "";
-		char firstchar = dataTypes.get(str);
+		Character firstcharO = dataTypes.get(str);
+		if ( null == firstcharO) {
+			System.out.println("Unknown datatype. JSON syntax error: " + dataTypes);
+			System.exit(1);
+		}
+		
+		char firstchar = firstcharO;
 		switch ( firstchar) {
 		  	case 'i':
 		  		result = "int";

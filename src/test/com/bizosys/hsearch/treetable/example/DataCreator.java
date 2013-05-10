@@ -1,4 +1,4 @@
-package com.bizosys.hsearch.treetable.storage;
+package com.bizosys.hsearch.treetable.example;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,7 +13,8 @@ import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.RecordScalar;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.partition.IPartition;
-import com.bizosys.hsearch.treetable.storage.sampleImpl.donotmodify.*;
+import com.bizosys.hsearch.treetable.example.impl.donotmodify.*;
+import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaDefn;
 
 public class DataCreator {
 	/**

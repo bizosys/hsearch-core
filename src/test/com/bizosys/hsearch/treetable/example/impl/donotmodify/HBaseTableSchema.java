@@ -1,4 +1,4 @@
-package com.bizosys.hsearch.treetable.storage.sampleImpl.donotmodify;
+package com.bizosys.hsearch.treetable.example.impl.donotmodify;
 
 import java.io.IOException;
 import java.util.Map;
@@ -29,6 +29,7 @@ public class HBaseTableSchema {
 			"a,b,c,d,e,f,g,h,i,j",
 			"[*:1],[1:2],[2:3],[3:4],[4:5],[5:6],[6:7],[7:8],[8:9],[9:*]",
 			4);
+
 
 	}
 

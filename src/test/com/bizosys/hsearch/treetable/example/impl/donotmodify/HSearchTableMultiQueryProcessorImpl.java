@@ -1,4 +1,4 @@
-package com.bizosys.hsearch.treetable.storage.sampleImpl.donotmodify;
+package com.bizosys.hsearch.treetable.example.impl.donotmodify;
 
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryProcessor;
 import com.bizosys.hsearch.treetable.client.IHSearchTableCombiner;
