@@ -2,22 +2,26 @@ package com.bizosys.hsearch.treetable.example.impl;
 
 import java.io.IOException;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.bizosys.hsearch.byteutils.Storable;
 import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 
 import com.bizosys.hsearch.treetable.example.impl.donotmodify.PluginExamResultBase;
+import com.bizosys.hsearch.util.LineReaderUtil;
 
 public final class MapperExamResult extends PluginExamResultBase {
 
     public static String EMPTY = "";
     static boolean DEBUG_ENABLED = false;
     static byte[] bytesFor1 = Storable.putInt(1);
+    public static char SEPARATOR = '\t';
 
     HSearchProcessingInstruction instruction = null;
-
+    Map<Integer, String> foundRows= new HashMap<Integer, String>(); 
+    
     @Override
     public final void setOutputType(final HSearchProcessingInstruction outputTypeCode) {
         this.instruction = outputTypeCode;
@@ -29,9 +33,10 @@ public final class MapperExamResult extends PluginExamResultBase {
      * Maintain thread concurrency in the code.
      * Don't remove <code>this.parts.remove();</code> as after merging, it clears the ThreadLocal object. 
      */
-    protected final void merge(/** attributes as needed */) {
+    protected final void merge(Map<Integer, String> records) {
         synchronized (this) {
-            //Computation goes here
+        	foundRows.putAll(records);
+        	records.clear();
         }
         this.parts.remove();
     }
@@ -55,7 +60,9 @@ public final class MapperExamResult extends PluginExamResultBase {
      */
     @Override
     public final BitSetOrSet getUniqueMatchingDocumentIds() throws IOException {
-        return null;
+    	BitSetOrSet uniqueRows = new BitSetOrSet();
+    	uniqueRows.setDocumentIds(this.foundRows.keySet());
+    	return uniqueRows;
     }
 
     /**
@@ -63,6 +70,9 @@ public final class MapperExamResult extends PluginExamResultBase {
      */
     @Override
     public final void getResultSingleQuery(final Collection<byte[]> container) throws IOException {
+    	for (String row : this.foundRows.values()) {
+        	container.add( row.getBytes());
+		}
     }
 
     /**
@@ -70,6 +80,13 @@ public final class MapperExamResult extends PluginExamResultBase {
      */
     @Override
     public final void getResultMultiQuery(final BitSetOrSet matchedIds, final Collection<byte[]> container) throws IOException {
+		System.out.println("Matched Ids:" + matchedIds.getDocumentIds().toString());
+    	for (Object matchedId : matchedIds.getDocumentIds()) {
+        	if (this.foundRows.containsKey(matchedId)) {
+            	container.add( this.foundRows.get(matchedId).getBytes());
+    		}
+		}
+
     }
 
     /**
@@ -78,6 +95,7 @@ public final class MapperExamResult extends PluginExamResultBase {
      */
     @Override
     public final void clear() {
+    	this.foundRows.clear();
     }
 
     /**
@@ -92,6 +110,8 @@ public final class MapperExamResult extends PluginExamResultBase {
     public static final class RowReader implements TablePartsCallback {
 
         public MapperExamResult whole = null;
+        Map<Integer, String> partTable = new HashMap<Integer, String>();
+        StringBuilder appender = new StringBuilder(65536); 
 
         public RowReader(final MapperExamResult whole) {
             this.whole = whole;
@@ -102,7 +122,16 @@ public final class MapperExamResult extends PluginExamResultBase {
         }
 
         public final boolean onRowCols( final int age,  final String role,  final String location,  final int empid,  final float mark) {
-            // Computation goes here.
+
+        	appender.append(age);
+        	appender.append(SEPARATOR).append(role);
+        	appender.append(SEPARATOR).append(location);
+        	appender.append(SEPARATOR).append(empid);
+        	appender.append(SEPARATOR).append(mark);
+    		
+        	partTable.put(empid, appender.toString());
+    		
+    		appender.delete(0, 65536);
         	return true;
         }
 
@@ -118,10 +147,7 @@ public final class MapperExamResult extends PluginExamResultBase {
 
         @Override
         public final void onReadComplete() {
-            this.whole.merge( /** attributes as needed */ );
-            /**
-             * Clean up resources for reuse.
-             */
+            this.whole.merge(partTable);
         }
     }
 

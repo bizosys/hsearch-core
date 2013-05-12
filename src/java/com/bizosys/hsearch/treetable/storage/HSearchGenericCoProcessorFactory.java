@@ -21,14 +21,17 @@
 package com.bizosys.hsearch.treetable.storage;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.hadoop.hbase.client.coprocessor.Batch;
 
+import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.treetable.cache.CacheService;
 
 public final class HSearchGenericCoProcessorFactory {
 	
@@ -54,8 +57,23 @@ public final class HSearchGenericCoProcessorFactory {
 
 	}
 	
-	public final Map<byte[], byte[]> execCoprocessorRows(final HTableWrapper table) throws IOException, Throwable  {
+	public final Collection<byte[]> execCoprocessorRows(final HTableWrapper table) throws IOException, Throwable  {
 
+		String singleQuery = null;
+		
+		/**
+		 * Check for already cached result
+		 */
+		if ( null != filter) {
+			if ( filter.clientSideAPI_IsSingleQuery() ) {
+				singleQuery = filter.clientSideAPI_getSingleQueryWithScope();
+				byte[] singleQueryResultB = CacheService.getInstance().get(singleQuery);
+				if( null != singleQueryResultB) {
+					return SortedBytesArray.getInstance().parse(singleQueryResultB).values();
+				}
+			}
+		}
+		
 		Map<byte[], byte[]> output = table.table.coprocessorExec(
                 HSearchGenericCoprocessor.class, null, null,
                 
@@ -67,6 +85,17 @@ public final class HSearchGenericCoProcessorFactory {
                  }
          } );
 		
-		return output;
+		Collection<byte[]> result = output.values();
+		
+		try {
+			if ( null != singleQuery) {
+				byte[] dataPack = SortedBytesArray.getInstance().toBytes(result);
+				CacheService.getInstance().put(singleQuery, dataPack);
+			}
+		} catch (Exception ex) {
+			HbaseLog.l.warn(ex);
+		}
+
+		return result;
 	}
 }

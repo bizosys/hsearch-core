@@ -26,4 +26,10 @@
         <name>hbase.coprocessor.region.classes</name>
         <value>com.bizosys.hsearch.treetable.storage.HSearchGenericCoprocessorImpl</value>
     </property>
+    
+	<property>
+	    <name>hbase.zookeeper.quorum</name>
+	    <value>localhost</value>
+	</property>
+    
 </configuration>

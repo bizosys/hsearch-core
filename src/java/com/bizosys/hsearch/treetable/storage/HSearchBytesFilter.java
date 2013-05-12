@@ -29,7 +29,6 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 
 import com.bizosys.hsearch.hbase.HbaseLog;
-import com.bizosys.hsearch.treetable.client.L;
 
 /**
  * @author abinash
@@ -65,14 +64,13 @@ public abstract class HSearchBytesFilter implements Filter {
 			in.readFully(state, 0, length);
 
 		} catch (Exception ex) {
-			L.getInstance().flush();
-		} finally {
-			L.getInstance().clear();
-		}
+			HbaseLog.l.fatal("Error at deserialization of filter:" + ex.getMessage() , ex);
+			throw new IOException(ex);
+		} 
 	}
 	
 	@Override
-	public final  void filterRow(final List<KeyValue> kvL) {
+	public final void filterRow(final List<KeyValue> kvL) {
 		if ( null == kvL) return;
 		int kvT = kvL.size();
 		if ( 0 == kvT) return;
@@ -90,11 +88,9 @@ public abstract class HSearchBytesFilter implements Filter {
 			processRow(kvL);
 			
 		} catch (Exception ex) {
+			HbaseLog.l.fatal(ex);
 			ex.printStackTrace(System.err);
-		
-		} finally {
-			L.getInstance().flush();
-		}
+		} 
 	}
 
 	public abstract void processColumn(KeyValue cell) throws IOException;

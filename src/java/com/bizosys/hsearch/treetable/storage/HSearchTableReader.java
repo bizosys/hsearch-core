@@ -22,6 +22,7 @@ package com.bizosys.hsearch.treetable.storage;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -45,7 +46,7 @@ public abstract class HSearchTableReader implements IScanCallBack {
 	
 	public abstract HSearchGenericFilter getFilter(String multiQuery, Map<String, String> multiQueryParts, HSearchProcessingInstruction outputType); 
 
-	public abstract void rows(Map<byte[], byte[]> results, HSearchProcessingInstruction rowType);
+	public abstract void rows(Collection<byte[]> results, HSearchProcessingInstruction rowType);
 	
 	
 	@SuppressWarnings("unchecked")

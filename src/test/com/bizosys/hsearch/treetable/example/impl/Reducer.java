@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.bizosys.hsearch.byteutils.Storable;
 import com.bizosys.hsearch.functions.HSearchReducer;
 import com.bizosys.hsearch.functions.StatementWithOutput;
 
@@ -14,10 +13,10 @@ public class Reducer implements HSearchReducer {
     public final void appendCols(final StatementWithOutput[] queryOutput, final Collection<byte[]> mergedQueryOutput) throws IOException {
 
         if (null == queryOutput) return;
-
-        /**
-         * TODO:// De-serialize and compute.
-         */
+        for (StatementWithOutput swo : queryOutput) {
+        	System.out.println("mergedQueryOutput:" + swo.cells.toString());
+        	mergedQueryOutput.addAll(swo.cells);
+		}
     }
 
     @Override
@@ -37,19 +36,7 @@ public class Reducer implements HSearchReducer {
             merged = mergedB.iterator().next();
         }
 
-        /**
-         * De-serialize and compute.
-         */
-
-        /**
-         * Serialize at the end
-         */
-
-        mergedB.clear();
-
-        /**
-         * Add the processed bytes to merged container
-         */
+        mergedB.addAll(appendB);
     }
 
     @Override

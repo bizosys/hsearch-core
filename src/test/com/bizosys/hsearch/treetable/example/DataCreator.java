@@ -30,7 +30,6 @@ public class DataCreator {
     	
     	IPartition<Double> partition = schema.columnPartions.get(colFamily);
 		for ( String famExt : partition.getPartitionNames() ) {
-			System.out.println(famExt);
         	HDML.truncate(schema.tableName, new NV(
         		(schema.columnPartions.keySet().iterator().next() + "_" + famExt) .getBytes(), "1".getBytes() ));
     	}

@@ -56,7 +56,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 			public BitSetOrSet populate(
 					String type, String multiQueryPartId, String aStmtOrValue, Map<String, Object> stmtParams) throws IOException {
 
-				if ( DEBUG_ENABLED ) L.getInstance().logDebug(  "HSearchTableMultiQuery.populate ENTER.");
+				if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableMultiQuery.populate ENTER.");
 				long startTime = System.currentTimeMillis();
 				
 				try {
@@ -91,7 +91,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 				} finally {
 					if ( DEBUG_ENABLED ) {
 						long endTime = System.currentTimeMillis();
-						L.getInstance().logDebug( Thread.currentThread().getName() + "> " + "populate EXIT ms :" + (endTime - startTime));
+						HbaseLog.l.debug( Thread.currentThread().getName() + "> " + "populate EXIT ms :" + (endTime - startTime));
 					}
 				}
 			}

@@ -35,6 +35,7 @@ import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
+import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
 import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.functions.HSearchReducer;
@@ -44,7 +45,6 @@ import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
-import com.bizosys.hsearch.treetable.client.L;
 
 /**
  * @author abinash
@@ -54,9 +54,18 @@ public abstract class HSearchGenericFilter implements Filter {
 	
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+
 	
-	String multiQuery = null;
+	
+	/**
+	 * Client side variables
+	 */
 	Map<String, String> queryFilters = null;
+	
+	/**
+	 * Input Variables
+	 */
+	String multiQuery = null;
 	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>(3);
 	Map<String, String> colIdWithType = new HashMap<String, String>(3);
 	
@@ -65,31 +74,48 @@ public abstract class HSearchGenericFilter implements Filter {
 	public long overallExecutionTime = 0L;
 	
 	
-	HSearchProcessingInstruction processingInstructions = new HSearchProcessingInstruction();
-	Map<String, HSearchTableParts> queryData = new HashMap<String, HSearchTableParts>();
+	HSearchProcessingInstruction inputMapperInstructions = new HSearchProcessingInstruction();
+	byte[] inputRowsToIncludeB = null;
+	List<byte[]>  inputRowsList = null;
+	SortedBytesArray rowsToInclude = null;
+
+	Map<String, HSearchTableParts> queryIdWithParts = new HashMap<String, HSearchTableParts>();
 	Map<String, HSearchTableParts> colNamesWithPartitionBytes = new HashMap<String, HSearchTableParts>();
-	List<byte[]> merged = new ArrayList<byte[]>();	
-	List<Collection<byte[]>> outputCache = new LinkedList<Collection<byte[]>>();
-	SortedBytesArray sbaFortoBytesOnly = SortedBytesArray.getInstanceArr();
+	List<byte[]> columnsOfOneRowAfterJoin = new ArrayList<byte[]>();	
+	List<Collection<byte[]>> stmtOutputContainers = new LinkedList<Collection<byte[]>>();
+	SortedBytesArray rowBytesPacker = SortedBytesArray.getInstanceArr();
 	
 	HSearchTableMultiQueryExecutor intersector = null;
 	
-
 	public HSearchGenericFilter(){
 	}
+
+	public HSearchGenericFilter(final HSearchProcessingInstruction outputType, 
+		final String query, final  Map<String, String> details) {
+		this(outputType, query, details, null);
+	}
 	
-	public HSearchGenericFilter(final HSearchProcessingInstruction outputType, final String query, final  Map<String, String> details){
+	public HSearchGenericFilter(final HSearchProcessingInstruction outputType, 
+		final String query, final  Map<String, String> details, List<byte[]> scopedToRows) {
+		
 		this.multiQuery = query;
 		this.queryFilters = details;
-		this.processingInstructions = outputType;
+		this.inputMapperInstructions = outputType;
+		this.inputRowsList = scopedToRows;
 	}
 	
-	public final int getTotalQueryParts() throws IOException {
-		if ( null != this.queryFilters) return this.queryFilters.size();
-		if ( null != this.queryPayload) return this.queryPayload.size();
-		throw new IOException("Unable to find total queries inside the multi query.");
+	public boolean clientSideAPI_IsSingleQuery() throws IOException {
+		if ( null == this.queryFilters) throw new IOException("Genric Filter is not initalized");
+		if ( 1 == this.queryFilters.size()) return true;
+		return false;
 	}
 	
+	public String clientSideAPI_getSingleQueryWithScope() throws IOException {
+		if ( null == this.queryFilters) throw new IOException("Genric Filter is not initalized");
+		if ( 1 != this.queryFilters.size()) throw new IOException("Genric Filter has multi queries");
+		return this.getClass().getName() + "/" + this.queryFilters.values().iterator().next();
+	}
+
 	
 	/**
 	 * output type
@@ -99,23 +125,32 @@ public abstract class HSearchGenericFilter implements Filter {
 	 */
 	@Override
 	public final void write(final DataOutput out) throws IOException {
-		StringBuilder sb = new StringBuilder();
+
+		if ( null != inputRowsList) {
+			if ( inputRowsList.size() > 0 ) {
+				inputRowsToIncludeB = SortedBytesArray.getInstanceArr().toBytes(inputRowsList);
+			}
+		}
 		
-		sb.append(processingInstructions.toString()).append('\n');
-		sb.append(this.multiQuery);
-		
+		StringBuilder querySection = new StringBuilder();
+		querySection.append(inputMapperInstructions.toString()).append('\n');
+		querySection.append(this.multiQuery);
 		if ( null != queryFilters) {
 			for (String queryP : queryFilters.keySet()) {
 				String input = queryFilters.get(queryP);
-				sb.append('\n').append(queryP).append('=').append(input.toString());
+				querySection.append('\n').append(queryP).append('=').append(input.toString());
 			}
 		}
 		
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug("Sending to HBase : " + sb.toString());
+			HbaseLog.l.debug("Sending to HBase : " + querySection.toString());
 		}
+		SortedBytesArray sendToRSData = SortedBytesArray.getInstanceArr();
+		byte[] ser = ( null == inputRowsToIncludeB) ?
+			sendToRSData.toBytes(querySection.toString().getBytes())
+			: 
+			sendToRSData.toBytes( querySection.toString().getBytes(), inputRowsToIncludeB);
 		
-		byte[] ser = sb.toString().getBytes();
 		out.writeInt(ser.length);
 		out.write(ser);
 	}	
@@ -133,10 +168,29 @@ public abstract class HSearchGenericFilter implements Filter {
 			int length = in.readInt();
 			if ( 0 == length) throw new IOException("Invalid Query");
 			
-			byte[] ser = new byte[length];
-			in.readFully(ser, 0, length);
-
-			StringTokenizer stk = new StringTokenizer(new String(ser), "\n");
+			byte[] deser = new byte[length];
+			in.readFully(deser, 0, length);
+			
+			SortedBytesArray receiveRSData = SortedBytesArray.getInstanceArr();
+			receiveRSData.parse(deser);
+			
+			int packedDataSectionsT = receiveRSData.getSize();
+			if ( packedDataSectionsT == 0 ) {
+				throw new IOException("Unknown number of fields :" + packedDataSectionsT);
+			}
+			
+			//Filter Row Section
+			if ( packedDataSectionsT == 2) {
+				Reference ref = new Reference();
+				receiveRSData.getValueAtReference(1, ref);
+				rowsToInclude = SortedBytesArray.getInstanceArr();
+				rowsToInclude.parse(deser, ref.offset, ref.length);
+			}
+			
+			//Query Section
+			Reference ref = new Reference();
+			receiveRSData.getValueAtReference(0, ref);
+			StringTokenizer stk = new StringTokenizer(new String(deser, ref.offset, ref.length), "\n");
 			
 			int lineNo = -1;
 			while ( stk.hasMoreTokens() ) {
@@ -147,7 +201,7 @@ public abstract class HSearchGenericFilter implements Filter {
 					case 0:
 						String output = stk.nextToken();
 						if (output.length() == 0  ) throw new IOException("Unknown result output type.");
-						this.processingInstructions = new HSearchProcessingInstruction(output);
+						this.inputMapperInstructions = new HSearchProcessingInstruction(output);
 						break;
 						
 					case 1:
@@ -181,7 +235,7 @@ public abstract class HSearchGenericFilter implements Filter {
 						colIdWithType.put(qId, colName);
 						
 						IHSearchPlugin plugin = createPlugIn(colName) ;
-						plugin.setOutputType(this.processingInstructions);
+						plugin.setOutputType(this.inputMapperInstructions);
 						
 						this.queryPayload.put(
 								colNameQuolonId, new QueryPart(filtersPipeSeparated,
@@ -195,14 +249,13 @@ public abstract class HSearchGenericFilter implements Filter {
 				}
 			}
 			for (int i=0; i<this.queryPayload.size(); i++) {
-				this.outputCache.add( new ArrayList<byte[]>() );
+				this.stmtOutputContainers.add( new ArrayList<byte[]>() );
 			}
 			
 			
 		} catch (Exception ex) {
-			L.getInstance().flush();
-		} finally {
-			L.getInstance().clear();
+			HbaseLog.l.fatal(ex);
+			throw new IOException(ex);
 		}
 	}
 	
@@ -222,7 +275,6 @@ public abstract class HSearchGenericFilter implements Filter {
 			HbaseLog.l.debug("Processing @ Region Server : filterRow" );
 		}
 		
-		long startTime = System.currentTimeMillis();
 		try {
 			
 			byte[] row = null;
@@ -267,7 +319,7 @@ public abstract class HSearchGenericFilter implements Filter {
 				HbaseLog.l.debug("queryData HSearchTableParts creation. ");
 			}
 			
-			queryData.clear();
+			queryIdWithParts.clear();
 			
 			for (String queryId : colIdWithType.keySet()) { //A
 				String queryType = colIdWithType.get(queryId); //structured
@@ -280,7 +332,7 @@ public abstract class HSearchGenericFilter implements Filter {
 					HbaseLog.l.debug("Query Parts for " + queryTypeWithId);
 				}
 				
-				queryData.put(queryTypeWithId, parts);
+				queryIdWithParts.put(queryTypeWithId, parts);
 			}
 			colNamesWithPartitionBytes.clear();
 
@@ -293,23 +345,20 @@ public abstract class HSearchGenericFilter implements Filter {
 			
 			if ( null == intersector ) intersector = createExecutor();
 			
-			BitSetOrSet intersectedIds = federatedQueryExec(row, intersector, queryData);
-			
+			BitSetOrSet intersectedIds = federatedQueryExec(row, intersector, queryIdWithParts);
+
 			if ( INFO_ENABLED ) {
 				this.pluginExecutionTime += System.currentTimeMillis() - monitorStartTime;
 			}
 			
 			kvL.clear(); //Clear all data
-			byte[] value = serialize(intersectedIds, this.queryPayload);
+			byte[] value = getOneRowBytes(intersectedIds, this.queryPayload);
 			kvL.add(new KeyValue(row, firstFamily, firstCol, value) );
 			
 			
 		} catch (Exception ex) {
 			ex.printStackTrace(System.err);
-		
-		} finally {
-			if ( INFO_ENABLED) this.overallExecutionTime += System.currentTimeMillis() - startTime;
-			L.getInstance().flush();
+			HbaseLog.l.fatal(ex);
 		}
 	}
 
@@ -318,7 +367,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			final Map<String, HSearchTableParts> queryData) throws Exception, IOException {
 		
 		BitSetOrSet intersectedIds = intersector.execute(
-			queryData, this.multiQuery, this.queryPayload, processingInstructions);
+			queryData, this.multiQuery, this.queryPayload, inputMapperInstructions);
 
 		if ( DEBUG_ENABLED ) {
 			hasMatchingIds = ( null != intersectedIds && intersectedIds.size() > 0 );
@@ -347,7 +396,31 @@ public abstract class HSearchGenericFilter implements Filter {
 	
 	@Override
 	public final boolean filterRowKey(final byte[] rowKey, final int offset, final int length) {
-		return false;
+		
+		if (DEBUG_ENABLED) {
+			int scopeToTheseRowsT = ( null == inputRowsToIncludeB) ? 0 : inputRowsToIncludeB.length;
+			HbaseLog.l.debug("Analyzing row for processing: " + new String(rowKey + " , From a matching set of " + scopeToTheseRowsT));
+		}
+		
+		if ( null == inputRowsToIncludeB) return false;
+		
+		byte[] exactRowBytes = new byte[length];
+		try {
+			System.arraycopy(rowKey, offset, exactRowBytes, 0, length);
+			if ( rowsToInclude.getEqualToIndex(exactRowBytes) == -1) return false;
+			return true;
+			
+		} catch (IOException ex) {
+			int scopeToTheseRowsT = ( null == rowsToInclude) ? 0 : rowsToInclude.getSize();
+			String rowKeyStr = ( null == rowKey) ? "Null row key" : new String(rowKey);
+			String errMsg = "Error while finding fileration criteria for the row , " + rowKeyStr 
+				+ "\n" + ex.getMessage() + "\n" + 
+				"With search scope inside id count : " + scopeToTheseRowsT;
+			System.err.println(errMsg);
+			HbaseLog.l.fatal(errMsg, ex);
+			
+			return false;
+		}
 	}
 	
 	@Override
@@ -387,11 +460,11 @@ public abstract class HSearchGenericFilter implements Filter {
 	 * 
 	 * @param matchedIds
 	 * @param queryPayload
-	 * @param processingInstructions
+	 * @param inputMapperInstructions
 	 * @return
 	 * @throws IOException
 	 */
-	public final byte[] serialize( final BitSetOrSet matchedIds, final Map<String, QueryPart> queryPayload) throws IOException {
+	public final byte[] getOneRowBytes( final BitSetOrSet matchedIds, final Map<String, QueryPart> queryPayload) throws IOException {
 		
 		if ( DEBUG_ENABLED ) {
 			int matchedIdsT = ( null == matchedIds) ? 0 : matchedIds.size();
@@ -405,10 +478,11 @@ public abstract class HSearchGenericFilter implements Filter {
 		HSearchReducer reducer = getReducer();
 		int totalQueries = queryPayload.size();
 		
-		merged.clear();
+		columnsOfOneRowAfterJoin.clear();
 		long monitorStartTime = 0L; 
 
 		if ( totalQueries == 1) {
+			
 			Object pluginO = queryPayload.values().iterator().next().getParams().get(
 				HSearchTableMultiQueryExecutor.PLUGIN);
 			IHSearchPlugin plugin = (IHSearchPlugin) pluginO;
@@ -417,7 +491,7 @@ public abstract class HSearchGenericFilter implements Filter {
 				monitorStartTime = System.currentTimeMillis();
 			}
 			
-			plugin.getResultSingleQuery(merged);
+			plugin.getResultSingleQuery(columnsOfOneRowAfterJoin);
 			
 			if ( INFO_ENABLED ) {
 				this.pluginExecutionTime += System.currentTimeMillis() - monitorStartTime;
@@ -429,8 +503,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			int seq = 0;
 			
 			for (QueryPart part : queryPayload.values()) {
-				Collection<byte[]> queryOutput = this.outputCache.get(seq);
-				queryOutput.clear();
+				
 				Object pluginO = part.getParams().get(HSearchTableMultiQueryExecutor.PLUGIN);
 				IHSearchPlugin plugin = (IHSearchPlugin) pluginO;
 				
@@ -438,6 +511,8 @@ public abstract class HSearchGenericFilter implements Filter {
 					monitorStartTime = System.currentTimeMillis();
 				}	
 				
+				Collection<byte[]> queryOutput = this.stmtOutputContainers.get(seq);
+				queryOutput.clear(); //Clear to reuse
 				plugin.getResultMultiQuery(matchedIds, queryOutput);
 				
 				if ( INFO_ENABLED ) {
@@ -452,7 +527,7 @@ public abstract class HSearchGenericFilter implements Filter {
 				monitorStartTime = System.currentTimeMillis();
 			}	
 
-			reducer.appendCols(stmtWithOutputs, merged);
+			reducer.appendCols(stmtWithOutputs, columnsOfOneRowAfterJoin);
 			
 			if ( INFO_ENABLED ) {
 				this.pluginExecutionTime += System.currentTimeMillis() - monitorStartTime;
@@ -464,12 +539,12 @@ public abstract class HSearchGenericFilter implements Filter {
 		}
 
 		//Put it to Bytes
-		byte[] mergedB = sbaFortoBytesOnly.toBytes(merged);
-		merged.clear();
+		byte[] processedRowBytes = rowBytesPacker.toBytes(columnsOfOneRowAfterJoin);
+		columnsOfOneRowAfterJoin.clear();
 		
-		return mergedB;
+		return processedRowBytes;
 	}
-
+	
 	public final void deserialize(final byte[] input, final Collection<byte[]> output) throws IOException {
 		SortedBytesArray.getInstance().parse(input).values(output);
 	}
@@ -506,10 +581,10 @@ public abstract class HSearchGenericFilter implements Filter {
 		if ( null != queryFilters)  queryFilters.clear();
 		if ( null != queryPayload)  queryPayload.clear();
 		if ( null != colIdWithType)  colIdWithType.clear();
-		if ( null != queryData)  queryData.clear();
+		if ( null != queryIdWithParts)  queryIdWithParts.clear();
 		if ( null != colNamesWithPartitionBytes)  colNamesWithPartitionBytes.clear();
-		if ( null != merged)  merged.clear();
-		if ( null != outputCache)  outputCache.clear();
+		if ( null != columnsOfOneRowAfterJoin)  columnsOfOneRowAfterJoin.clear();
+		if ( null != stmtOutputContainers)  stmtOutputContainers.clear();
 	}
 	
 	
