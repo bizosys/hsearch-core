@@ -143,7 +143,7 @@ public abstract class HSearchGenericFilter implements Filter {
 		}
 		
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug("Sending to HBase : " + querySection.toString());
+			HbaseLog.l.debug("Sending to HBase : " + querySection.toString() + ", Rows to include:" + inputRowsToIncludeB);
 		}
 		SortedBytesArray sendToRSData = SortedBytesArray.getInstanceArr();
 		byte[] ser = ( null == inputRowsToIncludeB) ?
@@ -171,10 +171,17 @@ public abstract class HSearchGenericFilter implements Filter {
 			byte[] deser = new byte[length];
 			in.readFully(deser, 0, length);
 			
+			if ( DEBUG_ENABLED) {
+				HbaseLog.l.debug("Total bytes Received @ Generic Filter:" + length);
+			}
+			
 			SortedBytesArray receiveRSData = SortedBytesArray.getInstanceArr();
 			receiveRSData.parse(deser);
-			
+
 			int packedDataSectionsT = receiveRSData.getSize();
+			if ( DEBUG_ENABLED) {
+				HbaseLog.l.debug("Reading bytes sections of total :" + packedDataSectionsT);
+			}
 			if ( packedDataSectionsT == 0 ) {
 				throw new IOException("Unknown number of fields :" + packedDataSectionsT);
 			}

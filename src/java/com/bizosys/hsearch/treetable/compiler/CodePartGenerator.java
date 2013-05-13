@@ -439,8 +439,8 @@ public class CodePartGenerator {
 						  		text = text +  ("\t\t byte[] cellMax" + seq + " = null;\n");
 						  		break;
 				  			case 4:
-						  		text = text +  ("\t\tbyte[] inValues" + seq + " =  (query.inValCells[" + seq + 
-						  				"]) ? (byte[])query.inValuesAO[" + seq + "]: null;\n");
+						  		text = text +  ("\t\tbyte[][] inValues" + seq + " =  (query.inValCells[" + seq + 
+						  				"]) ? (byte[][])query.inValuesAO[" + seq + "]: null;\n");
 						  		break;
 				  		}
 				  		break;

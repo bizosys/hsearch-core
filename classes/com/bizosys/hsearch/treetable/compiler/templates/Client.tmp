@@ -28,6 +28,8 @@ public class Client extends HSearchTableReader {
         return filter;
     }
 
+    public static byte[] BLANK_KEY = "".getBytes();
+
     @Override
 	    public void rows(Collection<byte[]> results, HSearchProcessingInstruction instruction) {
 
@@ -39,7 +41,7 @@ public class Client extends HSearchTableReader {
             for (byte[] data : results) {
                 appendValueB.clear();
                 SortedBytesArray.getInstance().parse(data).values(appendValueB);
-                this.filter.getReducer().appendRows(merged, entry.getKey(), appendValueB);
+                this.filter.getReducer().appendRows(merged, BLANK_KEY, appendValueB);
             }
 
             if (merged.iterator().hasNext()) {
