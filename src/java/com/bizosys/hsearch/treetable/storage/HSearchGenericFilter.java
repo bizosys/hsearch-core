@@ -69,7 +69,6 @@ public abstract class HSearchGenericFilter implements Filter {
 	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>(3);
 	Map<String, String> colIdWithType = new HashMap<String, String>(3);
 	
-	boolean hasMatchingIds = false;
 	public long pluginExecutionTime = 0L;
 	public long overallExecutionTime = 0L;
 	
@@ -377,8 +376,9 @@ public abstract class HSearchGenericFilter implements Filter {
 			queryData, this.multiQuery, this.queryPayload, inputMapperInstructions);
 
 		if ( DEBUG_ENABLED ) {
+			boolean hasMatchingIds = false;
 			hasMatchingIds = ( null != intersectedIds && intersectedIds.size() > 0 );
-			HbaseLog.l.debug("Generaic filter hasMatchingIds :" + hasMatchingIds);
+			HbaseLog.l.debug("Generaic filter hasMatchingIds :" + hasMatchingIds + " objectid=" + intersectedIds.hashCode());
 			if ( hasMatchingIds ) HbaseLog.l.debug( new String(row) + " has ids of :" + intersectedIds.size());
 		}
 		
@@ -388,7 +388,6 @@ public abstract class HSearchGenericFilter implements Filter {
 
 	@Override
 	public final void reset() {
-		hasMatchingIds = false;
 	}	
 	
 	@Override
@@ -475,7 +474,12 @@ public abstract class HSearchGenericFilter implements Filter {
 		
 		if ( DEBUG_ENABLED ) {
 			int matchedIdsT = ( null == matchedIds) ? 0 : matchedIds.size();
-			HbaseLog.l.debug("HSearchGenericFilter:serialize : with matchedIds " +  matchedIdsT);
+			HbaseLog.l.debug("HSearchGenericFilter:serialize : with matchedIds " +  matchedIdsT + ", Object:" + matchedIds.hashCode());
+			if ( null != matchedIds.getDocumentIds()) {
+				HbaseLog.l.debug("HSearchGenericFilter: DocumentIds size " +  matchedIds.getDocumentIds().size() + " and matchedId size " + matchedIds.size());
+			} else if ( null != matchedIds.getDocumentSequences()) {
+				HbaseLog.l.debug("HSearchGenericFilter: DocumentSequences cardinality " +  matchedIds.getDocumentSequences().cardinality());
+			}
 		}
 		
 		/**

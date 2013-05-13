@@ -33,10 +33,12 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	
 	public final static BitSetOrSet EMPTY_BITSET = new BitSetOrSet();
+	/**
 	static {
 		EMPTY_BITSET.setDocumentIds(new HashSet<Object>(0));
 		EMPTY_BITSET.setDocumentSequences(new BitSet());
 	}
+	*/
 	
 	public abstract IHSearchTableCombiner getCombiner();
 	
