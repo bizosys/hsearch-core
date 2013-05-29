@@ -71,49 +71,57 @@ public abstract class GroupSortedObject implements  Comparable<GroupSortedObject
 			{
 					boolean l = this.getBooleanField(aSortFld.fldSeq);
 					boolean r =  o.getBooleanField(aSortFld.fldSeq);
-					return compareBoolean(l, r);
+					if(aSortFld.isAsc)return compareBoolean(l, r);
+					else return compareBoolean(r, l);
 			}
 			case  BYTE:
 			{
 					byte l = this.getByteField(aSortFld.fldSeq);
 					byte r =  o.getByteField(aSortFld.fldSeq);
-					return compareByte(l, r);
+					if(aSortFld.isAsc)return compareByte(l, r);
+					else return compareByte(r, l);
 			}
 			case  SHORT:
 			{
 					short l = this.getShortField(aSortFld.fldSeq);
 					short r =  o.getShortField(aSortFld.fldSeq);
-					return compareShort(l, r);
+					if(aSortFld.isAsc)return compareShort(l, r);
+					else return compareShort(r, l);
 			}
 			case  INTEGER:
 			{
 					int l = this.getIntegerField(aSortFld.fldSeq);
 					int r =  o.getIntegerField(aSortFld.fldSeq);
-					return compareInteger(l, r);
+					if(aSortFld.isAsc)return compareInteger(l, r);
+					else return compareInteger(r, l);
 			}
 			case  FLOAT:
 			{
 					float l = this.getFloatField(aSortFld.fldSeq);
 					float r =  o.getFloatField(aSortFld.fldSeq);
-					return compareFloat(l, r);
+					if(aSortFld.isAsc)return compareFloat(l, r);
+					else return compareFloat(r, l);
 			}
 			case  LONG:
 			{
 					long l = this.getLongField(aSortFld.fldSeq);
 					long r =  o.getLongField(aSortFld.fldSeq);
-					return compareLong(l, r);
+					if(aSortFld.isAsc)return compareLong(l, r);
+					else return compareLong(r, l);
 			}
 			case  DOUBLE:
 			{
 					double l = this.getDoubleField(aSortFld.fldSeq);
 					double r =  o.getDoubleField(aSortFld.fldSeq);
-					return compareDouble(l, r);
+					if(aSortFld.isAsc)return compareDouble(l, r);
+					else return compareDouble(r, l);
 			}
 			case  STRING:
 			{
 					String l = this.getStringField(aSortFld.fldSeq);
 					String r =  o.getStringField(aSortFld.fldSeq);
-					return compareString(l, r);
+					if(aSortFld.isAsc)return compareString(l, r);
+					else return compareString(r, l);
 			}
 			default:
 				throw new ArrayIndexOutOfBoundsException(aSortFld.fldType.toString() +" not valid field type.");
@@ -157,6 +165,8 @@ public abstract class GroupSortedObject implements  Comparable<GroupSortedObject
 		else return 1;
 	}
 	public final static int compareString(final String o1, final String o2) {
+		if ( null == o1) return -1;
+		if ( null == o2) return 1;
 		return ( o1.compareTo(o2) );
 	}
 

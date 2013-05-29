@@ -33,11 +33,13 @@ public final class GroupSorter{
 		FieldType fldType;
 		int fldSeq;
 		int sortSeq;
+		boolean isAsc;
 
-		public GroupSorterSequencer(FieldType fldType, int fldSeq, int sortSeq) {
+		public GroupSorterSequencer(FieldType fldType, int fldSeq, int sortSeq, boolean isAsc) {
 			this.fldType = fldType;
 			this.fldSeq = fldSeq;
 			this.sortSeq = sortSeq;
+			this.isAsc = isAsc;
 		}
 
 
@@ -51,8 +53,8 @@ public final class GroupSorter{
 	
 	private List<GroupSorterSequencer> sortedSequences = new ArrayList<GroupSorterSequencer>();
 	
-	public void setSorter(FieldType fldType, int fldSeq, int sortSeq) {
-		sortedSequences.add(new GroupSorterSequencer(fldType, fldSeq, sortSeq ));
+	public void setSorter(FieldType fldType, int fldSeq, int sortSeq, boolean isAsc) {
+		sortedSequences.add(new GroupSorterSequencer(fldType, fldSeq, sortSeq, isAsc ));
 	}
 	
 	public void setSorter(GroupSorterSequencer seq) {

@@ -120,6 +120,30 @@ public class CodePartGenerator {
 		return template;
 	}
 
+	public static String setInAbsValue(String template, String keyDataType)
+			throws IOException {
+		if (keyDataType.equals("Short")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.shortValue() == objI.shortValue();");
+		} else if ( keyDataType.equals("Integer")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.intValue() == objI.intValue();");
+		} else if ( keyDataType.equals("Float")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.floatValue() == objI.floatValue();");
+		} else if ( keyDataType.equals("Double")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.doubleValue() == objI.doubleValue();");
+		} else if ( keyDataType.equals("Boolean")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.hashCode() == objI.hashCode();");
+		} else if ( keyDataType.equals("Byte")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.byteValue() == objI.byteValue();");
+		} else if ( keyDataType.equals("String")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.equals(objI);");
+		} else if ( keyDataType.equals("byte[]")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.length = objI.length;");
+		} else {
+			throw new IOException("Unknown Data type");
+		}
+		return template;
+	}
+
 	
 
 	public CodePartGenerator(List<Field> fields){

@@ -17,7 +17,7 @@ public final class MapperExamResult extends PluginExamResultBase {
     public static String EMPTY = "";
     static boolean DEBUG_ENABLED = false;
     static byte[] bytesFor1 = Storable.putInt(1);
-    public static char SEPARATOR = '\t';
+    public String SEPARATOR = "\t";
 
     HSearchProcessingInstruction instruction = null;
     Map<Integer, String> foundRows= new HashMap<Integer, String>(); 
@@ -25,6 +25,11 @@ public final class MapperExamResult extends PluginExamResultBase {
     @Override
     public final void setOutputType(final HSearchProcessingInstruction outputTypeCode) {
         this.instruction = outputTypeCode;
+        if ( null != this.instruction.getProcessingHint()) {
+        	if ( this.instruction.getProcessingHint().length() > 0 ) {
+        		SEPARATOR = this.instruction.getProcessingHint(); 
+        	}
+        }
     }
 
     /**
@@ -124,10 +129,10 @@ public final class MapperExamResult extends PluginExamResultBase {
         public final boolean onRowCols( final int age,  final String role,  final String location,  final int empid,  final float mark) {
 
         	appender.append(age);
-        	appender.append(SEPARATOR).append(role);
-        	appender.append(SEPARATOR).append(location);
-        	appender.append(SEPARATOR).append(empid);
-        	appender.append(SEPARATOR).append(mark);
+        	appender.append(whole.SEPARATOR).append(role);
+        	appender.append(whole.SEPARATOR).append(location);
+        	appender.append(whole.SEPARATOR).append(empid);
+        	appender.append(whole.SEPARATOR).append(mark);
     		
         	partTable.put(empid, appender.toString());
     		

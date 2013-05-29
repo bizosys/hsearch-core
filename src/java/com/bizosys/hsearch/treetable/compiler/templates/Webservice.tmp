@@ -1,18 +1,7 @@
 package --PACKAGE--;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
 
-import com.bizosys.hsearch.hbase.HDML;
-import com.bizosys.hsearch.hbase.HWriter;
-import com.bizosys.hsearch.hbase.NV;
-import com.bizosys.hsearch.hbase.RecordScalar;
-import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
-import com.bizosys.hsearch.treetable.client.partition.IPartition;
+import --PACKAGE--.*;
 import --PACKAGE--.donotmodify.*;
 
 public class Webservice {
@@ -23,31 +12,16 @@ public class Webservice {
 	 *  Exact match - m
 	 */
     
-    /**
     public static void main(String[] args) throws Exception {
-    
-    	HDML.truncate("PriceTable", new NV("Price".getBytes(), "1".getBytes() ));
-    	
-    	HSearchTablePrice devTable = new HSearchTablePrice();
-    	
-	    devTable.put((byte)26,23,24,36,38,(byte)18);
-    	RecordScalar devRecords = new RecordScalar(
-    		"199801011000".getBytes(), new NV("Price".getBytes(), "1".getBytes() , devTable.toBytes() ) ) ;
-    	
-    	List<RecordScalar> records = new ArrayList<RecordScalar>();
-    	records.add(devRecords);
-    	
-    	HWriter.getInstance(true).insertScalar("PriceTable", records);
-    	
-    	
-    	Client ht = new Client();
-        Map<String, String> multiQueryParts = new HashMap<String, String>();
-        multiQueryParts.put("Price:1", "*|*|*|*|*|*");
-        
-        long start = System.currentTimeMillis();
-        ht.execute("Price:1", multiQueryParts);
-        long end = System.currentTimeMillis();
-        System.out.println(" finished in  " + (end - start) + " millis ");	
-	}
+	
+	    /**
+    	HSearchQuery query = new HSearchQuery(/*Your query*/);
+    	Mapper... mapper = new Mapper..();
+    	HSearchProcessingInstruction outputTypeCode = new HSearchProcessingInstruction(
+    														HSearchProcessingInstruction.OUTPUT_COLS, 
+    														HSearchProcessingInstruction.PLUGIN_CALLBACK_COLS, 
+    														TYPE.LIST.name()/*you can give COUNT, MINMAX*/);
+    	mapper.setOutputType(outputTypeCode);
 	*/
+	}
 }

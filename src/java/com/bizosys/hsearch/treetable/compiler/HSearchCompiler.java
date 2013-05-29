@@ -58,6 +58,7 @@ public class HSearchCompiler {
 				ReadFileFromJar.getTextFileContent(
 					"/com/bizosys/hsearch/treetable/compiler/schema-positions.json" ) );
 
+
 		System.out.println(schemaStr);
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
 		String path = args[1] + "/" + newSchema.module.replace(".", "/");
@@ -134,6 +135,7 @@ public class HSearchCompiler {
 		template = CodePartGenerator.setKeyComparision(template, fldKey.datatype);
 		template = CodePartGenerator.setEqualKeyComparision(template, fldKey.datatype);
 		template = CodePartGenerator.setAbsValue(template, fldKey.datatype);
+		template = CodePartGenerator.setInAbsValue(template, fldKey.datatype);
 		
 		//Required Cells
 		String reqCells = "";
@@ -273,6 +275,35 @@ public class HSearchCompiler {
 		
 		String allParams = generatePrmitives(allFields);		
 		template = 	template.replace("--ALL_COLS--", allParams);
+		
+		String listAppender = generateListAppender(allFields);
+		template = 	template.replace("--LIST_APPENDER--", listAppender);
+		
+		Field valueField = allFields.get(allFields.size() - 1);
+		String type = CodePartGenerator.getPrimitive(valueField.datatype);
+		String name = toCamelCase(valueField.name);
+		StringBuilder	minMax = new StringBuilder();
+		char c = type.charAt(0);
+		switch (c) {
+		case 'i':
+		case 'f':
+		case 'd':
+			minMax.append("if (").append(name).append("< minValue)\n")
+			.append("\t\t\t\tminValue =").append(name).append(";\n")
+			.append("\t\t\tif (").append(name).append("> maxValue)\n")
+			.append("\t\t\t\tmaxValue =").append(name).append(";\n");
+			
+			template = 	template.replace("--MINMAX_CHECK--", minMax.toString());
+			break;
+
+		default:
+
+			template = 	template.replace("--MINMAX_CHECK--", "try {\n\tthrow new Exception(\"Min Max cannot be calculated for " + type + " datatype\");\n} catch (Exception e) {\ne.printStackTrace();\n}");
+			break;
+		}
+
+		
+        
 		return template;
 	}	
 
@@ -509,6 +540,29 @@ public class HSearchCompiler {
 		    }
 
 		    return sb.toString();
-		  }	   
-	    		
+		}
+
+	   //List,Count and min max.
+		public static String generateListAppender(List<Field> allFields){
+			StringBuilder result = new StringBuilder();
+			boolean firstTime = true;
+
+	    	for ( Field fld : allFields) {
+				if ( firstTime ){ 
+					firstTime = false;
+					result.append("appender.");
+				}
+				else result.append("\t\t\t\tappender.append(FLD_SEPARATOR).");
+				
+				if ( null == fld) {
+					System.err.println("\n\n ***** Error : Compiler is not able to parse your schema json. Check the ending commas and other syntax.\n\n");
+					System.exit(1);
+				}
+				String name = toCamelCase(fld.name);
+				result.append("append(" + name + ");\n");
+			}
+	    	result.append("\t\t\t\tappender.append(ROW_SEPARATOR);\n");
+	    	
+			return result.toString();
+		}
 }

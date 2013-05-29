@@ -159,7 +159,7 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 						//LOOKING FOR ONE MATCHING
 						for ( Object obj : query.inValuesAO[--CELL-MAX-MINUS-2--]) {
 							--CELLMAX_MINUS_2-SIGN-- objI = (--CELLMAX_MINUS_2-SIGN--) obj;
-							isMatched = cell1Key.--ABS-VALUE-- == objI.--ABS-VALUE--;
+							isMatched = --IN-VALUE-EQUAL--
 							
 							//ONE MATCHED, NO NEED TO PROCESS
 							if ( query.notValCells[--CELL-MAX-MINUS-2--] ) { 
