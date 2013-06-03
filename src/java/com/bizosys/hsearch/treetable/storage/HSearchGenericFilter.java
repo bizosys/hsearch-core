@@ -55,6 +55,17 @@ public abstract class HSearchGenericFilter implements Filter {
 	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
 	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
 
+	String name = null;
+	public String getName() {
+		if ( null == name) {
+			name = this.getClass().getName();
+		}
+		return this.name;
+	}
+	
+	public void setName(String name) {
+		this.name = name;
+	}
 	
 	
 	/**
@@ -112,7 +123,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	public String clientSideAPI_getSingleQueryWithScope() throws IOException {
 		if ( null == this.queryFilters) throw new IOException("Genric Filter is not initalized");
 		if ( 1 != this.queryFilters.size()) throw new IOException("Genric Filter has multi queries");
-		return this.getClass().getName() + "/" + this.queryFilters.values().iterator().next();
+		return getName() + "/" + this.queryFilters.values().iterator().next();
 	}
 
 	
@@ -413,8 +424,8 @@ public abstract class HSearchGenericFilter implements Filter {
 		byte[] exactRowBytes = new byte[length];
 		try {
 			System.arraycopy(rowKey, offset, exactRowBytes, 0, length);
-			if ( rowsToInclude.getEqualToIndex(exactRowBytes) == -1) return false;
-			return true;
+			if ( rowsToInclude.getEqualToIndex(exactRowBytes) == -1) return true;
+			return false;
 			
 		} catch (IOException ex) {
 			int scopeToTheseRowsT = ( null == rowsToInclude) ? 0 : rowsToInclude.getSize();
