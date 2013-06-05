@@ -15,12 +15,14 @@ public class Webservice {
     public static void main(String[] args) throws Exception {
 	
 	    /**
-    	HSearchQuery query = new HSearchQuery(/*Your query*/);
+	    //Your query
+    	HSearchQuery query = new HSearchQuery();
     	Mapper... mapper = new Mapper..();
     	HSearchProcessingInstruction outputTypeCode = new HSearchProcessingInstruction(
     														HSearchProcessingInstruction.OUTPUT_COLS, 
     														HSearchProcessingInstruction.PLUGIN_CALLBACK_COLS, 
-    														TYPE.LIST.name()/*you can give COUNT, MINMAX*/);
+    														TYPE.LIST.name());
+		// you can give COUNT, MINMAX    												
     	mapper.setOutputType(outputTypeCode);
 	*/
 	}

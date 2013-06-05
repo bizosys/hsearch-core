@@ -207,7 +207,9 @@ public class HSearchQuery {
 						  		else{
 						  			tempA = new Byte[inValuesA[i].length];
 							  		for(String item : inValuesA[i]){
-							  			tempA[index++] = new Byte(item); 
+							  			byte[] itemB = item.getBytes();
+							  			if ( itemB.length != 1) throw new InvalidObjectException("Invalid char:" + item);
+							  			tempA[index++] = item.getBytes()[0]; 
 							  		}
 							  		inValuesAO[i] = tempA;
 						  		}

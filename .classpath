@@ -120,5 +120,6 @@
 	<classpathentry kind="lib" path="lib/src-hsearch-federated.jar"/>
 	<classpathentry kind="lib" path="lib/lucene-queryparser-3.6.2.jar"/>
 	<classpathentry kind="lib" path="conf"/>
+	<classpathentry kind="lib" path="D:/install/frameworks/jdk1.6.0_25/lib/tools.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>
