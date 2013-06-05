@@ -53,6 +53,8 @@ public class CodePartGenerator {
 			template = template.replace("--COMPARE-BY-VALUE--", ".shortValue() != cell1Key.shortValue()");
 		} else if ( keyDataType.equals("Integer")) {
 			template = template.replace("--COMPARE-BY-VALUE--", ".intValue() != cell1Key.intValue()");
+		} else if ( keyDataType.equals("Long")) {
+			template = template.replace("--COMPARE-BY-VALUE--", ".longValue() != cell1Key.longValue()");
 		} else if ( keyDataType.equals("Float")) {
 			template = template.replace("--COMPARE-BY-VALUE--", ".floatValue() != cell1Key.floatValue()");
 		} else if ( keyDataType.equals("Double")) {
@@ -77,6 +79,8 @@ public class CodePartGenerator {
 			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".shortValue() == cell1Key.shortValue()");
 		} else if ( keyDataType.equals("Integer")) {
 			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".intValue() == cell1Key.intValue()");
+		} else if ( keyDataType.equals("Long")) {
+			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".longValue() == cell1Key.longValue()");
 		} else if ( keyDataType.equals("Float")) {
 			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".floatValue() == cell1Key.floatValue()");
 		} else if ( keyDataType.equals("Double")) {
@@ -101,6 +105,8 @@ public class CodePartGenerator {
 			template = template.replace("--ABS-VALUE--", "shortValue()");
 		} else if ( keyDataType.equals("Integer")) {
 			template = template.replace("--ABS-VALUE--", "intValue()");
+		} else if ( keyDataType.equals("Long")) {
+			template = template.replace("--ABS-VALUE--", "longValue()");
 		} else if ( keyDataType.equals("Float")) {
 			template = template.replace("--ABS-VALUE--", "floatValue()");
 		} else if ( keyDataType.equals("Double")) {
@@ -126,6 +132,8 @@ public class CodePartGenerator {
 			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.shortValue() == objI.shortValue();");
 		} else if ( keyDataType.equals("Integer")) {
 			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.intValue() == objI.intValue();");
+		} else if ( keyDataType.equals("Long")) {
+			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.longValue() == objI.longValue();");
 		} else if ( keyDataType.equals("Float")) {
 			template = template.replace("--IN-VALUE-EQUAL--", "cell1Key.floatValue() == objI.floatValue();");
 		} else if ( keyDataType.equals("Double")) {

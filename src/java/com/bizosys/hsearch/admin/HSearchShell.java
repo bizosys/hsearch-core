@@ -1,13 +1,17 @@
 package com.bizosys.hsearch.admin;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.jar.Attributes;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
+
+import java.util.jar.Manifest;
 
 import com.bizosys.hsearch.treetable.compiler.HSearchCompiler;
 import com.sun.tools.javac.Main;
@@ -97,8 +101,17 @@ public class HSearchShell {
 			
 			//compile
 			Main.compile(compileArgs);
+			
+			
 			//make jar
-			createJar();
+			Manifest manifest = new Manifest();
+			manifest.getMainAttributes().put(Attributes.Name.MANIFEST_VERSION, "1.0");
+			manifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS, "com.bizosys.hsearch.treetable.example.impl.Webservice");
+			JarOutputStream target = new JarOutputStream(new FileOutputStream(JAR_TEMP + "/hsearch-shell.jar"), manifest);
+			
+			System.out.println("Building Jar : ");
+			createJar(new File(BUILD_TEMP), target);
+			target.close();
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -122,54 +135,47 @@ public class HSearchShell {
 		}
 	}
 	
-	public void createJar() throws IOException {
-		FileOutputStream myfileout = null;
-		JarOutputStream jarout = null;
-
-		try {
-			List<JarEntry> entries = new ArrayList<JarEntry>();
-			
-			File javaClassDirectory = new File(BUILD_TEMP);
-			List<String> classes = new ArrayList<String>();
-			listAllFiles(javaClassDirectory, classes, ".class");
-			String relPath = "";
-			for (String source : classes) {
-				File classFile = new File(source);
-				if (classFile.exists() == false) {
-					System.err.println("Error: File " + classFile.getAbsolutePath() + " not found.!");
-					return;
-				}
-				relPath = classFile.getCanonicalPath().substring(BUILD_TEMP.length() + 1);
-				JarEntry entry = new JarEntry(relPath);
-				entries.add(entry);
+	private void createJar(File source, JarOutputStream target) throws IOException
+	{
+		//Find all files @ this directory
+		List<File> allFiles = new ArrayList<File>();
+		if ( source.isDirectory()) {
+			for (File file : source.listFiles()) {
+				allFiles.add(file);
 			}
-
-			File file = new File(JAR_TEMP + "/hsearch-shell.jar");
-			if (file.exists() == true) {
-				file.delete();
-			}
-			myfileout = new FileOutputStream(file);
-			jarout = new JarOutputStream(myfileout);
-			
-			int enteriesT = entries.size();
-			FileInputStream filereader  = null;
-			final int buffersize = 1024;
-			byte buffer[] = new byte[buffersize];
-			int readcount = 0;
-			
-			for (int i = 0; i < enteriesT; i++) {
-				jarout.putNextEntry(entries.get(i));
-				filereader = new FileInputStream(classes.get(i));
-				while ((readcount = filereader.read(buffer, 0, buffersize)) >= 0) {
-					if (readcount > 0)
-						jarout.write(buffer, 0, readcount);
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
+		} else {
+			allFiles.add(source);
 		}
-		finally{
-			jarout.close();
-		}
-	}	
+		
+		//Recurse if it's a directory.
+		for (File nestedFile: allFiles) {
+			
+		    if (nestedFile.isDirectory()) {
+		    	createJar(nestedFile, target);
+		    	continue;
+		    }
+		
+			String name = nestedFile.getPath().replace("\\", "/");
+			if (name.isEmpty()) continue;
+			name = name.replace(BUILD_TEMP + "/" , "");
+			if ( name.equals("")) continue; 
+			
+			System.out.print(".");
+			JarEntry entry = new JarEntry(name);
+			entry.setTime(nestedFile.lastModified());
+			target.putNextEntry(entry);
+			
+			BufferedInputStream in = new BufferedInputStream(new FileInputStream(nestedFile));
+		    byte[] buffer = new byte[1024];
+		    while (true)
+		    {
+		      int count = in.read(buffer);
+		      if (count == -1)
+		        break;
+		      target.write(buffer, 0, count);
+		    }
+		    target.closeEntry();	        
+	    }
+	}
+	
 }
