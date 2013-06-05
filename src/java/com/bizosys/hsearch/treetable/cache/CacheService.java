@@ -54,6 +54,10 @@ public class CacheService {
 			"cache.singlequeery.enabled", true);
 	}
 	
+	public void setCacheEnable(boolean isEnabled) {
+		this.cacheSingleQueryCoproc = isEnabled;
+	}
+	
 	public final void put(final String singleQury, final byte[] output) {
 		if ( ! cacheSingleQueryCoproc ) return;
 		CacheStoreClientAsync task = new CacheStoreClientAsync(singleQury, output);
