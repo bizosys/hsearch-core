@@ -33,6 +33,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
         public --KEY_DATATYPE-- matchingCell0;
         public --KEY_DATATYPE-- cellMin0;
         public --KEY_DATATYPE-- cellMax0;
+        public --KEY_DATATYPE--[] inValues0;
 
         public --KEY_DATATYPE_PRIMITIVE-- cellFoundKey;
 
@@ -48,26 +49,61 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
         }
 
-        public void set(--KEY_DATATYPE-- matchingCell2, --KEY_DATATYPE-- cellMin2, --KEY_DATATYPE-- cellMax2) {
+        public void set(--KEY_DATATYPE-- matchingCell2, --KEY_DATATYPE-- cellMin2, --KEY_DATATYPE-- cellMax2, --KEY_DATATYPE--[] inValues2) {
             this.matchingCell0 = matchingCell2;
             this.cellMin0 = cellMin2;
             this.cellMax0 = cellMax2;
+            this.inValues0 = inValues2;
         }
 
         @Override
         public final void visit(--KEY_DATATYPE-- cell1Key, --VAL_DATATYPE-- cell1Val) {
-            if (query.filterCells[0]) {
-                if (null != matchingCell0) {
-                    if (matchingCell0.intValue() != cell1Key.intValue()) {
-                        return;
-                    }
-                } else {
-                    if (cell1Key.intValue() < cellMin0.intValue() || cell1Key.intValue() > cellMax0.intValue()) {
-                        return;
-                    }
-                }
-            }
-
+            			//Is it all or not.
+			if (query.filterCells[0]) {
+				
+				//IS it exact or not
+				if (null != matchingCell0) {
+					if ( query.notValCells[0] ) {
+						//Exact val match
+						if (matchingCell0--COMPARE-BY-VALUE-EQUAL--) return;
+					} else {
+						//Not Exact val 
+						if (matchingCell0--COMPARE-BY-VALUE--) return;
+					}
+				} else {
+					//Either range or IN
+					if ( query.inValCells[0]) {
+						//IN
+						boolean isMatched = false;
+						//LOOKING FOR ONE MATCHING
+						for ( Object obj : query.inValuesAO[0]) {
+							--KEY_DATATYPE-- objI = (--KEY_DATATYPE--) obj;
+							isMatched = --IN-VALUE-EQUAL--
+							
+							//ONE MATCHED, NO NEED TO PROCESS
+							if ( query.notValCells[0] ) { 
+								if (!isMatched ) break; 
+							} else {
+								if (isMatched ) break;
+							}
+						}
+						if ( !isMatched ) return; //NONE MATCHED
+						
+					} else {
+						//RANGE
+						boolean isMatched = cell1Key.--ABS-VALUE-- < cellMin0.--ABS-VALUE-- || 
+											cell1Key.--ABS-VALUE-- > cellMax0.--ABS-VALUE--;
+						if ( query.notValCells[0] ) {
+							//Not Exact Range
+							if (!isMatched ) return;
+						} else {
+							//Exact Range
+							if (isMatched ) return;
+						}
+					}
+				}
+			}
+            
             if (null != plugin) {
 
             	switch (this.mode) {
@@ -143,10 +179,21 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 --DEFINE-MIN-FIRST--
 
 --DEFINE-MAX-FIRST--
+
+--DEFINE-INVAL-FIRST--
 	
 		this.table.data = new BytesSection(input);
-        this.table.process(matchingCell1, cellMin1, cellMax1, cell2Visitor);
-
+		if (query.filterCells[1]) {
+			if(query.notValCells[1])
+				this.table.processNot(matchingCell1, cell2Visitor);
+			else if(query.inValCells[1])
+				this.table.processIn(inValues1, cell2Visitor);
+			else 
+				this.table.process(matchingCell1, cellMin1, cellMax1,cell2Visitor);
+		} else {
+			this.table.process(cell2Visitor);
+		}
+		
         if (null != callback) {
             callback.onReadComplete();
         }

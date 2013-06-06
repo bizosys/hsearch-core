@@ -247,6 +247,11 @@ public class HSearchCompiler {
 		template = 	template.replace("--KEY_DATATYPE_PRIMITIVE--", CodePartGenerator.getPrimitive(keyDataType));
 		template = 	template.replace("--VAL_DATATYPE_PRIMITIVE--", CodePartGenerator.getPrimitive(valDataType));
 
+		template = CodePartGenerator.setKeyComparision(template, fldKey.datatype);
+		template = CodePartGenerator.setEqualKeyComparision(template, fldKey.datatype);
+		template = CodePartGenerator.setAbsValue(template, fldKey.datatype);
+		template = CodePartGenerator.setInAbsValue(template, fldKey.datatype);
+		
 		CodePartGenerator cg = new CodePartGenerator();
 
 		String CELLMAX_SIGN = "Cell2<"+keyDataType+","+valDataType+">";
@@ -259,6 +264,7 @@ public class HSearchCompiler {
 		template = template.replace("--DEFINE-EXACT-FIRST--", cg.generatematchingCell(allFields, 1, true));
 		template = template.replace("--DEFINE-MIN-FIRST--", cg.generatematchingCell(allFields, 2, true));
 		template = template.replace("--DEFINE-MAX-FIRST--", cg.generatematchingCell(allFields, 3, true));
+		template = template.replace("--DEFINE-INVAL-FIRST--", cg.generatematchingCell(allFields, 4, true));
 		
 		return template;
 	}
