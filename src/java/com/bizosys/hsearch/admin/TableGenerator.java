@@ -34,13 +34,13 @@ import java.net.URL;
 
 public class TableGenerator {
 
-	private static final String PATH = "G:/work/test/src/com/test";
+	private static final String PATH = "/tmp";
 
 	public static void main(String[] args) throws Exception {
 
-		int size = 5;
+		int size = 3;
 		int i = 1;
-		String template = fileToString(PATH + "/table.tmp");
+		String template = fileToString("com/bizosys/hsearch/admin/table.tmp");
 
 		String columns = "";
 		String columnDecl = "";

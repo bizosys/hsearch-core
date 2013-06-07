@@ -44,6 +44,10 @@ public final class HSearchProcessingInstruction {
 		
 	}
 
+	public HSearchProcessingInstruction(final int callbackCode) {
+		this.callbackCode = callbackCode;
+	}
+	
 	public HSearchProcessingInstruction(final int callbackCode, final int outputCode ) {
 		this.callbackCode = callbackCode;
 		this.outputCode = outputCode;
@@ -52,6 +56,11 @@ public final class HSearchProcessingInstruction {
 	public HSearchProcessingInstruction(final int callbackCode, final int outputCode, final String processingHint) {
 		this.callbackCode = callbackCode;
 		this.outputCode = outputCode;
+		this.processingHint = processingHint;
+	}
+
+	public HSearchProcessingInstruction(final int callbackCode, final String processingHint) {
+		this.callbackCode = callbackCode;
 		this.processingHint = processingHint;
 	}
 

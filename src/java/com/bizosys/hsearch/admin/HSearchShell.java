@@ -41,7 +41,7 @@ public class HSearchShell {
 		
 		double x = Math.random();
 		long uuid = new Double( Long.MAX_VALUE * x).longValue();
-		uuid = 804677596611081216L;
+		//uuid = 804677596611081216L;
 		SRC_TEMP = SRC_TEMP.replace("/tmp", "/tmp/" + uuid);
 		BUILD_TEMP = BUILD_TEMP.replace("/tmp", "/tmp/" + uuid);
 		JAR_TEMP = JAR_TEMP.replace("/tmp", "/tmp/" + uuid);
@@ -82,7 +82,7 @@ public class HSearchShell {
 				}
 			}
 
-			//HSearchCompiler.main(new String[]{schemaFile,SRC_TEMP});
+			HSearchCompiler.main(new String[]{schemaFile,SRC_TEMP});
 			
 			
 			File javaSourceDirectory = new File(SRC_TEMP);
