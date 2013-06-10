@@ -84,6 +84,10 @@ public abstract class HSearchScalarFilter implements Filter {
 		this.inputMapperInstructions = outputType;
 	}
 	
+	public void setMatchingRows(List<byte[]> inputRowsList) {
+		this.inputRowsList = inputRowsList;
+	}
+	
 	@Override
 	public final void write(final DataOutput out) throws IOException {
 
@@ -139,6 +143,7 @@ public abstract class HSearchScalarFilter implements Filter {
 				receiveRSData.getValueAtReference(1, ref);
 				rowsToInclude = SortedBytesArray.getInstanceArr();
 				rowsToInclude.parse(deser, ref.offset, ref.length);
+				System.out.println("Total Rows :" + rowsToInclude.values().size());
 			}
 			
 			//Query Section
@@ -250,19 +255,17 @@ public abstract class HSearchScalarFilter implements Filter {
 	@Override
 	public final boolean filterRowKey(final byte[] rowKey, final int offset, final int length) {
 		
-		if (DEBUG_ENABLED) {
-			int scopeToTheseRowsT = ( null == inputRowsToIncludeB) ? 0 : inputRowsToIncludeB.length;
-			HbaseLog.l.debug("Analyzing row for processing: " + new String(rowKey + " , From a matching set of " + scopeToTheseRowsT));
-		}
-		
-		if ( null == inputRowsToIncludeB) return false;
-		
+		if ( null == rowsToInclude) return false;
 		byte[] exactRowBytes = new byte[length];
 		try {
 			System.arraycopy(rowKey, offset, exactRowBytes, 0, length);
-			//Add those whose exist, means non found = yes filter true
-			if ( rowsToInclude.getEqualToIndex(exactRowBytes) >= 0 ) return false;
-			return true; //Not found and filter.
+			if ( rowsToInclude.getEqualToIndex(exactRowBytes) >= 0 ) {
+				//System.out.println("Allow row:" + new String(exactRowBytes));
+				return false;
+			} else {
+				//System.out.println("Disallow row:" + new String(exactRowBytes));
+				return true;
+			}
 			
 		} catch (IOException ex) {
 			int scopeToTheseRowsT = ( null == rowsToInclude) ? 0 : rowsToInclude.getSize();

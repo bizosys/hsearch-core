@@ -114,6 +114,10 @@ public abstract class HSearchGenericFilter implements Filter {
 		this.inputRowsList = scopedToRows;
 	}
 	
+	public void setScopedToRows(List<byte[]> scopedToRows) {
+		this.inputRowsList = scopedToRows;
+	}
+	
 	public boolean clientSideAPI_IsSingleQuery() throws IOException {
 		if ( null == this.queryFilters) throw new IOException("Genric Filter is not initalized");
 		if ( 1 == this.queryFilters.size()) return true;
