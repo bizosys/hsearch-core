@@ -33,7 +33,6 @@ import org.apache.hadoop.hbase.filter.FilterList;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
-import com.bizosys.hsearch.functions.HSearchReducer;
 import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
@@ -71,7 +70,7 @@ public abstract class HSearchScalarFilter implements Filter {
 	public long overallExecutionTime = 0L;
 	
 	
-	HSearchProcessingInstruction inputMapperInstructions = new HSearchProcessingInstruction();
+	protected HSearchProcessingInstruction inputMapperInstructions = new HSearchProcessingInstruction();
 	byte[] inputRowsToIncludeB = null;
 	List<byte[]>  inputRowsList = null;
 	SortedBytesArray rowsToInclude = null;
@@ -309,7 +308,6 @@ public abstract class HSearchScalarFilter implements Filter {
 	}
 	
 	public abstract IHSearchPlugin createPlugIn() throws IOException ;
-	public abstract HSearchReducer createReducer();
 	public abstract IHSearchTable createTable();
 	
 	

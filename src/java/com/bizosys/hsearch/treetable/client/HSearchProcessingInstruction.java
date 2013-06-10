@@ -63,6 +63,10 @@ public final class HSearchProcessingInstruction {
 		this.callbackCode = callbackCode;
 		this.processingHint = processingHint;
 	}
+	
+	public void setCallbackCode(int callbackCode) {
+		this.callbackCode = callbackCode;
+	}
 
 	public HSearchProcessingInstruction(final String code) throws ParseException {
 		int fDivider = code.indexOf('|');
