@@ -34,6 +34,8 @@ import org.apache.hadoop.hbase.client.Row;
 import org.apache.hadoop.hbase.client.RowLock;
 import org.apache.hadoop.hbase.client.Scan;
 
+import com.bizosys.hsearch.util.HSearchLog;
+
 /**
  * Wraps an HBase table object.
  * @author karan 
@@ -41,7 +43,7 @@ import org.apache.hadoop.hbase.client.Scan;
  */
 public final class HTableWrapper {
 	
-	private static final boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	private static final boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 
 	/**
 	 * The table interface
@@ -136,7 +138,7 @@ public final class HTableWrapper {
 
 	public void delete(List<Delete> deletes) throws IOException {
 		if ( null == deletes) return;
-		if ( INFO_ENABLED) HbaseLog.l.info("HTableWrapper: Batch Deleting: " + deletes.size());
+		if ( INFO_ENABLED) HSearchLog.l.info("HTableWrapper: Batch Deleting: " + deletes.size());
 		table.delete(deletes);
 	}
 

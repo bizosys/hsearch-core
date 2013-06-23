@@ -31,13 +31,13 @@ import org.apache.hadoop.hbase.coprocessor.RegionCoprocessorEnvironment;
 import org.apache.hadoop.hbase.filter.FilterList;
 import org.apache.hadoop.hbase.regionserver.InternalScanner;
 
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.util.HSearchConfig;
+import com.bizosys.hsearch.util.HSearchLog;
 import com.bizosys.hsearch.util.conf.Configuration;
 
 public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor implements HSearchBytesCoprocessorI {
 	
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
 	public boolean scannerBlockCaching = true;
 	public int scannerBlockCachingLimit = 1;
@@ -56,7 +56,7 @@ public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor imple
      */
 	@Override
 	public byte[] getRows(final byte[][] families, final byte[][] cols, final HSearchBytesFilter filter) throws IOException {
-		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
+		if ( DEBUG_ENABLED ) HSearchLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
 		InternalScanner scanner = null;
 
 		try {
@@ -67,7 +67,7 @@ public final class HSearchBytesCoprocessor extends BaseEndpointCoprocessor imple
 			int familiesT = families.length;
 			
 			for (int i=0; i<familiesT; i++) {
-				if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
+				if ( DEBUG_ENABLED ) HSearchLog.l.debug( Thread.currentThread().getName() + 
 					" @ adding family " + new String(families[i]) + "_" + new String(cols[i]));
 				scan = scan.addColumn(families[i], cols[i]);
 			}

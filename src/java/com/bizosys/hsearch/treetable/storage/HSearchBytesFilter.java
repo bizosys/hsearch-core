@@ -28,7 +28,7 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.filter.FilterList;
 
-import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.util.HSearchLog;
 
 /**
  * @author abinash
@@ -36,8 +36,8 @@ import com.bizosys.hsearch.hbase.HbaseLog;
  */
 public abstract class HSearchBytesFilter implements Filter {
 	
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 	
 	protected byte[] state = null;	
 	
@@ -64,7 +64,7 @@ public abstract class HSearchBytesFilter implements Filter {
 			in.readFully(state, 0, length);
 
 		} catch (Exception ex) {
-			HbaseLog.l.fatal("Error at deserialization of filter:" + ex.getMessage() , ex);
+			HSearchLog.l.fatal("Error at deserialization of filter:" + ex.getMessage() , ex);
 			throw new IOException(ex);
 		} 
 	}
@@ -88,7 +88,7 @@ public abstract class HSearchBytesFilter implements Filter {
 			processRow(kvL);
 			
 		} catch (Exception ex) {
-			HbaseLog.l.fatal(ex);
+			HSearchLog.l.fatal(ex);
 			ex.printStackTrace(System.err);
 		} 
 	}

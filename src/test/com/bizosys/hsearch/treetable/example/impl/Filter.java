@@ -4,16 +4,16 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.bizosys.hsearch.functions.HSearchReducer;
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
 import com.bizosys.hsearch.treetable.example.impl.donotmodify.HSearchTableMultiQueryProcessorImpl;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public class Filter extends HSearchGenericFilter {
 
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
 	public Filter(){
 	}
@@ -29,7 +29,7 @@ public class Filter extends HSearchGenericFilter {
 	@Override
 	public IHSearchPlugin createPlugIn(String type) throws IOException {
 		if (DEBUG_ENABLED) {
-			HbaseLog.l.debug(Thread.currentThread().getId()+ " > HBaseHSearchFilter : type > " + type);
+			HSearchLog.l.debug(Thread.currentThread().getId()+ " > HBaseHSearchFilter : type > " + type);
 		}
 
 		if ( type.equals("ExamResult") ) {

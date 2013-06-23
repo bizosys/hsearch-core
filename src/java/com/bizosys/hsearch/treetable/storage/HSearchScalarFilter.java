@@ -33,11 +33,11 @@ import org.apache.hadoop.hbase.filter.FilterList;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.IHSearchTable;
+import com.bizosys.hsearch.util.HSearchLog;
 
 /**
  * @author abinash
@@ -45,8 +45,8 @@ import com.bizosys.hsearch.treetable.client.IHSearchTable;
  */
 public abstract class HSearchScalarFilter implements Filter {
 	
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 
 	String name = null;
 	public String getName() {
@@ -122,7 +122,7 @@ public abstract class HSearchScalarFilter implements Filter {
 			in.readFully(deser, 0, length);
 			
 			if ( DEBUG_ENABLED) {
-				HbaseLog.l.debug("Total bytes Received @ Generic Filter:" + length);
+				HSearchLog.l.debug("Total bytes Received @ Generic Filter:" + length);
 			}
 			
 			SortedBytesArray receiveRSData = SortedBytesArray.getInstanceArr();
@@ -130,7 +130,7 @@ public abstract class HSearchScalarFilter implements Filter {
 
 			int packedDataSectionsT = receiveRSData.getSize();
 			if ( DEBUG_ENABLED) {
-				HbaseLog.l.debug("Reading bytes sections of total :" + packedDataSectionsT);
+				HSearchLog.l.debug("Reading bytes sections of total :" + packedDataSectionsT);
 			}
 			if ( packedDataSectionsT == 0 ) {
 				throw new IOException("Unknown number of fields :" + packedDataSectionsT);
@@ -167,7 +167,7 @@ public abstract class HSearchScalarFilter implements Filter {
 						this.multiQuery = stk.nextToken();
 
 						if ( DEBUG_ENABLED ) {
-							HbaseLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
+							HSearchLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
 						}
 						break;
 				}
@@ -188,7 +188,7 @@ public abstract class HSearchScalarFilter implements Filter {
 			}			
 			
 		} catch (Exception ex) {
-			HbaseLog.l.fatal(ex);
+			HSearchLog.l.fatal(ex);
 			throw new IOException(ex);
 		}
 	}
@@ -202,7 +202,7 @@ public abstract class HSearchScalarFilter implements Filter {
 		if ( 0 == kvT) return;
 		
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug("Processing @ Region Server : filterRow" );
+			HSearchLog.l.debug("Processing @ Region Server : filterRow" );
 		}
 		
 		try {
@@ -226,14 +226,14 @@ public abstract class HSearchScalarFilter implements Filter {
 			kvL.addAll(kvLFiltered);
 			
 			if ( DEBUG_ENABLED ) {
-				HbaseLog.l.debug("queryData HSearchTableParts creation. ");
+				HSearchLog.l.debug("queryData HSearchTableParts creation. ");
 			}
 			
 			
 			
 		} catch (Exception ex) {
 			ex.printStackTrace(System.err);
-			HbaseLog.l.fatal(ex);
+			HSearchLog.l.fatal(ex);
 		}
 	}
 
@@ -273,7 +273,7 @@ public abstract class HSearchScalarFilter implements Filter {
 				+ "\n" + ex.getMessage() + "\n" + 
 				"With search scope inside id count : " + scopeToTheseRowsT;
 			System.err.println(errMsg);
-			HbaseLog.l.fatal(errMsg, ex);
+			HSearchLog.l.fatal(errMsg, ex);
 			
 			return false;
 		}

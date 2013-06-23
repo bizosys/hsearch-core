@@ -32,15 +32,15 @@ import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HTableWrapper;
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.IScanCallBack;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public abstract class HSearchTableReader implements IScanCallBack {
 	
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 	
 	//public static ParallelHReader parallelReader = new ParallelHReader(10);
 	
@@ -68,7 +68,7 @@ public abstract class HSearchTableReader implements IScanCallBack {
 		int length = ( null == storedBytes ) ? 0 : storedBytes.length;
 		if ( length == 0 ) return;
 		
-		if ( DEBUG_ENABLED ) HbaseLog.l.debug("Found Primary Key :" + new String(pk) + "/" + length);
+		if ( DEBUG_ENABLED ) HSearchLog.l.debug("Found Primary Key :" + new String(pk) + "/" + length);
 	}
 		
 
@@ -94,7 +94,7 @@ public abstract class HSearchTableReader implements IScanCallBack {
 
 		List<ColumnFamName> families = new ArrayList<ColumnFamName>();
 		for (String  family : uniqueFamilies) {
-			if ( INFO_ENABLED ) HbaseLog.l.info("HSearchTableReader > Adding Family: " + family);
+			if ( INFO_ENABLED ) HSearchLog.l.info("HSearchTableReader > Adding Family: " + family);
 			families.add(new ColumnFamName( family.getBytes(), 
 				new String( new char[] {HBaseTableSchemaDefn.getColumnName()}).getBytes() ) );
 		}
@@ -103,7 +103,7 @@ public abstract class HSearchTableReader implements IScanCallBack {
 		String tableName = HBaseTableSchemaDefn.getInstance().tableName;
 		
 		if ( isParallel ) {
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableReader > Searching in parallel.");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("HSearchTableReader > Searching in parallel.");
 			/**
 			 * OLD Version
 			 * parallelReader.getAllValues(tableName, families, filter, recordsCollector);
@@ -118,7 +118,7 @@ public abstract class HSearchTableReader implements IScanCallBack {
 	        }
 			
 		} else {
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableReader > Searching in Sequential.");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("HSearchTableReader > Searching in Sequential.");
 			HReader.getAllValues(tableName,families, filter, recordsCollector);
 		}
 	}	

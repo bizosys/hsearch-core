@@ -25,7 +25,7 @@ import java.util.Map;
 import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.federate.FederatedSearch;
 import com.bizosys.hsearch.federate.QueryPart;
-import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.util.HSearchLog;
 
 /**
  * Concurrent: 
@@ -37,7 +37,7 @@ import com.bizosys.hsearch.hbase.HbaseLog;
  */
 public final class HSearchTableMultiQueryExecutor {
 
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
 	public static final String OUTPUT_TYPE = "output";
 	public static final String PLUGIN = "plugin";
@@ -58,7 +58,7 @@ public final class HSearchTableMultiQueryExecutor {
 		
 		if ( null == tableParts) {
 			String msg = "Warning : TableParts is not found. Input bytes are not set.";
-			HbaseLog.l.warn(msg);
+			HSearchLog.l.warn(msg);
 			return null;
 		}
 		
@@ -68,7 +68,7 @@ public final class HSearchTableMultiQueryExecutor {
 			if ( null == part) {
 				String msg = ("Warning : Null table part bytes for " + queryId + "\n" + 
 						queryId + " is not in the supplied set :" + tableParts.keySet().toString());
-				HbaseLog.l.error(msg);
+				HSearchLog.l.error(msg);
 				continue;
 			}
 			
@@ -77,7 +77,7 @@ public final class HSearchTableMultiQueryExecutor {
 		}
 		
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug("HSearchTestMultiQuery : getProcessor ENTER ");
+			HSearchLog.l.debug("HSearchTestMultiQuery : getProcessor ENTER ");
 		}
 		
 		if ( null == ff) {
@@ -86,7 +86,7 @@ public final class HSearchTableMultiQueryExecutor {
 		} 
 		
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");
+			HSearchLog.l.debug("HSearchTestMultiQuery : ff.execute ENTER ");
 			start = System.currentTimeMillis();
 		}
 		
@@ -98,10 +98,10 @@ public final class HSearchTableMultiQueryExecutor {
 			int size = matchingIds.size();
 			
 			if ( size < 10 ) { 
-				HbaseLog.l.debug("HSearchTableMultiQuery ff.execute: [" + 
+				HSearchLog.l.debug("HSearchTableMultiQuery ff.execute: [" + 
 						matchingIds.toString() + "]" + " in ms " + (end - start));
 			} else {
-				HbaseLog.l.debug("HSearchTableMultiQuery ff.execute: Output Ids Total : [" +  
+				HSearchLog.l.debug("HSearchTableMultiQuery ff.execute: Output Ids Total : [" +  
 					matchingIds.size() + "]" + " in ms " + (end - start));
 			}
 		}

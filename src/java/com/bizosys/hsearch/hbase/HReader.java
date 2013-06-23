@@ -36,9 +36,11 @@ import org.apache.hadoop.hbase.filter.PageFilter;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
+import com.bizosys.hsearch.util.HSearchLog;
+
 public class HReader {
 	
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
 	/**
 	 * Scalar data will contain the amount to increase
@@ -193,13 +195,13 @@ public class HReader {
 		List<byte[]> matched = null;
 		try {
 
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HReader > getAllValues.");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("HReader > getAllValues.");
 
 			facade = HBaseFacade.getInstance();
 			
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HReader > Table Facade is obtained.");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("HReader > Table Facade is obtained.");
 			table = facade.getTable(tableName);
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HReader > Table is obtained.");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("HReader > Table is obtained.");
 			
 			Scan scan = new Scan();
 			scan.setCacheBlocks(true);
@@ -207,7 +209,7 @@ public class HReader {
 			scan.setMaxVersions(1);
 			scan = scan.addColumn(family, col);
 
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HReader > Scanner is created.");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("HReader > Scanner is created.");
 			
 			if ( null != filter) scan = scan.setFilter(filter);
 			
@@ -227,7 +229,7 @@ public class HReader {
 			
 			if ( DEBUG_ENABLED) {
 				long timeE = System.currentTimeMillis();
-				HbaseLog.l.debug("HReader.getAllValues (" + tableName + ") execution time = " + 
+				HSearchLog.l.debug("HReader.getAllValues (" + tableName + ") execution time = " + 
 					(timeE - timeS) );
 			}
 			
@@ -291,7 +293,7 @@ public class HReader {
 			
 			if ( DEBUG_ENABLED) {
 				long timeE = System.currentTimeMillis();
-				HbaseLog.l.debug("HReader.getAllValues (" + tableName + ") execution time = " + 
+				HSearchLog.l.debug("HReader.getAllValues (" + tableName + ") execution time = " + 
 					(timeE - timeS) );
 			}
 			

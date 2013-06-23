@@ -29,6 +29,8 @@ import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.RowLock;
 
+import com.bizosys.hsearch.util.HSearchLog;
+
 
 /**
  * All HBase write calls goes from here.
@@ -40,7 +42,7 @@ import org.apache.hadoop.hbase.client.RowLock;
  */
 public class HWriter {
 	
-	private static final boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	private static final boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	//private boolean isBatchMode = false;
 	private static HWriter singleton = null; 
 	
@@ -76,7 +78,7 @@ public class HWriter {
 	 * @throws IOException
 	 */
 	public final void insertScalar(final String tableName, final RecordScalar record) throws IOException {
-		if  (DEBUG_ENABLED)  HbaseLog.l.debug("HWriter> insertScalar:record " + tableName);
+		if  (DEBUG_ENABLED)  HSearchLog.l.debug("HWriter> insertScalar:record " + tableName);
 		
 		byte[] pk = record.pk;
 		Put update = new Put(pk);
@@ -108,7 +110,7 @@ public class HWriter {
 	public final void insertScalar(final String tableName, 
 			final List<RecordScalar> records) throws IOException {
 		
-		if  (DEBUG_ENABLED) HbaseLog.l.debug("HWriter> insertScalar:records table " + tableName);
+		if  (DEBUG_ENABLED) HSearchLog.l.debug("HWriter> insertScalar:records table " + tableName);
 		
 		List<Put> updates = ObjectFactory.getInstance().getPutList();
 		
@@ -141,7 +143,7 @@ public class HWriter {
 	 * @throws IOException
 	 */
 	public final void insert(final String tableName, final Record record) throws IOException {
-		if  (DEBUG_ENABLED) HbaseLog.l.debug("HWriter> insert to table " + tableName);
+		if  (DEBUG_ENABLED) HSearchLog.l.debug("HWriter> insert to table " + tableName);
 		
    		HTableWrapper table = null;
 		HBaseFacade facade = null;
@@ -170,7 +172,7 @@ public class HWriter {
 	 * @throws IOException
 	 */
 	public final void insert(final String tableName, final List<Record> records) throws IOException {
-		if  (DEBUG_ENABLED) HbaseLog.l.debug("HWriter> insert:records to table " + tableName);
+		if  (DEBUG_ENABLED) HSearchLog.l.debug("HWriter> insert:records to table " + tableName);
 		
 		List<Put> updates = ObjectFactory.getInstance().getPutList();
 		
@@ -187,7 +189,7 @@ public class HWriter {
 		try {
 			facade = HBaseFacade.getInstance();
 			table = facade.getTable(tableName);
-			if  (DEBUG_ENABLED)  HbaseLog.l.debug("HWriter> insert:Putting records " + updates.size());
+			if  (DEBUG_ENABLED)  HSearchLog.l.debug("HWriter> insert:Putting records " + updates.size());
 			table.put(updates);
 			table.flushCommits();
 		} finally {
@@ -211,7 +213,7 @@ public class HWriter {
 		final byte[] pk, final IUpdatePipe pipe, final byte[][] families) throws IOException {
 		
 		if ( null == tableName  || null == pk) return;
-		if  (DEBUG_ENABLED) HbaseLog.l.debug("HWriter> update to table " + tableName);
+		if  (DEBUG_ENABLED) HSearchLog.l.debug("HWriter> update to table " + tableName);
 
    		HTableWrapper table = null;
 		HBaseFacade facade = null;
@@ -385,7 +387,7 @@ public class HWriter {
 			
 		if ( null == tableName  || null == records) return;
 		if  (DEBUG_ENABLED) 
-			HbaseLog.l.debug("HWriter: mergeScalar (" + tableName + ") , Count =" + records.size());
+			HSearchLog.l.debug("HWriter: mergeScalar (" + tableName + ") , Count =" + records.size());
 
    		HTableWrapper table = null;
 		HBaseFacade facade = null;
@@ -435,7 +437,7 @@ public class HWriter {
 						}
 						
 					} catch (Exception ex) {
-						HbaseLog.l.warn("HWriter:mergeScalar > Ignore Unlock exp :" , ex);
+						HSearchLog.l.warn("HWriter:mergeScalar > Ignore Unlock exp :" , ex);
 					}
 					continue;
 				}
@@ -481,7 +483,7 @@ public class HWriter {
 			
 		if ( null == tableName  || null == record) return;
 		if  (DEBUG_ENABLED) 
-			HbaseLog.l.debug("HWriter:merge Record (" + tableName + ")") ;
+			HSearchLog.l.debug("HWriter:merge Record (" + tableName + ")") ;
 
    		HTableWrapper table = null;
 		HBaseFacade facade = null;
@@ -501,7 +503,7 @@ public class HWriter {
 			}
 			
 			//Step 1 : Aquire a lock before merging
-			if  (DEBUG_ENABLED)  HbaseLog.l.debug("HWriter> Locking Row " );
+			if  (DEBUG_ENABLED)  HSearchLog.l.debug("HWriter> Locking Row " );
 			lock = table.lockRow(pk);
 			if ( null == lock) {
 				throw new IOException("HWriter:merge  Unable to aquire lock," + new String(pk) + 
@@ -531,7 +533,7 @@ public class HWriter {
 			for (NV nv : record.getNVs()) {
 				byte[] data = nv.data;
 				if ( nv.isDataUnchanged) continue;
-				if  (DEBUG_ENABLED)  HbaseLog.l.debug("HWriter> data Size " + data.length);
+				if  (DEBUG_ENABLED)  HSearchLog.l.debug("HWriter> data Size " + data.length);
 				update = update.add(nv.family, nv.name, data);
 				totalCols++;
 			}
@@ -542,7 +544,7 @@ public class HWriter {
 			
 			//Step 5 : Write the changes. 
 			update.setWriteToWAL(true);
-			if  (DEBUG_ENABLED)  HbaseLog.l.debug("HWriter> Committing Updates" );
+			if  (DEBUG_ENABLED)  HSearchLog.l.debug("HWriter> Committing Updates" );
 			table.put(update);
 			table.flushCommits();
 
@@ -550,7 +552,7 @@ public class HWriter {
 			
 			boolean goodTable = true;
 			if ( null != lock ) {
-				if  (DEBUG_ENABLED)  HbaseLog.l.debug("HWriter> Un Locking Row " );
+				if  (DEBUG_ENABLED)  HSearchLog.l.debug("HWriter> Un Locking Row " );
 				try { table.unlockRow(lock); } catch (Exception ex) {
 					reportUnlockException(ex);
 					goodTable = false;
@@ -567,7 +569,7 @@ public class HWriter {
 		String errorMsg = "Max Mem: " + runTime.maxMemory()/1024; 
 		errorMsg = errorMsg + ", Total Mem: " + runTime.totalMemory()/1024; 
 		errorMsg = errorMsg + ", Free Mem: " + runTime.freeMemory()/1024; 
-		HbaseLog.l.warn("HWriter:reportUnlockException > Ignoring Unlock exp. May be memory Issue \n" + errorMsg, ex);
+		HSearchLog.l.warn("HWriter:reportUnlockException > Ignoring Unlock exp. May be memory Issue \n" + errorMsg, ex);
 	}
 	
 	

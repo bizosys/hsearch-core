@@ -532,6 +532,11 @@ public class Cell2<K1, V> {
 		this.sortedList.remove(elemIndex);
 	}
 	
+	public void clear() {
+		if ( null != sortedList) sortedList.clear();
+		this.data = null;
+	}
+	
 	@Override
 	public String toString() {
 		if ( null == sortedList) try {parseElements();} catch (Exception e) {return e.getMessage();};

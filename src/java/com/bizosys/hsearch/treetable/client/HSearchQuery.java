@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.util.HSearchLog;
 import com.bizosys.hsearch.util.LineReaderUtil;
 
 /**
@@ -34,7 +34,7 @@ import com.bizosys.hsearch.util.LineReaderUtil;
  */
 public class HSearchQuery {
 
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
 	private static final char RANGE_SEPARATOR = ':';
 	private static final char FIELD_SEPARATOR = '|';
@@ -62,7 +62,7 @@ public class HSearchQuery {
 	   */
 	public HSearchQuery(final String query) throws ParseException {
 		
-		if ( DEBUG_ENABLED) HbaseLog.l.debug("HSearchQuery Query :" + query);
+		if ( DEBUG_ENABLED) HSearchLog.l.debug("HSearchQuery Query :" + query);
 		
 		if ( null == query) throw new ParseException("Query is null.", 0);
 		if ( query.length() == 0) throw new ParseException("Query is empty.", 0);

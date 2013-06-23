@@ -26,11 +26,11 @@ import java.util.Map;
 
 import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.federate.FederatedSearch;
-import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMultiQueryProcessor {
 
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
 	public final static BitSetOrSet EMPTY_BITSET = new BitSetOrSet();
 	/**
@@ -58,7 +58,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 			public BitSetOrSet populate(
 					String type, String multiQueryPartId, String aStmtOrValue, Map<String, Object> stmtParams) throws IOException {
 
-				if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchTableMultiQuery.populate ENTER.");
+				if ( DEBUG_ENABLED ) HSearchLog.l.debug("HSearchTableMultiQuery.populate ENTER.");
 				long startTime = System.currentTimeMillis();
 				
 				try {
@@ -67,13 +67,13 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 					
 					if ( DEBUG_ENABLED ) {
 						startTime = System.currentTimeMillis();
-						HbaseLog.l.debug("Concurrent derer ENTER");
+						HSearchLog.l.debug("Concurrent derer ENTER");
 					}
 
 					combiner.concurrentDeser(aStmtOrValue, outputType, stmtParams, type);
 
 					if ( DEBUG_ENABLED ) {
-						HbaseLog.l.debug("Concurrent deser EXIT in ms > " + ( System.currentTimeMillis() - startTime ) );
+						HSearchLog.l.debug("Concurrent deser EXIT in ms > " + ( System.currentTimeMillis() - startTime ) );
 					}
 
 					IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
@@ -84,7 +84,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 					
 					if ( DEBUG_ENABLED ) {
 						startTime = System.currentTimeMillis();
-						HbaseLog.l.debug("IRowId Collection EXIT in ms > " + ( System.currentTimeMillis() - startTime ) );
+						HSearchLog.l.debug("IRowId Collection EXIT in ms > " + ( System.currentTimeMillis() - startTime ) );
 					}
 					return keys;
 					
@@ -93,7 +93,7 @@ public abstract class HSearchTableMultiQueryProcessor implements IHSearchTableMu
 				} finally {
 					if ( DEBUG_ENABLED ) {
 						long endTime = System.currentTimeMillis();
-						HbaseLog.l.debug( Thread.currentThread().getName() + "> " + "populate EXIT ms :" + (endTime - startTime));
+						HSearchLog.l.debug( Thread.currentThread().getName() + "> " + "populate EXIT ms :" + (endTime - startTime));
 					}
 				}
 			}

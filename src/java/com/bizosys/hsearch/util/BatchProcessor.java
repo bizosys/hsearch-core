@@ -24,7 +24,6 @@ import java.util.Iterator;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.bizosys.hsearch.hbase.HbaseLog;
 
 /**
  * @author karan
@@ -56,7 +55,7 @@ public class BatchProcessor implements Runnable {
 
 	public void addTask(BatchTask task) {
 		if ( null == task ) return;
-		if ( HbaseLog.l.isDebugEnabled() ) HbaseLog.l.debug("BatchProcessor >  A new task is lunched > " + task.getJobName());
+		if ( HSearchLog.l.isDebugEnabled() ) HSearchLog.l.debug("BatchProcessor >  A new task is lunched > " + task.getJobName());
 		
 		blockingQueue.add(task); 
 	}
@@ -70,23 +69,23 @@ public class BatchProcessor implements Runnable {
 	 * Takes a transaction from the queue and apply this in the database.
 	 */
 	public void run() {
-		HbaseLog.l.info("BatchProcessor > Batch processor is ready to take jobs.");
+		HSearchLog.l.info("BatchProcessor > Batch processor is ready to take jobs.");
 		while (true) {
 			BatchTask offlineTask = null;
 			try {
 				offlineTask = this.blockingQueue.take(); //Request blocks here 
-				if ( HbaseLog.l.isInfoEnabled() ) HbaseLog.l.info(
+				if ( HSearchLog.l.isInfoEnabled() ) HSearchLog.l.info(
 					"BatchProcessor > Taken from the Queue for processing - " + offlineTask.getJobName());
 				boolean status = offlineTask.process();
 				
 			} catch (InterruptedException ex) {
-				HbaseLog.l.warn(ex);
+				HSearchLog.l.warn(ex);
 				Iterator<BatchTask> queueItr = this.blockingQueue.iterator();
-				while ( queueItr.hasNext() ) HbaseLog.l.fatal("BatchProcessor > " + queueItr.next());
+				while ( queueItr.hasNext() ) HSearchLog.l.fatal("BatchProcessor > " + queueItr.next());
 				break;
 			} catch (Exception ex) {
-				HbaseLog.l.fatal("BatchProcessor > ",  ex);
-				if ( null != offlineTask) HbaseLog.l.fatal("BatchProcessor > " + offlineTask.toString());
+				HSearchLog.l.fatal("BatchProcessor > ",  ex);
+				if ( null != offlineTask) HSearchLog.l.fatal("BatchProcessor > " + offlineTask.toString());
 			}
 		}
 	}

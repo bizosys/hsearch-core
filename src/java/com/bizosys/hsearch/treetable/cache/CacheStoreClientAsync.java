@@ -21,16 +21,16 @@
 package com.bizosys.hsearch.treetable.cache;
 
 import com.bizosys.hsearch.hbase.HWriter;
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.RecordScalar;
 import com.bizosys.hsearch.treetable.storage.CacheStorage;
 import com.bizosys.hsearch.util.BatchException;
 import com.bizosys.hsearch.util.BatchTask;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public class CacheStoreClientAsync implements BatchTask {
 
-	private static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled(); 
+	private static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled(); 
 	
 	String jobName = "CacheAsync";
 	
@@ -55,7 +55,7 @@ public class CacheStoreClientAsync implements BatchTask {
 	@Override
 	public boolean process() throws BatchException {
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug("Caching query:" + scopedSingleQuery);
+			HSearchLog.l.debug("Caching query:" + scopedSingleQuery);
 		}
 		try {
 			RecordScalar record = new RecordScalar(scopedSingleQuery.getBytes(), 
@@ -63,7 +63,7 @@ public class CacheStoreClientAsync implements BatchTask {
 			HWriter.getInstance(true).insertScalar(CacheStorage.TABLE_NAME, record);
 			return true;
 		} catch (Exception ex) {
-			HbaseLog.l.warn("Error while saving cache objects:" , ex);
+			HSearchLog.l.warn("Error while saving cache objects:" , ex);
 			throw new BatchException(ex);
 			
 		}

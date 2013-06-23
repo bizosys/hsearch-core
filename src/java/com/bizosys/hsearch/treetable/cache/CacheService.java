@@ -23,16 +23,16 @@ package com.bizosys.hsearch.treetable.cache;
 import java.io.IOException;
 
 import com.bizosys.hsearch.hbase.HReader;
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.RecordScalar;
 import com.bizosys.hsearch.treetable.storage.CacheStorage;
 import com.bizosys.hsearch.util.BatchProcessor;
 import com.bizosys.hsearch.util.HSearchConfig;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public class CacheService {
 	private static CacheService singleton = null;
-	private static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled(); 
+	private static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled(); 
 	
 	/**
 	 * TODO:// Automatically disable cache service if there are more than 3 exception 
@@ -71,11 +71,11 @@ public class CacheService {
 					new NV(CacheStorage.CACHE_COLUMN_BYTES, CacheStorage.CACHE_COLUMN_BYTES));
 			HReader.getScalar(CacheStorage.TABLE_NAME, record);
 			if ( null  != record.kv.data) {
-				if ( INFO_ENABLED ) HbaseLog.l.info("Serving from Cache - " + singleQury);
+				if ( INFO_ENABLED ) HSearchLog.l.info("Serving from Cache - " + singleQury);
 				return record.kv.data;
 			}
 		} catch (Exception ex) {
-			HbaseLog.l.warn("Error while saving cache objects:" , ex);
+			HSearchLog.l.warn("Error while saving cache objects:" , ex);
 		}
 		return null;
 	}

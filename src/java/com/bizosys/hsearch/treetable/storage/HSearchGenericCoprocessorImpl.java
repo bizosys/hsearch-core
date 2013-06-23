@@ -34,15 +34,15 @@ import org.apache.hadoop.hbase.regionserver.InternalScanner;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.functions.HSearchReducer;
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.util.HSearchConfig;
+import com.bizosys.hsearch.util.HSearchLog;
 import com.bizosys.hsearch.util.conf.Configuration;
 
 public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 		implements HSearchGenericCoprocessor {
 	
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 	
 	private Configuration config = HSearchConfig.getInstance().getConfiguration(); 
 
@@ -61,7 +61,7 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
      * @throws IOException
      */
 	public byte[] getRows(final byte[][] families, final byte[][] cols, final HSearchGenericFilter filter) throws IOException {
-		if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
+		if ( DEBUG_ENABLED ) HSearchLog.l.debug( Thread.currentThread().getName() + " @ coprocessor : getRows");
 		InternalScanner scanner = null;
 		long monitorStartTime = 0L; 
 		long overallStartTime = System.currentTimeMillis(); 
@@ -74,7 +74,7 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 			int familiesT = families.length;
 			
 			for (int i=0; i<familiesT; i++) {
-				if ( DEBUG_ENABLED ) HbaseLog.l.debug( Thread.currentThread().getName() + 
+				if ( DEBUG_ENABLED ) HSearchLog.l.debug( Thread.currentThread().getName() + 
 					" @ adding family " + new String(families[i]) + "_" + new String(cols[i]));
 				//scan = scan.addColumn(families[i], cols[i]);
 				scan = scan.addFamily(families[i]);
@@ -125,7 +125,7 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 				
 			} while (done);
 			
-			if ( INFO_ENABLED ) HbaseLog.l.info(
+			if ( INFO_ENABLED ) HSearchLog.l.info(
 				"**** Time spent on Overall : Scanner : Plugin Code = " + 
 					( System.currentTimeMillis() - overallStartTime) + ":" + 
 					filter.overallExecutionTime + ":" + 

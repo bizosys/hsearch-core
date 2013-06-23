@@ -40,11 +40,11 @@ import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.federate.QueryPart;
 import com.bizosys.hsearch.functions.HSearchReducer;
 import com.bizosys.hsearch.functions.StatementWithOutput;
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.HSearchTableParts;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
+import com.bizosys.hsearch.util.HSearchLog;
 
 /**
  * @author abinash
@@ -52,8 +52,8 @@ import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
  */
 public abstract class HSearchGenericFilter implements Filter {
 	
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 
 	String name = null;
 	public String getName() {
@@ -157,7 +157,7 @@ public abstract class HSearchGenericFilter implements Filter {
 		}
 		
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug("Sending to HBase : " + querySection.toString() + ", Rows to include:" + inputRowsToIncludeB);
+			HSearchLog.l.debug("Sending to HBase : " + querySection.toString() + ", Rows to include:" + inputRowsToIncludeB);
 		}
 		SortedBytesArray sendToRSData = SortedBytesArray.getInstanceArr();
 		byte[] ser = ( null == inputRowsToIncludeB) ?
@@ -186,7 +186,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			in.readFully(deser, 0, length);
 			
 			if ( DEBUG_ENABLED) {
-				HbaseLog.l.debug("Total bytes Received @ Generic Filter:" + length);
+				HSearchLog.l.debug("Total bytes Received @ Generic Filter:" + length);
 			}
 			
 			SortedBytesArray receiveRSData = SortedBytesArray.getInstanceArr();
@@ -194,7 +194,7 @@ public abstract class HSearchGenericFilter implements Filter {
 
 			int packedDataSectionsT = receiveRSData.getSize();
 			if ( DEBUG_ENABLED) {
-				HbaseLog.l.debug("Reading bytes sections of total :" + packedDataSectionsT);
+				HSearchLog.l.debug("Reading bytes sections of total :" + packedDataSectionsT);
 			}
 			if ( packedDataSectionsT == 0 ) {
 				throw new IOException("Unknown number of fields :" + packedDataSectionsT);
@@ -229,7 +229,7 @@ public abstract class HSearchGenericFilter implements Filter {
 						this.multiQuery = stk.nextToken();
 
 						if ( DEBUG_ENABLED ) {
-							HbaseLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
+							HSearchLog.l.debug("HBase Region Server: Multi Query" +  this.multiQuery);
 						}
 						break;
 
@@ -250,7 +250,7 @@ public abstract class HSearchGenericFilter implements Filter {
 						String qId =  colNameQuolonId.substring(colNameAndQIdSplitIndex+1);
 						
 						if ( DEBUG_ENABLED ) {
-							HbaseLog.l.debug("colName:qId = " + colName + "/" + qId);
+							HSearchLog.l.debug("colName:qId = " + colName + "/" + qId);
 						}
 						
 						colIdWithType.put(qId, colName);
@@ -264,7 +264,7 @@ public abstract class HSearchGenericFilter implements Filter {
 						
 
 						if ( DEBUG_ENABLED ) {
-							HbaseLog.l.debug("HBase Region Server: Query Payload " +  line);
+							HSearchLog.l.debug("HBase Region Server: Query Payload " +  line);
 						}
 						break;
 				}
@@ -275,7 +275,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			
 			
 		} catch (Exception ex) {
-			HbaseLog.l.fatal(ex);
+			HSearchLog.l.fatal(ex);
 			throw new IOException(ex);
 		}
 	}
@@ -293,7 +293,7 @@ public abstract class HSearchGenericFilter implements Filter {
 		if ( 0 == kvT) return;
 		
 		if ( DEBUG_ENABLED ) {
-			HbaseLog.l.debug("Processing @ Region Server : filterRow" );
+			HSearchLog.l.debug("Processing @ Region Server : filterRow" );
 		}
 		
 		try {
@@ -337,7 +337,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			}
 			
 			if ( DEBUG_ENABLED ) {
-				HbaseLog.l.debug("queryData HSearchTableParts creation. ");
+				HSearchLog.l.debug("queryData HSearchTableParts creation. ");
 			}
 			
 			queryIdWithParts.clear();
@@ -349,15 +349,15 @@ public abstract class HSearchGenericFilter implements Filter {
 				String queryTypeWithId = queryType + ":" + queryId;
 
 				if ( DEBUG_ENABLED ) {
-					HbaseLog.l.debug(queryTypeWithId);
-					HbaseLog.l.debug("Query Parts for " + queryTypeWithId);
+					HSearchLog.l.debug(queryTypeWithId);
+					HSearchLog.l.debug("Query Parts for " + queryTypeWithId);
 				}
 				
 				queryIdWithParts.put(queryTypeWithId, parts);
 			}
 			colNamesWithPartitionBytes.clear();
 
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug("HSearchGenericFilter: Filteration Starts");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("HSearchGenericFilter: Filteration Starts");
 			
 			long monitorStartTime = 0L; 
 			if ( INFO_ENABLED ) {
@@ -379,7 +379,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			
 		} catch (Exception ex) {
 			ex.printStackTrace(System.err);
-			HbaseLog.l.fatal(ex);
+			HSearchLog.l.fatal(ex);
 		}
 	}
 
@@ -393,8 +393,8 @@ public abstract class HSearchGenericFilter implements Filter {
 		if ( DEBUG_ENABLED ) {
 			boolean hasMatchingIds = false;
 			hasMatchingIds = ( null != intersectedIds && intersectedIds.size() > 0 );
-			HbaseLog.l.debug("Generaic filter hasMatchingIds :" + hasMatchingIds + " objectid=" + intersectedIds.hashCode());
-			if ( hasMatchingIds ) HbaseLog.l.debug( new String(row) + " has ids of :" + intersectedIds.size());
+			HSearchLog.l.debug("Generaic filter hasMatchingIds :" + hasMatchingIds + " objectid=" + intersectedIds.hashCode());
+			if ( hasMatchingIds ) HSearchLog.l.debug( new String(row) + " has ids of :" + intersectedIds.size());
 		}
 		
 		return intersectedIds;
@@ -420,7 +420,7 @@ public abstract class HSearchGenericFilter implements Filter {
 		
 		if (DEBUG_ENABLED) {
 			int scopeToTheseRowsT = ( null == inputRowsToIncludeB) ? 0 : inputRowsToIncludeB.length;
-			HbaseLog.l.debug("Analyzing row for processing: " + new String(rowKey + " , From a matching set of " + scopeToTheseRowsT));
+			HSearchLog.l.debug("Analyzing row for processing: " + new String(rowKey + " , From a matching set of " + scopeToTheseRowsT));
 		}
 		
 		if ( null == inputRowsToIncludeB) return false;
@@ -438,7 +438,7 @@ public abstract class HSearchGenericFilter implements Filter {
 				+ "\n" + ex.getMessage() + "\n" + 
 				"With search scope inside id count : " + scopeToTheseRowsT;
 			System.err.println(errMsg);
-			HbaseLog.l.fatal(errMsg, ex);
+			HSearchLog.l.fatal(errMsg, ex);
 			
 			return false;
 		}
@@ -489,11 +489,11 @@ public abstract class HSearchGenericFilter implements Filter {
 		
 		if ( DEBUG_ENABLED ) {
 			int matchedIdsT = ( null == matchedIds) ? 0 : matchedIds.size();
-			HbaseLog.l.debug("HSearchGenericFilter:serialize : with matchedIds " +  matchedIdsT + ", Object:" + matchedIds.hashCode());
+			HSearchLog.l.debug("HSearchGenericFilter:serialize : with matchedIds " +  matchedIdsT + ", Object:" + matchedIds.hashCode());
 			if ( null != matchedIds.getDocumentIds()) {
-				HbaseLog.l.debug("HSearchGenericFilter: DocumentIds size " +  matchedIds.getDocumentIds().size() + " and matchedId size " + matchedIds.size());
+				HSearchLog.l.debug("HSearchGenericFilter: DocumentIds size " +  matchedIds.getDocumentIds().size() + " and matchedId size " + matchedIds.size());
 			} else if ( null != matchedIds.getDocumentSequences()) {
-				HbaseLog.l.debug("HSearchGenericFilter: DocumentSequences cardinality " +  matchedIds.getDocumentSequences().cardinality());
+				HSearchLog.l.debug("HSearchGenericFilter: DocumentSequences cardinality " +  matchedIds.getDocumentSequences().cardinality());
 			}
 		}
 		

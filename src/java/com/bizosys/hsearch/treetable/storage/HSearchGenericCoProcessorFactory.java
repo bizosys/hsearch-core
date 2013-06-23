@@ -30,12 +30,12 @@ import org.apache.hadoop.hbase.client.coprocessor.Batch;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HTableWrapper;
-import com.bizosys.hsearch.hbase.HbaseLog;
 import com.bizosys.hsearch.treetable.cache.CacheService;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public final class HSearchGenericCoProcessorFactory {
 	
-	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 	
 	HSearchGenericFilter filter = null;
 	byte[][] families = null;
@@ -93,7 +93,7 @@ public final class HSearchGenericCoProcessorFactory {
 				CacheService.getInstance().put(singleQuery, dataPack);
 			}
 		} catch (Exception ex) {
-			HbaseLog.l.warn(ex);
+			HSearchLog.l.warn(ex);
 		}
 
 		return result;

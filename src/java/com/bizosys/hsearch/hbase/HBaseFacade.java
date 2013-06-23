@@ -28,6 +28,8 @@ import org.apache.hadoop.hbase.MasterNotRunningException;
 import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTablePool;
 
+import com.bizosys.hsearch.util.HSearchLog;
+
 /**
  * Initializes and Serves HBase resources from here
  * @author Abinasha Karana
@@ -75,12 +77,12 @@ public final class HBaseFacade {
 	 * @throws IOException
 	 */
 	private HBaseFacade() throws IOException{
-		HbaseLog.l.debug("HBaseFacade > Initializing HBaseFacade");
+		HSearchLog.l.debug("HBaseFacade > Initializing HBaseFacade");
 		conf = HBaseConfiguration.create();
 		try {
 			admin = new HBaseAdmin(conf);
 			HBaseFacade.instance = this;
-			HbaseLog.l.debug("HBaseFacade > HBaseFacade initialized.");
+			HSearchLog.l.debug("HBaseFacade > HBaseFacade initialized.");
 		} catch (MasterNotRunningException ex) {
 			throw new IOException ("HBaseFacade > HBase Master instance is not running..");			
 		}
@@ -94,7 +96,7 @@ public final class HBaseFacade {
 		try {
 			admin.shutdown();
 		} catch (IOException ex) {
-			HbaseLog.l.warn("HBAseFacade:stop()", ex);
+			HSearchLog.l.warn("HBAseFacade:stop()", ex);
 		}
 	}
 	

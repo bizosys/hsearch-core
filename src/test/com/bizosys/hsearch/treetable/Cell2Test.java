@@ -22,7 +22,7 @@ import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesShort;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.byteutils.Storable;
-import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.util.HSearchLog;
 import com.oneline.ferrari.TestAll;
 
 public class Cell2Test extends TestCase {

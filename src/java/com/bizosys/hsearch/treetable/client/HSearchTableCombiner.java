@@ -25,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import com.bizosys.hsearch.hbase.HbaseLog;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 
-	public static boolean DEBUG_ENABLED = HbaseLog.l.isDebugEnabled();
-	public static boolean INFO_ENABLED = HbaseLog.l.isInfoEnabled();
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 
 	@Override
 	public final void concurrentDeser(final String aStmtOrValue, final HSearchProcessingInstruction outputType,
@@ -38,15 +38,15 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		
 		if ( DEBUG_ENABLED ){
 			String keys = ( null != stmtParams) ? stmtParams.keySet().toString() : "No Keys";
-			HbaseLog.l.debug( Thread.currentThread().getName() +  "> concurrentDeser Enter - stmt params keys : " + keys);
+			HSearchLog.l.debug( Thread.currentThread().getName() +  "> concurrentDeser Enter - stmt params keys : " + keys);
 		}
 		
 		Object tablePartsO = stmtParams.get(HSearchTableMultiQueryExecutor.TABLE_PARTS);
 		
 		if ( null == tablePartsO) {
-			HbaseLog.l.warn("Warning : Null Column data for > " + tableType + " For Query " + aStmtOrValue);
+			HSearchLog.l.warn("Warning : Null Column data for > " + tableType + " For Query " + aStmtOrValue);
 			for (String key : stmtParams.keySet()) {
-				HbaseLog.l.warn("Warning : For Key > " + key + "  , Value " + stmtParams.get(key));
+				HSearchLog.l.warn("Warning : For Key > " + key + "  , Value " + stmtParams.get(key));
 			}
 			return;
 		}
@@ -55,9 +55,9 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		
 		IHSearchPlugin plugin = (IHSearchPlugin) stmtParams.get(HSearchTableMultiQueryExecutor.PLUGIN);
 		if ( null == plugin) {
-			HbaseLog.l.error("Warning : Null plugin for > " + tableType + ":" + aStmtOrValue);
+			HSearchLog.l.error("Warning : Null plugin for > " + tableType + ":" + aStmtOrValue);
 			for (String key : stmtParams.keySet()) {
-				HbaseLog.l.error("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
+				HSearchLog.l.error("Info : For Key > " + key + "  , Value " + stmtParams.get(key));
 			}
 			return;
 		}
@@ -75,10 +75,10 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		}
 		
 		if ( tasks.size() > 1 ) {
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in parallel.");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in parallel.");
 			HSearchTableResourcesDefault.getInstance().multiPartsThreadExecutor.invokeAll(tasks);
 		} else {
-			if ( DEBUG_ENABLED ) HbaseLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in sequence.");
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug(Thread.currentThread().getName() + " > " + tasks.size() + " HSearchTableCombiner Processing in sequence.");
 			for ( TableDeserExecutor deserExec : tasks) {
 				deserExec.call(); 
 			}
@@ -106,7 +106,7 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 		@Override
 		public final Integer call() throws Exception {
 			if ( DEBUG_ENABLED ) {
-				HbaseLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - ENTER");
+				HSearchLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - ENTER");
 			}
 			try {
 				switch ( this.outputType.getCallbackType()) {
@@ -127,15 +127,15 @@ public abstract class HSearchTableCombiner implements IHSearchTableCombiner {
 				}
 				
 				if ( DEBUG_ENABLED ) {
-					HbaseLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - SUCESS");
+					HSearchLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - SUCESS");
 				}
 				return 0;
 			} catch (Exception ex) {
-				HbaseLog.l.error(Thread.currentThread().getName(), ex);
+				HSearchLog.l.error(Thread.currentThread().getName(), ex);
 				throw new Exception(ex);
 			} finally {
 				if ( DEBUG_ENABLED ) {
-					HbaseLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - EXIT");
+					HSearchLog.l.debug(Thread.currentThread().getName() + " HSearch Table Processing - EXIT");
 				}
 			}
 		}
