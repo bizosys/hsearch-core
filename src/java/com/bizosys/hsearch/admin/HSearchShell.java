@@ -140,7 +140,7 @@ public class HSearchShell extends Configured implements Tool {
 		}
 	}
 	
-	private void createJar(File source, JarOutputStream target) throws IOException
+	public void createJar(File source, JarOutputStream target) throws IOException
 	{
 		//Find all files @ this directory
 		List<File> allFiles = new ArrayList<File>();
