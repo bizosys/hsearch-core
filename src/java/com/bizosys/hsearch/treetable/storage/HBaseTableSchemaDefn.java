@@ -26,14 +26,24 @@ import com.bizosys.hsearch.treetable.client.partition.IPartition;
 
 public final class HBaseTableSchemaDefn {
 	
-	private static HBaseTableSchemaDefn singleton = new HBaseTableSchemaDefn();
-	
-	public static HBaseTableSchemaDefn getInstance() {
-		return singleton;
+	private static Map<String, HBaseTableSchemaDefn> repositories = new HashMap<String, HBaseTableSchemaDefn>();
+	public static HBaseTableSchemaDefn getInstance(String tableName) {
+		if ( repositories.containsKey(tableName)) return repositories.get(tableName);
+		else {
+			synchronized (HBaseTableSchemaDefn.class.getName()) {
+				if ( repositories.containsKey(tableName)) return repositories.get(tableName);
+				repositories.put(tableName, new HBaseTableSchemaDefn());
+			}
+		}
+		return repositories.get(tableName);
 	}
 	
 	private HBaseTableSchemaDefn() {
 		
+	}
+
+	private HBaseTableSchemaDefn(String tableName) {
+		this.tableName = tableName;
 	}
 
 	public String tableName = "htable";

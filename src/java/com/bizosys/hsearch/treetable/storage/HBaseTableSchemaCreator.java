@@ -69,13 +69,13 @@ public final class HBaseTableSchemaCreator {
 	/**
 	 * Checks and Creates all necessary tables required for HSearch index.
 	 */
-	public final boolean init() {
+	public final boolean init(String tableName) {
 
 		try {
 			
 			List<HColumnDescriptor> colFamilies = new ArrayList<HColumnDescriptor>();
 			
-			HBaseTableSchemaDefn def = HBaseTableSchemaDefn.getInstance();
+			HBaseTableSchemaDefn def = HBaseTableSchemaDefn.getInstance(tableName);
 			
 			System.out.println("Compression : " + this.compression.getName());
 			System.out.println("Partition Block Size : " + this.partitionBlockSize);

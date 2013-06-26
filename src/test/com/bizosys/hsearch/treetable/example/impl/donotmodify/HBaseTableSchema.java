@@ -5,8 +5,6 @@ import java.util.Map;
 
 import com.bizosys.hsearch.treetable.client.partition.IPartition;
 import com.bizosys.hsearch.treetable.client.partition.PartitionNumeric;
-import com.bizosys.hsearch.treetable.client.partition.PartitionByFirstLetter;
-
 import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaCreator;
 import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaDefn;
 
@@ -19,10 +17,10 @@ public class HBaseTableSchema {
 		return singleton;
 	}
 	
+	public String TABLE_NAME = "htable-test";
 	private HBaseTableSchema() throws IOException {
 		
-		HBaseTableSchemaDefn.getInstance().tableName = "htable-test";
-		Map<String, IPartition> columns = HBaseTableSchemaDefn.getInstance().columnPartions;
+		Map<String, IPartition> columns = HBaseTableSchemaDefn.getInstance(TABLE_NAME).columnPartions;
 		columns.put("ExamResult",new PartitionNumeric());
 		columns.get("ExamResult").setPartitionsAndRange(
 			"ExamResult",
@@ -34,11 +32,11 @@ public class HBaseTableSchema {
 	}
 
 	public HBaseTableSchemaDefn getSchema() {
-		return HBaseTableSchemaDefn.getInstance();
+		return HBaseTableSchemaDefn.getInstance(TABLE_NAME);
 	}
 	
 	public void createSchema() {
-		new HBaseTableSchemaCreator().init();
+		new HBaseTableSchemaCreator().init(getSchema().tableName);
 	}
 	
 	public static void main(String[] args) throws Exception {

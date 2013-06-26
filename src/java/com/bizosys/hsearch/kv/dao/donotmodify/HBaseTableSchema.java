@@ -11,16 +11,19 @@ import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaDefn;
 public final class HBaseTableSchema {
 
 	private static HBaseTableSchema singleton = null; 
-
 	public static HBaseTableSchema getInstance() throws IOException {
 		if ( null == singleton ) singleton = new HBaseTableSchema();
 		return singleton;
 	}
 	
+	public String TABLE_NAME = "kv-store";
+	public void setTableName(String tableName) {
+		this.TABLE_NAME = tableName;
+	}
+	
 	private HBaseTableSchema() throws IOException {
 		
-		HBaseTableSchemaDefn.getInstance().tableName = "kv-store";
-		Map<String, IPartition> columns = HBaseTableSchemaDefn.getInstance().columnPartions;
+		Map<String, IPartition> columns = HBaseTableSchemaDefn.getInstance(TABLE_NAME).columnPartions;
 		columns.put("KVInteger",new PartitionNumeric());
 		columns.get("KVInteger").setPartitionsAndRange(
 			"KVInteger",
@@ -74,11 +77,11 @@ public final class HBaseTableSchema {
 	}
 
 	public HBaseTableSchemaDefn getSchema() {
-		return HBaseTableSchemaDefn.getInstance();
+		return HBaseTableSchemaDefn.getInstance(TABLE_NAME);
 	}
 	
 	public void createSchema() {
-		new HBaseTableSchemaCreator().init();
+		new HBaseTableSchemaCreator().init(TABLE_NAME);
 	}
 	
 	public static void main(String[] args) throws Exception {

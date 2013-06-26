@@ -61,6 +61,6 @@ public class Client extends HSearchTableReader {
 	    public void execute(String query, Map<String, String> qPart) throws IOException, ParseException {
 	    	HSearchProcessingInstruction instruction = 
 	    		new HSearchProcessingInstruction(HSearchProcessingInstruction.PLUGIN_CALLBACK_COLS, HSearchProcessingInstruction.OUTPUT_COLS);
-	        read(query, qPart, instruction , true, true);
+	        read(HBaseTableSchema.getInstance().TABLE_NAME, query, qPart, instruction , true, true);
 	    }
 }

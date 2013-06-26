@@ -50,11 +50,11 @@ public abstract class HSearchTableReader implements IScanCallBack {
 	
 	
 	@SuppressWarnings("unchecked")
-	public void setPartionsFamilies(String colName, String range, Set<String> uniqueFamilies) 
+	public void setPartionsFamilies(String tableName, String colName, String range, Set<String> uniqueFamilies) 
 	throws ParseException, IOException  {
 		
 		HSearchQuery query = new HSearchQuery(range);
-		HBaseTableSchemaDefn.getInstance().columnPartions.get(colName).
+		HBaseTableSchemaDefn.getInstance(tableName).columnPartions.get(colName).
 			getMatchingFamilies(query, uniqueFamilies);
 	}
 	
@@ -73,7 +73,7 @@ public abstract class HSearchTableReader implements IScanCallBack {
 		
 
 
-	public void read( String multiQuery, Map<String, String> multiQueryParts, 
+	public void read( String tableName, String multiQuery, Map<String, String> multiQueryParts, 
 			HSearchProcessingInstruction outputType, boolean isPartitioned, boolean isParallel) 
 			throws IOException, ParseException {
 		
@@ -89,7 +89,7 @@ public abstract class HSearchTableReader implements IScanCallBack {
 						 "structured:A OR unstructured:B\nstructured:A=f|1|1|1|c|*|*\nunstructured:B=*|*|*|*|*|*");
 			}
 			String colName = colNameQuolonId.substring(0,colNameAndQIdSplitIndex);
-			setPartionsFamilies(colName, multiQueryParts.get(colNameQuolonId),uniqueFamilies);
+			setPartionsFamilies(tableName, colName, multiQueryParts.get(colNameQuolonId),uniqueFamilies);
 		}
 
 		List<ColumnFamName> families = new ArrayList<ColumnFamName>();
@@ -100,7 +100,6 @@ public abstract class HSearchTableReader implements IScanCallBack {
 		}
 	
 		IScanCallBack recordsCollector = getResultCollector();
-		String tableName = HBaseTableSchemaDefn.getInstance().tableName;
 		
 		if ( isParallel ) {
 			if ( DEBUG_ENABLED ) HSearchLog.l.debug("HSearchTableReader > Searching in parallel.");
