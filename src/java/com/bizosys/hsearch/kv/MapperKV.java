@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import com.bizosys.hsearch.byteutils.Storable;
 import com.bizosys.hsearch.federate.BitSetOrSet;
+import com.bizosys.hsearch.kv.MapperKVBase;
 import com.bizosys.hsearch.kv.impl.ComputeFactory;
 import com.bizosys.hsearch.kv.impl.ICompute;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;

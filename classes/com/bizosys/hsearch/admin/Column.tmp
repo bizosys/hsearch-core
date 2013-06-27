@@ -1,0 +1,122 @@
+
+import com.bizosys.hsearch.functions.GroupSortedObject;
+import com.bizosys.hsearch.shell.kv.impl.KVDataSchemaRepository.KVDataSchema;
+import com.bizosys.hsearch.shell.kv.impl.KVRowI;
+
+public class Column extends GroupSortedObject implements KVRowI{
+	
+--PARAMS--
+		
+	KVDataSchema dataSchema = null;
+	
+	public Column() {}
+	public Column(KVDataSchema dataScheme) {
+		this.dataSchema = dataScheme;
+	}
+
+	public void setValue(String key, Object value){
+		int keySeq = this.dataSchema.nameToSeqMapping.get(key);
+		switch ( keySeq ) {
+--SETTERS--
+		}
+	}
+	
+		@Override
+	public Object getValue(String key){
+		int keySeq = this.dataSchema.nameToSeqMapping.get(key);
+		switch ( keySeq ) {
+--GETTERS--
+		}
+		return null;
+	}
+		
+	@Override
+	public boolean getBooleanField(int fldSequence) {
+		switch ( fldSequence ) {
+--BOOLEAN_SEQUENCER--
+		}
+		return false;
+	}
+
+	@Override
+	public byte getByteField(int fldSequence) {
+		switch ( fldSequence ) {
+--BYTE_SEQUENCER--
+		}
+		return 0;
+	}
+
+	@Override
+	public short getShortField(int fldSequence) {
+		switch ( fldSequence ) {
+--SHORT_SEQUENCER--
+		}
+		return 0;
+	}
+
+	@Override
+	public int getIntegerField(int fldSequence) {
+		switch ( fldSequence ) {
+--INTEGER_SEQUENCER--
+		}
+		return 0;
+	}
+
+	@Override
+	public float getFloatField(int fldSequence) {
+		switch ( fldSequence ) {
+--FLOAT_SEQUENCER--
+		}
+		return 0;
+	}
+
+	@Override
+	public double getDoubleField(int fldSequence) {
+		switch ( fldSequence ) {
+--DOUBLE_SEQUENCER--
+		}
+		return 0;
+	}
+
+	@Override
+	public long getLongField(int fldSequence) {
+		switch ( fldSequence ) {
+--LONG_SEQUENCER--
+		}
+		return 0;
+	}
+
+	@Override
+	public String getStringField(int fldSequence) {
+		switch ( fldSequence ) {
+--STRING_SEQUENCER--
+		}
+		return null;
+	}
+
+	@Override
+	public Object getObjectField(int fldSequence) {
+		return null;
+	}
+	
+	@Override
+	public KVRowI create() {
+		return new Column();
+	}
+
+	@Override
+	public KVRowI create(KVDataSchema dataSchema) {
+		return new Column(dataSchema);
+	}
+
+
+	@Override
+	public int getDataType(String name) {
+		return 0;
+	}
+	
+	@Override
+	public void setId(Integer id) {
+--SET_ID--
+	}
+}

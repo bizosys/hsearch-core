@@ -10,15 +10,12 @@ import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaDefn;
 
 public final class HBaseTableSchema {
 
+	private static final String TABLE_NAME = "kv-store";
 	private static HBaseTableSchema singleton = null; 
+
 	public static HBaseTableSchema getInstance() throws IOException {
 		if ( null == singleton ) singleton = new HBaseTableSchema();
 		return singleton;
-	}
-	
-	public String TABLE_NAME = "kv-store";
-	public void setTableName(String tableName) {
-		this.TABLE_NAME = tableName;
 	}
 	
 	private HBaseTableSchema() throws IOException {

@@ -15,12 +15,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import com.bizosys.hsearch.hbase.HBaseFacade;
-import com.bizosys.hsearch.hbase.HDML;
 import com.bizosys.hsearch.hbase.HTableWrapper;
-import com.bizosys.hsearch.hbase.HWriter;
-import com.bizosys.hsearch.hbase.NV;
-import com.bizosys.hsearch.hbase.Record;
-import com.bizosys.hsearch.hbase.RecordScalar;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;

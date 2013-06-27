@@ -1,5 +1,6 @@
 package com.bizosys.hsearch.kv.impl;
 
+
 public class ComputeFactory {
 
 	public static ComputeFactory getInstance() {

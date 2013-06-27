@@ -1,12 +1,15 @@
 package com.bizosys.hsearch.kv.impl;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.Put;
@@ -57,9 +60,23 @@ public class IndexerMapReduce{
 
 			Configuration conf = context.getConfiguration();
 			String path = conf.get(XML_FILE_PATH);
-			fm = FieldMapping.getXMLFieldMappings(path);
-			neededPositions = fm.fieldSeqs.keySet();
+			StringBuilder sb = new StringBuilder();
 			
+			try {
+				Path hadoopPath = new Path(path);
+				System.out.println("path " + hadoopPath);
+				FileSystem fs = FileSystem.get(new Configuration());
+				BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(hadoopPath)));
+				String line = null;
+				while((line = br.readLine())!=null) {
+					sb.append(line);
+				}
+			} catch (Exception e) {
+				System.err.println("Cannot read from path " + path);
+			}
+			
+			fm = FieldMapping.getXMLStringFieldMappings(sb.toString());
+			neededPositions = fm.fieldSeqs.keySet();
 		}
     	
         @Override
@@ -81,7 +98,7 @@ public class IndexerMapReduce{
 	    		FieldMapping.Field fld = fm.fieldSeqs.get(needIndex);
 	    		if ( fld.isMergedKey) {
 	    			rowIdMap.put(fld.mergePosition, fldValue);
-	    		} else if ( fld.isJoinKey ){
+	    		}if ( fld.isJoinKey ){
 	    			recordKeyPos = needIndex;
 	    		} 
 	    	}
@@ -107,10 +124,11 @@ public class IndexerMapReduce{
         		
         		rowkKeybuilder.delete(0, rowkKeybuilder.capacity());
         		
-        		String rowKey = ( null == rowId || rowId.length() == 0) ? fld.name : rowId + fld.name;
+        		boolean isEmpty = ( null == rowId) ? true : (rowId.length() == 0);
+        		String rowKey = ( isEmpty) ? fld.name : rowId + fld.name;
         		rowKey = rowkKeybuilder.append(rowKey).append( FIELD_SEPARATOR ).append( fld.fieldType )
         							   .append( FIELD_SEPARATOR ).append( fld.skipNull ).append( FIELD_SEPARATOR)
-        							   .append(fld.skipDefaultValue).toString();
+        							   .append(fld.defaultValue).toString();
         		
           		context.write(new Text(rowKey), new Text(result[recordKeyPos] + FIELD_SEPARATOR + fldValue) );
         	}
@@ -403,7 +421,7 @@ public class IndexerMapReduce{
 		Configuration conf = HBaseConfiguration.create();
 		conf.set(XML_FILE_PATH, args[1]);
 		
-        Job job = new Job(conf, "KV indexer");
+        Job job = new Job(conf, "HSearch Key Value indexer");
         job.setJarByClass(IndexerMapReduce.class);
         job.setMapperClass(KVMapper.class);
         job.setInputFormatClass(TextInputFormat.class);

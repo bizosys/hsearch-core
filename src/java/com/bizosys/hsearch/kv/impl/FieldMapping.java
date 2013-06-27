@@ -23,31 +23,33 @@ public class FieldMapping extends DefaultHandler {
 		public  String sourceName;
 		public  int sourceSeq;
 		public  boolean isIndexable;
+		public  boolean isSave;
 		public  boolean isRepeatable;
 		public  boolean isMergedKey;
 		public  int mergePosition;
 		public  boolean isJoinKey;
 		public boolean skipNull;
-		public String skipDefaultValue;
+		public String defaultValue;
 		public  String fieldType;
 
 		public Field() {
 		}
 
-		public Field(String name,String sourceName, int sourceSeq, boolean isIndexable,
+		public Field(String name,String sourceName, int sourceSeq, boolean isIndexable,boolean isSave,
 				boolean isRepeatable, boolean isMergedKey, int mergePosition,
-				boolean isJoinKey, boolean skipNull, String skipDefaultValue, String fieldType) {
+				boolean isJoinKey, boolean skipNull, String defaultValue, String fieldType) {
 			
 			this.name = name;
 			this.sourceName = sourceName;
 			this.sourceSeq = sourceSeq;
 			this.isIndexable = isIndexable;
+			this.isSave = isSave;
 			this.isRepeatable = isRepeatable;
 			this.isMergedKey = isMergedKey;
 			this.mergePosition = mergePosition;
 			this.isJoinKey = isJoinKey;
 			this.skipNull = skipNull;
-			this.skipDefaultValue = skipDefaultValue;
+			this.defaultValue = defaultValue;
 			this.fieldType = fieldType;
 		}
 
@@ -57,7 +59,7 @@ public class FieldMapping extends DefaultHandler {
 			sb.append(sourceName).append("\t").append(name).append("\t").append(sourceSeq).append("\t")
 					.append(isIndexable).append("\t").append(isRepeatable)
 					.append("\t").append(isMergedKey).append("\t")
-					.append(skipNull).append("\t").append(skipDefaultValue)
+					.append(skipNull).append("\t").append(defaultValue)
 					.append(isJoinKey).append("\t").append(fieldType);
 
 			return sb.toString();
@@ -68,17 +70,19 @@ public class FieldMapping extends DefaultHandler {
 	
 	public Map<Integer, Field> fieldSeqs = new HashMap<Integer, Field>();
 	public Map<String, Field> nameSeqs = new HashMap<String, Field>();
-
+	public String schemaName = new String();
+	
 	String name;
 	String sourceName;
 	int sourceSeq;
 	boolean isIndexable;
+	boolean isSave;
 	boolean isRepeatable;
 	boolean isMergedKey;
 	int mergePosition;
 	boolean isJoinKey;
 	boolean skipNull;
-	String skipDefaultValue;	
+	String defaultValue;	
 	String fieldType;
 
 	public static FieldMapping getInstance(){
@@ -92,7 +96,7 @@ public class FieldMapping extends DefaultHandler {
 	public static void main(String[] args) throws IOException, SAXException,
 			ParserConfigurationException {
 		
-		String xmlString = "<fields><field name='2' sourcesequence='166' sourcename='FILEID' type='int' indexed='true' repeatable='true' mergekey='true' mergeposition='0' isjoinkey='false'/><field name='677' sourcesequence='142' sourcename='CUSTOMFIELD5' type='String' indexed='true' repeatable='true' mergekey='false' mergeposition='' isjoinkey='false'/></fields>";
+		String xmlString = "<schema name='call-record'><fields><field name='2' sourcesequence='166' sourcename='FILEID' type='int' indexed='true' isSave='true' repeatable='true' mergekey='true' mergeposition='0' isjoinkey='false' skipNull='true' defaultValue=''/><field name='677' sourcesequence='142' sourcename='CUSTOMFIELD5' type='String' indexed='true' isSave='true' repeatable='true' mergekey='false' mergeposition='' isjoinkey='false' skipNull='true' defaultValue=''/></fields></schema>";
 		FieldMapping fm = getXMLStringFieldMappings(xmlString);
 		fm.display();
 
@@ -143,6 +147,9 @@ public class FieldMapping extends DefaultHandler {
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
 
+		if(qName.equalsIgnoreCase("schema")){
+			schemaName = attributes.getValue("name");
+		}
 		if (qName.equalsIgnoreCase("field")) {
 
 			name = attributes.getValue("name");
@@ -152,6 +159,7 @@ public class FieldMapping extends DefaultHandler {
 					.parseInt(attributes.getValue("sourcesequence"));
 			fieldType = attributes.getValue("type");
 			isIndexable = attributes.getValue("indexed").equalsIgnoreCase("true") ? true : false;
+			isSave = attributes.getValue("isSave").equalsIgnoreCase("true") ? true : false;
 			isRepeatable = attributes.getValue("repeatable").equalsIgnoreCase("true") ? true : false;
 			isMergedKey = attributes.getValue("mergekey").equalsIgnoreCase("true") ? true : false;
 			mergePosition = (null == attributes.getValue("mergeposition") || (attributes.getValue("mergeposition").length() == 0)) 
@@ -159,9 +167,9 @@ public class FieldMapping extends DefaultHandler {
 			isJoinKey = attributes.getValue("isjoinkey").equalsIgnoreCase("true") ? true : false;
 
 			skipNull = attributes.getValue("skipNull").equalsIgnoreCase("true") ? true : false;
-			skipDefaultValue = attributes.getValue("skipDefaultValue");
-			field = new Field(name, sourceName, sourceSeq, isIndexable, isRepeatable,
-					isMergedKey, mergePosition, isJoinKey, skipNull, skipDefaultValue, fieldType);
+			defaultValue = attributes.getValue("defaultValue");
+			field = new Field(name, sourceName, sourceSeq, isIndexable, isSave, isRepeatable,
+					isMergedKey, mergePosition, isJoinKey, skipNull, defaultValue, fieldType);
 		}
 	}
 
@@ -177,5 +185,6 @@ public class FieldMapping extends DefaultHandler {
 		for (Map.Entry<Integer, Field> entry : fieldSeqs.entrySet()) {
 			System.out.println(entry.getKey() + " - "+ entry.getValue().toString());
 		}
+		System.out.println("sahema name is " + schemaName);
 	}
 }

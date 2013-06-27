@@ -2,7 +2,6 @@ package com.bizosys.hsearch.kv.impl;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;

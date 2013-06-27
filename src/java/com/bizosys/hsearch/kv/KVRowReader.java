@@ -13,6 +13,7 @@ import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 
 public class KVRowReader {
 
+	
 	public static final String COL_FAM = "1";
 	public static final String INSTRUCTION = "kv";
 	

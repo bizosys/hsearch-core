@@ -2,6 +2,14 @@ package com.bizosys.hsearch.kv.dao.donotmodify;
 
 import java.io.IOException;
 
+import com.bizosys.hsearch.kv.dao.donotmodify.HSearchTableKVBoolean;
+import com.bizosys.hsearch.kv.dao.donotmodify.HSearchTableKVByte;
+import com.bizosys.hsearch.kv.dao.donotmodify.HSearchTableKVDouble;
+import com.bizosys.hsearch.kv.dao.donotmodify.HSearchTableKVFloat;
+import com.bizosys.hsearch.kv.dao.donotmodify.HSearchTableKVInteger;
+import com.bizosys.hsearch.kv.dao.donotmodify.HSearchTableKVLong;
+import com.bizosys.hsearch.kv.dao.donotmodify.HSearchTableKVShort;
+import com.bizosys.hsearch.kv.dao.donotmodify.HSearchTableKVString;
 import com.bizosys.hsearch.treetable.client.HSearchTableCombiner;
 import com.bizosys.hsearch.treetable.client.IHSearchTable;
 

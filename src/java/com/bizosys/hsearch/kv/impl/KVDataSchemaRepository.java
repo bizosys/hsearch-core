@@ -35,8 +35,7 @@ public class KVDataSchemaRepository {
     		dataTypesPrimitives.put("byte", 'c');
     	}
 
-		public KVDataSchema(final String xmlPath) {
-			FieldMapping fm = FieldMapping.getXMLFieldMappings(xmlPath);
+		public KVDataSchema(final FieldMapping fm) {
 			Map<Integer,Field> seqFields = fm.fieldSeqs;
 			String dataType = ""; 
 			for (Integer seq : seqFields.keySet()) {
@@ -83,10 +82,10 @@ public class KVDataSchemaRepository {
 	
 	Map<String, KVDataSchema> repositoryMap = new HashMap<String, KVDataSchemaRepository.KVDataSchema>();
 	
-	public final void add(final String repositoryName, final String xmlPath) {
+	public final void add(final String repositoryName, final FieldMapping fm) {
 		if(repositoryMap.containsKey(repositoryName))
 			return;
-		repositoryMap.put(repositoryName, new KVDataSchema(xmlPath));
+		repositoryMap.put(repositoryName, new KVDataSchema(fm));
 	}
 	
 	public final KVDataSchema get(final String repositoryName) {

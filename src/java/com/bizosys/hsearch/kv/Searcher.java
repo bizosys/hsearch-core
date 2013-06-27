@@ -17,7 +17,9 @@ import com.bizosys.hsearch.functions.GroupSortedObject;
 import com.bizosys.hsearch.functions.GroupSortedObject.FieldType;
 import com.bizosys.hsearch.functions.GroupSorter;
 import com.bizosys.hsearch.functions.GroupSorter.GroupSorterSequencer;
+import com.bizosys.hsearch.kv.KVRowReader;
 import com.bizosys.hsearch.kv.impl.ComputeKV;
+import com.bizosys.hsearch.kv.impl.FieldMapping;
 import com.bizosys.hsearch.kv.impl.IEnricher;
 import com.bizosys.hsearch.kv.impl.KVDataSchemaRepository;
 import com.bizosys.hsearch.kv.impl.KVRowI;
@@ -33,8 +35,8 @@ public class Searcher {
 	private Searcher(){
 	}
 	
-	public Searcher(String schemaPath){
-		repository.add(schemaRepositoryName, schemaPath);
+	public Searcher(final FieldMapping fm){
+		repository.add(schemaRepositoryName, fm);
 	}
 		
 	@SuppressWarnings("unchecked")
