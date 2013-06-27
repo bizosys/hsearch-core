@@ -19,20 +19,20 @@ public class HBaseTableSchema {
 		return singleton;
 	}
 	
+	public String TABLE_NAME = "--TABLE-NAME--";
 	private HBaseTableSchema() throws IOException {
 		
-		HBaseTableSchemaDefn.getInstance().tableName = "--TABLE-NAME--";
-		Map<String, IPartition> columns = HBaseTableSchemaDefn.getInstance().columnPartions;
+		Map<String, IPartition> columns = HBaseTableSchemaDefn.getInstance(TABLE_NAME).columnPartions;
 --CREATE-COL-FAMILIES--
 
 	}
 
 	public HBaseTableSchemaDefn getSchema() {
-		return HBaseTableSchemaDefn.getInstance();
+		return HBaseTableSchemaDefn.getInstance(TABLE_NAME);
 	}
 	
 	public void createSchema() {
-		new HBaseTableSchemaCreator().init();
+		new HBaseTableSchemaCreator().init(TABLE_NAME);
 	}
 	
 	public static void main(String[] args) throws Exception {

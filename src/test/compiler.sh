@@ -1,0 +1,1 @@
+java -classpath lib\gson-2.2.2.jar;hsearch-core.jar com.bizosys.hsearch.treetable.compiler.HSearchCompiler src/test/compiler.json /tmp

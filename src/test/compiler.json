@@ -1,0 +1,10 @@
+{
+    "module":"junk",
+    "table":"embedded-index",
+    "columns": [
+	 	{
+	            "name": "Documents",
+	            "indexes": "schema-frequency"
+		}
+    ]
+}
