@@ -36,7 +36,7 @@ public class HBaseTableSchema {
 	}
 	
 	public void createSchema() {
-		new HBaseTableSchemaCreator().init(getSchema().tableName);
+		new HBaseTableSchemaCreator().init(TABLE_NAME);
 	}
 	
 	public static void main(String[] args) throws Exception {

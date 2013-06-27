@@ -30,7 +30,7 @@ public class DataCreator {
     	
     	IPartition<Double> partition = schema.columnPartions.get(colFamily);
 		for ( String famExt : partition.getPartitionNames() ) {
-        	HDML.truncate(schema.tableName, new NV(
+        	HDML.truncate(schema.getTableName(), new NV(
         		(schema.columnPartions.keySet().iterator().next() + "_" + famExt) .getBytes(), "1".getBytes() ));
     	}
     	
@@ -73,6 +73,6 @@ public class DataCreator {
 			);
 		}
 		
-    	HWriter.getInstance(true).insertScalar(schema.tableName, records);
+    	HWriter.getInstance(true).insertScalar(schema.getTableName(), records);
 	}
 }

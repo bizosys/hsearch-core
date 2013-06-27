@@ -46,7 +46,7 @@ public final class HBaseTableSchemaDefn {
 		this.tableName = tableName;
 	}
 
-	public String tableName = "htable";
+	private String tableName = "htable";
 	
 	//FamilyName_partition is how the column families are created.
 	public Map<String, IPartition> columnPartions = new HashMap<String, IPartition>();
@@ -59,6 +59,10 @@ public final class HBaseTableSchemaDefn {
 		String tokenStr  = new Integer(token).toString();
 		return tokenStr.charAt(tokenStr.length() - 1);
 	}	
+	
+	public String getTableName() {
+		return this.tableName;
+	}
 	
 
 }

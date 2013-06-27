@@ -104,7 +104,7 @@ public final class HBaseTableSchemaCreator {
 				}
 			}
 			
-			HDML.create(def.tableName, colFamilies);
+			HDML.create(tableName, colFamilies);
 			return true;
 			
 		} catch (Exception sf) {
