@@ -61,7 +61,6 @@ public final class GroupSorter{
 		sortedSequences.add(seq);
 	}
 	
-	
 	public void sort(GroupSortedObject[] objects) {
 		
 		Collections.sort(sortedSequences);

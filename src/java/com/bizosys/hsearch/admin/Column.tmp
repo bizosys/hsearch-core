@@ -1,7 +1,6 @@
-
 import com.bizosys.hsearch.functions.GroupSortedObject;
-import com.bizosys.hsearch.shell.kv.impl.KVDataSchemaRepository.KVDataSchema;
-import com.bizosys.hsearch.shell.kv.impl.KVRowI;
+import com.bizosys.hsearch.kv.impl.KVDataSchemaRepository.KVDataSchema;
+import com.bizosys.hsearch.kv.impl.KVRowI;
 
 public class Column extends GroupSortedObject implements KVRowI{
 	
