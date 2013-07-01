@@ -33,6 +33,7 @@ import com.bizosys.hsearch.util.HSearchLog;
 public class CacheService {
 	private static CacheService singleton = null;
 	private static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled(); 
+	private static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled(); 
 	
 	/**
 	 * TODO:// Automatically disable cache service if there are more than 3 exception 
@@ -51,7 +52,8 @@ public class CacheService {
 	private CacheService() throws IOException {
 		CacheStorage.getInstance(); //Initializes
 		cacheSingleQueryCoproc = HSearchConfig.getInstance().getConfiguration().getBoolean(
-			"cache.singlequeery.enabled", true);
+			"cache.singlequery.enabled", true);
+		if ( DEBUG_ENABLED ) HSearchLog.l.debug("CacheStorage is " + cacheSingleQueryCoproc);
 	}
 	
 	public void setCacheEnable(boolean isEnabled) {
