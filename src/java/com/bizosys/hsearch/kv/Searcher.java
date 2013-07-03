@@ -26,6 +26,7 @@ import com.bizosys.hsearch.kv.impl.KVDataSchemaRepository;
 import com.bizosys.hsearch.kv.impl.KVDataSchemaRepository.KVDataSchema;
 import com.bizosys.hsearch.kv.impl.KVRowI;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public class Searcher {
 
@@ -33,6 +34,10 @@ public class Searcher {
 	List<KVRowI> resultset = new ArrayList<KVRowI>();
 	String schemaRepositoryName = "xmlFields";
 	KVDataSchemaRepository repository = KVDataSchemaRepository.getInstance();
+	
+	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
+	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
+	
 	
 	private Searcher(){
 	}
@@ -45,12 +50,29 @@ public class Searcher {
 			final String mergeIdPattern, String selectQuery, String whereQuery,
 			KVRowI blankRow, IEnricher... enrichers) throws IOException  {
 
-		List<String> rows = HReader.getMatchingRowIds(dataRepository, mergeIdPattern);
+		List<String> rowIds = HReader.getMatchingRowIds(dataRepository, mergeIdPattern);
+		Set<String> mergeIds = new HashSet<String>();
 		
-		for (String mergeId : rows) {
+		for (String mergeIdWithFieldId : rowIds) {
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("Analyzing rowId :" + mergeIdWithFieldId);
+			int lastIndex = mergeIdWithFieldId.lastIndexOf('_');
+			mergeIds.add(  mergeIdWithFieldId.substring(0, lastIndex) );
+		}
+		
+		for (String mergeId : mergeIds) {
+			if ( DEBUG_ENABLED ) HSearchLog.l.debug("Searching in mergeId :" + mergeId);
 			search(dataRepository, mergeId, selectQuery, whereQuery, blankRow, enrichers);
 		}
 		
+	}
+	
+	/**
+	 * Select : mergeid/field,mergeid/field,mergeid/field
+	 * Where  : (mergeid/field = 34 AND mergeid/field = 39) OR (mergeid/field = [2-34])
+	 * 
+	 * @param compositeQuery
+	 */
+	public void searchAcross() {
 	}
 		
 	@SuppressWarnings("unchecked")
@@ -96,8 +118,11 @@ public class Searcher {
 				System.err.println("Error in Searcher: could not execute " + e.getMessage());
 			}
 			
-			if(null == mixedQueryMatchedIds)return;
-			System.out.println("matching ids " + mixedQueryMatchedIds.getDocumentIds().toString());
+			if(null == mixedQueryMatchedIds) return;
+			if ( null == mixedQueryMatchedIds.getDocumentIds()) return;
+			if ( DEBUG_ENABLED ) {
+				HSearchLog.l.debug("Matching ids " + mixedQueryMatchedIds.getDocumentIds().toString());
+			}
 			
 			for (Object matchedId : mixedQueryMatchedIds.getDocumentIds()) {
 				if ( null == foundIds) {

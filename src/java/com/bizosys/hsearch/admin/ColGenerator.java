@@ -116,7 +116,7 @@ public class ColGenerator {
 			getters += "\t\tcase "+ fld.sourceSeq + ":\n\t\t\t return this."+fld.sourceName.toLowerCase()+";\n";
 			
 			if(fld.isJoinKey){
-				setId = "\t\tthis."+fld.sourceName+" = id;";
+				setId = "this." + fld.sourceName;
 			}
 		}
 

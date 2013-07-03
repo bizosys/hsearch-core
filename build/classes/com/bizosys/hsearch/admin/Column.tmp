@@ -116,6 +116,12 @@ public class Column extends GroupSortedObject implements KVRowI{
 	
 	@Override
 	public void setId(Integer id) {
---SET_ID--
+		--SET_ID-- = id;
 	}
+
+	@Override
+	public Integer getId() {
+		return --SET_ID--
+	}
+
 }
