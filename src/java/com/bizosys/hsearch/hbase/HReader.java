@@ -31,10 +31,15 @@ import org.apache.hadoop.hbase.client.RowLock;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.BinaryPrefixComparator;
 import org.apache.hadoop.hbase.filter.CompareFilter;
+import org.apache.hadoop.hbase.filter.CompareFilter.CompareOp;
 import org.apache.hadoop.hbase.filter.Filter;
+import org.apache.hadoop.hbase.filter.KeyOnlyFilter;
 import org.apache.hadoop.hbase.filter.PageFilter;
+import org.apache.hadoop.hbase.filter.RegexStringComparator;
 import org.apache.hadoop.hbase.filter.RowFilter;
 import org.apache.hadoop.hbase.util.Bytes;
+
+import org.apache.hadoop.hbase.filter.FilterList;
 
 import com.bizosys.hsearch.util.HSearchLog;
 
@@ -79,6 +84,51 @@ public class HReader {
 		} finally {
 			if ( null != facade && null != table) facade.putTable(table);
 		}
+	}
+	
+	public static List<String> getMatchingRowIds(String tableName, String rowIdPattern) throws IOException {
+
+		FilterList filters = new FilterList(FilterList.Operator.MUST_PASS_ALL);
+		RegexStringComparator regex = new RegexStringComparator(rowIdPattern);
+		RowFilter aFilter = new RowFilter(CompareOp.EQUAL, regex);
+		filters.addFilter(aFilter);
+		filters.addFilter(new KeyOnlyFilter());
+
+		HBaseFacade facade = null;
+		ResultScanner scanner = null;
+		HTableWrapper table = null;
+
+		List<String> rowIds = new ArrayList<String>();
+
+		try {
+
+			facade = HBaseFacade.getInstance();
+			table = facade.getTable(tableName);
+
+			Scan scan = new Scan();
+			scan.setCacheBlocks(true);
+			scan.setCaching(500);
+			scan.setMaxVersions(1);
+			scan.setFilter(filters);
+			scanner = table.getScanner(scan);
+
+			for (Result r : scanner) {
+				if (null == r) continue;
+				byte[] rowB = r.getRow();
+				if (null == rowB) continue;
+				if (rowB.length == 0) continue;
+				String row = new String(rowB);
+				rowIds.add(row);
+			}
+			return rowIds;
+			
+		} catch (IOException ex) {
+			HSearchLog.l.fatal("Error while looking table :" + tableName + " for regex, " + rowIdPattern , ex);
+			throw ex;
+		} finally {
+			if (null != scanner) scanner.close();
+			if ( null != facade && null != table) facade.putTable(table);
+		}		
 	}
 
 	public static final List<NVBytes> getCompleteRow (final String tableName, 

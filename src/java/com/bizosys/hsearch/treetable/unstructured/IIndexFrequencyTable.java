@@ -30,3 +30,4 @@ public interface IIndexFrequencyTable extends IHSearchTable {
 	byte[] toBytes() throws IOException;
 	void clear() throws IOException;
 }
+

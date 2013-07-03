@@ -1,5 +1,6 @@
 package com.bizosys.hsearch.kv;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,7 @@ import com.bizosys.hsearch.functions.GroupSortedObject;
 import com.bizosys.hsearch.functions.GroupSortedObject.FieldType;
 import com.bizosys.hsearch.functions.GroupSorter;
 import com.bizosys.hsearch.functions.GroupSorter.GroupSorterSequencer;
+import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.kv.impl.ComputeKV;
 import com.bizosys.hsearch.kv.impl.FieldMapping;
 import com.bizosys.hsearch.kv.impl.IEnricher;
@@ -37,6 +39,18 @@ public class Searcher {
 	
 	public Searcher(final FieldMapping fm){
 		repository.add(schemaRepositoryName, fm);
+	}
+	
+	public void searchRegex(final String dataRepository,
+			final String mergeIdPattern, String selectQuery, String whereQuery,
+			KVRowI blankRow, IEnricher... enrichers) throws IOException  {
+
+		List<String> rows = HReader.getMatchingRowIds(dataRepository, mergeIdPattern);
+		
+		for (String mergeId : rows) {
+			search(dataRepository, mergeId, selectQuery, whereQuery, blankRow, enrichers);
+		}
+		
 	}
 		
 	@SuppressWarnings("unchecked")
