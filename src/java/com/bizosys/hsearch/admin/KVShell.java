@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -25,10 +26,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import com.bizosys.hsearch.admin.HSearchShell;
 import com.bizosys.hsearch.kv.Searcher;
 import com.bizosys.hsearch.kv.impl.FieldMapping;
 import com.bizosys.hsearch.kv.impl.IEnricher;
+import com.bizosys.hsearch.kv.impl.IndexerMapReduce;
 import com.bizosys.hsearch.kv.impl.KVRowI;
 import com.sun.tools.javac.Main;
 
@@ -39,23 +40,28 @@ public class KVShell {
 	public static final String BUILD_TEMP = "/tmp/build/";
 	public static final String JAR_TEMP = "/tmp/jar/";
 
-	private static KVShell singleton = null; 
-	
 	public List<String> queryFields = null;
 	public Searcher searcher = null;
+	public PrintStream writer = null;
 	
-	
-	public static KVShell getInstance() throws IOException {
-		if ( null == singleton ) singleton = new KVShell();
-		return singleton;
+	public KVShell(PrintStream writer) throws IOException {
+		queryFields = new ArrayList<String>();
+		this.writer = writer;
 	}
 	
-	private KVShell() throws IOException {
+	public KVShell() throws IOException {
 		queryFields = new ArrayList<String>();
+		this.writer = System.out;
+	}
+
+	
+	public static void main(String[] args) throws IOException {
+		run(args, System.out);
+		System.out.close();
 	}
 
 	@SuppressWarnings("static-access")
-	public static void main(String[] args) throws IOException {
+	public static void run(String[] args, PrintStream writer) throws IOException {
 
 		String[] folders = new String[] {SRC_TEMP, BUILD_TEMP, JAR_TEMP};
 		for (String folder : folders) {
@@ -72,11 +78,12 @@ public class KVShell {
 			
 		}
 
+		@SuppressWarnings("static-access")
 		Option load = OptionBuilder.withArgName("paths").hasArgs(2)
 			.withDescription("Specify data path and schema file.")
 			.create("load");
 		
-		Option search = OptionBuilder.withArgName("queries").hasArgs(3)
+		Option search = OptionBuilder.withArgName("queries").hasArgs(4)
 									.withDescription("Specify schema file path and queries.")
 									.create("search");
 
@@ -89,7 +96,7 @@ public class KVShell {
 		options.addOption(search);
 		options.addOption(sort);
 
-		KVShell shell = KVShell.getInstance();
+		KVShell shell = new KVShell(writer);
 		CommandLineParser parser = new GnuParser();
 		try {
 			CommandLine commandLine = parser.parse(options, args);
@@ -136,8 +143,8 @@ public class KVShell {
 			String schemaStr = sb.toString();
 			FieldMapping fm = FieldMapping.getXMLStringFieldMappings(schemaStr);
 			
-			//String[] indexerDetail = new String[]{arguments[0],arguments[1],fm.schemaName};
-			//IndexerMapReduce.main(indexerDetail);
+			String[] indexerDetail = new String[]{arguments[0],arguments[1],fm.schemaName};
+			IndexerMapReduce.main(indexerDetail);
 
 			ColGenerator.generate(fm, SRC_TEMP);
 
@@ -165,7 +172,7 @@ public class KVShell {
 			manifest.getMainAttributes().put(Attributes.Name.MAIN_CLASS,"Column");
 			JarOutputStream target = new JarOutputStream(new FileOutputStream(JAR_TEMP + "/column.jar"), manifest);
 
-			System.out.println("Building Jar : ");
+			writer.println("Building Jar : ");
 			hShell.createJar(new File(BUILD_TEMP), target);
 			target.close();
 			
@@ -178,7 +185,7 @@ public class KVShell {
 		try {
 			
 			URL jarUrl = new File("/tmp/jar/column.jar").toURI().toURL();
-			System.out.println("url " + jarUrl.toString());
+			writer.println("url " + jarUrl.toString());
 
 			URLClassLoader cl = URLClassLoader.newInstance(new URL[] { jarUrl });
 
@@ -205,12 +212,12 @@ public class KVShell {
 			IEnricher enricher = null;
 			if(null == searcher)searcher = new Searcher(fm);
 			
-			searcher.search(fm.schemaName, arguments[1], arguments[2], blankRow, enricher);
+			searcher.search(fm.schemaName, arguments[1], arguments[2], arguments[3], blankRow, enricher);
 			parseQuery(arguments[2], queryFields);
 			List<KVRowI> data = searcher.getResult();
 			int index = 0;
 			for (KVRowI aRow : data) {
-				System.out.println(aRow.getValue(queryFields.get(index++)) + "\t" + aRow.getValue(queryFields.get(index++)) + "\t" + aRow.getValue(queryFields.get(index++))+ "\t" + aRow.getValue(queryFields.get(index++)));
+				writer.println(aRow.getValue(queryFields.get(index++)) + "\t" + aRow.getValue(queryFields.get(index++)) + "\t" + aRow.getValue(queryFields.get(index++))+ "\t" + aRow.getValue(queryFields.get(index++)));
 				index = 0;
 			}
 
@@ -225,7 +232,7 @@ public class KVShell {
 			List<KVRowI> data = searcher.sort(sorterA);
 			int index = 0;
 			for (KVRowI aRow : data) {
-				System.out.println(aRow.getValue(queryFields.get(index++)) + "\t" + aRow.getValue(queryFields.get(index++)) + "\t" + aRow.getValue(queryFields.get(index++))+ "\t" + aRow.getValue(queryFields.get(index++)));
+				writer.println(aRow.getValue(queryFields.get(index++)) + "\t" + aRow.getValue(queryFields.get(index++)) + "\t" + aRow.getValue(queryFields.get(index++))+ "\t" + aRow.getValue(queryFields.get(index++)));
 				index = 0;
 			}
 
@@ -239,9 +246,9 @@ public class KVShell {
 		List<KVRowI> data = searcher.getResult();
 		for (KVRowI aRow : data) {
 			for (String facet : facetA) {
-				System.out.print(aRow.getValue(facet) + "\t");				
+				writer.print(aRow.getValue(facet) + "\t");				
 			}
-			System.out.println();
+			writer.println();
 		}
 	}
 
@@ -253,7 +260,7 @@ public class KVShell {
 	public void parseQuery(String query, List<String> queryFields) {
 		
 		String skeletonQuery = query.replaceAll("\\s+", " ").replaceAll("\\(", "").replaceAll("\\)", "");
-		String[] splittedQueries = skeletonQuery.split("(AND|OR|NOT)");
+		String[] splittedQueries = skeletonQuery.split("( AND | OR | NOT )");
 		int colonIndex = -1;
 		String fieldName = "";
 		

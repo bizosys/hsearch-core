@@ -13,6 +13,7 @@ public abstract class MapperKVBase implements IHSearchPlugin {
     public interface TablePartsCallback {
 
         public boolean onRowCols( final int key,  final Object value);
+        public boolean onRowKey(final int id);
         public void onReadComplete();
     }
 }

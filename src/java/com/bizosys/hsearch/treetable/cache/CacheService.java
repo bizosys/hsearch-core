@@ -60,6 +60,10 @@ public class CacheService {
 		this.cacheSingleQueryCoproc = isEnabled;
 	}
 	
+	public boolean isCacheEnable() {
+		return this.cacheSingleQueryCoproc;
+	}
+
 	public final void put(final String singleQury, final byte[] output) {
 		if ( ! cacheSingleQueryCoproc ) return;
 		CacheStoreClientAsync task = new CacheStoreClientAsync(singleQury, output);
@@ -81,4 +85,8 @@ public class CacheService {
 		}
 		return null;
 	}
+	
+	public static void main(String[] args) throws IOException {
+		System.out.println(CacheService.getInstance().cacheSingleQueryCoproc);
+	}	
 }

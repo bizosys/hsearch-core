@@ -30,7 +30,7 @@ public class ColGenerator {
 
 	public static void generate(FieldMapping fm , String path) throws IOException {
 
-		String template = getTextFileContent("/com/bizosys/hsearch/shell/admin/Column.tmp");
+		String template = getTextFileContent("Column.tmp");
 				
 		String params = "";
 		String setters = "";

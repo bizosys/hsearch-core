@@ -2,7 +2,10 @@ package com.bizosys.hsearch.kv;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
+import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.Storable;
 import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.kv.MapperKVBase;
@@ -20,12 +23,13 @@ public final class MapperKV extends MapperKVBase {
     HSearchProcessingInstruction instruction = null;
 
     ICompute compute = null;
-
+    Set<Integer> ids = new HashSet<Integer>();
+    
     @Override
     public final void setOutputType(final HSearchProcessingInstruction outputTypeCode) {
         this.instruction = outputTypeCode;
     	this.compute = ComputeFactory.getInstance().getCompute(this.instruction.getProcessingHint());
-    	this.compute.setCallBackType(this.instruction.getCallbackType());
+    	this.compute.setCallBackType(this.instruction.getOutputType());
     }
 
     /**
@@ -55,7 +59,11 @@ public final class MapperKV extends MapperKVBase {
      */
     @Override
     public final void getResultSingleQuery(final Collection<byte[]> container) throws IOException {
-    	container.add(this.compute.toBytes());
+    	
+    	if(this.instruction.getCallbackType() == HSearchProcessingInstruction.PLUGIN_CALLBACK_COLS)
+    		container.add(this.compute.toBytes());
+    	else
+    		container.add(SortedBytesInteger.getInstance().toBytes(this.ids));
     }
 
     /**
@@ -87,7 +95,6 @@ public final class MapperKV extends MapperKVBase {
 
         public MapperKV whole = null;
         ICompute computation = null;
-
         public RowReader(final MapperKV whole) {
             this.whole = whole;
         	this.computation = whole.compute;
@@ -97,6 +104,12 @@ public final class MapperKV extends MapperKVBase {
         	computation.put(key, value);
             return true;
         }
+
+		@Override
+		public boolean onRowKey(int id) {
+			this.whole.ids.add(id);
+			return true;
+		}
 
         @Override
         public final void onReadComplete() {

@@ -36,6 +36,7 @@ import com.bizosys.hsearch.util.HSearchLog;
 public final class HSearchGenericCoProcessorFactory {
 	
 	public static boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
+	boolean cacheEnabled = false;
 	
 	HSearchGenericFilter filter = null;
 	byte[][] families = null;
@@ -43,6 +44,10 @@ public final class HSearchGenericCoProcessorFactory {
 	
 	public HSearchGenericCoProcessorFactory(final List<ColumnFamName> family_cols , final HSearchGenericFilter filter) throws IOException {
 		this.filter = filter;
+		this.cacheEnabled = CacheService.getInstance().isCacheEnable();
+		if ( INFO_ENABLED) {
+			HSearchLog.l.info("Cache Storage Enablement :" + cacheEnabled );
+		}
 		
 		if (null == family_cols) throw new IOException("Please provide family details. Scan on all cols are not allowed");
 		this.families = new byte[family_cols.size()][];
@@ -67,9 +72,11 @@ public final class HSearchGenericCoProcessorFactory {
 		if ( null != filter) {
 			if ( filter.clientSideAPI_IsSingleQuery() ) {
 				singleQuery = filter.clientSideAPI_getSingleQueryWithScope();
-				byte[] singleQueryResultB = CacheService.getInstance().get(singleQuery);
-				if( null != singleQueryResultB) {
-					return SortedBytesArray.getInstance().parse(singleQueryResultB).values();
+				if ( cacheEnabled ) {
+					byte[] singleQueryResultB = CacheService.getInstance().get(singleQuery);
+					if( null != singleQueryResultB) {
+						return SortedBytesArray.getInstance().parse(singleQueryResultB).values();
+					}
 				}
 			}
 		}
@@ -89,11 +96,13 @@ public final class HSearchGenericCoProcessorFactory {
 		
 		try {
 			if ( null != singleQuery) {
-				byte[] dataPack = SortedBytesArray.getInstance().toBytes(result);
-				CacheService.getInstance().put(singleQuery, dataPack);
+				if ( cacheEnabled ) {
+					byte[] dataPack = SortedBytesArray.getInstance().toBytes(result);
+					CacheService.getInstance().put(singleQuery, dataPack);
+				}
 			}
 		} catch (Exception ex) {
-			HSearchLog.l.warn(ex);
+			HSearchLog.l.warn("Cache Service Failure.", ex);
 		}
 
 		return result;

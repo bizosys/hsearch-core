@@ -103,8 +103,14 @@ public class HSearchTableKVString implements IHSearchTable {
 			}
             
             if (null != plugin) {
-
-    			tablePartsCallback.onRowCols(cell1Key, cell1Val);                                
+            	switch (this.mode) {
+        		case MODE_COLS :
+        			tablePartsCallback.onRowCols(cell1Key, cell1Val);                                
+        			break;
+        		case MODE_KEY :
+        			tablePartsCallback.onRowKey(cell1Key);
+        			break;
+            	}
             }
         }
     }

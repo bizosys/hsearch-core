@@ -17,7 +17,7 @@ public class KVRowReader {
 	public static final String COL_FAM = "1";
 	public static final String INSTRUCTION = "kv";
 	
-	public static final byte[] getAllValues(final String tableName, final byte[] row, final String query, final int callBackType) throws IOException {
+	public static final byte[] getAllValues(final String tableName, final byte[] row, final String query, final int callBackType,  final int outputType) throws IOException {
 		
 		HBaseFacade facade = null;
 		ResultScanner scanner = null;
@@ -35,8 +35,8 @@ public class KVRowReader {
 			scan.setStartRow(row);
 			scan.setStopRow(row);
 
-			HSearchProcessingInstruction outputTypeCode = new HSearchProcessingInstruction(callBackType, INSTRUCTION);
-	    	ScalarFilter sf = new ScalarFilter(outputTypeCode, query);
+			HSearchProcessingInstruction outputTypeCode = new HSearchProcessingInstruction(callBackType, outputType, INSTRUCTION);
+			ScalarFilter sf = new ScalarFilter(outputTypeCode, query);
 	    	scan.setFilter(sf);
 	    	
 			scanner = table.getScanner(scan);

@@ -34,7 +34,7 @@ public class ScalarFilter extends HSearchScalarFilter {
 
 	@Override
 	public IHSearchTable createTable() {
-		int type = inputMapperInstructions.getCallbackType();
+		int type = inputMapperInstructions.getOutputType();
 
 		switch ( type) {
 			case 0:
