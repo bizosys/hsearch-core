@@ -68,7 +68,7 @@ public class Configuration {
   /** A new configuration. */
   public Configuration() {
     if (LOG.isDebugEnabled()) {
-      LOG.debug("***********   DEBUG is ON   **********************");
+      LOG.debug("***********  HSEARCH DEBUG is ON   **********************");
     }
     defaultResources.add("hsearch-default.xml");
     finalResources.add("hsearch-site.xml");
@@ -375,7 +375,8 @@ public class Configuration {
 
       return url.openStream();
     } catch (Exception e) {
-      return null;
+    	e.printStackTrace(System.err);
+    	return null;
     }
   }
 

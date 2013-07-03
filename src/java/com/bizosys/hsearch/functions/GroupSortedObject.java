@@ -24,7 +24,7 @@ import com.bizosys.hsearch.functions.GroupSorter.GroupSorterSequencer;
 public abstract class GroupSortedObject implements  Comparable<GroupSortedObject>{
 	
 	public static enum FieldType {
-		BOOLEAN, BYTE, SHORT, INTEGER, FLOAT, LONG, DOUBLE, STRING, OBJECT
+		BOOLEAN, BYTE, SHORT, INTEGER, FLOAT, LONG, DOUBLE, STRING, FREQUENCY_INDEX, OBJECT
 	}
 	
 	public abstract boolean getBooleanField(int fldSequence);
