@@ -230,7 +230,7 @@ public static final class Cell3Map
 		
 		
 		@Override
-		public final void visit(final Integer cell1Key, final Float cell1Val) {
+		public final void visit(final Integer cell1Key, final Float cell1Val)  {
 
 			//Is it all or not.
 			if (query.filterCells[3]) {
@@ -281,17 +281,17 @@ public static final class Cell3Map
 			if (null != plugin) {
             	switch (this.mode) {
             		case MODE_COLS :
-            			tablePartsCallback.onRowCols(cell4Key, cell3Key, cell2Key, cell1Key, cell1Val);
+            			tablePartsCallback.map(cell4Key, cell3Key, cell2Key, cell1Key, cell1Val);
             			break;
 
             		case MODE_KEY :
-            			tablePartsCallback.onRowKey(cell1Key);
+            			tablePartsCallback.map(cell1Key);
             			break;
             		case MODE_KEYVAL :
-            			tablePartsCallback.onRowKeyValue(cell1Key, cell1Val);
+            			tablePartsCallback.map(cell1Key, cell1Val);
             			break;
             		case MODE_VAL:
-            			tablePartsCallback.onRowValue(cell1Val);
+            			tablePartsCallback.map(cell1Val);
             			break;
             	}
 			} 
@@ -395,7 +395,7 @@ public static final class Cell3Map
             this.table.parseElements();
         }
 
-        if (null != callback) callback.onReadComplete();
+        if (null != callback) callback.close();
         if (null != plugin) plugin.onReadComplete();
     }
 

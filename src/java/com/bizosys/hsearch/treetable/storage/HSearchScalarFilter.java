@@ -215,7 +215,23 @@ public abstract class HSearchScalarFilter implements Filter {
 				byte[] inputData = kv.getValue();
 				if ( null == inputData) continue;
 				
-				table.get(inputData, this.query, plugin);
+				switch ( this.inputMapperInstructions.getCallbackType()) {
+					case HSearchProcessingInstruction.PLUGIN_CALLBACK_COLS:
+						table.get(inputData, this.query, plugin);
+						break;
+					case HSearchProcessingInstruction.PLUGIN_CALLBACK_ID:
+						table.keySet(inputData, this.query, plugin);
+						break;
+					case HSearchProcessingInstruction.PLUGIN_CALLBACK_VAL:
+						table.values(inputData, this.query, plugin);
+						break;
+					case HSearchProcessingInstruction.PLUGIN_CALLBACK_IDVAL:
+						table.keyValues(inputData, this.query, plugin);
+						break;
+					default:
+						throw new IOException("Unknown output type:" + this.inputMapperInstructions.getCallbackType());
+				}
+				
 				plugin.getResultSingleQuery(dataCarrier);
 				
 				kvLFiltered.add(new KeyValue(kv.getKey(), kv.getFamily(), kv.getQualifier(), 

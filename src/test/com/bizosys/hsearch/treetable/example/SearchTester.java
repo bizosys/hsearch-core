@@ -10,12 +10,14 @@ import junit.framework.TestFerrari;
 
 import com.bizosys.hsearch.treetable.Cell2Test;
 import com.bizosys.hsearch.treetable.example.impl.Client;
+import com.bizosys.hsearch.treetable.example.impl.donotmodify.CountClient;
+import com.bizosys.hsearch.treetable.example.impl.donotmodify.ListClient;
 import com.oneline.ferrari.TestAll;
 
 public class SearchTester extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-	public static String mode = modes[1];  
+	public static String mode = modes[2];  
 	
 	public static void main(String[] args) throws Exception {
 		SearchTester t = new SearchTester();
@@ -27,7 +29,7 @@ public class SearchTester extends TestCase {
 	        
 		} else if  ( modes[2].equals(mode) ) {
 			t.setUp();
-			t.threeQuery3PartTest();
+			t.leftBoundaryTest();
 			t.tearDown();
 		}
 	}
@@ -41,6 +43,14 @@ public class SearchTester extends TestCase {
 	}
 	
 	public void leftBoundaryTest() throws Exception {
+		System.out.println("START");
+		//CountClient ht = new CountClient();
+		
+		ListClient ht = new ListClient();
+		Map<String, String> multiQueryParts = new HashMap<String, String>();
+		multiQueryParts.put("ExamResult:1", "*|student|*|*|*");
+		multiQueryParts.put("ExamResult:2", "*|monitor|*|*|*");
+		ht.execute("ExamResult:1 OR ExamResult:2", multiQueryParts);
 	}
 
 	public void rightBoundaryTest() throws Exception {

@@ -1,4 +1,4 @@
-package com.bizosys.hsearch.treetable.example.impl;
+package com.bizosys.hsearch.treetable.example.impl.donotmodify;
 
 import java.io.IOException;
 import java.util.Map;
@@ -13,13 +13,13 @@ import com.bizosys.hsearch.treetable.example.impl.donotmodify.CountCombinerExamR
 import com.bizosys.hsearch.treetable.example.impl.donotmodify.CountReducer;
 import com.bizosys.hsearch.treetable.example.impl.donotmodify.HSearchTableMultiQueryProcessorImpl;
 
-public class Filter extends HSearchGenericFilter {
+public class CountFilter extends HSearchGenericFilter {
 
 	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
-	public Filter(){
+	public CountFilter(){
 	}
-	public Filter(HSearchProcessingInstruction outputType, String query,Map<String, String> details) {
+	public CountFilter(HSearchProcessingInstruction outputType, String query,Map<String, String> details) {
 		super(outputType, query, details);
 	}
 

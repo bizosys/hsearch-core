@@ -72,7 +72,7 @@
     
     <property>
         <name>cache.singlequery.enabled</name>
-        <value>true</value>
+        <value>false</value>
         <description>Single query coprocessor outputs are cached. The expectation is, large number of data will go through streaming calls to avoid network delay.</description>
     </property>
     

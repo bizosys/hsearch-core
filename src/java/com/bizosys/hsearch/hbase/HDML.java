@@ -136,9 +136,11 @@ public class HDML {
 				table.delete(delete);
 			}
 		} finally {
-			table.flushCommits();
 			if ( null != scanner) scanner.close();
-			if ( null != table ) facade.putTable(table);
+			if ( null != table ) {
+				table.flushCommits();
+				facade.putTable(table);
+			}
 			if ( null != matched) matched.clear();
 		}
 	}		
