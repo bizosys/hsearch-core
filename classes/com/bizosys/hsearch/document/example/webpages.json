@@ -1,0 +1,11 @@
+{
+    "module" : "com.bizosys.hsearch.document.example.impl",
+    "table": "htable-test",
+    "columns": [
+		{
+            "name": "Documents",
+            "indexes": "schema-payload-frequency"
+
+		}        
+    ]
+}

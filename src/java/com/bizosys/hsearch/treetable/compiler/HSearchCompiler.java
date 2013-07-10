@@ -58,7 +58,11 @@ public class HSearchCompiler {
 				ReadFileFromJar.getTextFileContent(
 					"/com/bizosys/hsearch/treetable/compiler/schema-positions.json" ) );
 
+		schemaStr = schemaStr.replace("\"indexes\": \"schema-payload-frequency\"", 
+				ReadFileFromJar.getTextFileContent(
+					"/com/bizosys/hsearch/treetable/compiler/schema-payload-frequency.json" ) );
 
+		
 		System.out.println(schemaStr);
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
 		String path = args[1] + "/" + newSchema.module.replace(".", "/");

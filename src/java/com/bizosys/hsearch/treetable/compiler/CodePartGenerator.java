@@ -20,6 +20,7 @@
 package com.bizosys.hsearch.treetable.compiler;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -505,7 +506,7 @@ public class CodePartGenerator {
 		  }
 	}
 		
-	public String createCellClass(List<Field> fields, int cellNo) {
+	public String createCellClass(List<Field> fields, int cellNo) throws ParseException {
 		
 		int remainingCells = fields.size() - cellNo;
 		int remainingCellsValueIndex = remainingCells - 1;
@@ -553,7 +554,14 @@ public class CodePartGenerator {
 		code.append("\n\t@Override\n");
 
 		String completeCellSign = theValueCellSignature;
-		String currentCellSign = completeCellSign.replaceFirst(cellSignatureKey + ", ", ""); 
+		String signatureWithComma = cellSignatureKey + ", ";
+		int firstIndex = completeCellSign.indexOf(signatureWithComma);
+		String currentCellSign = null;
+		if ( firstIndex == -1 ) {
+			throw new ParseException("Unable to find , " + signatureWithComma, -1);
+		} else {
+			currentCellSign = completeCellSign.substring(0, firstIndex) + completeCellSign.substring(firstIndex + signatureWithComma.length());
+		}
 
 		code.append("\tpublic final " + currentCellSign + " put( final " + cellSignatureKey
 				+ " key, final " + currentCellSign + " value) {");
