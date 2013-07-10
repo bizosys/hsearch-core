@@ -24,9 +24,9 @@ import java.io.IOException;
 
 import com.bizosys.hsearch.treetable.client.IHSearchTable;
 
-public interface IIndexFrequencyPayloadTable extends IHSearchTable {
+public interface IIndexMetadataFrequencyTable extends IHSearchTable {
 
-	void put(Integer docType, Integer fieldType, byte[] payload, Integer hashCode, Integer docId, Integer frequencies);		
+	void put(Integer docType, Integer fieldType, byte[] metadata, Integer hashCode, Integer docId, Integer frequencies);		
 	byte[] toBytes() throws IOException;
 	void clear() throws IOException;
 }

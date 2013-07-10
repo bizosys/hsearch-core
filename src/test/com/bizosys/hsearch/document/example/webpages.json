@@ -4,7 +4,7 @@
     "columns": [
 		{
             "name": "Documents",
-            "indexes": "schema-payload-frequency"
+            "indexes": "schema-metadata-frequency"
 
 		}        
     ]

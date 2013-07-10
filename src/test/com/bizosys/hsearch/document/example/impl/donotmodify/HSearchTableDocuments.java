@@ -35,7 +35,7 @@ import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.client.IHSearchTable;
 
-import com.bizosys.hsearch.treetable.unstructured.IIndexFrequencyPayloadTable;
+import com.bizosys.hsearch.treetable.unstructured.IIndexMetadataFrequencyTable;
 import com.bizosys.hsearch.treetable.unstructured.IIndexOffsetTable;
 import com.bizosys.hsearch.treetable.unstructured.IIndexFrequencyTable;
 import com.bizosys.hsearch.treetable.unstructured.IIndexPositionsTable;
@@ -53,7 +53,7 @@ import com.bizosys.hsearch.treetable.CellComparator.StringComparator;
 import com.bizosys.hsearch.treetable.ValueComparator;
 import com.bizosys.hsearch.util.EmptyMap;
 
-public final class HSearchTableDocuments implements IIndexFrequencyPayloadTable {
+public final class HSearchTableDocuments implements IIndexMetadataFrequencyTable {
 	
 	public static boolean DEBUG_ENABLED = false;
 	
@@ -368,8 +368,8 @@ public static final class Cell3Map
 		return table.toBytes(new IntegerComparator<Integer>());
 	}
 
-	public final void put (Integer doctype, Integer wordtype, byte[] payload, Integer hashcode, Integer docid, Integer frequency) {
-		table.put( doctype, wordtype, payload, hashcode, docid, frequency );
+	public final void put (Integer doctype, Integer wordtype, byte[] metadata, Integer hashcode, Integer docid, Integer frequency) {
+		table.put( doctype, wordtype, metadata, hashcode, docid, frequency );
 	}
 	
     @Override

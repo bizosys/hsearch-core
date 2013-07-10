@@ -58,9 +58,9 @@ public class HSearchCompiler {
 				ReadFileFromJar.getTextFileContent(
 					"/com/bizosys/hsearch/treetable/compiler/schema-positions.json" ) );
 
-		schemaStr = schemaStr.replace("\"indexes\": \"schema-payload-frequency\"", 
+		schemaStr = schemaStr.replace("\"indexes\": \"schema-metadata-frequency\"", 
 				ReadFileFromJar.getTextFileContent(
-					"/com/bizosys/hsearch/treetable/compiler/schema-payload-frequency.json" ) );
+					"/com/bizosys/hsearch/treetable/compiler/schema-metadata-frequency.json" ) );
 
 		
 		System.out.println(schemaStr);

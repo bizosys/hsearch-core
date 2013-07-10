@@ -1,4 +1,4 @@
-            "indexType" : "IIndexFrequencyPayloadTable",
+            "indexType" : "IIndexMetadataFrequencyTable",
             "indexes": [
                 {
                     "name": "doctype",
@@ -11,7 +11,7 @@
                     "minValue": -32768
                 },
                 {
-                    "name": "payload",
+                    "name": "metadata",
                     "datatype": "byte[]"
                 },
                 {

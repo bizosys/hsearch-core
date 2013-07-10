@@ -179,13 +179,13 @@ public final class MapperDocuments extends PluginDocumentsBase {
             return true;
         }
 
-        public final boolean onRowCols( final int doctype,  final int wordtype,  final byte[] payload,  final int hashcode,  final int docid,  final int frequency) {
+        public final boolean onRowCols( final int doctype,  final int wordtype,  final byte[] metadata,  final int hashcode,  final int docid,  final int frequency) {
         	switch (whole.switchType) {
 			case LIST:
 				
 				appender.append(doctype);
 				appender.append(FLD_SEPARATOR).append(wordtype);
-				appender.append(FLD_SEPARATOR).append(payload);
+				appender.append(FLD_SEPARATOR).append(metadata);
 				appender.append(FLD_SEPARATOR).append(hashcode);
 				appender.append(FLD_SEPARATOR).append(docid);
 				appender.append(FLD_SEPARATOR).append(frequency);
