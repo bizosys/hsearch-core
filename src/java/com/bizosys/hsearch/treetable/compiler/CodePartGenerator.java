@@ -264,6 +264,7 @@ public class CodePartGenerator {
 		else if ("Long".equals(valField.datatype)) return "LongComparator";
 		else if ("String".equals(valField.datatype)) return "StringComparator";
 		else if ("Byte".equals(valField.datatype)) return "ByteComparator";
+		else if ("Boolean".equals(valField.datatype)) return "BooleanComparator";
 		else if ("Short".equals(valField.datatype)) return "IntegerComparator";
 		else if ("byte[]".equals(valField.datatype)) return "BytesComparator";
 		else throw new Exception("Datatype is not found - " + valField.datatype );

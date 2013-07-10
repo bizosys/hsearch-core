@@ -179,7 +179,7 @@ public final class MapperDocuments extends PluginDocumentsBase {
             return true;
         }
 
-        public final boolean onRowCols( final int doctype,  final int wordtype,  final String metadata,  final int hashcode,  final int docid,  final int frequency) {
+        public final boolean onRowCols( final int doctype,  final int wordtype,  final String metadata,  final int hashcode,  final int docid,  final boolean flag) {
         	switch (whole.switchType) {
 			case LIST:
 				
@@ -188,7 +188,7 @@ public final class MapperDocuments extends PluginDocumentsBase {
 				appender.append(FLD_SEPARATOR).append(metadata);
 				appender.append(FLD_SEPARATOR).append(hashcode);
 				appender.append(FLD_SEPARATOR).append(docid);
-				appender.append(FLD_SEPARATOR).append(frequency);
+				appender.append(FLD_SEPARATOR).append(flag);
 				appender.append(ROW_SEPARATOR);
 
 	        	
@@ -202,11 +202,11 @@ public final class MapperDocuments extends PluginDocumentsBase {
 				
 			case MINMAX:
 				
-				if (frequency< minValue)
-				minValue =frequency;
-			if (frequency> maxValue)
-				maxValue =frequency;
-	        	
+				try {
+	throw new Exception("Min Max cannot be calculated for boolean datatype");
+} catch (Exception e) {
+e.printStackTrace();
+}	        	
 				
 				break;
 			}
@@ -215,12 +215,12 @@ public final class MapperDocuments extends PluginDocumentsBase {
         }
 
         @Override
-        public final boolean onRowKeyValue(final int key, final int value) {
+        public final boolean onRowKeyValue(final int key, final boolean value) {
             return true;
         }
 
         @Override
-        public final boolean onRowValue(final int value) {
+        public final boolean onRowValue(final boolean value) {
             return true;
         }
 

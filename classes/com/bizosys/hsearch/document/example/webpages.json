@@ -4,7 +4,7 @@
     "columns": [
 		{
             "name": "Documents",
-            "indexes": "schema-metadata-frequency"
+            "indexes": "schema-metadata-flag"
 
 		}        
     ]
