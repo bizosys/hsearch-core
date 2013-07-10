@@ -62,6 +62,10 @@ public class HSearchCompiler {
 				ReadFileFromJar.getTextFileContent(
 					"/com/bizosys/hsearch/treetable/compiler/schema-metadata-frequency.json" ) );
 
+		schemaStr = schemaStr.replace("\"indexes\": \"schema-metadata-flag\"", 
+				ReadFileFromJar.getTextFileContent(
+					"/com/bizosys/hsearch/treetable/compiler/schema-metadata-flag.json" ) );
+
 		
 		System.out.println(schemaStr);
 		Schema newSchema = gson.fromJson(schemaStr, Schema.class);
