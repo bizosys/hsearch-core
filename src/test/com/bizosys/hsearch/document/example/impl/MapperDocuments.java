@@ -179,7 +179,7 @@ public final class MapperDocuments extends PluginDocumentsBase {
             return true;
         }
 
-        public final boolean onRowCols( final int doctype,  final int wordtype,  final byte[] metadata,  final int hashcode,  final int docid,  final int frequency) {
+        public final boolean onRowCols( final int doctype,  final int wordtype,  final String metadata,  final int hashcode,  final int docid,  final int frequency) {
         	switch (whole.switchType) {
 			case LIST:
 				

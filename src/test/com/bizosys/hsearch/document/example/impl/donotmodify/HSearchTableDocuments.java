@@ -64,7 +64,7 @@ public final class HSearchTableDocuments implements IIndexMetadataFrequencyTable
 	
 	
 	public static final class Cell5Map
-		 extends EmptyMap<Integer, Cell5<Integer, byte[], Integer, Integer, Integer>> {
+		 extends EmptyMap<Integer, Cell5<Integer, String, Integer, Integer, Integer>> {
 
 	public HSearchQuery query;
 	public Cell2FilterVisitor cell2Visitor;
@@ -72,9 +72,9 @@ public final class HSearchTableDocuments implements IIndexMetadataFrequencyTable
 	public Integer cellMin1; 
 	public Integer cellMax1;
 	public Integer[] inValues1;
-	public Map<Integer, Cell4<byte[], Integer, Integer, Integer>> cell4L = null;
+	public Map<Integer, Cell4<String, Integer, Integer, Integer>> cell4L = null;
 
-	public Cell5Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor, final Integer matchingCell5, final Integer cellMin5, final Integer cellMax5, final Integer[] inValues5, final Integer matchingCell3, final Integer cellMin3, final Integer cellMax3, final Integer[] inValues3, final byte[] matchingCell2, final byte[] cellMin2, final byte[] cellMax2, final byte[][] inValues2, final Integer matchingCell1, final Integer cellMin1, final Integer cellMax1, final Integer[] inValues1) {
+	public Cell5Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor, final Integer matchingCell5, final Integer cellMin5, final Integer cellMax5, final Integer[] inValues5, final Integer matchingCell3, final Integer cellMin3, final Integer cellMax3, final Integer[] inValues3, final String matchingCell2, final String cellMin2, final String cellMax2, final String[] inValues2, final Integer matchingCell1, final Integer cellMin1, final Integer cellMax1, final Integer[] inValues1) {
 		this.query = query; 
 		this.cell2Visitor = cell2Visitor;
 		this.matchingCell1 = matchingCell1;
@@ -84,7 +84,7 @@ public final class HSearchTableDocuments implements IIndexMetadataFrequencyTable
 		this.cell4L = new Cell4Map(query, cell2Visitor,matchingCell5, cellMin5, cellMax5, inValues5,matchingCell3, cellMin3, cellMax3, inValues3,matchingCell2, cellMin2, cellMax2, inValues2);
 	}
 	@Override
-	public final Cell5<Integer, byte[], Integer, Integer, Integer> put( final Integer key, final Cell5<Integer, byte[], Integer, Integer, Integer> value) {
+	public final Cell5<Integer, String, Integer, Integer, Integer> put( final Integer key, final Cell5<Integer, String, Integer, Integer, Integer> value) {
 	try {
 		cell2Visitor.cell5Key = key;
 		if (query.filterCells[1]) {
@@ -107,17 +107,17 @@ public final class HSearchTableDocuments implements IIndexMetadataFrequencyTable
 
 
 public static final class Cell4Map
-		 extends EmptyMap<Integer, Cell4<byte[], Integer, Integer, Integer>> {
+		 extends EmptyMap<Integer, Cell4<String, Integer, Integer, Integer>> {
 
 	public HSearchQuery query;
 	public Cell2FilterVisitor cell2Visitor;
-	public byte[] matchingCell2;
-	public byte[] cellMin2; 
-	public byte[] cellMax2;
-	public byte[][] inValues2;
-	public Map<byte[], Cell3<Integer, Integer, Integer>> cell3L = null;
+	public String matchingCell2;
+	public String cellMin2; 
+	public String cellMax2;
+	public String[] inValues2;
+	public Map<String, Cell3<Integer, Integer, Integer>> cell3L = null;
 
-	public Cell4Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor, final Integer matchingCell5, final Integer cellMin5, final Integer cellMax5, final Integer[] inValues5, final Integer matchingCell3, final Integer cellMin3, final Integer cellMax3, final Integer[] inValues3, final byte[] matchingCell2, final byte[] cellMin2, final byte[] cellMax2, final byte[][] inValues2) {
+	public Cell4Map(final HSearchQuery query, final Cell2FilterVisitor cell2Visitor, final Integer matchingCell5, final Integer cellMin5, final Integer cellMax5, final Integer[] inValues5, final Integer matchingCell3, final Integer cellMin3, final Integer cellMax3, final Integer[] inValues3, final String matchingCell2, final String cellMin2, final String cellMax2, final String[] inValues2) {
 		this.query = query; 
 		this.cell2Visitor = cell2Visitor;
 		this.matchingCell2 = matchingCell2;
@@ -127,7 +127,7 @@ public static final class Cell4Map
 		this.cell3L = new Cell3Map(query, cell2Visitor,matchingCell5, cellMin5, cellMax5, inValues5,matchingCell3, cellMin3, cellMax3, inValues3);
 	}
 	@Override
-	public final Cell4<byte[], Integer, Integer, Integer> put( final Integer key, final Cell4<byte[], Integer, Integer, Integer> value) {
+	public final Cell4<String, Integer, Integer, Integer> put( final Integer key, final Cell4<String, Integer, Integer, Integer> value) {
 	try {
 		cell2Visitor.cell4Key = key;
 		if (query.filterCells[2]) {
@@ -150,7 +150,7 @@ public static final class Cell4Map
 
 
 public static final class Cell3Map
-		 extends EmptyMap<byte[], Cell3<Integer, Integer, Integer>> {
+		 extends EmptyMap<String, Cell3<Integer, Integer, Integer>> {
 
 	public HSearchQuery query;
 	public Cell2FilterVisitor cell2Visitor;
@@ -170,7 +170,7 @@ public static final class Cell3Map
 		this.cell2L = new Cell2Map(query, cell2Visitor,matchingCell5, cellMin5, cellMax5, inValues5);
 	}
 	@Override
-	public final Cell3<Integer, Integer, Integer> put( final byte[] key, final Cell3<Integer, Integer, Integer> value) {
+	public final Cell3<Integer, Integer, Integer> put( final String key, final Cell3<Integer, Integer, Integer> value) {
 	try {
 		cell2Visitor.cell3Key = key;
 		if (query.filterCells[3]) {
@@ -253,7 +253,7 @@ public static final class Cell3Map
 
 		public int cell5Key;
 		public int cell4Key;
-		public byte[] cell3Key;
+		public String cell3Key;
 		public int cell2Key;
 		
 		public int mode = MODE_COLS;
@@ -346,17 +346,17 @@ public static final class Cell3Map
 	
 	///////////////////////////////////////////////////////////////////	
 
-	Cell6<Integer,Integer, byte[], Integer, Integer, Integer> table = createBlankTable();
+	Cell6<Integer,Integer, String, Integer, Integer, Integer> table = createBlankTable();
 
 	public HSearchTableDocuments() {
 	}
 	
-	public final Cell6<Integer,Integer, byte[], Integer, Integer, Integer> createBlankTable() {
-		return new Cell6<Integer,Integer, byte[], Integer, Integer, Integer>
+	public final Cell6<Integer,Integer, String, Integer, Integer, Integer> createBlankTable() {
+		return new Cell6<Integer,Integer, String, Integer, Integer, Integer>
 			(
 				SortedBytesUnsignedShort.getInstanceShort().setMinimumValueLimit((short) -32768.0 ) ,
 				SortedBytesUnsignedShort.getInstanceShort().setMinimumValueLimit((short) -32768.0 ) ,
-				SortedBytesArray.getInstanceArr(),
+				SortedBytesString.getInstance(),
 				SortedBytesInteger.getInstance(),
 				SortedBytesInteger.getInstance(),
 				SortedBytesUnsignedShort.getInstanceShort().setMinimumValueLimit((short) -32768.0 ) 
@@ -368,7 +368,7 @@ public static final class Cell3Map
 		return table.toBytes(new IntegerComparator<Integer>());
 	}
 
-	public final void put (Integer doctype, Integer wordtype, byte[] metadata, Integer hashcode, Integer docid, Integer frequency) {
+	public final void put (Integer doctype, Integer wordtype, String metadata, Integer hashcode, Integer docid, Integer frequency) {
 		table.put( doctype, wordtype, metadata, hashcode, docid, frequency );
 	}
 	
@@ -397,11 +397,11 @@ public static final class Cell3Map
 
         Cell2FilterVisitor cell2Visitor = new Cell2FilterVisitor(query, pluginI, callback, mode);
 
-        query.parseValuesConcurrent(new String[]{"Integer", "Integer", "byte[]", "Integer", "Integer", "Integer"});
+        query.parseValuesConcurrent(new String[]{"Integer", "Integer", "String", "Integer", "Integer", "Integer"});
 
 		Integer matchingCell0 = ( query.filterCells[0] ) ? (Integer) query.exactValCellsO[0]: null;
 		Integer matchingCell1 = ( query.filterCells[1] ) ? (Integer) query.exactValCellsO[1]: null;
-		 byte[] matchingCell2 = ( query.filterCells[2] ) ? (byte[]) query.exactValCellsO[2]: null;
+		String matchingCell2 = ( query.filterCells[2] ) ? (String) query.exactValCellsO[2]: null;
 		Integer matchingCell3 = ( query.filterCells[3] ) ? (Integer) query.exactValCellsO[3]: null;
 		cell2Visitor.matchingCell4 = ( query.filterCells[4] ) ? (Integer) query.exactValCellsO[4]: null;
 		Integer matchingCell5 = ( query.filterCells[5] ) ? (Integer) query.exactValCellsO[5]: null;
@@ -409,7 +409,7 @@ public static final class Cell3Map
 
 		Integer cellMin0 = ( query.minValCells[0] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[0]).intValue();
 		Integer cellMin1 = ( query.minValCells[1] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[1]).intValue();
-		 byte[] cellMin2 = null;
+		String cellMin2 = null;
 		Integer cellMin3 = ( query.minValCells[3] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[3]).intValue();
 		cell2Visitor.cellMin4 = ( query.minValCells[4] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[4]).intValue();
 		Integer cellMin5 = ( query.minValCells[5] == HSearchQuery.DOUBLE_MIN_VALUE) ? null : new Double(query.minValCells[5]).intValue();
@@ -417,7 +417,7 @@ public static final class Cell3Map
 
 		Integer cellMax0 =  (query.maxValCells[0] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[0]).intValue();
 		Integer cellMax1 =  (query.maxValCells[1] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[1]).intValue();
-		 byte[] cellMax2 = null;
+		String cellMax2 = null;
 		Integer cellMax3 =  (query.maxValCells[3] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[3]).intValue();
 		cell2Visitor.cellMax4 =  (query.maxValCells[4] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[4]).intValue();
 		Integer cellMax5 =  (query.maxValCells[5] == HSearchQuery.DOUBLE_MAX_VALUE) ? null : new Double(query.maxValCells[5]).intValue();
@@ -425,7 +425,7 @@ public static final class Cell3Map
 
 		Integer[] inValues0 =  (query.inValCells[0]) ? (Integer[])query.inValuesAO[0]: null;
 		Integer[] inValues1 =  (query.inValCells[1]) ? (Integer[])query.inValuesAO[1]: null;
-		byte[][] inValues2 =  (query.inValCells[2]) ? (byte[][])query.inValuesAO[2]: null;
+		String[] inValues2 =  (query.inValCells[2]) ? (String[])query.inValuesAO[2]: null;
 		Integer[] inValues3 =  (query.inValCells[3]) ? (Integer[])query.inValuesAO[3]: null;
 		cell2Visitor.inValues4 =  (query.inValCells[4]) ? (Integer[])query.inValuesAO[4]: null;
 		Integer[] inValues5 =  (query.inValCells[5]) ? (Integer[])query.inValuesAO[5]: null;

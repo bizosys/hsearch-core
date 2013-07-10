@@ -12,7 +12,7 @@
                 },
                 {
                     "name": "metadata",
-                    "datatype": "byte[]"
+                    "datatype": "String"
                 },
                 {
                     "name": "hashcode",

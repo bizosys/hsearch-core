@@ -13,7 +13,7 @@ public abstract class PluginDocumentsBase implements IHSearchPlugin {
     public interface TablePartsCallback {
 
         boolean onRowKey(int id);
-        public boolean onRowCols( final int doctype,  final int wordtype,  final byte[] metadata,  final int hashcode,  final int docid,  final int frequency);
+        public boolean onRowCols( final int doctype,  final int wordtype,  final String metadata,  final int hashcode,  final int docid,  final int frequency);
         public boolean onRowKeyValue(int key, int value);
         public boolean onRowValue(int value);
         public void onReadComplete();
