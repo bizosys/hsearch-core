@@ -420,11 +420,11 @@ public abstract class HSearchGenericFilter implements Filter {
 	public final boolean filterRowKey(final byte[] rowKey, final int offset, final int length) {
 		
 		if (DEBUG_ENABLED) {
-			int scopeToTheseRowsT = ( null == inputRowsToIncludeB) ? 0 : inputRowsToIncludeB.length;
+			int scopeToTheseRowsT = ( null == rowsToInclude) ? 0 : rowsToInclude.getSize();
 			HSearchLog.l.debug("Analyzing row for processing: " + new String(rowKey + " , From a matching set of " + scopeToTheseRowsT));
 		}
 		
-		if ( null == inputRowsToIncludeB) return false;
+		if ( null == rowsToInclude) return false;
 		
 		byte[] exactRowBytes = new byte[length];
 		try {
