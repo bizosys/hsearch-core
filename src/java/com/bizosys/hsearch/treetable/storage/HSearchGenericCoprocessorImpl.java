@@ -114,7 +114,7 @@ public final class HSearchGenericCoprocessorImpl extends BaseEndpointCoprocessor
 							monitorStartTime = System.currentTimeMillis();
 						}	
 						
-						reducer.appendRows(finalOutput, kv.getRow(), partOutput);
+						reducer.appendRows(kv.getRow(), finalOutput, partOutput);
 						
 						if ( INFO_ENABLED ) {
 							filter.pluginExecutionTime += System.currentTimeMillis() - monitorStartTime;

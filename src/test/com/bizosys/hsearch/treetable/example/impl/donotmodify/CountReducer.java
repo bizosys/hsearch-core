@@ -11,7 +11,7 @@ import com.bizosys.hsearch.functions.StatementWithOutput;
 public class CountReducer implements HSearchReducer {
 
     @Override
-    public final void appendCols(final StatementWithOutput[] queryOutput, final Collection<byte[]> mergedQueryOutput) throws IOException {
+    public final void appendQueries(final Collection<byte[]> mergedQueryOutput, final StatementWithOutput[] queryOutput) throws IOException {
     	int maxColumnCount = 0;
     	for (StatementWithOutput col : queryOutput) {
     		if ( null == col) continue;
@@ -26,13 +26,6 @@ public class CountReducer implements HSearchReducer {
     }
 
     @Override
-    public final void appendRows(final Collection<byte[]> mergedB, final Collection<byte[]> appendB) {
-    	mergedB.addAll(appendB);
-    }
-
-    @Override
-    public final void appendRows(final Collection<byte[]> mergedRows, final byte[] appendRowId, final Collection<byte[]> appendRows) {
-        appendRows(mergedRows, appendRows);
-
+    public final void appendRows(final byte[] appendRowId, final Collection<byte[]> finalOutput, final Collection<byte[]> rowOutput) {
     }
 }

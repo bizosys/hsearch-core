@@ -34,10 +34,22 @@ public final class CombinerExamResult extends PluginExamResultBase<Object> {
     public final void onReadComplete() {
     }
 
+    /**
+     * Collects the results for rows level aggregation.
+     */
+    @Override
+    public final void getResultSingleQuery(final Collection<byte[]> container) throws IOException {
+    }
+ 
+    /**
+     * **************** ******************** ***************** ****************
+     * Multi Queries Need the following 2 methods
+     * **************** ******************** ***************** ****************
+     */
 
     /**
      * For multi queries, we need to provide matching documents for 
-     * intersection. For sinle query this is having no usage and can be passed null to save computing.
+     * intersection. For single query this is having no usage and can be passed null to save computing.
      *     	BitSetOrSet sets = new BitSetOrSet();  sets.setDocumentIds(this.rows.keySet());
      *      OR,
      *      Set Document Positions. 
@@ -45,13 +57,6 @@ public final class CombinerExamResult extends PluginExamResultBase<Object> {
     @Override
     public final BitSetOrSet getUniqueMatchingDocumentIds() throws IOException {
         return null;
-    }
-
-    /**
-     * Collects the results for rows level aggregation.
-     */
-    @Override
-    public final void getResultSingleQuery(final Collection<byte[]> container) throws IOException {
     }
 
     /**

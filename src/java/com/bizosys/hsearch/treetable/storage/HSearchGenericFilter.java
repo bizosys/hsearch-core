@@ -554,7 +554,7 @@ public abstract class HSearchGenericFilter implements Filter {
 				monitorStartTime = System.currentTimeMillis();
 			}	
 
-			reducer.appendCols(stmtWithOutputs, columnsOfOneRowAfterJoin);
+			reducer.appendQueries(columnsOfOneRowAfterJoin, stmtWithOutputs);
 			
 			if ( INFO_ENABLED ) {
 				this.pluginExecutionTime += System.currentTimeMillis() - monitorStartTime;

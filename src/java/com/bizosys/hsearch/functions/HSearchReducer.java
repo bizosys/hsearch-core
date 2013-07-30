@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 public interface HSearchReducer {
-	void appendCols(StatementWithOutput[] queryOutput, Collection<byte[]> finalColumns) throws IOException;
-	void appendRows(Collection<byte[]> finalOutput, Collection<byte[]> partOutput) throws IOException;
-	void appendRows(Collection<byte[]> finalOutput, byte[] appendRowId, Collection<byte[]> partOutput) throws IOException;
+	void appendQueries(Collection<byte[]> queryMergedOutput, StatementWithOutput[] queryOutput) throws IOException;
+	void appendRows(byte[] appendRowId, Collection<byte[]> finalOutput, Collection<byte[]> partOutput) throws IOException;
 }

@@ -8,17 +8,14 @@ import com.bizosys.hsearch.functions.StatementWithOutput;
 
 public class Reducer implements HSearchReducer {
 
+	/**
+	 * This will only be called in the multi query.
+	 */
     @Override
-    public final void appendCols(final StatementWithOutput[] queryOutput, final Collection<byte[]> mergedQueryOutput) throws IOException {
+    public final void appendQueries(final Collection<byte[]> mergedQueryOutput, final StatementWithOutput[] queryOutput) throws IOException {
     }
 
     @Override
-    public final void appendRows(final Collection<byte[]> mergedB, final Collection<byte[]> appendB) {
-    }
-
-    @Override
-    public final void appendRows(final Collection<byte[]> mergedRows, final byte[] appendRowId, final Collection<byte[]> appendRows) {
-        appendRows(mergedRows, appendRows);
-
+    public final void appendRows(final byte[] appendRowId, final Collection<byte[]> mergedRows,  final Collection<byte[]> appendRows) {
     }
 }
