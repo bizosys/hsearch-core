@@ -77,6 +77,7 @@ public abstract class HSearchGenericFilter implements Filter {
 	 * Input Variables
 	 */
 	String multiQuery = null;
+	IHSearchPlugin plugin = null;
 	Map<String,QueryPart> queryPayload = new HashMap<String, QueryPart>(3);
 	Map<String, String> colIdWithType = new HashMap<String, String>(3);
 	
@@ -255,7 +256,7 @@ public abstract class HSearchGenericFilter implements Filter {
 						
 						colIdWithType.put(qId, colName);
 						
-						IHSearchPlugin plugin = createPlugIn(colName) ;
+						this.plugin = createPlugIn(colName) ;
 						plugin.setOutputType(this.inputMapperInstructions);
 						
 						this.queryPayload.put(
@@ -365,7 +366,7 @@ public abstract class HSearchGenericFilter implements Filter {
 			}	
 			
 			if ( null == intersector ) intersector = createExecutor();
-			
+			this.plugin.setMergeId(row);
 			BitSetOrSet intersectedIds = federatedQueryExec(row, intersector, queryIdWithParts);
 
 			if ( INFO_ENABLED ) {

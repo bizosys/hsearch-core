@@ -268,6 +268,10 @@ e.printStackTrace();
         return part;
     }
 
+	@Override
+	public void setMergeId(byte[] mergeId) throws IOException {
+	}
+
     /**
      * sample ser/deser. Use Storable class.
      public static byte[] ser(int findings, int groups, int studies) {

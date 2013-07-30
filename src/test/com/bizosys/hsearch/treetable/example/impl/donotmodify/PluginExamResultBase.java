@@ -19,6 +19,10 @@ public abstract class PluginExamResultBase<T> implements IHSearchPlugin {
 		this.parts.remove();		
 	}
 	
+	@Override
+	public void setMergeId(byte[] mergeId) throws IOException {
+	}
+	
     public interface TablePartsCallback {
 
         boolean map(int id) ;

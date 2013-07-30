@@ -40,7 +40,7 @@ public class Cell2Test extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testNonUnique();
+				t.testInitialization();
 				t.tearDown();
 			}
 		}
@@ -51,6 +51,47 @@ public class Cell2Test extends TestCase {
 		
 		@Override
 		protected void tearDown() throws Exception {
+		}
+
+		public void testInitialization() throws Exception {
+			
+			{
+				Cell2<Double, Long> ser = new Cell2<Double, Long>(Double.class, Long.TYPE);
+		    	ser.add(12.12, 11l);
+		    	ser.sort(new CellComparator.LongComparator<Double>());
+		    	ser.toBytesOnSortedData();
+			}
+
+			{
+				Cell2<Integer, Float> ser = new Cell2<Integer, Float>(Integer.class, Float.TYPE);
+		    	ser.add(11, 12.12f);
+		    	ser.sort(new CellComparator.FloatComparator<Integer>());
+		    	ser.toBytesOnSortedData();
+			}
+			
+			{
+				Cell2<Short, Byte> ser = new Cell2<Short, Byte>(Short.class, Byte.TYPE);
+		    	ser.add((short)11, (byte)1);
+		    	ser.sort(new CellComparator.ByteComparator<Short>());
+		    	ser.toBytesOnSortedData();
+			}
+
+			{
+				Cell2<String, Boolean> ser = new Cell2<String, Boolean>(String.class, Boolean.TYPE);
+		    	ser.add("Dev1", true);
+		    	ser.sort(new CellComparator.BooleanComparator<String>());
+		    	ser.toBytesOnSortedData();
+			}
+			
+			{
+				Cell2<String, byte[]> ser = new Cell2<String, byte[]>(String.class, byte[].class);
+		    	ser.add("Dev1", new byte[]{});
+		    	ser.add("Dev2", new byte[]{});
+		    	ser.sort(new CellComparator.BytesComparator<String>());
+		    	ser.toBytesOnSortedData();
+		    	Cell2<String, byte[]> deser = new Cell2<String, byte[]>(String.class, byte[].class, ser.toBytesOnSortedData());
+		    	System.out.println( deser.getMap().toString() );
+			}
 		}
 		
 		public void testNonUnique() throws Exception {

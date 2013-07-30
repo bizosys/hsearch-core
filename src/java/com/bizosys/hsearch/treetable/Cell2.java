@@ -33,6 +33,7 @@ import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
 import com.bizosys.hsearch.hbase.ObjectFactory;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public class Cell2<K1, V> {
 	
@@ -40,6 +41,12 @@ public class Cell2<K1, V> {
 	public ISortedByte<V> vSorter = null;
 	public List<CellKeyValue<K1, V>> sortedList = null;
 	public BytesSection data = null;
+
+	@SuppressWarnings("unchecked")
+	public Cell2(Class<K1> classK, Class<V> classV) throws IOException {
+		this.k1Sorter = (ISortedByte<K1>) CellBase.getSorter(classK);
+		this.vSorter = (ISortedByte<V>) CellBase.getSorter(classV);
+	}	
 	
 	public Cell2(final ISortedByte<K1> k1Sorter, final ISortedByte<V> vSorter) {
 		this.k1Sorter = k1Sorter;
@@ -57,6 +64,13 @@ public class Cell2<K1, V> {
 		int dataLen = ( null == data) ? 0 : data.length;
 		this.data = new BytesSection(data, 0, dataLen);
 	}
+	
+	public Cell2(Class<K1> classK, Class<V> classV, final byte[] data) throws IOException {
+		this(classK, classV);
+		int dataLen = ( null == data) ? 0 : data.length;
+		this.data = new BytesSection(data, 0, dataLen);
+	}	
+	
 	
 	public Cell2 (final ISortedByte<K1> k1Sorter, final ISortedByte<V> vSorter, final BytesSection sectionData) {
 		this(k1Sorter, vSorter);
@@ -85,11 +99,19 @@ public class Cell2<K1, V> {
 		
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
-		if ( sizeK != sizeV ) throw new IOException("Not a unique Key " + sizeK + " != " + sizeV);
+		if ( sizeK != sizeV ) onKVSizeMismatch(sizeK, sizeV);
 		
 		for ( int i=0; i<sizeK; i++) {
 			visitor.visit(k1Sorter.getValueAt(i), vSorter.getValueAt(i));
 		}		
+	}
+
+	private final void onKVSizeMismatch(final int sizeK, final int sizeV) throws IOException {
+		if ( sizeK != sizeV ) {
+			if ( null != data.data) HSearchLog.l.fatal(
+				"Unable to deserialize data." +  new String(data.data) );
+			throw new IOException("Unable to deserialize data. Mismatch : " + sizeK + " != " + sizeV);
+		}
 	}	
 		
 	/**
@@ -110,7 +132,7 @@ public class Cell2<K1, V> {
 		
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
-		if ( sizeK != sizeV ) throw new IOException("Not a unique Key " + sizeK + " != " + sizeV);
+		if ( sizeK != sizeV ) onKVSizeMismatch(sizeK, sizeV);
 		if ( null != exactValue || null != minimumValue || null != maximumValue) {
 			findMatchingPositionsVsorterInitialized(
 					exactValue, minimumValue, maximumValue, 
@@ -128,7 +150,7 @@ public class Cell2<K1, V> {
 		SortedBytesArray.getKeyValueAtReference(keyRef, valRef, data.data, data.offset, data.length);
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
-		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
+		if ( sizeK != sizeV ) onKVSizeMismatch(sizeK, sizeV);
 		if ( null != exactValue ) {
 			findNonMatchingPositionsVsorterInitialized( exactValue, 
 				new Cell2FoundIndex<K1, V>(k1Sorter, vSorter, visitor) );
@@ -151,7 +173,7 @@ public class Cell2<K1, V> {
 			parseElements();
 			return sortedList;
 		}
-		throw new IOException("Cell is not initialized");
+		throw new IOException("Cell2 is not initialized");
 	}
 	
 	public final void getMap(final List<CellKeyValue<K1, V>> valueContainer) throws IOException {
@@ -165,7 +187,7 @@ public class Cell2<K1, V> {
 			parseElements();
 			return;
 		}
-		throw new IOException("Cell is not initialized");
+		throw new IOException("Cell2 is not initialized");
 	}	
 	
 	public final void getMap(final List<K1> kContainer, final List<V> vContainer) throws IOException{
@@ -200,23 +222,7 @@ public class Cell2<K1, V> {
 		
 		int sizeK = k1Sorter.getSize();
 		int sizeV = vSorter.getSize();
-		
-		if ( sizeK != sizeV) {
-			
-			StringBuilder errState = new StringBuilder();
-			errState.append("Mismatch keys : " + sizeK + " , and values = " + sizeV + "\n" );
-			for ( int i=0; i<sizeK; i++) {
-				//errState.append(k1Sorter.getValueAt(i));
-			}			
-			
-			for ( int i=0; i<sizeV; i++) {
-				errState.append(vSorter.getValueAt(i));
-			}			
-			System.err.println(errState.toString());
-			
-			throw new IOException(errState.toString());
-			
-		}
+		if ( sizeK != sizeV ) onKVSizeMismatch(sizeK, sizeV);
 		
 		for ( int i=0; i<sizeK; i++) {
 			map.put(k1Sorter.getValueAt(i), vSorter.getValueAt(i));
@@ -468,7 +474,7 @@ public class Cell2<K1, V> {
 
 		int sizeK = k1Sorter.parse(data.data, keyRef.offset, keyRef.length).getSize();
 		int sizeV = vSorter.parse(data.data, valRef.offset, valRef.length).getSize();
-		if ( sizeK != sizeV ) throw new IOException("Not a unique Key");
+		if ( sizeK != sizeV ) onKVSizeMismatch(sizeK, sizeV);
 		int size = inValues.length;	
 		if ( 0 !=  size) {
 			findInMatchingPositionsVsorterInitialized( inValues, 
@@ -517,8 +523,8 @@ public class Cell2<K1, V> {
 		values(allValues);
 		
 		int allKeysT = allKeys.size();
-		if ( allKeysT != allValues.size() ) throw new IOException( 
-			"Keys and Values tally mismatched : keys(" + allKeysT + ") , values(" + allValues.size() + ")");
+		if ( allKeysT != allValues.size() ) onKVSizeMismatch(allKeysT, allValues.size());
+
 		
 		for ( int i=0; i<allKeysT; i++) {
 			sortedList.add( new CellKeyValue<K1, V>(allKeys.get(i), allValues.get(i)));

@@ -79,13 +79,19 @@ public final class ListCombinerExamResult extends PluginExamResultBase<Map<Integ
     	@SuppressWarnings("unchecked")
 		Set<Integer> matchingIds = matchedIds.getDocumentIds();
     	
-    	String finalResult = "";
+    	StringBuilder finalResult = new StringBuilder();
+    	boolean isFirst = true;
     	for (Integer key : this.rows.keySet()) {
     		if ( matchingIds.contains(key)) {
-    			finalResult += "\t" + this.rows.get(key);
+    			if ( isFirst ) {
+    				isFirst = false;
+    			} else {
+    				finalResult.append('\t');
+    			}
+    			finalResult.append( this.rows.get(key) );
     		}
 		}
-    	container.add(finalResult.getBytes());
+    	container.add(finalResult.toString().getBytes());
     }
 
     /**

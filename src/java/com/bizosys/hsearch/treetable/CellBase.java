@@ -30,6 +30,14 @@ import java.util.Set;
 import com.bizosys.hsearch.byteutils.ISortedByte;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBase.Reference;
+import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
+import com.bizosys.hsearch.byteutils.SortedBytesChar;
+import com.bizosys.hsearch.byteutils.SortedBytesDouble;
+import com.bizosys.hsearch.byteutils.SortedBytesFloat;
+import com.bizosys.hsearch.byteutils.SortedBytesInteger;
+import com.bizosys.hsearch.byteutils.SortedBytesLong;
+import com.bizosys.hsearch.byteutils.SortedBytesShort;
+import com.bizosys.hsearch.byteutils.SortedBytesString;
 
 public abstract class CellBase<K1>  {
 	public BytesSection data;
@@ -275,5 +283,40 @@ public abstract class CellBase<K1>  {
 
 	@SuppressWarnings("rawtypes")
 	public abstract void valuesUnchecked(Collection foundValues) throws IOException;
+	
+	
+	public static final ISortedByte<?> getSorter(Class<?> type) throws IOException {
+		char[] name = type.getName().toCharArray();
+		char firstChar = '-';
+		char secondChar = '-';
+		if ( name[0] == 'j' ) {
+			firstChar =  name[10];
+			secondChar =  name[11];
+		} else {
+			firstChar =  name[0];
+			secondChar =  name[1];
+		}
+		
+		if ( (firstChar == 'D' || firstChar == 'd') && secondChar == 'o') {
+			return SortedBytesDouble.getInstance();
+		} else if ( (firstChar == 'L' || firstChar == 'l') && secondChar == 'o') {
+			return SortedBytesLong.getInstance();
+		} else if ( (firstChar == 'F' || firstChar == 'f') && secondChar == 'l') {
+			return SortedBytesFloat.getInstance();
+		} else if ( (firstChar == 'I' || firstChar == 'i') && secondChar == 'n') {
+			return SortedBytesInteger.getInstance();
+		} else if ( (firstChar == 'S' || firstChar == 's') && secondChar == 'h') {
+			return SortedBytesShort.getInstance();
+		} else if ( (firstChar == 'B' || firstChar == 'b') && secondChar == 'y') {
+			return SortedBytesChar.getInstance();
+		} else if ( (firstChar == 'B' || firstChar == 'b') && secondChar == 'o') {
+			return SortedBytesBoolean.getInstance();
+		} else if ( (firstChar == 'S' || firstChar == 's') && secondChar == 't') {
+			return SortedBytesString.getInstance();
+		} else if ( (firstChar == '[' ) && secondChar == 'B') {
+			return SortedBytesArray.getInstance();
+		}
 
+		throw new IOException("Unsupported datatype - " + type.toString());
+	}
 }

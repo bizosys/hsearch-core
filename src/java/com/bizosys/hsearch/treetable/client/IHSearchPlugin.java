@@ -25,7 +25,8 @@ import java.util.Collection;
 import com.bizosys.hsearch.federate.BitSetOrSet;
 
 public interface IHSearchPlugin {
-	void setOutputType(HSearchProcessingInstruction outputTypeCode);
+	void setOutputType(HSearchProcessingInstruction outputTypeCode) throws IOException;
+	void setMergeId(byte[] mergeId) throws IOException;
 	void clear() ;
 	void onReadComplete();
 	

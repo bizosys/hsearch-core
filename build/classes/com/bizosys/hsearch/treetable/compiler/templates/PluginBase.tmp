@@ -8,6 +8,10 @@ import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 
 public abstract class Plugin--COLUMN-NAME--Base implements IHSearchPlugin {
     
+	@Override
+	public void setMergeId(byte[] mergeId) throws IOException {
+	}
+    
     public abstract TablePartsCallback getPart();
     
     public interface TablePartsCallback {
