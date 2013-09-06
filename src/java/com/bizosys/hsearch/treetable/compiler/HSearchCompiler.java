@@ -86,12 +86,30 @@ public class HSearchCompiler {
 
 		FileWriterUtil.downloadToFile(generateClient(newSchema.module).getBytes(), 
 				new File(path + "/Client.java") );
-		
+
+		FileWriterUtil.downloadToFile(generateCountClient(newSchema.module).getBytes(), 
+				new File(path + "/donotmodify/CountClient.java") );
+
+		FileWriterUtil.downloadToFile(generateListClient(newSchema.module).getBytes(), 
+				new File(path + "/donotmodify/ListClient.java") );
+
 		FileWriterUtil.downloadToFile(generateFilter(newSchema).getBytes(), 
 				new File(path + "/Filter.java") );
 
+		FileWriterUtil.downloadToFile(generateCountFilter(newSchema).getBytes(), 
+				new File(path + "/donotmodify/CountFilter.java") );
+
+		FileWriterUtil.downloadToFile(generateListFilter(newSchema).getBytes(), 
+				new File(path + "/donotmodify/ListFilter.java") );
+
 		FileWriterUtil.downloadToFile(generateReducer(newSchema.module).getBytes(), 
 				new File(path + "/Reducer.java") );
+
+		FileWriterUtil.downloadToFile(generateCountReducer(newSchema.module).getBytes(), 
+				new File(path + "/donotmodify/CountReducer.java") );
+
+		FileWriterUtil.downloadToFile(generateListReducer(newSchema.module).getBytes(), 
+				new File(path + "/donotmodify/ListReducer.java") );
 
 		FileWriterUtil.downloadToFile(generateWebservice(newSchema.module).getBytes(), 
 				new File(path + "/Webservice.java") );
@@ -113,6 +131,21 @@ public class HSearchCompiler {
 			
 			FileWriterUtil.downloadToFile(generateMapper(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
 					new File(path + "/Mapper" + col.name + ".java") );
+
+			FileWriterUtil.downloadToFile(generateCountMapper(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
+					new File(path + "/donotmodify/CountMapper" + col.name + ".java") );
+
+			FileWriterUtil.downloadToFile(generateListMapper(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
+					new File(path + "/donotmodify/ListMapper" + col.name + ".java") );
+
+			FileWriterUtil.downloadToFile(generateCombiner(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
+					new File(path + "/Combiner" + col.name + ".java") );
+
+			FileWriterUtil.downloadToFile(generateCountCombiner(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
+					new File(path + "/donotmodify/CountCombiner" + col.name + ".java") );
+
+			FileWriterUtil.downloadToFile(generateListCombiner(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
+					new File(path + "/donotmodify/ListCombiner" + col.name + ".java") );
 
 			FileWriterUtil.downloadToFile(generatePluginBase(newSchema.module, col.name , col.key, col.value, allFields).getBytes(), 
 					new File(path + "/donotmodify/Plugin" + col.name + "Base.java") );
@@ -290,34 +323,83 @@ public class HSearchCompiler {
 		String allParams = generatePrmitives(allFields);		
 		template = 	template.replace("--ALL_COLS--", allParams);
 		
-		String listAppender = generateListAppender(allFields);
-		template = 	template.replace("--LIST_APPENDER--", listAppender);
+		return template;
+	}	
+
+	public static String generateCountMapper(String module, String colName, Field key, Field val, List<Field> allFields) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/CountMapper.tmp");
+
+		template = template.replace("--PACKAGE--", module);
+		template = 	template.replace("--COLUMN-NAME--", colName );
+		template = 	template.replace("--KEY_DATATYPE--", CodePartGenerator.getPrimitive(key.datatype));
+		template = 	template.replace("--VAL_DATATYPE--", CodePartGenerator.getPrimitive(val.datatype));
+		template = 	template.replace("--NP-KEY-DATATYPE--", key.datatype);
+		String allParams = generatePrmitives(allFields);		
+		template = 	template.replace("--ALL_COLS--", allParams);
 		
-		Field valueField = allFields.get(allFields.size() - 1);
-		String type = CodePartGenerator.getPrimitive(valueField.datatype);
-		String name = toCamelCase(valueField.name);
-		StringBuilder	minMax = new StringBuilder();
-		char c = type.charAt(0);
-		switch (c) {
-		case 'i':
-		case 'f':
-		case 'd':
-			minMax.append("if (").append(name).append("< minValue)\n")
-			.append("\t\t\t\tminValue =").append(name).append(";\n")
-			.append("\t\t\tif (").append(name).append("> maxValue)\n")
-			.append("\t\t\t\tmaxValue =").append(name).append(";\n");
+		return template;
+	}	
+
+	public static String generateListMapper(String module, String colName, Field key, Field val, List<Field> allFields) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/ListMapper.tmp");
+
+		template = template.replace("--PACKAGE--", module);
+		template = 	template.replace("--COLUMN-NAME--", colName );
+		template = 	template.replace("--KEY_DATATYPE--", CodePartGenerator.getPrimitive(key.datatype));
+		template = 	template.replace("--VAL_DATATYPE--", CodePartGenerator.getPrimitive(val.datatype));
+		template = 	template.replace("--NP-KEY-DATATYPE--", key.datatype);
+		
+		StringBuilder sb = new StringBuilder();
+		boolean isFirst = true;
+		for (Field field : allFields) {
+
+			if ( null == field) {
+				System.err.println("\n\n ***** Error : Compiler is not able to parse your schema json. Check the ending commas and other syntax.\n\n");
+				System.exit(1);
+			}
+
+			if(isFirst)isFirst = false;
+			else sb.append(" + \"\t\" + ");
 			
-			template = 	template.replace("--MINMAX_CHECK--", minMax.toString());
-			break;
-
-		default:
-
-			template = 	template.replace("--MINMAX_CHECK--", "try {\n\tthrow new Exception(\"Min Max cannot be calculated for " + type + " datatype\");\n} catch (Exception e) {\ne.printStackTrace();\n}");
-			break;
+			sb.append(toCamelCase(field.name));
 		}
-
 		
-        
+		template = 	template.replace("--LIST-APPENDER--", "rows.put("+key.name+","+sb.toString()+");\n");
+		
+		String allParams = generatePrmitives(allFields);		
+		template = 	template.replace("--ALL_COLS--", allParams);
+		
+		return template;
+	}	
+
+	public static String generateCombiner(String module, String colName, Field key, Field val, List<Field> allFields) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/Combiner.tmp");
+
+		template = template.replace("--PACKAGE--", module);
+		template = 	template.replace("--COLUMN-NAME--", colName );
+		return template;
+	}	
+
+	public static String generateCountCombiner(String module, String colName, Field key, Field val, List<Field> allFields) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/CountCombiner.tmp");
+
+		template = template.replace("--PACKAGE--", module);
+		template = 	template.replace("--COLUMN-NAME--", colName );
+		template = 	template.replace("--NP-KEY-DATATYPE--", key.datatype);
+		return template;
+	}	
+
+	public static String generateListCombiner(String module, String colName, Field key, Field val, List<Field> allFields) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/ListCombiner.tmp");
+
+		template = template.replace("--PACKAGE--", module);
+		template = 	template.replace("--COLUMN-NAME--", colName );
+		template = 	template.replace("--NP-KEY-DATATYPE--", key.datatype);
 		return template;
 	}	
 
@@ -334,6 +416,7 @@ public class HSearchCompiler {
 		template = 	template.replace("--ALL_COLS--", allParams);
 		return template;
 	}	
+	
 	public static String generatePrmitives(List<Field> allFields){
 		String allParams = "";		
 		boolean firstTime = true;
@@ -368,7 +451,53 @@ public class HSearchCompiler {
 			else plugins.append("\t\telse ");
 			
 			plugins.append("if ( type.equals(\"").append(column.name).append("\") ) {\n");
-			plugins.append("\t\t\treturn new Mapper").append(column.name).append("();\n");
+			plugins.append("\t\t\treturn new Combiner").append(column.name).append("();\n");
+			plugins.append("\t\t}\n");
+		}
+		
+		template = template.replace("--CREATE-PLUGINS--", plugins.toString());
+		
+		
+		return template;
+	}
+
+	public static String generateCountFilter(Schema schema) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/CountFilter.tmp");
+		template = template.replace("--PACKAGE--", schema.module);
+		
+		StringBuilder plugins = new StringBuilder(4096);
+		boolean isFirst = true;
+		for ( Column column : schema.columns ) {
+			
+			if ( isFirst ) isFirst = false;
+			else plugins.append("\t\telse ");
+			
+			plugins.append("if ( type.equals(\"").append(column.name).append("\") ) {\n");
+			plugins.append("\t\t\treturn new CountCombiner").append(column.name).append("();\n");
+			plugins.append("\t\t}\n");
+		}
+		
+		template = template.replace("--CREATE-PLUGINS--", plugins.toString());
+		
+		
+		return template;
+	}
+
+	public static String generateListFilter(Schema schema) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/ListFilter.tmp");
+		template = template.replace("--PACKAGE--", schema.module);
+		
+		StringBuilder plugins = new StringBuilder(4096);
+		boolean isFirst = true;
+		for ( Column column : schema.columns ) {
+			
+			if ( isFirst ) isFirst = false;
+			else plugins.append("\t\telse ");
+			
+			plugins.append("if ( type.equals(\"").append(column.name).append("\") ) {\n");
+			plugins.append("\t\t\treturn new ListCombiner").append(column.name).append("();\n");
 			plugins.append("\t\t}\n");
 		}
 		
@@ -381,6 +510,20 @@ public class HSearchCompiler {
 	public static String generateClient(String module) throws Exception {
 		String template = ReadFileFromJar.getTextFileContent(
 			"/com/bizosys/hsearch/treetable/compiler/templates/Client.tmp");
+		template = template.replace("--PACKAGE--", module);
+		return template;
+	}
+
+	public static String generateCountClient(String module) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/CountClient.tmp");
+		template = template.replace("--PACKAGE--", module);
+		return template;
+	}
+
+	public static String generateListClient(String module) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/ListClient.tmp");
 		template = template.replace("--PACKAGE--", module);
 		return template;
 	}
@@ -469,7 +612,21 @@ public class HSearchCompiler {
 		template = template.replace("--PACKAGE--", module);
 		return template;
 	}	
-	
+
+	public static String generateCountReducer(String module) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/CountReducer.tmp");
+		template = template.replace("--PACKAGE--", module);
+		return template;
+	}	
+
+	public static String generateListReducer(String module) throws Exception {
+		String template = ReadFileFromJar.getTextFileContent(
+			"/com/bizosys/hsearch/treetable/compiler/templates/ListReducer.tmp");
+		template = template.replace("--PACKAGE--", module);
+		return template;
+	}	
+
 	public static String generateWebservice(String module) throws Exception {
 		String template = ReadFileFromJar.getTextFileContent(
 			"/com/bizosys/hsearch/treetable/compiler/templates/Webservice.tmp");
@@ -554,29 +711,5 @@ public class HSearchCompiler {
 		    }
 
 		    return sb.toString();
-		}
-
-	   //List,Count and min max.
-		public static String generateListAppender(List<Field> allFields){
-			StringBuilder result = new StringBuilder();
-			boolean firstTime = true;
-
-	    	for ( Field fld : allFields) {
-				if ( firstTime ){ 
-					firstTime = false;
-					result.append("appender.");
-				}
-				else result.append("\t\t\t\tappender.append(FLD_SEPARATOR).");
-				
-				if ( null == fld) {
-					System.err.println("\n\n ***** Error : Compiler is not able to parse your schema json. Check the ending commas and other syntax.\n\n");
-					System.exit(1);
-				}
-				String name = toCamelCase(fld.name);
-				result.append("append(" + name + ");\n");
-			}
-	    	result.append("\t\t\t\tappender.append(ROW_SEPARATOR);\n");
-	    	
-			return result.toString();
 		}
 }

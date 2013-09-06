@@ -159,7 +159,6 @@ public abstract class HSearchScalarFilter implements Filter {
 					case 0:
 						String output = stk.nextToken();
 						if (output.length() == 0  ) throw new IOException("Unknown result output type.");
-						System.out.println("Instruction :" + output);
 						this.inputMapperInstructions = new HSearchProcessingInstruction(output);
 						break;
 						

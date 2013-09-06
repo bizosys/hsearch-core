@@ -25,21 +25,23 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import com.bizosys.hsearch.util.HSearchLog;
-import com.bizosys.hsearch.util.LineReaderUtil;
 
 /**
  * 	@author abinash
  */
 public class HSearchQuery {
 
+	private static final String QUOTES = "\"";
+
 	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
 	private static final char RANGE_SEPARATOR = ':';
 	private static final char FIELD_SEPARATOR = '|';
-	private static final char VALUE_SEPARATOR = ',';
-
+	public static final Pattern patternCommaOutsideQuotes = Pattern.compile(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+	
 	public static double DOUBLE_MIN_VALUE = new Double(Long.MIN_VALUE);
 	public static double DOUBLE_MAX_VALUE = new Double(Long.MAX_VALUE);
 	  
@@ -329,15 +331,26 @@ public class HSearchQuery {
 				  if ( res.indexOf('}') == -1) {
 					  throw new ParseException("Missing Enclosure } " + res, seq);
 				  }
+				  	
+					inValCells[seq] = true;
+					inValuesStr = res.substring(1, res.length() - 1);
+					String[] values = patternCommaOutsideQuotes.split(inValuesStr);
+					int valuesT = values.length;
+					String value = null;
+					for (int i = 0 ; i < valuesT; i++) {
+						value = values[i];
+						if(value.contains(QUOTES))
+							values[i] = value.substring(1, value.length() - 1);
+					}
+
+				  inValuesA[seq] = values;
 				  
-				  inValCells[seq] = true;
-				  
-				  inValuesStr = res.substring(1, res.length() - 1);
-				  List<String> result = new ArrayList<String>();
-				  LineReaderUtil.fastSplit(result, inValuesStr, VALUE_SEPARATOR);
-				  inValuesA[seq] = result.toArray(new String[result.size()]);
 			  }else {
+				  
+				  if(res.contains(QUOTES))
+					  res = res.substring(1, res.length() - 1);
 				  exactValCells[seq] = res;
+				  
 			  }
 		  }
 	  }

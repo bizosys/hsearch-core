@@ -46,7 +46,7 @@ public final class LineReaderUtil {
 					index1--;
 			}
 
-			if (index1 < text.length() - 1) {
+			if (index1 <= text.length() - 1) {
 				result.add(text.substring(index1 + 1));
 			}
 
@@ -85,7 +85,7 @@ public final class LineReaderUtil {
 					index1--;
 			}
 
-			if (index1 < text.length() - 1) {
+			if (index1 <= text.length() - 1) {
 				pos++;
 				for (int aPos : positions) {
 					if (pos != aPos)
@@ -129,7 +129,7 @@ public final class LineReaderUtil {
 					index1--;
 			}
 
-			if (index1 < text.length() - 1) {
+			if (index1 <= text.length() - 1) {
 				result[resultSeq++] = text.substring(index1 + 1);
 			}
 
