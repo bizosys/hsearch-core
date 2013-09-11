@@ -36,6 +36,24 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	private SortedBytesBoolean() {
 		this.dataSize = -1;
 	}
+	
+	 @Override
+	 public final ISortedByte<Boolean> parse(final byte[] bytes) throws IOException {
+	  if ( null != this.parsedBooleans) {
+	   this.parsedBooleans.clear();
+	   this.parsedBooleans = null;
+	  }
+	  return super.parse(bytes);
+	 }
+	 
+	 @Override
+	 public final ISortedByte<Boolean> parse(final byte[] bytes, final int offset, final int length) throws IOException {
+	  if ( null != this.parsedBooleans) {
+	   this.parsedBooleans.clear();
+	   this.parsedBooleans = null;
+	  }
+	  return super.parse(bytes, offset, length);
+	 }	
 
 	@Override
 	public final byte[] toBytes(final Collection<Boolean> sortedCollection) throws IOException {

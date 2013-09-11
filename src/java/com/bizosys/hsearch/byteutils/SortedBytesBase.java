@@ -52,7 +52,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	protected abstract int compare(byte[] inputB, int offset, T matchNo);
 	
 	@Override
-	public final ISortedByte<T> parse(final byte[] bytes) throws IOException {
+	public ISortedByte<T> parse(final byte[] bytes) throws IOException {
 		this.inputBytes = bytes;
 		this.offset = 0;
 		this.length = ( null == bytes) ? 0 : bytes.length;
@@ -60,7 +60,7 @@ public abstract class SortedBytesBase<T> implements ISortedByte<T> {
 	}
 
 	@Override
-	public final ISortedByte<T> parse(final byte[] bytes, final int offset, final int length) throws IOException {
+	public ISortedByte<T> parse(final byte[] bytes, final int offset, final int length) throws IOException {
 		this.inputBytes = bytes;
 		this.offset = offset;
 		this.length = length;
