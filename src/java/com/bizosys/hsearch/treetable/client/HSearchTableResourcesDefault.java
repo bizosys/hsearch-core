@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.bizosys.hsearch.util.HSearchConfig;
+import com.bizosys.hsearch.util.ShutdownCleanup;
 import com.bizosys.hsearch.util.conf.Configuration;
 
 public class HSearchTableResourcesDefault {
@@ -53,6 +54,7 @@ public class HSearchTableResourcesDefault {
 		if ( -1 == this.multiPartsThreadLimit) 
 			multiPartsThreadLimit = Runtime.getRuntime().availableProcessors();
 		this.multiPartsThreadExecutor = Executors.newFixedThreadPool(multiPartsThreadLimit);
+		ShutdownCleanup.getInstance().addExectorService(this.multiPartsThreadExecutor);
 		
 		this.multiQueryThreadsLimit = config.getInt("query.multi.threads.limit", -1);
 		if ( -1 == this.multiQueryThreadsLimit) 
