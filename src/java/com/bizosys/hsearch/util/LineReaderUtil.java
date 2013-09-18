@@ -42,8 +42,7 @@ public final class LineReaderUtil {
 				result.add(token);
 				index1 = index2 + 1;
 				index2 = text.indexOf(separator, index1);
-				if (index2 < 0)
-					index1--;
+				if (index2 < 0) index1--;
 			}
 
 			if (index1 <= text.length() - 1) {
@@ -73,23 +72,20 @@ public final class LineReaderUtil {
 			while (index2 >= 0) {
 				pos++;
 				for (int aPos : positions) {
-					if (pos != aPos)
-						continue;
+					if (pos != aPos) continue;
 					token = text.substring(index1, index2);
 					result[resultSeq++] = token;
 					break;
 				}
 				index1 = index2 + 1;
 				index2 = text.indexOf(separator, index1);
-				if (index2 < 0)
-					index1--;
+				if (index2 < 0) index1--;
 			}
 
 			if (index1 <= text.length() - 1) {
 				pos++;
 				for (int aPos : positions) {
-					if (pos != aPos)
-						continue;
+					if (pos != aPos) continue;
 					result[resultSeq++] = text.substring(index1 + 1);
 					break;
 				}
@@ -98,8 +94,7 @@ public final class LineReaderUtil {
 		} else {
 			pos++;
 			for (int aPos : positions) {
-				if (pos != aPos)
-					continue;
+				if (pos != aPos) continue;
 				result[resultSeq++] = text;
 				break;
 			}
@@ -130,7 +125,8 @@ public final class LineReaderUtil {
 			}
 
 			if (index1 <= text.length() - 1) {
-				result[resultSeq++] = text.substring(index1 + 1);
+				if ( result.length > resultSeq)  
+					result[resultSeq++] = text.substring(index1 + 1);
 			}
 
 		} else {
