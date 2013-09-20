@@ -186,17 +186,17 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 			if (null != plugin) {
             	switch (this.mode) {
             		case MODE_COLS :
-            			tablePartsCallback.onRowCols(--TREE-NODE-KEYS--cell1Key, cell1Val);
+            			tablePartsCallback.map(--TREE-NODE-KEYS--cell1Key, cell1Val);
             			break;
 
             		case MODE_KEY :
-            			tablePartsCallback.onRowKey(cell1Key);
+            			tablePartsCallback.map(cell1Key);
             			break;
             		case MODE_KEYVAL :
-            			tablePartsCallback.onRowKeyValue(cell1Key, cell1Val);
+            			tablePartsCallback.map(cell1Key, cell1Val);
             			break;
             		case MODE_VAL:
-            			tablePartsCallback.onRowValue(cell1Val);
+            			tablePartsCallback.map(cell1Val);
             			break;
             	}
 			} 
@@ -276,7 +276,7 @@ public final class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
             this.table.parseElements();
         }
 
-        if (null != callback) callback.onReadComplete();
+        if (null != callback) callback.close();
         if (null != plugin) plugin.onReadComplete();
     }
 
