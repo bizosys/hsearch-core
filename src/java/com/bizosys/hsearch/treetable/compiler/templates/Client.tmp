@@ -27,29 +27,10 @@ public class Client extends HSearchTableReader {
         return filter;
     }
 
-    public static byte[] BLANK_KEY = "".getBytes();
 
     @Override
-	    public void rows(Collection<byte[]> results, HSearchProcessingInstruction instruction) {
-
-        try {
-
-            Collection<byte[]> merged = new ArrayList<byte[]>();
-            Collection<byte[]> appendValueB = new ArrayList<byte[]>();
-
-            for (byte[] data : results) {
-                appendValueB.clear();
-                SortedBytesArray.getInstance().parse(data).values(appendValueB);
-                this.filter.getReducer().appendRows(merged, BLANK_KEY, appendValueB);
-            }
-
-            if (merged.iterator().hasNext()) {
-                //Deserialize and read the output
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace(System.out);
-        }
-
+	public void rows(Collection<byte[]> results, HSearchProcessingInstruction instruction) {
+		//process the result
     }
 
     public void execute(String query, Map<String, String> qPart) throws IOException, ParseException {

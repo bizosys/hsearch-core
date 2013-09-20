@@ -5,25 +5,32 @@ import --PACKAGE--.*;
 import --PACKAGE--.donotmodify.*;
 
 public class Webservice {
+
 	/**
-	 *   m|1|[1:7432]|[1:4]|*|[1:758320]|*
+	 *   m|1|[1:7432]|[1:4]|*|{1,2,3,4}|*
 	 *  Range Query - [1:7432]
 	 *  Match All - *
 	 *  Exact match - m
+	 *  In query - {1,2,3,4}
 	 */
     
     public static void main(String[] args) throws Exception {
-	
-	    /**
-	    //Your query
-    	HSearchQuery query = new HSearchQuery();
-    	Mapper... mapper = new Mapper..();
-    	HSearchProcessingInstruction outputTypeCode = new HSearchProcessingInstruction(
-    														HSearchProcessingInstruction.OUTPUT_COLS, 
-    														HSearchProcessingInstruction.PLUGIN_CALLBACK_COLS, 
-    														TYPE.LIST.name());
-		// you can give COUNT, MINMAX    												
-    	mapper.setOutputType(outputTypeCode);
-	*/
+    	/**
+    	 * call clients execute method to fetch data and process the result in rows method
+    	 * ===============================================================================
+    	 * 
+    	 * Sample Query to fetch total count from Aggregate column family of hbase table.
+    	 * 
+    	 *     	CountClient c = new CountClient();
+    	 *		String query = "310|*|*|*|*";
+		 *		String query1 = "*|*|*|*|*";
+		 *	
+		 *		Map<String, String> qPart = new HashMap<String, String>();
+		 *		qPart.put("Aggregate:A", query);
+		 *		qPart.put("Aggregate:B", query1);
+		 *
+		 *		c.execute("Aggregate:A OR Aggregate:B", qPart);
+		 *
+    	 */
 	}
 }

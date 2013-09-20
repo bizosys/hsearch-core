@@ -1,25 +1,53 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package --PACKAGE--.donotmodify;
 
+import java.io.IOException;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 
-public abstract class Plugin--COLUMN-NAME--Base implements IHSearchPlugin {
+public abstract class Plugin--COLUMN-NAME--Base<T> implements IHSearchPlugin {
     
-	@Override
-	public void setMergeId(byte[] mergeId) throws IOException {
-	}
-    
-    public abstract TablePartsCallback getPart();
-    
-    public interface TablePartsCallback {
+    public abstract TablePartsCallback createMapper(Plugin--COLUMN-NAME--Base<T> whole);
 
-        boolean onRowKey(--KEY_DATATYPE-- id);
-        public boolean onRowCols(--ALL_COLS--);
-        public boolean onRowKeyValue(--KEY_DATATYPE-- key, --VAL_DATATYPE-- value);
-        public boolean onRowValue(--VAL_DATATYPE-- value);
-        public void onReadComplete();
+	public abstract void collect(T data) throws IOException;
+	
+	public final void write(T data) throws IOException  {
+		this.collect(data);
+		this.parts.remove();		
+	}
+	
+	private byte[] mergeId;
+	
+	@Override
+	public final void setMergeId(byte[] mergeId) throws IOException {
+		this.mergeId = mergeId;
+	}
+	
+	public final byte[] getMergeId() throws IOException {
+		return this.mergeId;
+	}
+	
+    public interface TablePartsCallback {
+        public boolean map(--KEY_DATATYPE-- id);
+        public boolean map(--ALL_COLS--);
+        public boolean map(--KEY_DATATYPE-- key, --VAL_DATATYPE-- value);
+        public boolean map(--VAL_DATATYPE-- value);
+        public void close() throws IOException ;
+    }
+    
+    /*******************************************************************************************
+     * The below sections are generic in nature and no need to be changed.
+     */
+    /**
+     * Do not modify this section as we need to create indivisual instances per thread.
+     */
+    public final ThreadLocal<Plugin--COLUMN-NAME--Base.TablePartsCallback> parts = 
+        	new ThreadLocal<Plugin--COLUMN-NAME--Base.TablePartsCallback>();
+
+    public final Plugin--COLUMN-NAME--Base.TablePartsCallback getPart() {
+        Plugin--COLUMN-NAME--Base.TablePartsCallback part = parts.get();
+        if (null == part) {
+            parts.set(this.createMapper(this));
+            return parts.get();
+        } 
+        return part;
     }
 }

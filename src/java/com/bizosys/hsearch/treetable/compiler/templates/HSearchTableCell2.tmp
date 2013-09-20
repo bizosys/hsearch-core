@@ -1,10 +1,15 @@
 package --PACKAGE--.donotmodify;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
-import com.bizosys.hsearch.byteutils.SortedBytesChar;
+import com.bizosys.hsearch.byteutils.SortedBytesDouble;
+import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesFloat;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
 import com.bizosys.hsearch.byteutils.SortedBytesUnsignedShort;
+import com.bizosys.hsearch.byteutils.SortedBytesChar;
+import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
+import com.bizosys.hsearch.byteutils.SortedBytesString;
+import com.bizosys.hsearch.byteutils.Storable;
 import com.bizosys.hsearch.treetable.BytesSection;
 import com.bizosys.hsearch.treetable.Cell2;
 import com.bizosys.hsearch.treetable.Cell2Visitor;
@@ -108,17 +113,17 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 
             	switch (this.mode) {
             		case MODE_COLS :
-            			tablePartsCallback.onRowCols(cell1Key, cell1Val);
+            			tablePartsCallback.map(cell1Key, cell1Val);
             			break;
 
             		case MODE_KEY :
-            			tablePartsCallback.onRowKey(cell1Key);
+            			tablePartsCallback.map(cell1Key);
             			break;
             		case MODE_KEYVAL :
-            			tablePartsCallback.onRowKeyValue(cell1Key, cell1Val);
+            			tablePartsCallback.map(cell1Key, cell1Val);
             			break;
             		case MODE_VAL:
-            			tablePartsCallback.onRowValue(cell1Val);
+            			tablePartsCallback.map(cell1Val);
             			break;
             	}
                 
@@ -139,7 +144,7 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
         if (null == table) {
             return null;
         }
-        table.sort(new --VAL-COMPARATOR--<Integer>());
+        table.sort(new --VAL-COMPARATOR--<--KEY_DATATYPE-->());
         return table.toBytesOnSortedData();
     }
 
@@ -194,12 +199,8 @@ public class HSearchTable--COLUMN-NAME-- implements IHSearchTable {
 			this.table.process(cell2Visitor);
 		}
 		
-        if (null != callback) {
-            callback.onReadComplete();
-        }
-        if (null != plugin) {
-            plugin.onReadComplete();
-        }    	
+        if (null != callback)callback.close();
+        if (null != plugin)plugin.onReadComplete();
     }
 
     public Plugin--COLUMN-NAME--Base castPlugin(IHSearchPlugin pluginI)

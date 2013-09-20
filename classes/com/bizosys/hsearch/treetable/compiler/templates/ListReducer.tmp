@@ -1,0 +1,36 @@
+package --PACKAGE--.donotmodify;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+import com.bizosys.hsearch.functions.HSearchReducer;
+import com.bizosys.hsearch.functions.StatementWithOutput;
+
+public class ListReducer implements HSearchReducer {
+
+	Set<String> eachQueryData = new HashSet<String>();
+    @Override
+    public final void appendQueries( final Collection<byte[]> mergedQueryOutput, final StatementWithOutput[] queryOutput) throws IOException {
+    	for (StatementWithOutput col : queryOutput) {
+    		if ( null == col) continue;
+    		if ( null == col.cells) continue;
+    		Iterator<byte[]> itr = col.cells.iterator();
+    		if ( itr.hasNext() ) {
+    			String row = new String(itr.next()) ;
+    			eachQueryData.add(row);
+    		}
+		}
+    	
+    	for (String row : eachQueryData) {
+        	mergedQueryOutput.add(row.getBytes());			
+		}
+    }
+
+    @Override
+    public final void appendRows(final byte[] appendRowId, final Collection<byte[]> mergedRows, final Collection<byte[]> appendRows) {
+    	mergedRows.addAll(appendRows);
+    }
+}

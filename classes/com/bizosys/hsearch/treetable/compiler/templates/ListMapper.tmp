@@ -1,0 +1,44 @@
+package --PACKAGE--.donotmodify;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import --PACKAGE--.donotmodify.Plugin--COLUMN-NAME--Base.TablePartsCallback;
+
+public final class ListMapper--COLUMN-NAME-- implements TablePartsCallback {
+
+	private Plugin--COLUMN-NAME--Base<Map<--NP-KEY-DATATYPE--, String>> context = null;
+	Map<--NP-KEY-DATATYPE--, String> rows = new HashMap<--NP-KEY-DATATYPE--, String>();
+
+	public ListMapper--COLUMN-NAME--(final Plugin--COLUMN-NAME--Base<Map<--NP-KEY-DATATYPE--, String>> context) {
+    	this.context = context;
+    }
+	
+    @Override
+    public final boolean map(final --KEY_DATATYPE-- id) {
+        return true;
+    }
+
+    @Override
+    public final boolean map(--ALL_COLS--) {
+    	--LIST-APPENDER--
+        return true;
+    }
+
+    @Override
+    public final boolean map(final --KEY_DATATYPE-- key, final --VAL_DATATYPE-- value) {
+        return true;
+    }
+
+    @Override
+    public final boolean map(final --VAL_DATATYPE-- value) {
+        return true;
+    }
+
+    @Override
+    public final void close() throws IOException {
+    	this.context.write(rows);
+    	this.rows.clear();
+    }
+}

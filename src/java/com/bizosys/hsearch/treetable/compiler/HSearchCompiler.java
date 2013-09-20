@@ -165,6 +165,7 @@ public class HSearchCompiler {
 
 	public static String generateHSearchTable(String module, String indexType, Field fldKey, Field fldValue,
 			String colName, List<Field> allFields) throws Exception {
+
 		String template = ReadFileFromJar.getTextFileContent(
 				"/com/bizosys/hsearch/treetable/compiler/templates/HSearchTable.tmp");
 		template = template.replace("--PACKAGE--", module);
@@ -366,7 +367,7 @@ public class HSearchCompiler {
 			sb.append(toCamelCase(field.name));
 		}
 		
-		template = 	template.replace("--LIST-APPENDER--", "rows.put("+key.name+","+sb.toString()+");\n");
+		template = 	template.replace("--LIST-APPENDER--", "rows.put(" + toCamelCase(key.name) + " , " + sb.toString() + ");\n");
 		
 		String allParams = generatePrmitives(allFields);		
 		template = 	template.replace("--ALL_COLS--", allParams);

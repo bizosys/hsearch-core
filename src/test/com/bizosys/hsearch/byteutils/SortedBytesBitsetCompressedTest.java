@@ -42,9 +42,8 @@ public class SortedBytesBitsetCompressedTest extends TestCase {
 			List<BitSet> sortedList = new ArrayList<BitSet>();
 			int MAX = 10;
 			for ( int i=0; i<MAX; i++) {
-				BitSet b = new BitSet(10000000);
+				BitSet b = new BitSet(i * 10000000); //10Million increment
 				b.set(i);
-				//b.set(i*10000000);
 				sortedList.add(b);
 			}
 

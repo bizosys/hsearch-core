@@ -65,7 +65,7 @@ public class CodePartGenerator {
 		} else if ( keyDataType.equals("Byte")) {
 			template = template.replace("--COMPARE-BY-VALUE--", ".byteValue() != cell1Key.byteValue()");
 		} else if ( keyDataType.equals("String")) {
-			template = template.replace("matchingCell--CELL-MAX-MINUS-2----COMPARE-BY-VALUE--", "! matchingCell--CELL-MAX-MINUS-2-- .equals(cell1Key)");
+			template = template.replace("--COMPARE-BY-VALUE--", ".compareTo(cell1Key) != 0");
 		} else if ( keyDataType.equals("byte[]")) {
 			template = template.replace("matchingCell--CELL-MAX-MINUS-2----COMPARE-BY-VALUE--", "! Storable.compareBytes(matchingCell--CELL-MAX-MINUS-2--, cell1Key)");
 		} else {
@@ -91,7 +91,7 @@ public class CodePartGenerator {
 		} else if ( keyDataType.equals("Byte")) {
 			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".byteValue() == cell1Key.byteValue()");
 		} else if ( keyDataType.equals("String")) {
-			template = template.replace("matchingCell--CELL-MAX-MINUS-2----COMPARE-BY-VALUE-EQUAL--", " matchingCell--CELL-MAX-MINUS-2-- .equals(cell1Key)");
+			template = template.replace("--COMPARE-BY-VALUE-EQUAL--", ".compareTo(cell1Key) == 0");
 		} else if ( keyDataType.equals("byte[]")) {
 			template = template.replace("matchingCell--CELL-MAX-MINUS-2----COMPARE-BY-VALUE-EQUAL--", " Storable.compareBytes(matchingCell--CELL-MAX-MINUS-2--, cell1Key)");
 		} else {
@@ -492,8 +492,10 @@ public class CodePartGenerator {
 				else if(castType == 3)keyCell = "cellMax"+(CELLMAX - 2);
 				else if(castType == 4)keyCell = "inValues"+(CELLMAX - 2);
 				
-				if(castType == 4)target = fields.get(CELLMAX - 2).datatype +"[] "+keyCell;
-				else target = fields.get(CELLMAX - 2).datatype +" "+keyCell;
+				String datatype = fields.get(CELLMAX - 2).datatype;
+				datatype = (datatype.equals("Short")) ? "Integer" : datatype;
+				if(castType == 4)target = datatype +"[] "+keyCell;
+				else target = datatype +" "+keyCell;
 				
 				int index = text.indexOf(target);
 				result = text.replace(text.substring(index, index + target.length()), "cell2Visitor."+keyCell); 
