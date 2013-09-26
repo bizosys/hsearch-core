@@ -74,6 +74,7 @@ public abstract class HSearchScalarFilter implements Filter {
 	byte[] inputRowsToIncludeB = null;
 	List<byte[]>  inputRowsList = null;
 	SortedBytesArray rowsToInclude = null;
+	byte[] matchingIds = null;
 
 	public HSearchScalarFilter(){
 	}
@@ -87,6 +88,10 @@ public abstract class HSearchScalarFilter implements Filter {
 		this.inputRowsList = inputRowsList;
 	}
 	
+	public void setMatchingIds(byte[] matchingIds) {
+		this.matchingIds = matchingIds;
+	}
+
 	@Override
 	public final void write(final DataOutput out) throws IOException {
 
@@ -98,10 +103,20 @@ public abstract class HSearchScalarFilter implements Filter {
 		
 		SortedBytesArray sendToRSData = SortedBytesArray.getInstanceArr();
 		String querySection = this.inputMapperInstructions.toString()  + "\n" + this.multiQuery;
-		byte[] ser = ( null == inputRowsToIncludeB) ?
-			sendToRSData.toBytes(querySection.getBytes()): 
-			sendToRSData.toBytes( querySection.getBytes(), inputRowsToIncludeB);
 		
+		List<byte[]> values = new ArrayList<byte[]>(3);
+		values.add(querySection.getBytes());
+		
+		if(null != matchingIds)
+			values.add(matchingIds);
+		else
+			values.add(new byte[0]);
+		
+		if(null != inputRowsToIncludeB)
+			values.add(inputRowsToIncludeB);
+		
+		byte[] ser = sendToRSData.toBytes( values );		
+
 		out.writeInt(ser.length);
 		out.write(ser);
 	}	
@@ -136,17 +151,21 @@ public abstract class HSearchScalarFilter implements Filter {
 				throw new IOException("Unknown number of fields :" + packedDataSectionsT);
 			}
 			
+			Reference ref = new Reference();
 			//Filter Row Section
-			if ( packedDataSectionsT == 2) {
-				Reference ref = new Reference();
-				receiveRSData.getValueAtReference(1, ref);
+			if ( packedDataSectionsT == 3) {
+				receiveRSData.getValueAtReference(2, ref);
 				rowsToInclude = SortedBytesArray.getInstanceArr();
 				rowsToInclude.parse(deser, ref.offset, ref.length);
 				System.out.println("Total Rows :" + rowsToInclude.values().size());
 			}
 			
+			//matching ids
+			receiveRSData.getValueAtReference(1, ref);
+			this.matchingIds = new byte[ref.length];
+			System.arraycopy(deser, ref.offset, this.matchingIds, 0, ref.length);
+			
 			//Query Section
-			Reference ref = new Reference();
 			receiveRSData.getValueAtReference(0, ref);
 			StringTokenizer stk = new StringTokenizer(new String(deser, ref.offset, ref.length), "\n");
 			
@@ -170,7 +189,7 @@ public abstract class HSearchScalarFilter implements Filter {
 						}
 						break;
 				}
-			}
+			}			
 			
 			if ( null != this.multiQuery ) {
 				if ( 0 != this.multiQuery.trim().length() ) 
@@ -181,6 +200,8 @@ public abstract class HSearchScalarFilter implements Filter {
 					this.plugin =createPlugIn();
 					if ( null != this.plugin) {
 						this.plugin.setOutputType(this.inputMapperInstructions);
+						if(0 != this.matchingIds.length)
+							this.plugin.setMergeId(this.matchingIds);
 						skipFiltering = false;
 					}
 				}
@@ -188,6 +209,7 @@ public abstract class HSearchScalarFilter implements Filter {
 			
 		} catch (Exception ex) {
 			HSearchLog.l.fatal(ex);
+			ex.printStackTrace();
 			throw new IOException(ex);
 		}
 	}

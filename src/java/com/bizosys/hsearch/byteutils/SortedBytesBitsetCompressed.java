@@ -44,7 +44,8 @@ public final class SortedBytesBitsetCompressed extends SortedBytesBase<BitSet>{
 	
 	@Override
 	public final int getSize() {
-		return sba.getSize();
+		if ( null == inputBytes) return 0;
+		return Storable.getInt(offset, inputBytes);
 	}
 	
 

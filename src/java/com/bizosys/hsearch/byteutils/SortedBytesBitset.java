@@ -364,7 +364,7 @@ public final class SortedBytesBitset extends SortedBytesBase<BitSet>{
 	}
 	
 
-	private final BitSet bytesToBitSet(byte[] bits, int bitsOffset) throws IndexOutOfBoundsException {
+	public final BitSet bytesToBitSet(byte[] bits, int bitsOffset) throws IndexOutOfBoundsException {
 		if ( null == bits) return null;
 		
 		int available = Storable.getInt(bitsOffset, bits);

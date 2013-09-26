@@ -1,0 +1,62 @@
+package --PACKAGE--.donotmodify;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.util.Collection;
+import java.util.Map;
+
+import com.bizosys.hsearch.byteutils.SortedBytesArray;
+import com.bizosys.hsearch.byteutils.Storable;
+import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
+import --PACKAGE--.donotmodify.HBaseTableSchema;
+import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
+import com.bizosys.hsearch.treetable.storage.HSearchTableReader;
+
+public class CountClient extends HSearchTableReader {
+
+	   HSearchGenericFilter filter = null;
+	    
+
+	    public CountClient() throws IOException {
+	        HBaseTableSchema.getInstance();
+	    }
+
+	    @Override
+	    public HSearchGenericFilter getFilter(String multiQuery,
+	            Map<String, String> multiQueryParts, HSearchProcessingInstruction outputType) {
+	        filter = new CountFilter(outputType, multiQuery, multiQueryParts);
+	        return filter;
+	    }
+
+	    @Override
+	    public void rows(Collection<byte[]> results, HSearchProcessingInstruction instruction) {
+
+	        try {
+
+				int totalCount = 0;
+	            for (byte[] data : results) {
+	            	
+		           	SortedBytesArray arr = SortedBytesArray.getInstanceArr();
+		        	arr.parse(data);
+
+		        	int size = arr.getSize();
+		        	SortedBytesArray.Reference ref = new SortedBytesArray.Reference();
+
+		        	for ( int i=0; i<size; i++) {
+		        		arr.getValueAtReference(i,ref);
+		        		totalCount += Storable.getInt(ref.offset, data);
+		        	}	            	
+	            }
+				System.out.println ( "Toal Count = " + totalCount);
+	        } catch (IOException ex) {
+	            ex.printStackTrace(System.out);
+	        }
+
+	    }
+
+	    public void execute(String query, Map<String, String> qPart) throws IOException, ParseException {
+	    	HSearchProcessingInstruction instruction = 
+	    		new HSearchProcessingInstruction(HSearchProcessingInstruction.PLUGIN_CALLBACK_ID);
+	        read(HBaseTableSchema.getInstance().TABLE_NAME, query, qPart, instruction , true, true);
+	    }
+}
