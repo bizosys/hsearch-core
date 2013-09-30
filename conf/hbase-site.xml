@@ -24,7 +24,7 @@
 <configuration>
     <property>
         <name>hbase.coprocessor.region.classes</name>
-        <value>com.bizosys.hsearch.treetable.storage.HSearchGenericCoprocessorImpl</value>
+        <value>com.bizosys.hsearch.treetable.storage.HSearchGenericCoprocessorImpl,com.bizosys.hsearch.treetable.storage.HSearchMultiGetCoprocessor</value>
     </property>
     
 	<property>
