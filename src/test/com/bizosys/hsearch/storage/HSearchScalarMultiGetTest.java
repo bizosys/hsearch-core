@@ -113,9 +113,7 @@ B_sex
 		 */
 		public void test2Rows() throws Throwable {	
 			HBaseFacade facade = null;
-			ResultScanner scanner = null;
 			HTableWrapper table = null;
-			List<byte[]> matched = null;
 			try {
 				facade = HBaseFacade.getInstance();
 				table = facade.getTable("examresult");
@@ -123,20 +121,30 @@ B_sex
 					"B_role".getBytes(), "B_sex".getBytes() 
 				};
 				
-				HRegionInfo regionInfo = table.getRegionLocation("B_role".getBytes()).getRegionInfo();
-				ColumnFamName cf = new ColumnFamName("1".getBytes(), new byte[]{0});
-				HSearchMultiGetCoProcessorProxy p = new HSearchMultiGetCoProcessorProxy(cf,null, rows);
-				Map<String, byte[]> res = new HashMap<String, byte[]>();
-				p.execCoprocessorRows(res, table,"B_role".getBytes());
-				System.out.println ( res.keySet().toString());
+				Map<Long, byte[]> uniqueRegionsWithStartRow = new HashMap<Long, byte[]>();
 				
+				for (byte[] row : rows) {
+					HRegionInfo regionInfo = table.getRegionLocation(row).getRegionInfo();
+					long regionName = regionInfo.getRegionId();
+					if ( uniqueRegionsWithStartRow.containsKey(regionName)) continue;
+					System.out.println("Adding Region:" + regionName);
+					uniqueRegionsWithStartRow.put(regionName, row);
+				}
 				
+				System.out.println("Total Regions to hit :" + uniqueRegionsWithStartRow.size());
+				
+				for (byte[] row : uniqueRegionsWithStartRow.values()) {
+					ColumnFamName cf = new ColumnFamName("1".getBytes(), new byte[]{0});
+					HSearchMultiGetCoProcessorProxy p = new HSearchMultiGetCoProcessorProxy(cf,null, rows);
+					Map<String, byte[]> res = new HashMap<String, byte[]>();
+					p.execCoprocessorRows(res, table,row);
+					System.out.println ( res.keySet().toString());
+				}
+
 			} catch ( IOException ex) {
 				throw ex;
 			} finally {
-				if ( null != scanner) scanner.close();
 				if ( null != table ) facade.putTable(table);
-				if ( null != matched) matched.clear();
 			}
 		}	
 				

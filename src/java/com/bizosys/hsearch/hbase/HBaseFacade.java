@@ -151,6 +151,11 @@ public final class HBaseFacade {
 			 * 0.94 Version Fix
 			 */
 			table.table.close();
+			if ( null != table.innerTable ) {
+				table.innerTable.close();
+				table.innerTable = null;
+			}
+			
 		} catch (IOException ex) {
 			//Just ignore it.
 			ex.printStackTrace(System.err);
