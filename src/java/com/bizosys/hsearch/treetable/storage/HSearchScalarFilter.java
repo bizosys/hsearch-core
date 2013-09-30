@@ -157,7 +157,6 @@ public abstract class HSearchScalarFilter implements Filter {
 				receiveRSData.getValueAtReference(2, ref);
 				rowsToInclude = SortedBytesArray.getInstanceArr();
 				rowsToInclude.parse(deser, ref.offset, ref.length);
-				System.out.println("Total Rows :" + rowsToInclude.values().size());
 			}
 			
 			//matching ids

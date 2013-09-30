@@ -20,12 +20,17 @@
 package com.bizosys.hsearch.hbase;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTableInterface;
+import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -49,6 +54,7 @@ public final class HTableWrapper {
 	 * The table interface
 	 */
 	public HTableInterface table = null;
+	public HTable innerTable = null;
 	
 	/**
 	 * Name of HBase table
@@ -148,6 +154,10 @@ public final class HTableWrapper {
 
 	public void close() throws IOException {
 		table.close();
+		if ( null != innerTable) {
+			innerTable.close();
+			innerTable = null;
+		}
 	}
 
 	public RowLock lockRow(byte[] row) throws IOException {
@@ -169,4 +179,32 @@ public final class HTableWrapper {
 		return table.batch(actions);
 	}
 	
+	public HRegionLocation getRegionLocation(byte[] row) throws IOException {
+		
+		
+		if ( null == innerTable ) {
+			synchronized (this.tableName) {
+				if ( null == innerTable) innerTable = 
+					new HTable(table.getConfiguration(), this.tableName);
+			}
+		}
+		return innerTable.getRegionLocation(row);
+	}
+	
+	public List<HRegionLocation> getRegionLocation(List<byte[]> rows) throws IOException {
+		if ( null == rows) return null;
+		List<HRegionLocation> regions = new ArrayList<HRegionLocation>();
+
+		if ( null == innerTable ) {
+			synchronized (this.tableName) {
+				if ( null == innerTable) innerTable = 
+					new HTable(table.getConfiguration(), this.tableName);
+			}
+		}
+		
+		for (byte[] row : rows) {
+			regions.add(innerTable.getRegionLocation(row));
+		}
+		return regions;
+	}
 }
