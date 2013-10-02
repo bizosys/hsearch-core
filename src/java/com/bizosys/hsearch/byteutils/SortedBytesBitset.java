@@ -329,7 +329,7 @@ public final class SortedBytesBitset extends SortedBytesBase<BitSet>{
 		return neededBytes;
 	}
 	
-	private final byte[] bitSetToBytes(final BitSet bits) throws IOException {
+	public final byte[] bitSetToBytes(final BitSet bits) throws IOException {
 		int available = bits.size();
 		int packed = available/8;
 		int remaining = available - packed * 8;
