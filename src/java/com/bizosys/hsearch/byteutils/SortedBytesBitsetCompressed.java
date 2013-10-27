@@ -20,18 +20,18 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collection;
-import java.util.List;
 
 import org.iq80.snappy.Snappy;
 
-public final class SortedBytesBitsetCompressed extends SortedBytesBase<BitSet>{
+import com.bizosys.hsearch.federate.BitSetWrapper;
+
+public final class SortedBytesBitsetCompressed extends SortedBytesBase<BitSetWrapper>{
 
 	SortedBytesArray sba = SortedBytesArray.getInstanceArr();
-	public static final ISortedByte<BitSet> getInstance() {
+	public static final ISortedByte<BitSetWrapper> getInstance() {
 		return new SortedBytesBitsetCompressed();
 	}
 	
@@ -50,42 +50,48 @@ public final class SortedBytesBitsetCompressed extends SortedBytesBase<BitSet>{
 	
 
 	@Override
-	public final byte[] toBytes(final Collection<BitSet> sortedCollection) throws IOException {
+	public final byte[] toBytes(final Collection<BitSetWrapper> sortedCollection) throws IOException {
 
 		Collection<byte[]> sortedCollectionB = new ArrayList<byte[]>(sortedCollection.size());
-		for (BitSet bitSet : sortedCollection) {
-			sortedCollectionB.add(bitSetToBytes(bitSet));
+		for (BitSetWrapper bitSet : sortedCollection) {
+			sortedCollectionB.add(bitSet.toByteArray());
 		}
 		return sba.toBytes(sortedCollectionB);
 	}
 	
-
 	@Override
-	public final void addAll(final Collection<BitSet> vals) throws IOException {
-		Collection<byte[]> sortedCollectionB = new ArrayList<byte[]>(vals.size());
-		for (BitSet bitSet : vals) {
-			sortedCollectionB.add(bitSetToBytes(bitSet));
-		}
-		sba.toBytes(sortedCollectionB);
+	public final void addAll(final Collection<BitSetWrapper> vals) throws IOException {
+		if ( null == inputBytes) return;
+		
+		int collectionSize = Storable.getInt(offset, inputBytes);
+		
+		Reference ref = new Reference();
+		for ( int i=0; i<collectionSize; i++) {
+			ref = getValueAtReference(i);
+			vals.add(BitSetWrapper.valueOf(ByteBuffer.wrap(inputBytes, ref.offset, ref.length)));
+		}		
+	}
+
+	public final byte[] bitSetToBytes(final BitSetWrapper bits){
+		 byte[] compressedOutput = Snappy.compress(bits.toByteArray());
+         return compressedOutput;
+	}
+
+
+	public final BitSetWrapper bytesToBitSet(byte[] bytes, int offset, int length) {
+		byte[] uncompressed = Snappy.uncompress(bytes, offset , length);
+		return BitSetWrapper.valueOf(ByteBuffer.wrap(uncompressed, 0, uncompressed.length));
 	}
 
 	@Override
-	public final BitSet getValueAt(final int pos) throws IndexOutOfBoundsException {
-		byte[] inputBytes = this.inputBytes;
-		int readOffset = this.offset;
-		
-		int collectionSize = Storable.getInt(readOffset, inputBytes);
+	public final BitSetWrapper getValueAt(final int pos) throws IndexOutOfBoundsException {
+
+		int collectionSize = Storable.getInt(offset, inputBytes);
 		if ( pos >= collectionSize) throw new IndexOutOfBoundsException(
 			"Maximum position in array is " + collectionSize + " and accessed " + pos );
 		
-		int elemSizeOffset = (readOffset + 4 + pos * 4);
-		int elemStartOffset = Storable.getInt( elemSizeOffset, inputBytes);
-		int elemEndOffset = Storable.getInt( elemSizeOffset + 4, inputBytes);
-		//System.out.println(elemEndOffset + "-" + elemStartOffset);
-		int elemLen = elemEndOffset - elemStartOffset;
-		
-		int headerOffset = (readOffset + 8 + collectionSize * 4);
-		return bytesToBitSet(inputBytes, headerOffset + elemStartOffset, elemLen);
+		Reference ref = getValueAtReference(pos);
+		return BitSetWrapper.valueOf(ByteBuffer.wrap(inputBytes, ref.offset, ref.length));
 	}
 
 	public final Reference getValueAtReference(final int pos) {
@@ -133,40 +139,18 @@ public final class SortedBytesBitsetCompressed extends SortedBytesBase<BitSet>{
 	
 	
 	@Override
-	public final int getEqualToIndex(final BitSet matchNo) throws IOException {
-		byte[] inputBytes = this.inputBytes;
-		int readOffset = this.offset;
-
-		int collectionSize = Storable.getInt(readOffset, inputBytes);
+	public final int getEqualToIndex(final BitSetWrapper matchNo) throws IOException {
+		if(null == this.inputBytes)
+			return -1;
 		
-		List<Integer> offsets = new ArrayList<Integer>();
-		readOffset = readOffset + 4;
-		
-		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( readOffset, inputBytes);
-			readOffset = readOffset + 4;
-			offsets.add(bytesLen);
-		}
-		
-		int bodyLen = Storable.getInt(readOffset, inputBytes); // Find body bytes
-		offsets.add(bodyLen);		
-		readOffset = readOffset + 4;
-
-		int headerOffset = readOffset;
-		offsets.add( inputBytes.length - headerOffset);
-		
-		Integer thisElemOffset = -1;
-		Integer nextElemOffset = -1;
-		int elemOffset = -1;
-		int elemLen = -1;
+		int collectionSize = Storable.getInt(offset, inputBytes);
+				
 		boolean isSame = false;
-		
+		Reference ref = null;
+		byte[] matchNoB = matchNo.toByteArray();
 		for ( int i=0; i<collectionSize; i++) {
-			thisElemOffset = offsets.get(i);
-			nextElemOffset = offsets.get(i+1);
-			elemOffset = (headerOffset + thisElemOffset);
-			elemLen = nextElemOffset - thisElemOffset;
-			isSame = ByteUtil.compareBytes(inputBytes, elemOffset, elemLen, bitSetToBytes(matchNo));
+			ref = getValueAtReference(i);
+			isSame = ByteUtil.compareBytes(inputBytes, ref.offset, ref.length, matchNoB);
 			if ( isSame ) return i;
 		}		
 		return -1;
@@ -174,178 +158,108 @@ public final class SortedBytesBitsetCompressed extends SortedBytesBase<BitSet>{
 
 	
 	@Override
-	public final void getEqualToIndexes(final BitSet matchBytes, final Collection<Integer> matchings) throws IOException {
+	public final void getEqualToIndexes(final BitSetWrapper matchBytes, final Collection<Integer> matchings) throws IOException {
 		getEqualOrNotEqualToIndexes(false, matchBytes, matchings);
 	}
 
 	
 	@Override
-	public final void getNotEqualToIndexes(final BitSet matchBytes, final Collection<Integer> matchings) throws IOException {
+	public final void getNotEqualToIndexes(final BitSetWrapper matchBytes, final Collection<Integer> matchings) throws IOException {
 		getEqualOrNotEqualToIndexes(true, matchBytes, matchings);
 	}
 	
-	private final void getEqualOrNotEqualToIndexes(final boolean isNot, final BitSet matchBytes, final Collection<Integer> matchings) throws IOException {
+	private final void getEqualOrNotEqualToIndexes(final boolean isNot, final BitSetWrapper matchBytes, final Collection<Integer> matchings) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getEqualToIndexes(final BitSet matchNo) throws IOException {
+	public final Collection<Integer> getEqualToIndexes(final BitSetWrapper matchNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getGreaterThanIndexes(final BitSet matchingNo,
+	public final void getGreaterThanIndexes(final BitSetWrapper matchingNo,
 			final Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getGreaterThanIndexes(BitSet matchingNo) throws IOException {
+	public final Collection<Integer> getGreaterThanIndexes(BitSetWrapper matchingNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getGreaterThanEqualToIndexes(BitSet matchingNo,
+	public final void getGreaterThanEqualToIndexes(BitSetWrapper matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getGreaterThanEqualToIndexes(BitSet matchingNo) throws IOException {
+	public final Collection<Integer> getGreaterThanEqualToIndexes(BitSetWrapper matchingNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getLessThanIndexes(BitSet matchingNo,
+	public final void getLessThanIndexes(BitSetWrapper matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getLessThanEqualToIndexes(BitSet matchingNo,
+	public final void getLessThanEqualToIndexes(BitSetWrapper matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getLessThanIndexes(BitSet matchingNo) throws IOException {
+	public final Collection<Integer> getLessThanIndexes(BitSetWrapper matchingNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getLessThanEqualToIndexes(BitSet matchingNo) throws IOException {
+	public final Collection<Integer> getLessThanEqualToIndexes(BitSetWrapper matchingNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getRangeIndexes(BitSet matchNoStart, BitSet matchNoEnd,
+	public final void getRangeIndexes(BitSetWrapper matchNoStart, BitSetWrapper matchNoEnd,
 			Collection<Integer> matchings) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getRangeIndexes(BitSet matchNoStart,
-			BitSet matchNoEnd) throws IOException {
+	public final Collection<Integer> getRangeIndexes(BitSetWrapper matchNoStart,
+			BitSetWrapper matchNoEnd) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getRangeIndexesInclusive(BitSet matchNoStart,
-			BitSet matchNoEnd, Collection<Integer> matchings) throws IOException {
+	public final void getRangeIndexesInclusive(BitSetWrapper matchNoStart,
+			BitSetWrapper matchNoEnd, Collection<Integer> matchings) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getRangeIndexesInclusive(BitSet matchNoStart,
-			BitSet matchNoEnd) throws IOException {
+	public final Collection<Integer> getRangeIndexesInclusive(BitSetWrapper matchNoStart,
+			BitSetWrapper matchNoEnd) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getRangeIndexesInclusive(BitSet matchNoStart,
-			boolean startMatch, BitSet matchNoEnd, boolean endMatch,
+	public final void getRangeIndexesInclusive(BitSetWrapper matchNoStart,
+			boolean startMatch, BitSetWrapper matchNoEnd, boolean endMatch,
 			Collection<Integer> matchings) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getRangeIndexesInclusive(BitSet matchNoStart,
-			boolean startMatch, BitSet matchNoEnd, boolean endMatch) throws IOException {
+	public final Collection<Integer> getRangeIndexesInclusive(BitSetWrapper matchNoStart,
+			boolean startMatch, BitSetWrapper matchNoEnd, boolean endMatch) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
-	private final byte[] bitSetToBytes(final BitSet bits) throws IOException {
-		int available = bits.size();
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		int neededBytes = packed;
-		if ( remaining > 0 ) neededBytes++;
-		
-		neededBytes = neededBytes + 4; // How many
-		
-		byte[] out = new byte[neededBytes];
-		
-		
-		System.arraycopy(Storable.putInt(available), 0, out, 0, 4);
-		
-		int bitIndex = 0;
-		for ( int i=0; i<packed; i++) {
-			out[4+i]  = ByteUtil.fromBits(new boolean[] {
-				bits.get(bitIndex++), bits.get(bitIndex++), bits.get(bitIndex++), bits.get(bitIndex++),
-				bits.get(bitIndex++), bits.get(bitIndex++), bits.get(bitIndex++), bits.get(bitIndex++)});
-		}
-		
-		if ( remaining > 0 ) {
-			boolean[] remainingBits = new boolean[8];
-			Arrays.fill(remainingBits, true);
-			for ( int j=0; j<remaining; j++) {
-				remainingBits[j] = bits.get(bitIndex++);
-			}
-				
-			out[4+packed] = ByteUtil.fromBits(remainingBits);
-		}
-
-		byte[] compressedOutput = Snappy.compress(out);
-		return compressedOutput;
-	}
-	
-
-	private final BitSet bytesToBitSet(byte[] bitsCompressed, int bitsOffset, int bitsLength) throws IndexOutOfBoundsException {
-		if ( null == bitsCompressed) return null;
-
-		byte[] bits = Snappy.uncompress(bitsCompressed, bitsOffset , bitsLength);
-		bitsOffset = 0;
-		bitsLength = bits.length;
-		
-		int available = Storable.getInt(bitsOffset, bits);
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		BitSet output = new BitSet(available);
-		int seq = 0;
-		for (int i=0; i<packed; i++) {
-			for (boolean val : Storable.byteToBits(bits[bitsOffset + 4 + i])) {
-				if ( val ) output.set(seq);
-				seq++;
-				if ( available < seq) break;
-			}
-		}
-		
-		if ( remaining > 0 ) {
-			boolean[] x = Storable.byteToBits(this.inputBytes[offset + 4 + packed]);
-			for ( int i=0; i<remaining; i++) {
-				if ( x[i] ) output.set(seq);
-				seq++;
-				if ( available < seq) break;
-			}
-		}
-		return output;
-		
-	}
-
 	@Override
-	protected int compare(byte[] inputB, int offset, BitSet matchNo) {
+	protected int compare(byte[] inputB, int offset, BitSetWrapper matchNo) {
 		return 0;
 	}
 }

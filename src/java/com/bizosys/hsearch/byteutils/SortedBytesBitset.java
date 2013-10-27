@@ -20,15 +20,17 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Collection;
-import java.util.List;
 
-public final class SortedBytesBitset extends SortedBytesBase<BitSet>{
+import com.bizosys.hsearch.federate.BitSetWrapper;
 
-	public static final ISortedByte<BitSet> getInstance() {
+public final class SortedBytesBitset extends SortedBytesBase<BitSetWrapper>{
+
+	SortedBytesArray sba = SortedBytesArray.getInstanceArr();
+	
+	public static final ISortedByte<BitSetWrapper> getInstance() {
 		return new SortedBytesBitset();
 	}
 	
@@ -47,88 +49,46 @@ public final class SortedBytesBitset extends SortedBytesBase<BitSet>{
 	
 
 	@Override
-	public final byte[] toBytes(final Collection<BitSet> sortedCollection) throws IOException {
-
-		//Total collection size, element start location, End Location
-		byte[] headerBytes = new byte[4 + sortedCollection.size() * 4 + 4] ;
-		System.arraycopy(Storable.putInt(sortedCollection.size()), 0, headerBytes, 0, 4);
-		int offset = 4;  //4 is added for array size
+	public final byte[] toBytes(final Collection<BitSetWrapper> sortedCollection) throws IOException {
 		
-		int outputBytesLen = 0;
-		for (BitSet bytes : sortedCollection) {
-
-			//Populate header
-			System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, offset, 4);
-			offset = offset + 4;
-			
-			//Calculate Next Chunk length
-			int bytesLen = bitSetToBytesLen(bytes);
-			outputBytesLen = outputBytesLen + bytesLen ;
-			
+		Collection<byte[]> sortedCollectionB = new ArrayList<byte[]>(sortedCollection.size());
+		for (BitSetWrapper bits : sortedCollection) {
+			sortedCollectionB.add(bitSetToBytes(bits));
 		}
-		System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, offset, 4);
-		
-		outputBytesLen = outputBytesLen + headerBytes.length; 
-		byte[] outputBytes = new byte[outputBytesLen];
-		System.arraycopy(headerBytes, 0, outputBytes, 0, headerBytes.length);
-		offset = headerBytes.length;
-		
-		for (BitSet bytes : sortedCollection) {
-			int byteSize = bitSetToBytesLen(bytes);
-			System.arraycopy(bitSetToBytes(bytes), 0, outputBytes, offset, byteSize);
-			offset = offset + byteSize;
-		}
-		return outputBytes;
+		return sba.toBytes(sortedCollectionB);
 	}
 	
-
 	@Override
-	public final void addAll(final Collection<BitSet> vals) throws IOException {
+	public final void addAll(final Collection<BitSetWrapper> vals) throws IOException {
 		
 		if ( null == inputBytes) return;
+				
+		int collectionSize = Storable.getInt(offset, inputBytes);
 		
-		byte[] inputBytes = this.inputBytes;
-		int readOffset = this.offset;
-		
-		int collectionSize = Storable.getInt(readOffset, inputBytes);
-		
-		List<Integer> offsets = new ArrayList<Integer>();
-		readOffset = readOffset + 4;
-		
+		Reference ref = new Reference();		
 		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( readOffset, inputBytes);
-			readOffset = readOffset + 4;
-			offsets.add(bytesLen);
-		}
-		readOffset = readOffset + 4;
-
-		int headerOffset = readOffset;
-		offsets.add( inputBytes.length - headerOffset);
-		
-		int thisElemOffset = -1;
-		for ( int i=0; i<collectionSize; i++) {
-			thisElemOffset = offsets.get(i);
-			vals.add(bytesToBitSet(inputBytes, headerOffset + thisElemOffset));
+			ref = getValueAtReference(i);
+			vals.add(bytesToBitSet(inputBytes, ref.offset, ref.length));
 		}		
 	}
 
+	public final byte[] bitSetToBytes(final BitSetWrapper bits){
+		return bits.toByteArray();
+	}
+
+	public final BitSetWrapper bytesToBitSet(byte[] bytes, int offset, int length) {
+		return BitSetWrapper.valueOf(ByteBuffer.wrap(bytes, offset, length));
+	}
+	
 	@Override
-	public final BitSet getValueAt(final int pos) throws IndexOutOfBoundsException {
-		
-		byte[] inputBytes = this.inputBytes;
-		int readOffset = this.offset;
-		
-		int collectionSize = Storable.getInt(readOffset, inputBytes);
+	public final BitSetWrapper getValueAt(final int pos) throws IndexOutOfBoundsException {
+				
+		int collectionSize = Storable.getInt(this.offset, this.inputBytes);
 		if ( pos >= collectionSize) throw new IndexOutOfBoundsException(
 			"Maximum position in array is " + collectionSize + " and accessed " + pos );
 		
-		int elemSizeOffset = (readOffset + 4 + pos * 4);
-		int elemStartOffset = Storable.getInt( elemSizeOffset, inputBytes);
-		int elemEndOffset = Storable.getInt( elemSizeOffset + 4, inputBytes);
-		int elemLen = elemEndOffset - elemStartOffset;
-		
-		int headerOffset = (readOffset + 8 + collectionSize * 4);
-		return bytesToBitSet(inputBytes, headerOffset + elemStartOffset);
+		Reference ref = getValueAtReference(pos);
+		return bytesToBitSet(this.inputBytes, ref.offset, ref.length);
 	}
 
 	public final Reference getValueAtReference(final int pos) {
@@ -176,40 +136,16 @@ public final class SortedBytesBitset extends SortedBytesBase<BitSet>{
 	
 	
 	@Override
-	public final int getEqualToIndex(final BitSet matchNo) throws IOException {
-		byte[] inputBytes = this.inputBytes;
-		int readOffset = this.offset;
+	public final int getEqualToIndex(final BitSetWrapper matchNo) throws IOException {
 
-		int collectionSize = Storable.getInt(readOffset, inputBytes);
+		int collectionSize = Storable.getInt(this.offset, this.inputBytes);
 		
-		List<Integer> offsets = new ArrayList<Integer>();
-		readOffset = readOffset + 4;
-		
-		for ( int i=0; i<collectionSize; i++) {
-			int bytesLen = Storable.getInt( readOffset, inputBytes);
-			readOffset = readOffset + 4;
-			offsets.add(bytesLen);
-		}
-		
-		int bodyLen = Storable.getInt(readOffset, inputBytes); // Find body bytes
-		offsets.add(bodyLen);		
-		readOffset = readOffset + 4;
-
-		int headerOffset = readOffset;
-		offsets.add( inputBytes.length - headerOffset);
-		
-		Integer thisElemOffset = -1;
-		Integer nextElemOffset = -1;
-		int elemOffset = -1;
-		int elemLen = -1;
 		boolean isSame = false;
-		
+		Reference ref = null;
+		byte[] matchNoB = bitSetToBytes(matchNo);
 		for ( int i=0; i<collectionSize; i++) {
-			thisElemOffset = offsets.get(i);
-			nextElemOffset = offsets.get(i+1);
-			elemOffset = (headerOffset + thisElemOffset);
-			elemLen = nextElemOffset - thisElemOffset;
-			isSame = ByteUtil.compareBytes(inputBytes, elemOffset, elemLen, bitSetToBytes(matchNo));
+			ref = getValueAtReference(i);
+			isSame = ByteUtil.compareBytes(inputBytes, ref.offset, ref.length, matchNoB);
 			if ( isSame ) return i;
 		}		
 		return -1;
@@ -217,184 +153,106 @@ public final class SortedBytesBitset extends SortedBytesBase<BitSet>{
 
 	
 	@Override
-	public final void getEqualToIndexes(final BitSet matchBytes, final Collection<Integer> matchings) throws IOException {
+	public final void getEqualToIndexes(final BitSetWrapper matchBytes, final Collection<Integer> matchings) throws IOException {
 		getEqualOrNotEqualToIndexes(false, matchBytes, matchings);
 	}
 
-	
-	@Override
-	public final void getNotEqualToIndexes(final BitSet matchBytes, final Collection<Integer> matchings) throws IOException {
+	public final void getNotEqualToIndexes(final BitSetWrapper matchBytes, final Collection<Integer> matchings) throws IOException {
 		getEqualOrNotEqualToIndexes(true, matchBytes, matchings);
 	}
 	
-	private final void getEqualOrNotEqualToIndexes(final boolean isNot, final BitSet matchBytes, final Collection<Integer> matchings) throws IOException {
+	private final void getEqualOrNotEqualToIndexes(final boolean isNot, final BitSetWrapper matchBytes, final Collection<Integer> matchings) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getEqualToIndexes(final BitSet matchNo) throws IOException {
+	public final Collection<Integer> getEqualToIndexes(final BitSetWrapper matchNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getGreaterThanIndexes(final BitSet matchingNo,
+	public final void getGreaterThanIndexes(final BitSetWrapper matchingNo,
 			final Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getGreaterThanIndexes(BitSet matchingNo) throws IOException {
+	public final Collection<Integer> getGreaterThanIndexes(BitSetWrapper matchingNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getGreaterThanEqualToIndexes(BitSet matchingNo,
+	public final void getGreaterThanEqualToIndexes(BitSetWrapper matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getGreaterThanEqualToIndexes(BitSet matchingNo) throws IOException {
+	public final Collection<Integer> getGreaterThanEqualToIndexes(BitSetWrapper matchingNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getLessThanIndexes(BitSet matchingNo,
+	public final void getLessThanIndexes(BitSetWrapper matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getLessThanEqualToIndexes(BitSet matchingNo,
+	public final void getLessThanEqualToIndexes(BitSetWrapper matchingNo,
 			Collection<Integer> matchingPos) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getLessThanIndexes(BitSet matchingNo) throws IOException {
+	public final Collection<Integer> getLessThanIndexes(BitSetWrapper matchingNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getLessThanEqualToIndexes(BitSet matchingNo) throws IOException {
+	public final Collection<Integer> getLessThanEqualToIndexes(BitSetWrapper matchingNo) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getRangeIndexes(BitSet matchNoStart, BitSet matchNoEnd,
+	public final void getRangeIndexes(BitSetWrapper matchNoStart, BitSetWrapper matchNoEnd,
 			Collection<Integer> matchings) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getRangeIndexes(BitSet matchNoStart,
-			BitSet matchNoEnd) throws IOException {
+	public final Collection<Integer> getRangeIndexes(BitSetWrapper matchNoStart,
+			BitSetWrapper matchNoEnd) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getRangeIndexesInclusive(BitSet matchNoStart,
-			BitSet matchNoEnd, Collection<Integer> matchings) throws IOException {
+	public final void getRangeIndexesInclusive(BitSetWrapper matchNoStart,
+			BitSetWrapper matchNoEnd, Collection<Integer> matchings) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getRangeIndexesInclusive(BitSet matchNoStart,
-			BitSet matchNoEnd) throws IOException {
+	public final Collection<Integer> getRangeIndexesInclusive(BitSetWrapper matchNoStart,
+			BitSetWrapper matchNoEnd) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final void getRangeIndexesInclusive(BitSet matchNoStart,
-			boolean startMatch, BitSet matchNoEnd, boolean endMatch,
+	public final void getRangeIndexesInclusive(BitSetWrapper matchNoStart,
+			boolean startMatch, BitSetWrapper matchNoEnd, boolean endMatch,
 			Collection<Integer> matchings) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
 	@Override
-	public final Collection<Integer> getRangeIndexesInclusive(BitSet matchNoStart,
-			boolean startMatch, BitSet matchNoEnd, boolean endMatch) throws IOException {
+	public final Collection<Integer> getRangeIndexesInclusive(BitSetWrapper matchNoStart,
+			boolean startMatch, BitSetWrapper matchNoEnd, boolean endMatch) throws IOException {
 		throw new IOException("Not implemented Yet");
 	}
 
-	private final int bitSetToBytesLen(final BitSet bits) throws IOException {
-		int available = bits.size();
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		int neededBytes = packed;
-		if ( remaining > 0 ) neededBytes++;
-		
-		neededBytes = neededBytes + 4; // How many
-		return neededBytes;
-	}
-	
-	public final byte[] bitSetToBytes(final BitSet bits) throws IOException {
-		int available = bits.size();
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		int neededBytes = packed;
-		if ( remaining > 0 ) neededBytes++;
-		
-		neededBytes = neededBytes + 4; // How many
-		
-		byte[] out = new byte[neededBytes];
-		
-		
-		System.arraycopy(Storable.putInt(available), 0, out, 0, 4);
-		
-		int bitIndex = 0;
-		for ( int i=0; i<packed; i++) {
-			out[4+i]  = ByteUtil.fromBits(new boolean[] {
-				bits.get(bitIndex++), bits.get(bitIndex++), bits.get(bitIndex++), bits.get(bitIndex++),
-				bits.get(bitIndex++), bits.get(bitIndex++), bits.get(bitIndex++), bits.get(bitIndex++)});
-		}
-		
-		if ( remaining > 0 ) {
-			boolean[] remainingBits = new boolean[8];
-			Arrays.fill(remainingBits, true);
-			for ( int j=0; j<remaining; j++) {
-				remainingBits[j] = bits.get(bitIndex++);
-			}
-				
-			out[4+packed] = ByteUtil.fromBits(remainingBits);
-		}
-		return out;
-	}
-	
-
-	public final BitSet bytesToBitSet(byte[] bits, int bitsOffset) throws IndexOutOfBoundsException {
-		if ( null == bits) return null;
-		
-		int available = Storable.getInt(bitsOffset, bits);
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		BitSet output = new BitSet(available);
-		int seq = 0;
-		for (int i=0; i<packed; i++) {
-			for (boolean val : Storable.byteToBits(bits[bitsOffset + 4 + i])) {
-				if ( val ) output.set(seq);
-				seq++;
-				if ( available < seq) break;
-			}
-		}
-		
-		if ( remaining > 0 ) {
-			boolean[] x = Storable.byteToBits(this.inputBytes[offset + 4 + packed]);
-			for ( int i=0; i<remaining; i++) {
-				if ( x[i] ) output.set(seq);
-				seq++;
-				if ( available < seq) break;
-			}
-		}
-		
-		return output;
-	}
-
 	@Override
-	protected int compare(byte[] inputB, int offset, BitSet matchNo) {
+	protected int compare(final byte[] inputB, final int offset, final BitSetWrapper matchNo) {
 		return 0;
 	}
 }

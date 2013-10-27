@@ -1,19 +1,18 @@
 package com.bizosys.hsearch.byteutils;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
 import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
+import com.bizosys.hsearch.federate.BitSetWrapper;
 import com.oneline.ferrari.TestAll;
 
 public class SortedBytesBitsetCompressedTest extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-		public static String mode = modes[1];  
+		public static String mode = modes[2];  
 		
 		public static void main(String[] args) throws Exception {
 			SortedBytesBitsetCompressedTest t = new SortedBytesBitsetCompressedTest();
@@ -25,7 +24,7 @@ public class SortedBytesBitsetCompressedTest extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testSanity();
+				t.testSingleBitSet();
 				t.tearDown();
 			}
 		}
@@ -39,25 +38,65 @@ public class SortedBytesBitsetCompressedTest extends TestCase {
 		}
 		
 		public void testSanity() throws Exception {	
-			List<BitSet> sortedList = new ArrayList<BitSet>();
-			int MAX = 10;
-			for ( int i=0; i<MAX; i++) {
-				BitSet b = new BitSet(i * 10000000); //10Million increment
-				b.set(i);
+			List<BitSetWrapper> sortedList = new ArrayList<BitSetWrapper>();
+			int MAX = 5;
+			for ( int i = 0; i<MAX; i++) {
+				BitSetWrapper b = new BitSetWrapper();
+				b.set(i * 10);
 				sortedList.add(b);
 			}
 
-			ISortedByte<BitSet> ser = SortedBytesBitsetCompressed.getInstance();
+			ISortedByte<BitSetWrapper> ser = SortedBytesBitsetCompressed.getInstance();
 			byte[] bytes = ser.toBytes(sortedList);
+			System.out.println( "Bits :" + bytes.length);
 
-			System.out.println( "Compressed Bits :" + bytes.length);
-			
-			ISortedByte<BitSet> deser = SortedBytesBitsetCompressed.getInstance();
+			ISortedByte<BitSetWrapper> deser = SortedBytesBitsetCompressed.getInstance();
 			deser.parse(bytes);
 			
-			for ( int i=0; i<MAX; i++) {
-				BitSet b = deser.getValueAt(i);
-				System.out.println( b.size() + "\t" + b.get(i) + "\t" + b.get(i*100) + "\t" + b.cardinality());
+			for ( int i = 0; i<MAX; i++) {
+				BitSetWrapper b = deser.getValueAt(i);
+				assertTrue(b.get(i * 10));
+				assertFalse(b.get((i * 10) + 1));
 			}
+		}
+		
+		public void testEquality() throws Exception {	
+			List<BitSetWrapper> sortedList = new ArrayList<BitSetWrapper>();
+			int MAX = 10;
+			BitSetWrapper b = new BitSetWrapper();
+
+			for ( int i = 0; i<MAX; i++) {
+				b.set(i);
+			}
+			sortedList.add(b);
+			BitSetWrapper c = new BitSetWrapper();
+			c.set(10);
+			sortedList.add(c);
+
+			ISortedByte<BitSetWrapper> ser = SortedBytesBitsetCompressed.getInstance();
+			byte[] bytes = ser.toBytes(sortedList);
+			System.out.println( "Bits :" + bytes.length);
+
+			ISortedByte<BitSetWrapper> deser = SortedBytesBitsetCompressed.getInstance();
+			deser.parse(bytes);
+			assertEquals(2, deser.getSize());
+			assertEquals(1, deser.getEqualToIndex(c));
+			List<BitSetWrapper> vals = new ArrayList<BitSetWrapper>();
+			deser.addAll(vals);
+			assertEquals(2, vals.size());
+			assertTrue(vals.get(1).get(10));
+		}
+		
+		public void testSingleBitSet() throws Exception {
+			BitSetWrapper b = new BitSetWrapper();
+			b.set(0);
+			b.set(100);
+			b.set(1000);
+			b.set(10000);
+			
+			SortedBytesBitsetCompressed sbt = SortedBytesBitsetCompressed.getInstanceBitset();
+			byte[] data = sbt.bitSetToBytes(b);
+			BitSetWrapper c = sbt.bytesToBitSet(data, 0, data.length);
+			assertTrue(c.get(1000));
 		}
 }
