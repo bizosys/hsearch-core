@@ -17,12 +17,12 @@
  */
 package org.iq80.snappy;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import static org.iq80.snappy.Crc32C.maskedCrc32c;
 import static org.iq80.snappy.SnappyInternalUtils.checkNotNull;
 import static org.iq80.snappy.SnappyInternalUtils.checkPositionIndexes;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * This class implements an output stream for writing Snappy compressed data.

@@ -10,7 +10,6 @@ import java.util.Map;
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.Storable;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
-import com.bizosys.hsearch.treetable.example.impl.donotmodify.HBaseTableSchema;
 import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
 import com.bizosys.hsearch.treetable.storage.HSearchTableReader;
 

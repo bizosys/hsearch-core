@@ -33,8 +33,8 @@ import com.bizosys.hsearch.hbase.HBaseFacade;
 import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HTableWrapper;
 import com.bizosys.hsearch.hbase.IScanCallBack;
-import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
+import com.bizosys.hsearch.treetable.client.HSearchQuery;
 import com.bizosys.hsearch.util.HSearchLog;
 
 public abstract class HSearchTableReader implements IScanCallBack {

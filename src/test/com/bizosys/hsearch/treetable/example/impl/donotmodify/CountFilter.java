@@ -4,14 +4,11 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.bizosys.hsearch.functions.HSearchReducer;
-import com.bizosys.hsearch.util.HSearchLog;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.HSearchTableMultiQueryExecutor;
 import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
 import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
-import com.bizosys.hsearch.treetable.example.impl.donotmodify.CountCombinerExamResult;
-import com.bizosys.hsearch.treetable.example.impl.donotmodify.CountReducer;
-import com.bizosys.hsearch.treetable.example.impl.donotmodify.HSearchTableMultiQueryProcessorImpl;
+import com.bizosys.hsearch.util.HSearchLog;
 
 public class CountFilter extends HSearchGenericFilter {
 

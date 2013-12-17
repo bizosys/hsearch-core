@@ -15,10 +15,8 @@ public class TestAll {
 		testcases.add( new SortedBytesShortTest() );
 		testcases.add( new SortedBytesUnsignedShortTest() );
 		testcases.add( new SortedBytesIntegerTest() );
-		testcases.add( new SortedBytesLongCompressedTest() );
 		testcases.add( new SortedBytesDoubleTest() );
 		testcases.add( new SortedBytesFloatTest() );
-		testcases.add(new ByteStringTest());
 		testcases.add( new SortedBytesArrayTest() );
 		
 		for (TestCase t : testcases) {

@@ -1,6 +1,7 @@
 package com.bizosys.hsearch.util.conf;
 
-import java.net.*;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 /** Names a file or directory in a {@link FileSystem}.
  * Path strings use slash as the directory separator.  A path string is

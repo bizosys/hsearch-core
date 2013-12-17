@@ -14,7 +14,6 @@ import junit.framework.TestFerrari;
 
 import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.byteutils.SortedBytesBoolean;
-import com.bizosys.hsearch.byteutils.SortedBytesChar;
 import com.bizosys.hsearch.byteutils.SortedBytesDouble;
 import com.bizosys.hsearch.byteutils.SortedBytesFloat;
 import com.bizosys.hsearch.byteutils.SortedBytesInteger;
@@ -22,7 +21,6 @@ import com.bizosys.hsearch.byteutils.SortedBytesLong;
 import com.bizosys.hsearch.byteutils.SortedBytesShort;
 import com.bizosys.hsearch.byteutils.SortedBytesString;
 import com.bizosys.hsearch.byteutils.Storable;
-import com.bizosys.hsearch.util.HSearchLog;
 import com.oneline.ferrari.TestAll;
 
 public class Cell2Test extends TestCase {

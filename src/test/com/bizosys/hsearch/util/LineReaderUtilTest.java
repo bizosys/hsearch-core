@@ -6,7 +6,6 @@ import java.util.List;
 import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
-import com.bizosys.hsearch.byteutils.ByteStringTest;
 import com.oneline.ferrari.TestAll;
 
 public class LineReaderUtilTest  extends TestCase {

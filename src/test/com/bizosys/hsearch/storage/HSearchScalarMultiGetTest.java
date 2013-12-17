@@ -1,35 +1,18 @@
 package com.bizosys.hsearch.storage;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HRegionInfo;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
-import org.apache.hadoop.hbase.client.Scan;
 
 import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
-import com.bizosys.hsearch.byteutils.ByteArrays.ArrayBytes;
+import org.apache.hadoop.hbase.HRegionInfo;
+
 import com.bizosys.hsearch.hbase.ColumnFamName;
 import com.bizosys.hsearch.hbase.HBaseFacade;
-import com.bizosys.hsearch.hbase.HReader;
 import com.bizosys.hsearch.hbase.HTableWrapper;
-import com.bizosys.hsearch.treetable.BytesSection;
-import com.bizosys.hsearch.treetable.Cell2;
-import com.bizosys.hsearch.treetable.CellKeyValue;
-import com.bizosys.hsearch.treetable.client.IHSearchPlugin;
-import com.bizosys.hsearch.treetable.client.IHSearchTable;
-import com.bizosys.hsearch.treetable.storage.HSearchScalarFilter;
 import com.bizosys.hsearch.treetable.storage.HSearchMultiGetCoProcessorProxy;
-import com.bizosys.hsearch.util.HSearchLog;
 import com.oneline.ferrari.TestAll;
 
 public class HSearchScalarMultiGetTest extends TestCase {

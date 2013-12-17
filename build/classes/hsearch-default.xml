@@ -76,4 +76,18 @@
         <description>Single query coprocessor outputs are cached. The expectation is, large number of data will go through streaming calls to avoid network delay.</description>
     </property>
 
+    <property>
+        <name>cache.size.mb</name>
+        <value>1024</value>
+        <description>This is amount of memory in MB for client side cache for all the fields that are marked as cache true. 
+        			If the given value is more than the programmable memory than half of the programmable memory is taken.
+        </description>
+    </property>
+
+    <property>
+        <name>cache.refresh.secs</name>
+        <value>-1</value>
+        <description>The refresh time for reloading the cache data. if -1 then call LRUCache.clear method to refresh the cache data.</description>
+    </property>
+
 </configuration>

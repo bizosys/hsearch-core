@@ -1,8 +1,6 @@
 package com.bizosys.hsearch.treetable;
 
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import junit.framework.TestCase;
 import junit.framework.TestFerrari;

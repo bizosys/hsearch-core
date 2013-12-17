@@ -9,7 +9,6 @@ import java.util.Set;
 import com.bizosys.hsearch.byteutils.Storable;
 import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
-import com.bizosys.hsearch.treetable.example.impl.donotmodify.PluginExamResultBase;
 import com.bizosys.hsearch.treetable.example.impl.donotmodify.CountMapperExamResult.Counter;
 
 public final class CountCombinerExamResult extends PluginExamResultBase<Map<Integer, Counter>> {

@@ -22,9 +22,6 @@ package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-//import java.util.Map;
-
-import com.google.protobuf.ByteString;
 
 public final class ByteUtil {
 	/**
@@ -311,56 +308,6 @@ public final class ByteUtil {
 		}
 		
 	}
-	
-	/**
-	 * Put two array on one Array
-	 * @param k
-	 * @param v
-	 * @return
-	 */
-	public final static ByteString joinKV(final ByteString k, final ByteString v) {
-
-		ByteArrays.ArrayBytes.Builder kvBuilder = ByteArrays.ArrayBytes.newBuilder();
-		kvBuilder.addVal(k);
-		kvBuilder.addVal(v);
-		return kvBuilder.build().toByteString();		
-	}
-	
-	public static final ByteString joinKV(final byte[] k, final ByteString v) {
-
-		ByteArrays.ArrayBytes.Builder kvBuilder = ByteArrays.ArrayBytes.newBuilder();
-		kvBuilder.addVal(ByteString.copyFrom(k));
-		kvBuilder.addVal(v);
-		return kvBuilder.build().toByteString();		
-	}	
-	
-	public static final ByteString joinKV(final byte[] k, final byte[] v) {
-
-		ByteArrays.ArrayBytes.Builder kvBuilder = ByteArrays.ArrayBytes.newBuilder();
-		kvBuilder.addVal(ByteString.copyFrom(k));
-		kvBuilder.addVal(ByteString.copyFrom(v));
-		return kvBuilder.build().toByteString();		
-	}		
-	
-	public static final KVBytes getKV(final byte[] data) throws IOException {
-		
-		ByteArrays.ArrayBytes kvBytes = ByteArrays.ArrayBytes.parseFrom(data);
-		KVBytes kv = new KVBytes();
-		kv.keyB = kvBytes.getValList().get(0);		
-		kv.valueB = kvBytes.getValList().get(1);		
-		return kv;
-	}
-	
-	public static final KVBytes getKV(final ByteString data) throws IOException {
-		
-		ByteArrays.ArrayBytes kvBytes = ByteArrays.ArrayBytes.parseFrom(data);
-		KVBytes kv = new KVBytes();
-		kv.keyB = kvBytes.getValList().get(0);		
-		kv.valueB = kvBytes.getValList().get(1);		
-		return kv;
-	}	
-	
-	
 	
     /**
      * Convert a byte to a 8 bits

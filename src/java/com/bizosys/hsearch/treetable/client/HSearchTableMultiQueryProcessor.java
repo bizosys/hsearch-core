@@ -20,8 +20,6 @@
 package com.bizosys.hsearch.treetable.client;
 
 import java.io.IOException;
-import java.util.BitSet;
-import java.util.HashSet;
 import java.util.Map;
 
 import com.bizosys.hsearch.federate.BitSetOrSet;

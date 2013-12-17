@@ -1,6 +1,5 @@
 package com.bizosys.hsearch.byteutils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 

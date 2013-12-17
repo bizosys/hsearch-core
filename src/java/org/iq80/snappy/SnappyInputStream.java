@@ -17,17 +17,17 @@
  */
 package org.iq80.snappy;
 
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
-
 import static java.lang.Math.min;
 import static java.lang.String.format;
 import static org.iq80.snappy.SnappyInternalUtils.checkNotNull;
 import static org.iq80.snappy.SnappyInternalUtils.checkPositionIndexes;
-import static org.iq80.snappy.SnappyOutputStream.STREAM_HEADER;
 import static org.iq80.snappy.SnappyOutputStream.MAX_BLOCK_SIZE;
+import static org.iq80.snappy.SnappyOutputStream.STREAM_HEADER;
+
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 
 /**
  * This class implements an input stream for reading Snappy compressed data

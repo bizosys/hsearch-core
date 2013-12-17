@@ -1,9 +1,7 @@
 package com.bizosys.hsearch.treetable.example;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 
@@ -11,9 +9,9 @@ import com.bizosys.hsearch.hbase.HDML;
 import com.bizosys.hsearch.hbase.HWriter;
 import com.bizosys.hsearch.hbase.NV;
 import com.bizosys.hsearch.hbase.RecordScalar;
-import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.client.partition.IPartition;
-import com.bizosys.hsearch.treetable.example.impl.donotmodify.*;
+import com.bizosys.hsearch.treetable.example.impl.donotmodify.HBaseTableSchema;
+import com.bizosys.hsearch.treetable.example.impl.donotmodify.HSearchTableExamResult;
 import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaDefn;
 
 public class DataCreator {

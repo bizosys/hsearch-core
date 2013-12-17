@@ -17,12 +17,12 @@
  */
 package org.iq80.snappy;
 
-import java.nio.ByteOrder;
-import java.util.Arrays;
-
 import static org.iq80.snappy.Snappy.COPY_1_BYTE_OFFSET;
 import static org.iq80.snappy.Snappy.COPY_2_BYTE_OFFSET;
 import static org.iq80.snappy.Snappy.LITERAL;
+
+import java.nio.ByteOrder;
+import java.util.Arrays;
 
 final class SnappyCompressor
 {

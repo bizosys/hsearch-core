@@ -35,6 +35,9 @@
 		<fileset dir="${lib.dir}">
 			<include name="*.jar" />
 		</fileset>
+		<fileset dir="${lib.dir}hadoop">
+			<include name="*.jar" />
+		</fileset>
 	</path>
 
 	<!-- ====================================================== -->

@@ -22,8 +22,6 @@ package com.bizosys.hsearch.distribution;
 import java.util.Arrays;
 import java.util.Collection;
 
-import com.bizosys.hsearch.util.MathematicalMinimums;
-
 public final class DistributionPartionFloat {
 
 	protected float[] distributes(Collection<Float> inputs, int parts) {

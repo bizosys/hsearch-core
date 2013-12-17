@@ -1,8 +1,6 @@
 package com.bizosys.hsearch.document.example.impl;
 
 
-import com.bizosys.hsearch.document.example.impl.*;
-import com.bizosys.hsearch.document.example.impl.donotmodify.*;
 
 public class Webservice {
 	/**

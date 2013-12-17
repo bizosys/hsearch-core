@@ -19,7 +19,6 @@
 */
 package com.bizosys.hsearch;
 
-import org.apache.log4j.Logger;
 
 public class PerformanceLogger {
 	

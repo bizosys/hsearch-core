@@ -1,5 +1,6 @@
 package com.bizosys.hsearch.treetable.example.impl;
 
+import com.bizosys.hsearch.treetable.example.impl.donotmodify.CountClient;
 import com.bizosys.hsearch.treetable.example.impl.donotmodify.PluginExamResultBase;
 import com.bizosys.hsearch.treetable.example.impl.donotmodify.PluginExamResultBase.TablePartsCallback;
 

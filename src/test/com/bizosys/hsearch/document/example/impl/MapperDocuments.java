@@ -6,10 +6,9 @@ import java.util.Collection;
 import java.util.List;
 
 import com.bizosys.hsearch.byteutils.Storable;
+import com.bizosys.hsearch.document.example.impl.donotmodify.PluginDocumentsBase;
 import com.bizosys.hsearch.federate.BitSetOrSet;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
-
-import com.bizosys.hsearch.document.example.impl.donotmodify.PluginDocumentsBase;
 
 public final class MapperDocuments extends PluginDocumentsBase {
 

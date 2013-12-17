@@ -8,9 +8,7 @@ import java.util.Set;
 import junit.framework.TestCase;
 import junit.framework.TestFerrari;
 
-import com.bizosys.hsearch.treetable.Cell2Test;
 import com.bizosys.hsearch.treetable.example.impl.Client;
-import com.bizosys.hsearch.treetable.example.impl.donotmodify.CountClient;
 import com.bizosys.hsearch.treetable.example.impl.donotmodify.ListClient;
 import com.oneline.ferrari.TestAll;
 

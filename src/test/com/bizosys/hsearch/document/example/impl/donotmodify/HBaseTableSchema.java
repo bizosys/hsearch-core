@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import com.bizosys.hsearch.treetable.client.partition.IPartition;
-import com.bizosys.hsearch.treetable.client.partition.PartitionNumeric;
 import com.bizosys.hsearch.treetable.client.partition.PartitionByFirstLetter;
-
 import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaCreator;
 import com.bizosys.hsearch.treetable.storage.HBaseTableSchemaDefn;
 

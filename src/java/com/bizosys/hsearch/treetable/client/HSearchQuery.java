@@ -22,9 +22,7 @@ package com.bizosys.hsearch.treetable.client;
 
 import java.io.InvalidObjectException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import com.bizosys.hsearch.util.HSearchLog;
@@ -39,8 +37,12 @@ public class HSearchQuery {
 	public static boolean DEBUG_ENABLED = HSearchLog.l.isDebugEnabled();
 	
 	private static final char RANGE_SEPARATOR = ':';
-	private static final char FIELD_SEPARATOR = '|';
-	public static final Pattern patternCommaOutsideQuotes = Pattern.compile(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+	private static final String FIELD_SEPARATOR = "|";
+	private static final Pattern patternCommaOutsideQuotes = Pattern.compile(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)");
+	private static final String QUOTED_FIELD_SEPARATOR = "(?<!\\\\)" + Pattern.quote(FIELD_SEPARATOR);
+	private static final Pattern PATTERN_PIPE_SPLITTER = Pattern.compile(QUOTED_FIELD_SEPARATOR);
+	private static final Pattern PATTERN_ESCAPER = Pattern.compile("\\\\");
+	
 	
 	public static double DOUBLE_MIN_VALUE = new Double(Long.MIN_VALUE);
 	public static double DOUBLE_MAX_VALUE = new Double(Long.MAX_VALUE);
@@ -238,33 +240,13 @@ public class HSearchQuery {
 	  }
 	  
 	  public final void load(final String text) throws ParseException  {
-		  final List<String> tokenizedFilters = new ArrayList<String>();
-		  int index1 = 0;
-		  int index2 = text.indexOf(FIELD_SEPARATOR);
-		  String token = null;
-
-		  if ( index2 >= 0 ) {
-			  while (index2 >= 0) {
-				  token = text.substring(index1, index2);
-				  tokenizedFilters.add(token);
-				  index1 = index2 + 1;
-				  index2 = text.indexOf(FIELD_SEPARATOR, index1);
-				  if ( index2 < 0 ) index1--;
-			  }
-		            
-			  if (index1 < text.length() - 1) {
-				  tokenizedFilters.add(text.substring(index1+1));
-			  }
-		  } else {
-			  tokenizedFilters.add(text);
-		  }
-		  
+		  final String[] tokenizedFilters = PATTERN_PIPE_SPLITTER.split(text, -1);
 		  loadAValue(tokenizedFilters);
 	  }
 	  
-	  public final void loadAValue(final List<String> filters) throws ParseException{
+	  public final void loadAValue(final String[] filters) throws ParseException{
 		  
-		  int size = filters.size();
+		  int size = filters.length;
 		  
 		  filterCells = new boolean[size];
 		  Arrays.fill(filterCells, false);
@@ -288,9 +270,9 @@ public class HSearchQuery {
 		  inValCells = new boolean[size];
 		  Arrays.fill(inValCells, false);
 
-		  int resultT = filters.size();
-		  for (int seq=0; seq < resultT; seq++) {
-			  String res = filters.get(seq);
+		  for (int seq=0; seq < size; seq++) {
+			  String res = filters[seq];
+			  res = PATTERN_ESCAPER.matcher(res).replaceAll("");
 			  char firstChar = res.charAt(0);
 			  
 			  if ( firstChar == '*') {
@@ -321,8 +303,12 @@ public class HSearchQuery {
 					  try {
 						  minS = res.substring(1, divider);
 						  maxS = res.substring(divider+1, res.length() - 1);
-						  minValCells[seq] = Double.parseDouble(minS);
-						  maxValCells[seq] = Double.parseDouble(maxS);
+						  
+						  if(!("*".equals(minS)))
+							  minValCells[seq] = Double.parseDouble(minS);
+						  if(!("*".equals(maxS)))
+							  maxValCells[seq]  = Double.parseDouble(maxS);
+						  
 					  } catch ( NumberFormatException ex) {
 						  throw new ParseException(res + " not parsed. Error values of max/min =  : " + minS + " with " + maxS, seq);
 					  }
@@ -348,11 +334,10 @@ public class HSearchQuery {
 			  }else {
 				  
 				  if(res.contains(QUOTES))
-					  res = res.substring(1, res.length() - 1);
+					  res = res.trim().substring(1, res.length() - 1);
 				  exactValCells[seq] = res;
 				  
 			  }
 		  }
 	  }
-	  
 }
