@@ -1,0 +1,31 @@
+option java_package = "com.bizosys.hsearch.treetable.storage.protobuf.generated";
+option java_outer_classname = "HSearchFilterProtos";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+option optimize_for = SPEED;
+
+message HSearchGenericFilterMessage {
+  required string filterClassName = 1;
+  required string inputMapperInstructions = 2;
+  required string multiQuery = 3;
+  optional bytes inputRowsToIncludeB = 4;
+  repeated QueryFiltersPair queryFilters = 5;
+  
+  message QueryFiltersPair {
+  	required string key = 1;
+  	required string value = 2;
+  }
+}
+
+message HSearchBytesFilterMessage {
+  required string filterClassName = 1;
+  optional bytes state = 2;
+}
+
+message HSearchScalarFilterMessage {
+  required string filterClassName = 1;
+  required string inputMapperInstructions = 2;
+  optional string multiQuery = 3;
+  optional bytes inputRowsToIncludeB = 4;
+  optional bytes matchingIds = 5;
+}

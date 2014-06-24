@@ -1,0 +1,47 @@
+option java_package = "com.bizosys.hsearch.treetable.storage.protobuf.generated";
+option java_outer_classname = "HSearchCoprocessorProtos";
+option java_generic_services = true;
+option java_generate_equals_and_hash = true;
+option optimize_for = SPEED;
+
+import "HSearchFilter.proto";
+
+/**
+ * Container for a list of column qualifier names of a family.
+ */
+message Column {
+  required bytes family = 1;
+  required bytes qualifier = 2;
+}
+
+message RowRequest {
+  repeated Column familyWithQualifier = 1;
+  optional HSearchGenericFilterMessage filter = 2;
+}
+
+message RowResponse {
+  required bytes result = 1;
+}
+
+service HSearchGenericCoprocessorService {
+  rpc getRows(RowRequest) returns(RowResponse);
+}
+
+message MultiRowRequest {
+  required Column familyWithQualifier = 1;
+  optional HSearchScalarFilterMessage filter = 2;
+  repeated bytes rows = 3;
+}
+
+service HSearchMultiGetCoprocessorProxyService {
+  rpc getRows(MultiRowRequest) returns(RowResponse);
+}
+
+message BytesRowRequest {
+  repeated Column familyWithQualifier = 1;
+  optional HSearchBytesFilterMessage filter = 2;
+}
+
+service HSearchBytesCoprocessorProxyService {
+  rpc getRows(BytesRowRequest) returns(RowResponse);
+}
