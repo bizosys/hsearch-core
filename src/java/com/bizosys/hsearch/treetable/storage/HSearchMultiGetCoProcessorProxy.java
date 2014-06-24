@@ -54,7 +54,7 @@ public final class HSearchMultiGetCoProcessorProxy {
 	public final void execCoprocessorRows( Map<String, byte[]> kvs,
 		final HTableWrapper table, final byte[] row) throws IOException, Throwable  {
 
-		Map<byte[], byte[]> output = table.table.coprocessorExec(
+		Map<byte[], byte[]> output = table.tableInterface.coprocessorExec(
                 HSearchMultiGetCoprocessorI.class, row, row, 
                 
                 new Batch.Call<HSearchMultiGetCoprocessorI, byte[]>() {

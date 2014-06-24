@@ -81,7 +81,7 @@ public final class HSearchGenericCoProcessorFactory {
 			}
 		}
 		
-		Map<byte[], byte[]> output = table.table.coprocessorExec(
+		Map<byte[], byte[]> output = table.tableInterface.coprocessorExec(
                 HSearchGenericCoprocessor.class, null, null,
                 
                 

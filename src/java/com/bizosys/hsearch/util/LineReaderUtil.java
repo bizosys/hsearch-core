@@ -147,7 +147,7 @@ public final class LineReaderUtil {
 			appender.append(col);
 		}
 		String value = appender.toString();
-		appender.delete(0, 65535);
+		appender.setLength(0);
 		return value;
 
 	}

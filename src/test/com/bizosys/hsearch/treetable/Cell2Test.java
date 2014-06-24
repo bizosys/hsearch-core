@@ -38,7 +38,7 @@ public class Cell2Test extends TestCase {
 		        
 			} else if  ( modes[2].equals(mode) ) {
 				t.setUp();
-				t.testInitialization();
+				t.testNonUnique();
 				t.tearDown();
 			}
 		}
@@ -62,9 +62,15 @@ public class Cell2Test extends TestCase {
 
 			{
 				Cell2<Integer, Float> ser = new Cell2<Integer, Float>(Integer.class, Float.TYPE);
-		    	ser.add(11, 12.12f);
+		    	ser.add(268, 3.500000000000000f);
+		    	ser.add(151, 2.800000000000000f);
+		    	ser.add(72, -2147483648f);
+		    	ser.add(10, 2.500000000000000f);
+		    	ser.add(86, 2.600000000000000f);
 		    	ser.sort(new CellComparator.FloatComparator<Integer>());
-		    	ser.toBytesOnSortedData();
+		    	byte[] data = ser.toBytesOnSortedData();
+		    	Cell2<Integer, Float> deser = new Cell2<Integer, Float>(Integer.class, Float.TYPE,data);
+		    	System.out.println(deser.getMap());
 			}
 			
 			{
@@ -107,7 +113,7 @@ public class Cell2Test extends TestCase {
 	    	final Cell2Visitor<Boolean, Float> visitor = new Cell2Visitor<Boolean, Float>() {
 				@Override
 				public final void visit(final Boolean k, final Float v) {
-					//System.out.println(k + "-" +  v);
+					System.out.println(k + "-" +  v);
 				}
 			};
 	    	

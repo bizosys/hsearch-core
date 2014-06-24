@@ -15,7 +15,7 @@ import com.oneline.ferrari.TestAll;
 public class SearchTester extends TestCase {
 
 	public static String[] modes = new String[] { "all", "random", "method"};
-	public static String mode = modes[2];  
+	public static String mode = modes[0];  
 	
 	public static void main(String[] args) throws Exception {
 		SearchTester t = new SearchTester();
@@ -27,7 +27,7 @@ public class SearchTester extends TestCase {
 	        
 		} else if  ( modes[2].equals(mode) ) {
 			t.setUp();
-			t.leftBoundaryTest();
+			t.oneQuery1PartBeforePartitionTest();
 			t.tearDown();
 		}
 	}
@@ -41,21 +41,18 @@ public class SearchTester extends TestCase {
 	}
 	
 	public void leftBoundaryTest() throws Exception {
-		System.out.println("START");
-		//CountClient ht = new CountClient();
-		
 		ListClient ht = new ListClient();
 		Map<String, String> multiQueryParts = new HashMap<String, String>();
 		multiQueryParts.put("ExamResult:1", "*|student|*|*|*");
-		multiQueryParts.put("ExamResult:2", "*|monitor|*|*|*");
-		ht.execute("ExamResult:1 OR ExamResult:2", multiQueryParts);
+		multiQueryParts.put("ExamResult:2", "*|student|*|*|9.5");
+		ht.execute("ExamResult:1 NOT ExamResult:2", multiQueryParts);
 	}
 
 	public void rightBoundaryTest() throws Exception {
 	}
 	
 	public void oneQuery1PartBeforePartitionTest() throws Exception {
-		Client ht = new Client();
+		ListClient ht = new ListClient();
     	//Before partition starts
     	{
     		ht.finalOutput.clear();
@@ -67,7 +64,7 @@ public class SearchTester extends TestCase {
 	}
 
 	public void oneQuery1FirstPartitionStartTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	//First partition start
     	{
     		ht.finalOutput.clear();
@@ -79,7 +76,7 @@ public class SearchTester extends TestCase {
 	}
 	
 	public void oneQuery1FirstPartitionMiddleTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	
     	//First partition middle
     	{
@@ -93,7 +90,7 @@ public class SearchTester extends TestCase {
 	}
 	
 	public void oneQuery1FirstPartitionEndTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	
     	//First partition end
     	{
@@ -107,80 +104,80 @@ public class SearchTester extends TestCase {
 	}	
 
 	public void middlePartitionStartTest() throws Exception {
-    	Client ht = new Client();
+    	ListClient ht = new ListClient();
     	//Middle partition start
     	{
     		ht.finalOutput.clear();
         	Map<String, String> multiQueryParts = new HashMap<String, String>();
             multiQueryParts.put("ExamResult:1", "*|*|*|*|4");
             ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[22	scout	classx	40	4.0]", ht.finalOutput.toString());
+            assertEquals("22	scout	classx	40	4.0", ht.finalOutput.get(0));
     	}
     	
 	}
 	
 	public void middlePartitionMiddleTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	//Middle partition middle
     	{
     		ht.finalOutput.clear();
         	Map<String, String> multiQueryParts = new HashMap<String, String>();
             multiQueryParts.put("ExamResult:1", "*|*|*|*|4.5");
             ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[22	monitor	classx	45	4.5]", ht.finalOutput.toString());
+            assertEquals("22	monitor	classx	45	4.5", ht.finalOutput.get(0));
     	}
 	}
 
 	public void middlePartionEndTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	//Middle partition ends
     	{
     		ht.finalOutput.clear();
         	Map<String, String> multiQueryParts = new HashMap<String, String>();
             multiQueryParts.put("ExamResult:1", "*|*|*|*|5");
             ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[22	captain	classx	50	5.0]", ht.finalOutput.toString());
+            assertEquals("22	captain	classx	50	5.0", ht.finalOutput.get(0));
     	}    	
     	
 	}
 
 	public void endPartitionStartTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	//End partition start
     	{
     		ht.finalOutput.clear();
         	Map<String, String> multiQueryParts = new HashMap<String, String>();
             multiQueryParts.put("ExamResult:1", "*|*|*|*|9");
             ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[22	captain	classx	90	9.0]", ht.finalOutput.toString());
+            assertEquals("22	captain	classx	90	9.0", ht.finalOutput.get(0));
     	}    	
 	}
 
 	public void endPartitionMiddleTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	{
     		ht.finalOutput.clear();
         	Map<String, String> multiQueryParts = new HashMap<String, String>();
             multiQueryParts.put("ExamResult:1", "*|*|*|*|9.5");
             ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[22	student	classx	95	9.5]", ht.finalOutput.toString());
+            assertEquals("22	student	classx	95	9.5", ht.finalOutput.get(0));
     	}
 	}
 
 	public void endPartitionEndTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	//Middle partition ends
     	{
     		ht.finalOutput.clear();
         	Map<String, String> multiQueryParts = new HashMap<String, String>();
             multiQueryParts.put("ExamResult:1", "*|*|*|*|10");
             ht.execute("ExamResult:1", multiQueryParts);
-            assertEquals("[22	scout	classx	100	10.0]", ht.finalOutput.toString());
+            assertEquals("22	scout	classx	100	10.0", ht.finalOutput.get(0));
     	}      	
 	}
 
 	public void beyondPartitonEndTest() throws Exception {
-    	Client ht = new Client();
+		ListClient ht = new ListClient();
     	//Beyond partition ends
     	{
     		ht.finalOutput.clear();
@@ -202,7 +199,7 @@ public class SearchTester extends TestCase {
     	
     	//Before partition starts
     	{
-    		Client clientOR = new Client();
+    		ListClient clientOR = new ListClient();
     		clientOR.finalOutput.clear();
         	Map<String, String> multiQueryParts = new HashMap<String, String>();
             multiQueryParts.put("ExamResult:1", "*|*|*|*|-1");
@@ -210,7 +207,7 @@ public class SearchTester extends TestCase {
            
             clientOR.execute("ExamResult:1 OR ExamResult:2", multiQueryParts);
             assertEquals(1, clientOR.finalOutput.size());
-            assertEquals("[22	scout	classx	0	0.0]", clientOR.finalOutput.toString());
+            assertEquals("22	scout	classx	0	0.0", clientOR.finalOutput.get(0));
             
     		Client clientAND = new Client();
     		clientAND.execute("ExamResult:1 AND ExamResult:2", multiQueryParts);
@@ -220,7 +217,7 @@ public class SearchTester extends TestCase {
     	
 
 	public void twoQuery1PartFirstMiddleTest() throws Exception {
-		Client clientOR = new Client();
+		ListClient clientOR = new ListClient();
 		clientOR.finalOutput.clear();
     	Map<String, String> multiQueryParts = new HashMap<String, String>();
         multiQueryParts.put("ExamResult:1", "*|*|*|*|0");
@@ -228,7 +225,7 @@ public class SearchTester extends TestCase {
         
         clientOR.execute("ExamResult:1 OR ExamResult:2", multiQueryParts);
         assertEquals(2, clientOR.finalOutput.size());
-        assertEquals("[23	captain	classx	6	0.6, 22	scout	classx	0	0.0]", clientOR.finalOutput.toString());
+        assertEquals("[23	captain	classx	6	0.6, 22	scout	classx	0	0.0]", clientOR.finalOutput.toString().trim());
         
 		Client clientAND = new Client();
         clientAND.execute("ExamResult:1 AND ExamResult:2", multiQueryParts);
@@ -236,7 +233,7 @@ public class SearchTester extends TestCase {
 	}
 
 	public void twoQuery1PartMiddleMiddleTest() throws Exception {
-		Client clientOR = new Client();
+		ListClient clientOR = new ListClient();
 		clientOR.finalOutput.clear();
     	Map<String, String> multiQueryParts = new HashMap<String, String>();
         multiQueryParts.put("ExamResult:1", "*|*|*|*|0.5");
@@ -252,7 +249,7 @@ public class SearchTester extends TestCase {
 	}
 	
 	public void twoQuery1PartMiddleEndTest() throws Exception {
-		Client clientOR = new Client();
+		ListClient clientOR = new ListClient();
 		clientOR.finalOutput.clear();
     	Map<String, String> multiQueryParts = new HashMap<String, String>();
         multiQueryParts.put("ExamResult:1", "*|*|*|*|0.5");
@@ -263,13 +260,13 @@ public class SearchTester extends TestCase {
         System.out.println(clientOR.finalOutput.toString());
         assertEquals("[22	captain	classx	10	1.0, 22	monitor	classx	5	0.5]", clientOR.finalOutput.toString());
         
-		Client clientAND = new Client();
+        ListClient clientAND = new ListClient();
         clientAND.execute("ExamResult:1 AND ExamResult:2", multiQueryParts);
         assertEquals(0, clientAND.finalOutput.size());
 	}
 
 	public void threeQuery3PartMultiOrTest() throws Exception {
-		Client ht = new Client();
+		ListClient ht = new ListClient();
 		
   		ht.finalOutput.clear();
     	Map<String, String> multiQueryParts = new HashMap<String, String>();
@@ -281,7 +278,7 @@ public class SearchTester extends TestCase {
 	}
 
 	public void notQueryAtFirstTest() throws Exception {
-		Client ht = new Client();
+		ListClient ht = new ListClient();
 		
   		ht.finalOutput.clear();
     	Map<String, String> multiQueryParts = new HashMap<String, String>();
@@ -302,7 +299,7 @@ public class SearchTester extends TestCase {
 	}
 	
 	public void notQueryAtLastTest() throws Exception {
-		Client ht = new Client();
+		ListClient ht = new ListClient();
 		
   		ht.finalOutput.clear();
     	Map<String, String> multiQueryParts = new HashMap<String, String>();
@@ -321,7 +318,7 @@ public class SearchTester extends TestCase {
 	}
 
 	public void notQueryAtMidTest() throws Exception {
-		Client ht = new Client();
+		ListClient ht = new ListClient();
 		
   		ht.finalOutput.clear();
     	Map<String, String> multiQueryParts = new HashMap<String, String>();
@@ -341,7 +338,7 @@ public class SearchTester extends TestCase {
 	}
 
 	public void threeQuery3PartTest() throws Exception {
-		Client ht = new Client();
+		ListClient ht = new ListClient();
 		
 		{
 	    	Map<String, String> multiQueryParts = new HashMap<String, String>();
@@ -373,7 +370,7 @@ public class SearchTester extends TestCase {
 	        
 	        sb.append("Final :" + ht.finalOutput.toString());
 	        System.out.println(sb.toString());
-	        assertEquals("[22	scout	classx	100	10.0, 22	scout	classx	100	10.0, 22	scout	classx	100	10.0, 22	scout	classx	100	10.0]", ht.finalOutput.toString());
+	        assertEquals("[22	scout	classx	100	10.0]", ht.finalOutput.toString());
 		}
 	}
 }

@@ -25,7 +25,7 @@ public class SortedBytesStringTest extends TestCase {
 
 		} else if (modes[2].equals(mode)) {
 			t.setUp();
-			t.testValues();
+			t.testNullValues();
 			t.tearDown();
 		}
 
@@ -111,6 +111,33 @@ public class SortedBytesStringTest extends TestCase {
 			sortedList.add(new String("first"));
 			sortedList.add(new String("test"));
 			sortedList.add(new String());
+			sortedList.add(new String("test"));
+			sortedList.add(new String("cos"));
+			sortedList.add(new String("cos"));
+		}
+		
+		//System.out.println(sortedList.size());
+
+		byte[] bytes = sbs.toBytes(sortedList);
+		
+		long a = System.currentTimeMillis();
+		Collection<String> vals = SortedBytesString.getInstance().parse(bytes).values();
+		long b = System.currentTimeMillis();
+		
+		System.out.println(vals.size() + " Parsed in " + (b-a));
+		
+		
+	}
+
+	public void testNullValues()throws Exception{
+		SortedBytesString sbs = (SortedBytesString) SortedBytesString.getInstance();
+
+		List<String> sortedList = new ArrayList<String>();
+		
+		for ( int i=0; i<1000000; i++ ) {
+			sortedList.add(new String("first"));
+			sortedList.add(new String("test"));
+			sortedList.add(null);
 			sortedList.add(new String("test"));
 			sortedList.add(new String("cos"));
 			sortedList.add(new String("cos"));

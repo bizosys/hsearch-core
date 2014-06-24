@@ -56,7 +56,7 @@ public final class HSearchBytesCoProcessorProxy {
 	
 	public final Map<byte[], byte[]> execCoprocessorRows(final HTableWrapper table) throws IOException, Throwable  {
 
-		Map<byte[], byte[]> output = table.table.coprocessorExec(
+		Map<byte[], byte[]> output = table.tableInterface.coprocessorExec(
                 HSearchBytesCoprocessorI.class, null, null,
                 
                 

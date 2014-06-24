@@ -118,7 +118,6 @@ public final class HBaseFacade {
      * HBase table pool
      */
 	HTablePool pool = null;
-	
 	/**
 	 * Number of current live tables
 	 */
@@ -133,27 +132,24 @@ public final class HBaseFacade {
 	public final HTableWrapper getTable(final String tableName) throws IOException {
 		
 		if ( null == pool ) pool = new HTablePool(this.conf, Integer.MAX_VALUE);
-		//if ( HLog.l.isDebugEnabled() ) HLog.l.debug("HBaseFacade > Live hbase tables : " + liveTables); 
-		
-		HTableWrapper table = new HTableWrapper( tableName, pool.getTable(tableName));
+		if ( HSearchLog.l.isDebugEnabled() ) 
+			HSearchLog.l.debug("HBaseFacade > Live hbase tables : " + liveTables); 
+		HTableWrapper tableWrapper = new HTableWrapper( tableName, pool.getTable(tableName));
 		liveTables++;
-		return table;
+		return tableWrapper;
 	}
 
 	/**
 	 * Returns the wrapped table to the pool for recycling
 	 * @param table	The Wrapped HBase table
 	 */
-	public final void putTable(final HTableWrapper table) {
+	public final void putTable(final HTableWrapper tableWrapper) {
 		if ( null == pool ) return;
 		try {
-			/**
-			 * 0.94 Version Fix
-			 */
-			table.table.close();
-			if ( null != table.innerTable ) {
-				table.innerTable.close();
-				table.innerTable = null;
+			tableWrapper.tableInterface.close();
+			if ( null != tableWrapper.innerHtable ) {
+				tableWrapper.innerHtable.close();
+				tableWrapper.innerHtable = null;
 			}
 			
 		} catch (IOException ex) {
@@ -169,15 +165,11 @@ public final class HBaseFacade {
 	 * @param table
 	 * @throws IOException
 	 */
-	public final void recycleTable(final HTableWrapper table) throws IOException {
+	public final void recycleTable(final HTableWrapper tableWrapper) throws IOException {
 		if ( null == pool ) return;
 		
-		/**
-		 * Version 0.94 FIX
-		 */
-		
-		table.table.close();
-		table.table = pool.getTable(table.tableName);
+		tableWrapper.tableInterface.close();
+		tableWrapper.tableInterface = pool.getTable(tableWrapper.tableName);
 	}	
 	
 	/**

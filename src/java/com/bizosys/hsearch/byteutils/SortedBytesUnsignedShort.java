@@ -50,7 +50,7 @@ public final class SortedBytesUnsignedShort extends SortedBytesBase<Integer>{
 	
 	public final short getShort(Integer aVal) throws IOException {
 		if ( aVal > MAXIMUM_ALLOWED_LIMIT) throw new IOException("Suplied Value " + 
-				aVal.toString() + " is greated than maximum limit : " + MAXIMUM_ALLOWED_LIMIT);
+				aVal.toString() + " is greater than maximum limit : " + MAXIMUM_ALLOWED_LIMIT);
 
 		if (aVal < MINIMUM_ALLOWED_LIMIT) throw new IOException("Suplied Value " + 
 				aVal.toString() + " is less than minimum limit." + MINIMUM_ALLOWED_LIMIT);

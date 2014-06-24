@@ -11,10 +11,13 @@ import com.bizosys.hsearch.byteutils.SortedBytesArray;
 import com.bizosys.hsearch.treetable.client.HSearchProcessingInstruction;
 import com.bizosys.hsearch.treetable.storage.HSearchGenericFilter;
 import com.bizosys.hsearch.treetable.storage.HSearchTableReader;
+import com.bizosys.hsearch.util.LineReaderUtil;
 
 public class ListClient extends HSearchTableReader {
 
-	   HSearchGenericFilter filter = null;
+	   private static final char ROW_SEPARATOR = '\n';
+
+	HSearchGenericFilter filter = null;
 	    
 	   public List<String> finalOutput = new ArrayList<String>();
 
@@ -33,20 +36,19 @@ public class ListClient extends HSearchTableReader {
 	    public void rows(Collection<byte[]> results, HSearchProcessingInstruction instruction) {
 
 	        try {
-
-	            for (byte[] data : results) {
+	        	System.out.println("Receiving data in ListClient size is " + results.size());
+	        	for (byte[] data : results) {
 	            	
 		           	SortedBytesArray arr = SortedBytesArray.getInstanceArr();
 		        	arr.parse(data);
 
 		        	int size = arr.getSize();
 		        	SortedBytesArray.Reference ref = new SortedBytesArray.Reference();
-
+		        	
 		        	for ( int i=0; i<size; i++) {
 		        		arr.getValueAtReference(i,ref);
-		            	String row = new String ( new String(data, ref.offset, ref.length));
-		        		System.out.println ( row);
-		            	finalOutput.add(row);
+		            	String row = new String(data, ref.offset, ref.length).trim();
+		            	LineReaderUtil.fastSplit(finalOutput, row, ROW_SEPARATOR);
 		        	}	            	
 
 	            }

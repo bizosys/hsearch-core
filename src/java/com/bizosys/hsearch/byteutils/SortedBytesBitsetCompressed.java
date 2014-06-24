@@ -53,8 +53,8 @@ public final class SortedBytesBitsetCompressed extends SortedBytesBase<BitSetWra
 	public final byte[] toBytes(final Collection<BitSetWrapper> sortedCollection) throws IOException {
 
 		Collection<byte[]> sortedCollectionB = new ArrayList<byte[]>(sortedCollection.size());
-		for (BitSetWrapper bitSet : sortedCollection) {
-			sortedCollectionB.add(bitSet.toByteArray());
+		for (BitSetWrapper BitSetWrapper : sortedCollection) {
+			sortedCollectionB.add(BitSetWrapper.toByteArray());
 		}
 		return sba.toBytes(sortedCollectionB);
 	}

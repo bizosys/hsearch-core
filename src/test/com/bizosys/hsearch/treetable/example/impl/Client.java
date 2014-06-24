@@ -35,7 +35,7 @@ public class Client extends HSearchTableReader {
 	    public void rows(Collection<byte[]> results, HSearchProcessingInstruction instruction) {
 
 	        try {
-
+	        	System.out.println("Receiving data in client rows of size " + results.size());
 	            for (byte[] data : results) {
 	            	
 		           	SortedBytesArray arr = SortedBytesArray.getInstanceArr();

@@ -17,7 +17,7 @@ public class HBaseTableSchema {
 		return singleton;
 	}
 	
-	public String TABLE_NAME = "htable-test";
+	public String TABLE_NAME = "hsearch-test";
 	private HBaseTableSchema() throws IOException {
 		
 		Map<String, IPartition> columns = HBaseTableSchemaDefn.getInstance(TABLE_NAME).columnPartions;

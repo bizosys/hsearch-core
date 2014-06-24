@@ -23,14 +23,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HRegionLocation;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.client.Delete;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTableInterface;
-import org.apache.hadoop.hbase.client.HTablePool;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
@@ -42,7 +40,7 @@ import org.apache.hadoop.hbase.client.Scan;
 import com.bizosys.hsearch.util.HSearchLog;
 
 /**
- * Wraps an HBase table object.
+ * Wraps an HBase tableInterface object.
  * @author karan 
  *@see org.apache.hadoop.hbase.client.HTableInterface
  */
@@ -51,159 +49,159 @@ public final class HTableWrapper {
 	private static final boolean INFO_ENABLED = HSearchLog.l.isInfoEnabled();
 
 	/**
-	 * The table interface
+	 * The tableInterface interface
 	 */
-	public HTableInterface table = null;
-	public HTable innerTable = null;
+	public HTableInterface tableInterface = null;
+	public HTable innerHtable = null;
 	
 	/**
-	 * Name of HBase table
+	 * Name of HBase tableInterface
 	 */
 	String tableName = null;
 	
 	/**
 	 * Constructor
-	 * @param tableName	The table name
-	 * @param table	Table interface
+	 * @param tableName	The tableInterface name
+	 * @param tableInterface	tableInterface interface
 	 */
-	public HTableWrapper(String tableName, HTableInterface table) {
-		this.table = table;
+	public HTableWrapper(String tableName, HTableInterface tableInterface) {
+		this.tableInterface = tableInterface;
 		this.tableName = tableName;
 	}
 
 	/**
-	 * Get the table name in bytes
-	 * @return	Table name as byte array
+	 * Get the tableInterface name in bytes
+	 * @return	tableInterface name as byte array
 	 */
 	public byte[] getTableName() {
-		return table.getTableName();
+		return tableInterface.getTableName();
 	}
 
 	/**
-	 * Get table description
-	 * @return	Table Descriptor
+	 * Get tableInterface description
+	 * @return	tableInterface Descriptor
 	 * @throws IOException
 	 */
 	public HTableDescriptor getTableDescriptor() throws IOException {
-		return table.getTableDescriptor();
+		return tableInterface.getTableDescriptor();
 	}
 
 	/**
-	 * Test for the existence of columns in the table, as specified in the Get.
+	 * Test for the existence of columns in the tableInterface, as specified in the Get.
 	 * @param	get object 
 	 * @return 	True on existence
 	 * @throws IOException
 	 */
 	public boolean exists(Get get) throws IOException {
-		return table.exists(get);
+		return tableInterface.exists(get);
 	}
 
 	public Result get(Get get) throws IOException{
-		return table.get(get);
+		return tableInterface.get(get);
 	}
 
 	public ResultScanner getScanner(Scan scan) throws IOException {
-		return table.getScanner(scan);
+		return tableInterface.getScanner(scan);
 	}
 
 	public ResultScanner getScanner(byte[] family) throws IOException {
-		return table.getScanner(family);
+		return tableInterface.getScanner(family);
 	}
 
 	public ResultScanner getScanner(byte[] family, byte[] qualifier) throws IOException {
-		return table.getScanner(family, qualifier);
+		return tableInterface.getScanner(family, qualifier);
 	}
 
 	public void put(Put put) throws IOException {
 		try {
-			table.put(put);
+			tableInterface.put(put);
 		} catch ( RetriesExhaustedException ex) {
 			HBaseFacade.getInstance().recycleTable(this);
-			table.put(put);
+			tableInterface.put(put);
 		}
 	}
 
 	public void put(List<Put> puts) throws IOException {
 		try {
-			table.put(puts);
+			tableInterface.put(puts);
 		} catch ( RetriesExhaustedException ex) {
 			HBaseFacade.getInstance().recycleTable(this);
-			table.put(puts);
+			tableInterface.put(puts);
 		}
 	}
 
 	public boolean checkAndPut(byte[] row, byte[] family, byte[] qualifier,
 		byte[] value, Put put) throws IOException {
 		
-		return table.checkAndPut(row, family, qualifier,value, put );
+		return tableInterface.checkAndPut(row, family, qualifier,value, put );
 	}
 
 	public void delete(Delete delete) throws IOException {
-		table.delete(delete );
+		tableInterface.delete(delete );
 	}
 
 	public void delete(List<Delete> deletes) throws IOException {
 		if ( null == deletes) return;
 		if ( INFO_ENABLED) HSearchLog.l.info("HTableWrapper: Batch Deleting: " + deletes.size());
-		table.delete(deletes);
+		tableInterface.delete(deletes);
 	}
 
 	public void flushCommits() throws IOException {
-		table.flushCommits();
+		tableInterface.flushCommits();
 	}
 
 	public void close() throws IOException {
-		table.close();
-		if ( null != innerTable) {
-			innerTable.close();
-			innerTable = null;
+		tableInterface.close();
+		if ( null != innerHtable) {
+			innerHtable.close();
+			innerHtable = null;
 		}
 	}
 
 	public RowLock lockRow(byte[] row) throws IOException {
-		return table.lockRow(row);
+		return tableInterface.lockRow(row);
 	}
 
 	public void unlockRow(RowLock rl) throws IOException {
 		if ( null == rl) return; 
-		table.unlockRow(rl);
+		tableInterface.unlockRow(rl);
 	}
 	
 	public long incrementColumnValue(byte[] row,
             byte[] family, byte[] qualifier, long amount) throws IOException {
 		
-		return table.incrementColumnValue(row, family, qualifier, amount, true);
+		return tableInterface.incrementColumnValue(row, family, qualifier, amount, true);
 	}
 	
 	public Object[] batch(List<Row> actions) throws IOException, InterruptedException {
-		return table.batch(actions);
+		return tableInterface.batch(actions);
 	}
 	
 	public HRegionLocation getRegionLocation(byte[] row) throws IOException {
 		
 		
-		if ( null == innerTable ) {
+		if ( null == innerHtable ) {
 			synchronized (this.tableName) {
-				if ( null == innerTable) innerTable = 
-					new HTable(table.getConfiguration(), this.tableName);
+				if ( null == innerHtable) innerHtable = 
+					new HTable(tableInterface.getConfiguration(), this.tableName);
 			}
 		}
-		return innerTable.getRegionLocation(row);
+		return innerHtable.getRegionLocation(row);
 	}
 	
 	public List<HRegionLocation> getRegionLocation(List<byte[]> rows) throws IOException {
 		if ( null == rows) return null;
 		List<HRegionLocation> regions = new ArrayList<HRegionLocation>();
 
-		if ( null == innerTable ) {
+		if ( null == innerHtable ) {
 			synchronized (this.tableName) {
-				if ( null == innerTable) innerTable = 
-					new HTable(table.getConfiguration(), this.tableName);
+				if ( null == innerHtable) innerHtable = 
+					new HTable(tableInterface.getConfiguration(), this.tableName);
 			}
 		}
 		
 		for (byte[] row : rows) {
-			regions.add(innerTable.getRegionLocation(row));
+			regions.add(innerHtable.getRegionLocation(row));
 		}
 		return regions;
 	}

@@ -20,7 +20,7 @@
 * limitations under the License.
 -->
 
-<project name="hsearch-core" basedir=".">
+<project name="hsearch-core-old" basedir=".">
 
 	<property name="currdir" value="${basedir}" />
 	<property file="${currdir}/build.properties" />
@@ -29,13 +29,28 @@
 		<format property="build.time" pattern="dd MMM yyyy hh:mm aa"/>
 	</tstamp>
 	
+	<target name="compatibility">
+	    <copy overwrite="true" todir="${src.dir}/com/bizosys/hsearch/hbase/" verbose="true">
+			<fileset dir="${compatibility.dir}/hadooplib_${hadoolib.version}/hbase/" includes="*.java" />
+		</copy>
+		<copy overwrite="true" todir="${src.dir}/com/bizosys/hsearch/treetable/storage/" verbose="true">
+			<fileset dir="${compatibility.dir}/hadooplib_${hadoolib.version}/storage/" includes="*.java" />
+		</copy>
+		<copy overwrite="true" todir="${src.dir}/com/bizosys/hsearch/treetable/storage/protobuf/generated/" verbose="true">
+			<fileset dir="${compatibility.dir}/hadooplib_${hadoolib.version}/protobuf/" includes="*.java" />
+		</copy>
+	</target>
+	
 	<!-- the normal classpath -->
 	<path id="classpath">
 		<pathelement location="${build.classes}" />
 		<fileset dir="${lib.dir}">
 			<include name="*.jar" />
 		</fileset>
-		<fileset dir="${lib.dir}hadoop">
+		<fileset dir="${hadooplib.dir}_${hadoolib.version}">
+			<include name="*.jar" />
+		</fileset>
+		<fileset dir="${commonlib.dir}">
 			<include name="*.jar" />
 		</fileset>
 	</path>
@@ -79,7 +94,7 @@
 	<!-- ================================================================== -->
 	<!--                                                                    -->
 	<!-- ================================================================== -->
-	<target name="jar" depends="compile-core,jar-sources">
+	<target name="jar" depends="compatibility,compile-core,jar-sources">
 		<copy todir="${build.classes}" verbose="true">
 			<fileset dir="${src.dir}" includes="**/*.tmp" />
 			<fileset dir="${src.dir}" includes="**/schema-*.json" />
@@ -87,8 +102,10 @@
 		</copy>
 		<jar jarfile="${name}.jar" basedir="${build.classes}">
 			<manifest>
-				<attribute name="Version" value="${version}"/>
-				<attribute name="Company" value="${company}"/>
+			    <attribute name="Product-Name" value="${name}"/>
+			    <attribute name="Version" value="${version}"/>
+			    <attribute name="Java-Version" value="${java.version}"/>
+			   	<attribute name="Created-By" value="${company}(${build.time})"/>
 				<attribute name="BuildDate" value="${build.time}"/>
 			</manifest>				
 		</jar>
@@ -101,16 +118,20 @@
 		
 		<jar jarfile="src-${name}.jar" basedir="${src.dir}">
 			<manifest>
-				<attribute name="Created-By" value="${company}(${build.time})"/>
-				<attribute name="Version" value="${version}"/>
+			    <attribute name="Product-Name" value="${name}"/>
+			    <attribute name="Version" value="${version}"/>
+			    <attribute name="Java-Version" value="${java.version}"/>
+			   	<attribute name="Created-By" value="${company}(${build.time})"/>
 				<attribute name="BuildDate" value="${build.time}"/>
 			</manifest>			
 		</jar>
 		
 		<jar jarfile="nightly/src-${name}_${version}.jar" basedir="${src.dir}">
 			<manifest>
-				<attribute name="Created-By" value="${company}(${build.time})"/>
-				<attribute name="Version" value="${version}"/>
+			    <attribute name="Product-Name" value="${name}"/>
+			    <attribute name="Version" value="${version}"/>
+			    <attribute name="Java-Version" value="${java.version}"/>
+			   	<attribute name="Created-By" value="${company}(${build.time})"/>
 				<attribute name="BuildDate" value="${build.time}"/>
 			</manifest>			
 		</jar>
@@ -129,5 +150,9 @@
 		<delete dir="${build.classes}" />
 		<delete dir="${build.dir}" />
 	</target>
+
+	 <target name="javadoc" depends="init" description="Generate Documentation">
+	    <javadoc sourcepath="${src.dir}" destdir="${javadoc.dir}" classpathref="classpath"/>
+	  </target>	
 
 </project>

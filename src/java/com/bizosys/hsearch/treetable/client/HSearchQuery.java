@@ -206,14 +206,12 @@ public class HSearchQuery {
 					  		}
 					  		else {
 						  		if( null != cellData){
-						  			exactValCellsO[i] = new Byte(cellData.getBytes()[0]); //Byte
+						  			exactValCellsO[i] = new Byte(cellData); //Byte
 						  		}
 						  		else{
 						  			tempA = new Byte[inValuesA[i].length];
 							  		for(String item : inValuesA[i]){
-							  			byte[] itemB = item.getBytes();
-							  			if ( itemB.length != 1) throw new InvalidObjectException("Invalid char:" + item);
-							  			tempA[index++] = item.getBytes()[0]; 
+							  			tempA[index++] = new Byte(item); 
 							  		}
 							  		inValuesAO[i] = tempA;
 						  		}

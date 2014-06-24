@@ -26,8 +26,7 @@ public final class ListMapperExamResult implements TablePartsCallback {
 
     @Override
     public final boolean map( final int age,  final String role,  final String location,  final int empid,  final float mark) {
-    	System.out.println( age + "\t" + role + "\t" + location);
-    	rows.put(empid, age + "\t" + role + "\t" + location);
+    	rows.put(empid, age + "\t" + role + "\t" + location + "\t" + empid + "\t" + mark);
         return true;
     }
 

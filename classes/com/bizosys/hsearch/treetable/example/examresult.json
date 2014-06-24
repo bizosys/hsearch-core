@@ -1,6 +1,6 @@
 {
     "module" : "com.bizosys.hsearch.treetable.example.impl",
-    "table": "htable-test",
+    "table": "hsearch-test",
     "columns": [
 		{
             "name": "ExamResult",
