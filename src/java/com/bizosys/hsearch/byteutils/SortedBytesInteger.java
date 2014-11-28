@@ -21,10 +21,15 @@ package com.bizosys.hsearch.byteutils;
 
 import java.util.BitSet;
 import java.util.Collection;
+import java.util.List;
 
 public final class SortedBytesInteger extends SortedBytesBase<Integer>{
 
 	public static final ISortedByte<Integer> getInstance() {
+		return new SortedBytesInteger();
+	}
+	
+	public static final SortedBytesInteger getInstanceInt() {
 		return new SortedBytesInteger();
 	}
 	
@@ -51,6 +56,24 @@ public final class SortedBytesInteger extends SortedBytesBase<Integer>{
 		return inputsB;
 	}
 	
+	public final byte[] toBytes(final List<int[]> sortedList, int sortedListAT) {
+
+		byte[] inputsB = new byte[sortedListAT * dataSize];
+		return toBytes(sortedList, sortedListAT, inputsB);
+	}
+	
+	public final byte[] toBytes(final List<int[]> sortedList, int sortedListAT, byte[] inputsB) {
+
+		int index = 0;
+		for (int[] aValA : sortedList) {
+			for ( int aVal : aValA ) {
+				System.arraycopy(Storable.putInt(aVal), 0, inputsB, index * dataSize, dataSize);
+				index++;
+				if ( index >= sortedListAT) break;
+			}
+		}
+		return inputsB;
+	}
 	public static final byte[] toBytes(final BitSet sortedList) {
 		int dataSize = 4;
 		int sortedListAT = sortedList.cardinality();

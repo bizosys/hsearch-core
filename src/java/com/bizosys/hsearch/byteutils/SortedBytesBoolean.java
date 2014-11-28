@@ -20,132 +20,148 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
+
+import com.bizosys.hsearch.federate.BitSetWrapper;
 
 public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 
+	int size = 0;
+	BitSetWrapper bs = null;
 	public static final ISortedByte<Boolean> getInstance() {
 		return new SortedBytesBoolean();
 	}
 	
-	List<Boolean> parsedBooleans = null;
+	public static final SortedBytesBoolean getInstanceBoolean() {
+		return new SortedBytesBoolean();
+	}
+
 	private SortedBytesBoolean() {
 		this.dataSize = -1;
-	}
+	}	
 	
 	 @Override
 	 public final ISortedByte<Boolean> parse(final byte[] bytes) throws IOException {
-	  if ( null != this.parsedBooleans) {
-	   this.parsedBooleans.clear();
-	   this.parsedBooleans = null;
-	  }
-	  return super.parse(bytes);
+		 if ( null != bytes) {
+			 this.size = Storable.getInt(0, bytes);
+			 bs = BitSetWrapper.valueOf(ByteBuffer.wrap(bytes, 4, bytes.length - 4));
+			 return super.parse(bytes);
+		 } else {
+			 this.size = 0;
+			 this.bs = null;
+			 return this;
+		 }
 	 }
 	 
 	 @Override
 	 public final ISortedByte<Boolean> parse(final byte[] bytes, final int offset, final int length) throws IOException {
-	  if ( null != this.parsedBooleans) {
-	   this.parsedBooleans.clear();
-	   this.parsedBooleans = null;
-	  }
-	  return super.parse(bytes, offset, length);
+		 this.size = Storable.getInt(offset, bytes);
+		 bs = BitSetWrapper.valueOf(ByteBuffer.wrap(bytes, offset + 4, length - 4));
+		 return super.parse(bytes, offset, length);
 	 }	
 
 	@Override
 	public final byte[] toBytes(final Collection<Boolean> sortedCollection) throws IOException {
-		int available = sortedCollection.size();
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		int neededBytes = packed;
-		if ( remaining > 0 ) neededBytes++;
-		
-		neededBytes = neededBytes + 4; // How many
-		
-		byte[] out = new byte[neededBytes];
-		
-		
-		System.arraycopy(Storable.putInt(available), 0, out, 0, 4);
-		
-		Iterator<Boolean> itr = sortedCollection.iterator();
-		for ( int i=0; i<packed; i++) {
-			out[4+i]  = ByteUtil.fromBits(new boolean[] {
-					itr.next(), itr.next(), itr.next(), itr.next(),
-					itr.next(), itr.next(), itr.next(), itr.next()});
-		}
-		
-		if ( remaining > 0 ) {
-			boolean[] remainingBits = new boolean[8];
-			Arrays.fill(remainingBits, true);
-			for ( int j=0; j<remaining; j++) {
-				remainingBits[j] = itr.next();
-			}
-				
-			out[4+packed] = ByteUtil.fromBits(remainingBits);
-		}
-		return out;
-	}
 
+		bs = new BitSetWrapper(sortedCollection.size());
+		int index = -1;
+		for (Boolean val : sortedCollection) {
+			index++;
+			if ( val ) bs.set(index);
+		}
+		
+		byte[] serBits = bs.toByteArray();
+		int serBitsLen = ( null == serBits) ? 0 : serBits.length;
+		byte[] serComplete = new byte[4 + serBitsLen];
+		
+		int totalElements = sortedCollection.size();
+		System.arraycopy(Storable.putInt(totalElements), 0, serComplete, 0, 4);
+		System.arraycopy(serBits, 0, serComplete, 4, serBitsLen);
+
+		return serComplete;
+	}
+	
+	public final byte[] toBytes(final List<boolean[]> sortedList, int sortedListAT) {
+
+		
+		bs = new BitSetWrapper(sortedListAT);
+		
+		int index = 0;
+		for (boolean[] aValA : sortedList) {
+			for ( boolean aVal : aValA ) {
+				bs.set(index, aVal);
+				index++;
+				if ( index >= sortedListAT) break;
+			}
+		}
+
+		byte[] serBits = bs.toByteArray();
+		int serBitsLen = ( null == serBits) ? 0 : serBits.length;
+		byte[] serComplete = new byte[4 + serBitsLen];
+		
+		System.arraycopy(Storable.putInt(sortedListAT), 0, serComplete, 0, 4);
+		System.arraycopy(serBits, 0, serComplete, 4, serBitsLen);
+
+		return serComplete;
+	}
+	
 	@Override
 	public final int getSize() throws IOException {
-		if ( null == this.inputBytes ) return 0;
-		return Storable.getInt(this.offset, this.inputBytes);
-		
+		return this.size;
 	}
 
 	@Override
 	public final void addAll(final Collection<Boolean> vals) throws IOException {
-		if ( null != this.parsedBooleans ) parse();
-		if ( null == this.parsedBooleans ) this.parsedBooleans = new ArrayList<Boolean>(); 
-		this.parsedBooleans.addAll(vals);
+		
+		int index = 0;
+
+		if ( null == bs ) bs = new BitSetWrapper(vals.size());
+		else index  = bs.size();
+		
+		for (Boolean val  : vals) {
+			if ( val ) bs.set(index);
+			index++;
+		}
 	}
 
 	@Override
 	public final Boolean getValueAt(final int pos) throws IndexOutOfBoundsException {
-		initialize();
-		return this.parsedBooleans.get(pos);
+		return bs.get(pos);
 	}
 
 	@Override
 	public final int getEqualToIndex(final Boolean matchNo) throws IOException {
-		initialize();
-
-		boolean matchNoL = matchNo.booleanValue();
-		int pos = -1;
-		for (boolean entity : this.parsedBooleans) {
-			pos++;
-			if ( matchNoL == entity) return pos;
-		}
-		return -1;
+		if ( matchNo ) return bs.nextSetBit(0);
+		else return bs.nextClearBit(0);
 	}
 
 	@Override
 	public final void getEqualToIndexes(final Boolean matchNo, final Collection<Integer> matchings) throws IOException {
 
-		initialize();
-
-		boolean matchNoL = matchNo.booleanValue();
-		int pos = -1;
-		for (boolean entity : this.parsedBooleans) {
-			pos++;
-			if ( matchNoL == entity) matchings.add(pos);
+		if( matchNo ){
+			for (int i = bs.nextSetBit(0); i >= 0; i = bs.nextSetBit(i+1)) {
+				matchings.add(i);
+			}
+		} else {
+			for (int i = bs.nextClearBit(0); i < this.size; i = bs.nextClearBit(i+1)) {
+				matchings.add(i);
+			}
 		}
 	}
 
 	@Override
 	public final void getNotEqualToIndexes(final Boolean matchNo, final Collection<Integer> matchings) throws IOException {
 
-		initialize();
-
-		boolean matchNoL = matchNo.booleanValue();
-		int pos = -1;
-		for (boolean entity : this.parsedBooleans) {
-			pos++;
-			if ( matchNoL != entity) matchings.add(pos);
+		if( matchNo ){
+			for (int i = bs.nextClearBit(0); i >= 0; i = bs.nextClearBit(i+1)) {
+				matchings.add(i);
+			}
+		} else {
+			for (int i = bs.nextSetBit(0); i >= 0; i = bs.nextSetBit(i+1)) {
+				matchings.add(i);
+			}
 		}
 	}
 
@@ -168,7 +184,7 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	public void getLessThanEqualToIndexes(Boolean matchingNo, Collection<Integer> matchingPos) throws IOException {
 		throw new RuntimeException("Not implemented");
 	}
-
+	
 	@Override
 	public void getRangeIndexes(Boolean matchNoStart, Boolean matchNoEnd, Collection<Integer> matchings) throws IOException {
 		throw new RuntimeException("Not implemented");
@@ -178,41 +194,9 @@ public final class SortedBytesBoolean extends SortedBytesBase<Boolean>{
 	public void getRangeIndexesInclusive(Boolean matchNoStart, Boolean matchNoEnd, Collection<Integer> matchings) throws IOException {
 		throw new RuntimeException("Not implemented");
 	}
-	
-	private final void parse() throws IndexOutOfBoundsException {
-		if ( null == this.inputBytes) return;
-		
-		int available = Storable.getInt(offset, this.inputBytes);
-		int packed = available/8;
-		int remaining = available - packed * 8;
-		
-		this.parsedBooleans = new ArrayList<Boolean>(available);
-		int seq = 0;
-		for (int i=0; i<packed; i++) {
-			for (boolean val : Storable.byteToBits(this.inputBytes[offset + 4 + i])) {
-				seq++;
-				if ( available < seq) break;
-				this.parsedBooleans.add(val);
-			}
-		}
-		
-		if ( remaining > 0 ) {
-			boolean[] x = Storable.byteToBits(this.inputBytes[offset + 4 + packed]);
-			for ( int i=0; i<remaining; i++) {
-				seq++;
-				if ( available < seq) break;
-				parsedBooleans.add(x[i]);
- 			}
-		}
-	}
-
-	public final void initialize() throws IndexOutOfBoundsException {
-		if ( null == parsedBooleans ) parse();
-		if ( null == parsedBooleans ) throw new IndexOutOfBoundsException("SortedBytesBoolean - No data exists");
-	}
 
 	@Override
-	protected final int compare(final byte[] inputB, final int offset, final Boolean matchNo) {
+	protected int compare(byte[] inputB, int offset, Boolean matchNo) {
 		throw new RuntimeException("Not implemented");
 	}
 

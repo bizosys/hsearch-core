@@ -20,11 +20,16 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.util.Collection;
+import java.util.List;
 
 public final class SortedBytesFloat extends SortedBytesBase<Float> { 
 
 
 	public final static ISortedByte<Float> getInstance() {
+		return new SortedBytesFloat();
+	}
+	
+	public final static SortedBytesFloat getInstanceFloat() {
 		return new SortedBytesFloat();
 	}
 	
@@ -52,6 +57,21 @@ public final class SortedBytesFloat extends SortedBytesBase<Float> {
 		for (Float aVal : sortedList) {
 			System.arraycopy(Storable.putFloat(aVal), 0, inputsB, index * dataSize, dataSize);
 			index++;
+		}
+		return inputsB;
+	}
+	
+	public final byte[] toBytes(final List<float[]> sortedList, int sortedListAT) {
+
+		byte[] inputsB = new byte[sortedListAT * dataSize];
+		
+		int index = 0;
+		for (float[] aValA : sortedList) {
+			for ( float aVal : aValA ) {
+				System.arraycopy(Storable.putFloat(aVal), 0, inputsB, index * dataSize, dataSize);
+				index++;
+				if ( index >= sortedListAT) break;
+			}
 		}
 		return inputsB;
 	}

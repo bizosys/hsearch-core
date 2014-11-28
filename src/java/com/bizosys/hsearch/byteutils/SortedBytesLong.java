@@ -21,10 +21,15 @@ package com.bizosys.hsearch.byteutils;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 
 public final class SortedBytesLong extends SortedBytesBase<Long>{
 
 	public static final ISortedByte<Long> getInstance() {
+		return new SortedBytesLong();
+	}
+	
+	public static final SortedBytesLong getInstanceLong() {
 		return new SortedBytesLong();
 	}
 	
@@ -50,6 +55,21 @@ public final class SortedBytesLong extends SortedBytesBase<Long>{
 		
 		return inputsB;
 	}
+
+	public final byte[] toBytes(final List<long[]> sortedList, int sortedListAT) {
+
+		byte[] inputsB = new byte[sortedListAT * dataSize];
+		
+		int index = 0;
+		for (long[] aValA : sortedList) {
+			for ( long aVal : aValA ) {
+				System.arraycopy(Storable.putLong(aVal), 0, inputsB, index * dataSize, dataSize);
+				index++;
+				if ( index >= sortedListAT) break;
+			}
+		}
+		return inputsB;
+	}		
 
 
 	@Override

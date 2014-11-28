@@ -20,10 +20,15 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.util.Collection;
+import java.util.List;
 
 public final class SortedBytesShort extends SortedBytesBase<Short>{
 
 	public final static ISortedByte<Short> getInstance() {
+		return new SortedBytesShort();
+	}
+
+	public final static SortedBytesShort getInstanceShort() {
 		return new SortedBytesShort();
 	}
 	
@@ -49,6 +54,21 @@ public final class SortedBytesShort extends SortedBytesBase<Short>{
 		for (Short aVal : sortedList) {
 			System.arraycopy(Storable.putShort(aVal), 0, inputsB, index * dataSize, dataSize);
 			index++;
+		}
+		return inputsB;
+	}
+	
+	public final byte[] toBytes(final List<short[]> sortedList, int sortedListAT) {
+
+		byte[] inputsB = new byte[sortedListAT * dataSize];
+		
+		int index = 0;
+		for (short[] aValA : sortedList) {
+			for ( short aVal : aValA ) {
+				System.arraycopy(Storable.putShort(aVal), 0, inputsB, index * dataSize, dataSize);
+				index++;
+				if ( index >= sortedListAT) break;
+			}
 		}
 		return inputsB;
 	}

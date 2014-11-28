@@ -32,6 +32,10 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 		return new SortedBytesString();
 	}
 	
+	public static SortedBytesString getInstanceString() {
+		return new SortedBytesString();
+	}
+	
 	private SortedBytesString() {
 	}
 	
@@ -79,6 +83,56 @@ public final class SortedBytesString extends SortedBytesBase<String>{
 			System.arraycopy(bytes.getBytes(), 0, outputBytes, seek, byteSize);
 			seek = seek + byteSize;
 		}
+		return outputBytes;
+	}
+	
+	public final byte[] toBytes(final List<String[]> sortedList, int sortedListAT) throws IOException {
+
+		//Total collection size, element start location, End Location
+		byte[] headerBytes = new byte[4 + sortedListAT * 4 + 4] ;
+		System.arraycopy(Storable.putInt(sortedListAT), 0, headerBytes, 0, 4);
+		int seek = 4;  //4 is added for array size
+		
+		int outputBytesLen = 0;
+		
+		int index = 0;
+		for (String[] bytesL : sortedList) {
+			for (String bytes : bytesL) {
+				index++;
+				if ( index > sortedListAT) break;
+				//Populate header
+				System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, seek, 4);
+				seek = seek + 4;
+				
+				//Calculate Next Chunk length
+				int bytesLen = ( null == bytes ) ? 0 : bytes.getBytes().length;
+				outputBytesLen = outputBytesLen + bytesLen ;
+				
+			}
+		}
+		System.arraycopy(Storable.putInt(outputBytesLen), 0, headerBytes, seek, 4);
+		outputBytesLen = outputBytesLen + headerBytes.length; 
+
+		byte[] outputBytes = new byte[outputBytesLen];
+		System.arraycopy(headerBytes, 0, outputBytes, 0, headerBytes.length);
+
+		seek = headerBytes.length;
+		
+		index = 0;
+		for (String[] bytesL : sortedList) {
+			for (String bytes : bytesL) {
+				
+				index++;
+				if ( index > sortedListAT) break;
+
+				int byteSize = ( null == bytes) ? 0 : bytes.getBytes().length;
+				if ( byteSize > 0 ) {
+					System.arraycopy(bytes.getBytes(), 0, outputBytes, seek, byteSize);
+					seek = seek + byteSize;
+				}
+			}
+		}
+		
 		return outputBytes;
 	}
 

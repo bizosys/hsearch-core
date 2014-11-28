@@ -20,11 +20,16 @@
 package com.bizosys.hsearch.byteutils;
 
 import java.util.Collection;
+import java.util.List;
 
 public final class SortedBytesDouble extends SortedBytesBase<Double> { 
 
 
 	public final static ISortedByte<Double> getInstance() {
+		return new SortedBytesDouble();
+	}
+	
+	public final static SortedBytesDouble getInstanceDouble() {
 		return new SortedBytesDouble();
 	}
 	
@@ -38,7 +43,21 @@ public final class SortedBytesDouble extends SortedBytesBase<Double> {
 		return Storable.getDouble( this.offset + (pos * this.dataSize) , this.inputBytes);
 	}	
 	
+	public final byte[] toBytes(final List<double[]> sortedList, int sortedListAT) {
+
+		byte[] inputsB = new byte[sortedListAT * dataSize];
 		
+		int index = 0;
+		for (double[] aValA : sortedList) {
+			for ( double aVal : aValA ) {
+				System.arraycopy(Storable.putLong(Double.doubleToLongBits(aVal)), 0, inputsB, index * dataSize, dataSize);
+				index++;
+				if ( index >= sortedListAT) break;
+			}
+		}
+		return inputsB;
+	}
+	
 	@Override
 	public final byte[] toBytes(final Collection<Double> sortedList) {
 
